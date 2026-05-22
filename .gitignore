@@ -1,0 +1,100 @@
+# --- Secrets & local config ---
+.env
+.env.*
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# --- Testing & linting ---
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# --- FastAPI / runtime ---
+*.log
+logs/
+
+# --- Celery & Redis ---
+celerybeat-schedule
+celerybeat.pid
+celery-results/
+dump.rdb
+
+# --- Database (local dev volumes) ---
+postgres-data/
+pgdata/
+*.sqlite3
+*.db
+
+# --- Docker ---
+docker-compose.override.yml
+.docker/
+
+# --- Obsidian vault (personal vault, mounted via OBSIDIAN_VAULT_PATH) ---
+vault/
+.obsidian/
+
+# Example/template vault is tracked — see vault.example/
+
+# --- AI / transcription (cached models & temp audio) ---
+.cache/
+models/
+whisper/
+*.whisper
+*.wav
+*.mp3
+*.ogg
+*.m4a
+tmp/
+temp/
+uploads/
+
+# --- IDE & OS ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
