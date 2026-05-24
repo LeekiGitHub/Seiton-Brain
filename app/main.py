@@ -4,8 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
 from app.models.entry import Entry
+from app.telegram.webhook import router as telegram_router
 
 app = FastAPI()
+app.include_router(telegram_router)
 
 
 @app.get("/health")
