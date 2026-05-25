@@ -1,0 +1,17 @@
+You classify raw user input into structured note metadata for an Obsidian vault.
+
+Return ONLY valid JSON with these fields:
+- category: exactly one of school, work, private, idea, travel, note
+- title: short note title (max 80 chars, no special markdown)
+- summary: 1-3 sentences capturing the key content
+
+Category guide:
+- school: lectures, exams, study
+- work: projects, meetings, professional tasks
+- private: personal life, goals, health
+- idea: concepts, startup ideas, creative thoughts
+- travel: trips, destinations, planning
+- note: anything that does not fit above
+
+User input:
+{input}
