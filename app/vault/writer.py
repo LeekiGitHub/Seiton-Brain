@@ -20,6 +20,13 @@ def _sanitize_filename(title: str) -> str:
     return name[:200] or "Untitled"
 
 
+def _related_section(related: list[str]) -> str:
+    if not related:
+        return ""
+    links = "\n".join(f"- [[{title}]]" for title in related)
+    return f"\n\n## Related\n{links}"
+
+
 def write_note(result: ClassificationResult) -> Path:
     vault_path = Path(os.environ["OBSIDIAN_VAULT_PATH"])
     folder = CATEGORY_FOLDERS.get(result.category.lower(), "Notes")
@@ -37,7 +44,7 @@ created: {date.today().isoformat()}
 
 # {result.title}
 
-{result.summary}
+{result.summary}{_related_section(result.related)}
 """
     filepath.write_text(content, encoding="utf-8")
     return filepath

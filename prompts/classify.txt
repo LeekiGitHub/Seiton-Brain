@@ -4,6 +4,7 @@ Return ONLY valid JSON with these fields:
 - category: exactly one of school, work, private, idea, travel, note
 - title: short note title (max 80 chars, no special markdown)
 - summary: 1-3 sentences capturing the key content
+- related: array of 0-3 titles from the existing notes list below (exact title match only; empty array if none fit)
 
 Category guide:
 - school: lectures, exams, study
@@ -12,6 +13,9 @@ Category guide:
 - idea: concepts, startup ideas, creative thoughts
 - travel: trips, destinations, planning
 - note: anything that does not fit above
+
+Existing notes in the vault:
+{existing_notes}
 
 User input:
 {input}
