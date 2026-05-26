@@ -73,7 +73,7 @@ docker-compose.override.yml
 .docker/
 
 # --- Obsidian vault (personal vault, mounted via OBSIDIAN_VAULT_PATH) ---
-vault/
+/vault/
 .obsidian/
 
 # Example/template vault is tracked — see vault.example/

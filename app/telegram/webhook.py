@@ -1,25 +1,24 @@
-import os
-
 import httpx
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Header, HTTPException, Request
 
-from app.db.session import get_db
-from app.services.process_message import process_text_message
 from app.telegram.client import send_message
-from app.vault.writer import CATEGORY_FOLDERS
+from app.worker.tasks import process_text_message_task, process_voice_message_task
 
 router = APIRouter()
-SECRET = os.environ["TELEGRAM_WEBHOOK_SECRET"]
+
+
+def _get_secret() -> str:
+    import os
+
+    return os.environ["TELEGRAM_WEBHOOK_SECRET"]
 
 
 @router.post("/webhook")
 async def telegram_webhook(
     request: Request,
     x_telegram_bot_api_secret_token: str | None = Header(default=None),
-    db: AsyncSession = Depends(get_db),
 ):
-    if x_telegram_bot_api_secret_token != SECRET:
+    if x_telegram_bot_api_secret_token != _get_secret():
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     update = await request.json()
@@ -29,33 +28,25 @@ async def telegram_webhook(
         return {"ok": True}
 
     chat_id = message.get("chat", {}).get("id")
-    text = message.get("text")
-
     if not chat_id:
         return {"ok": True}
 
-    try:
-        if not text:
-            await send_message(
-                chat_id,
-                "Aktuell werden nur Textnachrichten unterstützt.",
-            )
-            return {"ok": True}
+    text = message.get("text")
+    voice = message.get("voice")
 
-        result = await process_text_message(text, db)
-        folder = CATEGORY_FOLDERS.get(result.category.lower(), "Notes")
-        await send_message(
-            chat_id,
-            f"Gespeichert als [[{result.title}]] unter {folder}",
-        )
-    except Exception as exc:
-        print(f"Message processing failed: {exc}")
-        try:
+    try:
+        if text:
+            process_text_message_task.delay(text, chat_id)
+            await send_message(chat_id, "Wird verarbeitet…")
+        elif voice:
+            process_voice_message_task.delay(voice["file_id"], chat_id)
+            await send_message(chat_id, "Sprachnachricht wird verarbeitet…")
+        else:
             await send_message(
                 chat_id,
-                "Etwas ist schiefgelaufen — bitte später nochmal versuchen.",
+                "Aktuell werden nur Text- und Sprachnachrichten unterstützt.",
             )
-        except httpx.HTTPError as send_exc:
-            print(f"Telegram sendMessage failed: {send_exc}")
+    except httpx.HTTPError as exc:
+        print(f"Telegram sendMessage failed: {exc}")
 
     return {"ok": True}

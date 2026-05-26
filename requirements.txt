@@ -6,3 +6,5 @@ alembic
 greenlet
 httpx
 openai
+celery
+redis

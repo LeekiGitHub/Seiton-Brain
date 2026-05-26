@@ -14,3 +14,21 @@ async def send_message(chat_id: int, text: str) -> None:
             timeout=10.0,
         )
         response.raise_for_status()
+
+
+async def download_file(file_id: str) -> bytes:
+    async with httpx.AsyncClient() as client:
+        file_response = await client.get(
+            f"{API_URL}/getFile",
+            params={"file_id": file_id},
+            timeout=10.0,
+        )
+        file_response.raise_for_status()
+        file_path = file_response.json()["result"]["file_path"]
+
+        download_response = await client.get(
+            f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}",
+            timeout=30.0,
+        )
+        download_response.raise_for_status()
+        return download_response.content

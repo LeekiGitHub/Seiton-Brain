@@ -1,303 +1,141 @@
 # Seiton Brain
 
-> *5S is a Japanese workplace methodology for creating order from chaos.*
-> *Its five principles — Seiri (sort), Seiton (set in order), Seiso (shine),*
-> *Seiketsu (standardize), Shitsuke (sustain) — were originally developed*
-> *for factory floors, but the underlying idea applies to any system*
-> *that tends toward disorder over time.*
->
-> *We focus on the second S: **Seiton (整頓)** — putting everything in its place.*
-> *Not just storing things, but storing them so they can actually be found*
-> *and used again. A thought without a home is a thought that disappears.*
+Ziel:
 
-Seiton Brain is a personal AI assistant that turns your raw input — a voice
-note on the go, a half-formed idea at midnight, a project thought in the
-shower — into structured, linked knowledge inside your Obsidian vault.
+Ich schreibe dem Bot eine Nachricht — eine halbe Idee, ein Gedanke unterwegs, irgendwas das sonst in einer Notiz-App vergessen würde. Das LLM sortiert es ein, legt eine Markdown-Datei in meinem Obsidian-Vault ab und schickt mir eine kurze Bestätigung zurück. Fertig.
 
-Every feature maps directly to the Seiton principle:
-
-| Feature | Seiton principle |
-|---------|-----------------|
-| Automatic categorization | Every item has a designated place |
-| Linking to existing notes | Nothing exists in isolation |
-| Structured Markdown + frontmatter | A consistent, findable format |
-| Context-aware classification | The right place, not just any place |
-| Voice input → structured note | Chaos in, order out |
+Der Name kommt von **Seiton** (整頓) — alles an seinen Platz legen, damit man es wiederfindet. Genau das soll das Projekt für meine Gedanken machen.
 
 ---
 
-## How it works
+## Warum das existiert
 
-```
-You → Telegram message or voice note
-         ↓
-   Webhook receives input
-         ↓
-   Background task starts (Telegram responds immediately)
-         ↓
-   Audio → Whisper transcription (if voice)
-         ↓
-   LLM classifies: category, title, summary, related notes
-         ↓
-   Entry saved to PostgreSQL
-         ↓
-   Markdown file written to Obsidian vault (with frontmatter + [[links]])
-         ↓
-   Telegram confirms: "Saved as [[My App Idea]] under Projects"
-```
+Ich verliere ständig Ideen, weil ich sie irgendwo hinmurmle und nie wieder draufschaue. Obsidian nutze ich schon — aber der Schritt von „roher Input" zu „ordentliche Notiz" ist mir zu oft zu viel Aufwand.
+
+Seiton Brain soll diesen Schritt wegnehmen. Gleichzeitig ist es für mich kein Tutorial-Projekt, das nach zwei Wochen in der Ecke liegt. Ich baue etwas, das ich wirklich nutzen will.
 
 ---
 
-## Features
+## Was schon läuft
 
-- Natural language input — text or voice via Telegram
-- Automatic categorization: projects, ideas, travel, goals, notes
-- Context-aware: links new input to existing notes in your vault
-- Writes structured Markdown with frontmatter directly into Obsidian
-- Async processing — Telegram responds immediately, processing runs in background
-- Pluggable LLM: use OpenAI for quality or Ollama for full local privacy
+Stand jetzt ist der Kern da:
 
----
+- Telegram-Bot empfängt Textnachrichten über einen Webhook
+- FastAPI-Backend prüft das Webhook-Secret und antwortet direkt
+- OpenAI klassifiziert den Text (Kategorie, Titel, Zusammenfassung) — Prompt liegt als Datei in `/prompts`
+- Eintrag landet in PostgreSQL (SQLAlchemy + Alembic)
+- Eine `.md`-Datei wird in meinen Obsidian-Vault geschrieben (School, Work, Private, Ideas, …)
+- Alles läuft lokal in Docker (API + Datenbank)
 
-## Privacy
-
-Your Obsidian vault stays on your machine. For LLM processing you have two options:
-
-- **OpenAI / Anthropic** — your text is sent to their API (subject to their privacy policy)
-- **Ollama (local)** — everything stays on your machine, nothing leaves your network
-
-Switch between them with one line in your `.env`:
-
-```env
-LLM_PROVIDER=openai   # or: ollama
-```
+Wenn ich unterwegs eine Idee habe, landet sie tatsächlich im Vault. Das funktioniert schon.
 
 ---
 
-## Tech stack
+## Was ich damit lernen wollte
 
-| Layer | Technology |
-|-------|-----------|
-| API | FastAPI + Pydantic v2 |
-| Database | PostgreSQL + SQLAlchemy + Alembic |
-| AI | OpenAI API or Ollama (configurable) |
-| Transcription | OpenAI Whisper or faster-whisper (local) |
-| Queue | Celery + Redis |
-| Storage | Obsidian vault (local Markdown files) |
-| Infrastructure | Docker Compose |
+Das Projekt ist absichtlich so aufgebaut, dass ich Backend- und AI-Themen nicht nur lese, sondern anfasse:
 
----
+- **API-Design** — FastAPI, Routen, Request-Handling
+- **Webhooks** — externe Services (Telegram) anbinden, absichern, schnell antworten
+- **Datenbank** — Postgres, async SQLAlchemy, Migrationen mit Alembic
+- **LLM-Anbindung** — strukturierter Output, Prompts versionieren, Provider austauschbar halten
+- **Automatisierung** — Input rein, Verarbeitung, Output raus, ohne manuell was anklicken zu müssen
+- **Infrastruktur** — Docker Compose, Services sauber starten, Volumes, Env-Variablen
 
-## Quickstart
-
-```bash
-# 1. Clone and configure
-cp .env.example .env
-# Fill in: Telegram bot token, LLM provider + key, Obsidian vault path
-
-# 2. Start everything
-docker compose up
-
-# 3. Set your Telegram webhook
-curl -X POST "https://api.telegram.org/bot<TOKEN>/setWebhook" \
-  -d "url=https://your-domain.com/webhook"
-
-# 4. Send yourself a message and watch it appear in Obsidian
-```
+Ich wollte ein System bauen, das sich wie ein kleines echtes Backend anfühlt — nicht wie fünf lose Skripte.
 
 ---
 
-## Configuration
+## Was noch fehlt
 
-```env
-# Telegram
-TELEGRAM_BOT_TOKEN=...
-TELEGRAM_WEBHOOK_SECRET=...
+Das Projekt ist aktiv in Arbeit. Geplant bzw. als Nächstes gedacht:
 
-# LLM — choose one
-LLM_PROVIDER=openai          # or: ollama
-OPENAI_API_KEY=...
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama3.2
+- Sprachnachrichten (Whisper) und Verarbeitung im Hintergrund (Celery + Redis)
+- Ollama als lokale LLM-Alternative
+- Notizen mit bestehenden Vault-Dateien verknüpfen
+- Semantic Search über den Vault (RAG + pgvector)
+- Web-UI zum Durchsuchen
+- Weekly Digest per Telegram
+- Tests und CI
 
-# Obsidian — point at your personal vault, not vault.example/
-OBSIDIAN_VAULT_PATH=/vault   # mount your vault as a Docker volume
-
-# Database
-DATABASE_URL=postgresql+asyncpg://user:pass@db:5432/seitonbrain
-```
+Manche Sachen aus der ursprünglichen Idee sind schon da, manches kommt noch. Die README wird mitwachsen.
 
 ---
 
-## Vault structure
+## Hinweis
 
-Your personal vault (`vault/` locally, gitignored) is separate from the
-template in `vault.example/`. Copy the example to get started:
+`vault.example/` ist nur eine Vorlage für die Ordnerstruktur. Mein echter Vault liegt lokal und ist nicht im Repo.
 
-```bash
-cp -r vault.example ~/Obsidian/Seiton-Brain
-# then set OBSIDIAN_VAULT_PATH to that path
-```
-
-```
-vault.example/
-├── School/
-│   └── Example Lecture Notes.md
-├── Work/
-│   └── Example Project.md
-├── Private/
-│   └── Example Personal Note.md
-├── Ideas/
-│   └── Startup Concept.md
-├── Travel/
-│   └── Japan 2025.md
-└── Notes/
-    └── Random Thought.md
-```
-
-Each file includes frontmatter and Obsidian-style links:
-
-```markdown
----
-title: My App Idea
-category: project
-created: 2025-01-15
-tags: [software, idea, mobile]
----
-
-# My App Idea
-
-A mobile app that tracks...
-
-## Related
-- [[Startup Concept]]
-- [[Tools I Want to Build]]
-```
+Wenn du Setup-Details brauchst: `.env.example` und `docker compose up` — mehr Dokumentation kommt später, wenn das Projekt stabiler ist.
 
 ---
 
-## Roadmap
+# English
 
-- [ ] v2: Semantic search over vault (RAG + pgvector) — ask questions across all your notes
-- [ ] v2: Web UI for browsing and editing entries
-- [ ] v3: Weekly digest — summary of everything saved this week, sent via Telegram
+Goal:
 
----
+I send the bot a message — half an idea, a thought on the go, something that would otherwise get lost in a notes app. The LLM sorts it, writes a Markdown file into my Obsidian vault, and sends me a short confirmation. Done.
 
----
-
-## Portfolio checklist
-
-*This section is for development reference — tracking which skills are
-implemented and how they map to each part of the project.*
+The name comes from **Seiton** (整頓) — putting everything in its place so you can actually find it again. That's what this project is supposed to do for my thoughts.
 
 ---
 
-### 1. API-Backend
-**Projektfunktion:** Telegram Webhook empfangen, Eingaben annehmen, Antworten zurückgeben
+## Why this exists
 
-| Tool | Beschreibung |
-|------|-------------|
-| FastAPI | Routen, Pydantic-Validation, OpenAPI-Doku automatisch |
-| Pydantic v2 | Input/Output-Schemas für alle Endpunkte |
-| Uvicorn | ASGI-Server, läuft im Docker Container |
+I keep losing ideas because I mumble them somewhere and never look at them again. I already use Obsidian — but going from raw input to a proper note is often too much effort for me.
 
-- [ ] `POST /webhook` — Telegram-Nachrichten empfangen
-- [ ] `POST /message` — Texteingabe verarbeiten
-- [ ] `POST /voice` — Sprachnachricht entgegennehmen
-- [ ] `GET /entries` — gespeicherte Einträge abrufen
-- [ ] OpenAPI-Dokumentation erreichbar unter `/docs`
+Seiton Brain is meant to remove that step. At the same time, this isn't a tutorial project that sits in a corner after two weeks. I'm building something I actually want to use.
 
 ---
 
-### 2. Datenbank
-**Projektfunktion:** Notizen, Kategorien, Projekte und Verlinkungen strukturiert speichern
+## What works already
 
-| Tool | Beschreibung |
-|------|-------------|
-| PostgreSQL | Hauptdatenbank, Beziehungen zwischen Einträgen |
-| SQLAlchemy 2 | ORM, saubere Models, async-fähig |
-| Alembic | Migrationen versionieren und ausführen |
+As of now, the core is in place:
 
-- [ ] Tabellen: `entries`, `categories`, `projects`, `links`
-- [ ] Indexes auf `category` und `created_at`
-- [ ] Mindestens eine 1:n Beziehung (Projekt → Einträge)
-- [ ] Migrationen per Alembic, kein manuelles Schema
+- Telegram bot receives text messages via a webhook
+- FastAPI backend validates the webhook secret and responds immediately
+- OpenAI classifies the text (category, title, summary) — prompt lives as a file in `/prompts`
+- Entry gets saved to PostgreSQL (SQLAlchemy + Alembic)
+- A `.md` file is written to my Obsidian vault (School, Work, Private, Ideas, …)
+- Everything runs locally in Docker (API + database)
 
----
-
-### 3. Auth
-**Projektfunktion:** Webhook absichern, nur autorisierte Anfragen durchlassen
-
-| Tool | Beschreibung |
-|------|-------------|
-| API-Key-Auth | Header-basiert via FastAPI Depends |
-| python-dotenv | Secrets aus `.env`, nie hardcoded |
-| Webhook Secret | Telegram-Requests verifizieren |
-
-- [ ] Telegram Bot Token Validierung im Webhook
-- [ ] Alle Secrets in `.env`, niemals im Code
-- [ ] 401-Fehler korrekt zurückgeben bei falschem Key
+When I have an idea on the go, it actually ends up in the vault. That part works.
 
 ---
 
-### 4. AI-Integration
-**Projektfunktion:** Eingabe klassifizieren, strukturieren, kategorisieren
+## What I wanted to learn
 
-| Tool | Beschreibung |
-|------|-------------|
-| LLMProvider Interface | Austauschbar: OpenAI oder Ollama per `.env` |
-| Structured Output | LLM gibt valides JSON zurück, Pydantic validiert |
-| Prompt-Versioning | Prompts als `.txt` Dateien, versioniert in Git |
+The project is deliberately set up so I don't just read about backend and AI topics — I actually touch them:
 
-- [ ] `LLM_PROVIDER=openai` oder `ollama` per `.env` wählbar
-- [ ] Prompt erzwingt strukturierten Output: `category`, `title`, `summary`
-- [ ] Fallback wenn LLM-API nicht erreichbar
-- [ ] Prompts in separatem Ordner `/prompts`, nicht inline im Code
+- **API design** — FastAPI, routes, request handling
+- **Webhooks** — connecting external services (Telegram), securing them, responding fast
+- **Database** — Postgres, async SQLAlchemy, migrations with Alembic
+- **LLM integration** — structured output, versioning prompts, keeping providers swappable
+- **Automation** — input in, processing, output out, without manually clicking through things
+- **Infrastructure** — Docker Compose, starting services cleanly, volumes, env variables
 
----
-
-### 5. Background Jobs
-**Projektfunktion:** Sprachtranskription und LLM-Verarbeitung async ausführen
-
-| Tool | Beschreibung |
-|------|-------------|
-| Celery | Task Queue, bewährter Standard für Python |
-| Redis | Message Broker für Celery, läuft in Docker |
-| Whisper / faster-whisper | Sprachtranskription im Background Task |
-
-- [ ] Webhook gibt sofort 200 zurück, Task läuft im Hintergrund
-- [ ] Task-Flow: Audio → Transkription → LLM → DB → Obsidian-Datei
-- [ ] Task-Status loggbar (pending / done / failed)
+I wanted to build something that feels like a small real backend — not five loose scripts.
 
 ---
 
-### 6. Testing + CI
-**Projektfunktion:** Webhook-Handler, LLM-Output-Parsing und DB-Queries testen
+## What's still missing
 
-| Tool | Beschreibung |
-|------|-------------|
-| pytest | Unit Tests für Parser und Kategorisierungs-Logik |
-| httpx + TestClient | FastAPI Endpunkte integration-testen |
-| GitHub Actions | Linting + Tests bei jedem Push |
+The project is actively in progress. Planned or up next:
 
-- [ ] Test für LLM-Output-Parser (LLM gemockt, kein echter API-Call)
-- [ ] Test für `POST /message` Endpunkt
-- [ ] Test für Obsidian-Datei-Generierung (Frontmatter korrekt?)
-- [ ] GitHub Actions Workflow: ruff lint + pytest
+- Voice messages (Whisper) and background processing (Celery + Redis)
+- Ollama as a local LLM alternative
+- Linking notes to existing vault files
+- Semantic search over the vault (RAG + pgvector)
+- Web UI for browsing
+- Weekly digest via Telegram
+- Tests and CI
+
+Some things from the original idea are already there, some are still coming. This README will grow with the project.
 
 ---
 
-### 7. Docker Compose
-**Projektfunktion:** Gesamtes System lokal reproduzierbar starten
+## Note
 
-| Tool | Beschreibung |
-|------|-------------|
-| docker compose | api + db + redis + worker als Services |
-| .env.example | Vorlage für alle Secrets |
-| healthchecks | DB und Redis Readiness vor API-Start prüfen |
+`vault.example/` is just a template for the folder structure. My actual vault lives locally and is not in the repo.
 
-- [ ] `docker compose up` startet alles, keine manuellen Schritte
-- [ ] Services: `api`, `worker`, `db`, `redis`
-- [ ] Volumes für Postgres-Daten und Obsidian-Vault persistent
-- [ ] `.env.example` vollständig, alle Keys dokumentiert
+If you need setup details: `.env.example` and `docker compose up` — more documentation will come later once the project is more stable.
