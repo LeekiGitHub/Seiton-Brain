@@ -80,7 +80,7 @@ docker-compose.override.yml
 
 # --- AI / transcription (cached models & temp audio) ---
 .cache/
-models/
+/models/
 whisper/
 *.whisper
 *.wav
