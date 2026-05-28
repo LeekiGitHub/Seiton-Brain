@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- Telegram-Allowlist über `TELEGRAM_ALLOWED_USER_IDS` (komma-separiert).
+  Wenn gesetzt, akzeptiert der Webhook nur Nachrichten von diesen Telegram-User-IDs;
+  abgelehnte User erhalten "Dieser Bot ist privat." mit `200 OK`, damit Telegram
+  keine Retries auslöst. Nicht gesetzt → Allowlist deaktiviert (Default,
+  rückwärtskompatibel). (#1)
 - `ROADMAP.md` — Vision, Phasen A–D, Epics mit User Stories und Bewertung
 - `ARCHITECTURE.md` — High-Level-Diagramm, Modul-Map, Datenfluss, Conventions
 - `CHANGELOG.md` — dieses Dokument
@@ -17,6 +22,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 - `docs/adr/0001-async-engine-per-celery-task.md`
 - `LICENSE` (MIT)
 - `scripts/bootstrap_github.sh` — optionales Bootstrap für Labels, Milestones und Initial-Issues
+
+### Changed
+- `app/telegram/webhook.py`: `print(...)` durch `logger.warning(...)` ersetzt;
+  Modul nutzt jetzt einheitliches Logging.
 
 ### Removed
 - `DEVELOPMENT.md` — Inhalt aufgeteilt auf README, ARCHITECTURE, CHANGELOG, ROADMAP und docs/setup.md

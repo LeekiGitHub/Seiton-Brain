@@ -42,7 +42,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E1-1 | Allowlist: nur konfigurierte Telegram-User-IDs dürfen Nachrichten senden (`TELEGRAM_ALLOWED_USER_IDS`). | 5 | 1 | 1 | 2 | 5 | 🔵 | A |
+| E1-1 | Allowlist: nur konfigurierte Telegram-User-IDs dürfen Nachrichten senden (`TELEGRAM_ALLOWED_USER_IDS`). | 5 | 1 | 1 | 2 | 5 | 🟢 | A |
 | E1-2 | Update-Idempotenz: gleiche `update_id` wird nur einmal verarbeitet (DB-Unique). | 4 | 2 | 2 | 4 | 4 | ⚪ | A |
 | E1-3 | Telegram-Commands: `/start`, `/help`, `/recent`, `/find <q>`, `/undo`. | 4 | 2 | 1 | 3 | 4 | ⚪ | B |
 | E1-4 | Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen. | 2 | 1 | 2 | 2 | 2 | ⚪ | A |
@@ -168,8 +168,8 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 Reihenfolge ist Vorschlag, nicht Zwang:
 
-1. 🟡 **Doku-Fundament** (dieser PR): ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
-2. 🔵 **E1-1** — Allowlist (~30 min)
+1. 🟢 **Doku-Fundament**: ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
+2. 🟢 **E1-1** — Allowlist
 3. 🔵 **E2-3** — Dev-Endpunkte entfernen (~15 min)
 4. 🔵 **E2-1 + E2-2** — Entry-Modell erweitern + Migration (~1–2 h)
 5. 🔵 **E3-1** — Filename-Kollision verhindern (~30 min)
