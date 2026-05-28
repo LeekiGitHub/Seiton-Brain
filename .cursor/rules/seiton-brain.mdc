@@ -1,0 +1,65 @@
+---
+description: Seiton Brain project context — architecture, status, conventions
+alwaysApply: true
+---
+
+# Seiton Brain
+
+Personal AI assistant: Telegram input (text/voice) → structured Obsidian vault notes.
+Learning project + real utility. Name from **Seiton** (整頓) — put everything in its place.
+
+## Flow
+
+```
+Telegram → POST /webhook (X-Telegram-Bot-Api-Secret-Token)
+         → immediate 200 + "Wird verarbeitet…"
+         → Celery worker: [Whisper if voice] → OpenAI classify → Postgres → .md in vault
+         → Telegram: "Gespeichert als [[Title]] unter Folder"
+```
+
+## Stack
+
+FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI (LLM + Whisper) · Docker Compose · Obsidian vault (local mount)
+
+## Structure
+
+- `app/telegram/` — webhook, send_message, download_file
+- `app/worker/` — Celery tasks (`process_text_message`, `process_voice_message`)
+- `app/llm/` — provider interface, OpenAI, `ClassificationResult` (category, title, summary, related)
+- `app/vault/` — reader (existing notes for context), writer (Markdown + `[[links]]`)
+- `app/transcription/` — Whisper API
+- `app/models/` — `Entry` table
+- `prompts/classify.txt` — versioned LLM prompt (not inline in code)
+
+Vault folders: School, Work, Private, Ideas, Travel, Notes (`vault.example/` is template; personal vault is gitignored at `/vault/`).
+
+## Status (v0.1.0 — Epic 1–7 done)
+
+Core pipeline works: text + voice, async workers, DB persistence, vault files with related-note links, pytest + GitHub CI.
+
+## Roadmap & Backlog
+
+- **`ROADMAP.md`** — Vision, Phasen A–D, Epics, User Stories mit Bewertung; lebendes Dokument
+- **`ARCHITECTURE.md`** — Diagramm, Modul-Map, Datenfluss, Conventions
+- **`CHANGELOG.md`** — Keep-a-Changelog
+- **`docs/setup.md`** — Setup-Anleitung
+- **`docs/adr/`** — Architecture Decision Records (z.B. ADR 0001: worker_session)
+- **GitHub Issues/Projects** — operatives Tracking (Labels `epic:*`, `phase:*`, `priority:*`)
+
+Bei neuen Features: zuerst ROADMAP-Eintrag und/oder Issue, dann Code.
+
+## Conventions
+
+- Secrets in `.env` only; see `.env.example`
+- `.gitignore`: use `/vault/` and `/models/` (root only) — never ignore `app/vault/` or `app/models/` (siehe ADR 0002)
+- Celery tasks use `worker_session()` for DB (fresh engine per task — siehe ADR 0001)
+- Alembic migrations must exist in repo under `alembic/versions/`
+- Local Telegram dev: siehe `docs/setup.md`
+- User prefers German for communication; README is DE+EN; Roadmap/ADRs auf Deutsch
+- Code-Änderungen klein und fokussiert; eine Story → eine PR; CHANGELOG-Eintrag unter `[Unreleased]` pflegen
+
+## Key files
+
+- `docker-compose.yml` — services: api, worker, db, redis
+- `app/main.py` — health + (noch) dev `/entries` endpoints (Story E2-3 entfernt sie)
+- `app/db/session.py` — `get_db()` (API), `worker_session()` (Celery)

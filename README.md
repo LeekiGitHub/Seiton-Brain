@@ -18,16 +18,19 @@ Seiton Brain soll diesen Schritt wegnehmen. Gleichzeitig ist es für mich kein T
 
 ## Was schon läuft
 
-Stand jetzt ist der Kern da:
+Stand jetzt (v0.1.0):
 
-- Telegram-Bot empfängt Textnachrichten über einen Webhook
-- FastAPI-Backend prüft das Webhook-Secret und antwortet direkt
-- OpenAI klassifiziert den Text (Kategorie, Titel, Zusammenfassung) — Prompt liegt als Datei in `/prompts`
-- Eintrag landet in PostgreSQL (SQLAlchemy + Alembic)
-- Eine `.md`-Datei wird in meinen Obsidian-Vault geschrieben (School, Work, Private, Ideas, …)
-- Alles läuft lokal in Docker (API + Datenbank)
+- Telegram-Bot: Text **und** Sprachnachrichten über Webhook
+- Sofortige Antwort, Verarbeitung async via Celery + Redis
+- OpenAI klassifiziert (Kategorie, Titel, Summary) — Prompt in `/prompts`
+- OpenAI Whisper transkribiert Voice
+- PostgreSQL + Alembic, Obsidian-Vault mit `[[links]]` zu bestehenden Notizen
+- Docker Compose (api, worker, db, redis), pytest + GitHub CI
 
-Wenn ich unterwegs eine Idee habe, landet sie tatsächlich im Vault. Das funktioniert schon.
+Vollständige Historie: [`CHANGELOG.md`](./CHANGELOG.md).
+Was als nächstes kommt: [`ROADMAP.md`](./ROADMAP.md).
+Wie es gebaut ist: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
+Wie selbst betreiben: [`docs/setup.md`](./docs/setup.md).
 
 ---
 
@@ -46,19 +49,12 @@ Ich wollte ein System bauen, das sich wie ein kleines echtes Backend anfühlt �
 
 ---
 
-## Was noch fehlt
+## Was noch fehlt (v2)
 
-Das Projekt ist aktiv in Arbeit. Geplant bzw. als Nächstes gedacht:
-
-- Sprachnachrichten (Whisper) und Verarbeitung im Hintergrund (Celery + Redis)
 - Ollama als lokale LLM-Alternative
-- Notizen mit bestehenden Vault-Dateien verknüpfen
 - Semantic Search über den Vault (RAG + pgvector)
 - Web-UI zum Durchsuchen
 - Weekly Digest per Telegram
-- Tests und CI
-
-Manche Sachen aus der ursprünglichen Idee sind schon da, manches kommt noch. Die README wird mitwachsen.
 
 ---
 
@@ -66,7 +62,7 @@ Manche Sachen aus der ursprünglichen Idee sind schon da, manches kommt noch. Di
 
 `vault.example/` ist nur eine Vorlage für die Ordnerstruktur. Mein echter Vault liegt lokal und ist nicht im Repo.
 
-Wenn du Setup-Details brauchst: `.env.example` und `docker compose up` — mehr Dokumentation kommt später, wenn das Projekt stabiler ist.
+Setup-Details: [`docs/setup.md`](./docs/setup.md).
 
 ---
 
@@ -90,16 +86,19 @@ Seiton Brain is meant to remove that step. At the same time, this isn't a tutori
 
 ## What works already
 
-As of now, the core is in place:
+v0.1.0:
 
-- Telegram bot receives text messages via a webhook
-- FastAPI backend validates the webhook secret and responds immediately
-- OpenAI classifies the text (category, title, summary) — prompt lives as a file in `/prompts`
-- Entry gets saved to PostgreSQL (SQLAlchemy + Alembic)
-- A `.md` file is written to my Obsidian vault (School, Work, Private, Ideas, …)
-- Everything runs locally in Docker (API + database)
+- Telegram bot: text **and** voice via webhook
+- Immediate reply, async processing via Celery + Redis
+- OpenAI classification — prompt in `/prompts`
+- OpenAI Whisper for voice transcription
+- PostgreSQL + Alembic, Obsidian vault with `[[links]]` to related notes
+- Docker Compose (api, worker, db, redis), pytest + GitHub CI
 
-When I have an idea on the go, it actually ends up in the vault. That part works.
+Full history: [`CHANGELOG.md`](./CHANGELOG.md).
+What's next: [`ROADMAP.md`](./ROADMAP.md).
+How it's built: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
+How to self-host: [`docs/setup.md`](./docs/setup.md).
 
 ---
 
@@ -118,19 +117,12 @@ I wanted to build something that feels like a small real backend — not five lo
 
 ---
 
-## What's still missing
+## What's still missing (v2)
 
-The project is actively in progress. Planned or up next:
-
-- Voice messages (Whisper) and background processing (Celery + Redis)
 - Ollama as a local LLM alternative
-- Linking notes to existing vault files
 - Semantic search over the vault (RAG + pgvector)
 - Web UI for browsing
 - Weekly digest via Telegram
-- Tests and CI
-
-Some things from the original idea are already there, some are still coming. This README will grow with the project.
 
 ---
 
@@ -138,4 +130,4 @@ Some things from the original idea are already there, some are still coming. Thi
 
 `vault.example/` is just a template for the folder structure. My actual vault lives locally and is not in the repo.
 
-If you need setup details: `.env.example` and `docker compose up` — more documentation will come later once the project is more stable.
+Setup details: [`docs/setup.md`](./docs/setup.md).
