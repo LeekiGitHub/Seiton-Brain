@@ -28,6 +28,8 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   Modul nutzt jetzt einheitliches Logging.
 
 ### Removed
+- Dev-Endpunkte `POST /entries` und `GET /entries` aus `app/main.py` entfernt;
+  ungeschützte Schreib-/Lese-Schnittstellen waren Reste aus Epic 2. (#2)
 - `DEVELOPMENT.md` — Inhalt aufgeteilt auf README, ARCHITECTURE, CHANGELOG, ROADMAP und docs/setup.md
 
 ---
