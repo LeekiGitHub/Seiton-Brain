@@ -137,18 +137,34 @@ Diese Regeln gelten projektweit. Bei Verstößen → ADR schreiben statt heimlic
 
 ---
 
-## Was die DB speichert (Stand 0.1.0)
+## Was die DB speichert
 
 ```
 entries
-├── id (PK)
-├── title       VARCHAR(255)
-├── category    VARCHAR(50)
-├── summary     TEXT
-└── created_at  TIMESTAMPTZ DEFAULT now()
+├── id                   PK
+├── title                VARCHAR(255)
+├── category             VARCHAR(50)
+├── summary              TEXT
+├── raw_input            TEXT                                 NULL
+├── vault_path           VARCHAR(500)                         NULL
+├── telegram_chat_id     BIGINT          INDEX                NULL
+├── telegram_message_id  BIGINT                               NULL
+├── telegram_update_id   BIGINT          UNIQUE               NULL
+├── kind                 VARCHAR(10)     DEFAULT 'text'       NOT NULL
+├── status               VARCHAR(20)     DEFAULT 'processed'  NOT NULL
+└── created_at           TIMESTAMPTZ     DEFAULT now()        NOT NULL
 ```
 
-→ E2-1 erweitert um `telegram_chat_id`, `telegram_message_id`, `telegram_update_id (unique)`, `raw_input`, `vault_path`, `status`, `kind`.
+Erlaubte Werte (im Code als Sets dokumentiert, siehe `app/models/entry.py`):
+
+| Feld | Werte |
+|------|-------|
+| `kind` | `text`, `voice` |
+| `status` | `processed`, `failed`, `rejected` |
+
+Service-Layer befüllt die `telegram_*`-Felder, `raw_input`, `vault_path` und
+nicht-Default-Werte für `kind`/`status` noch nicht — das übernehmen die
+Folgestories E1-2 (Idempotenz) und E3-1 (Filename-Kollision/vault_path).
 
 ---
 

@@ -53,8 +53,8 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E2-1 | `Entry` erweitern: `telegram_chat_id`, `telegram_message_id`, `telegram_update_id` (unique), `raw_input`, `vault_path`, `status`, `kind` (text/voice). | 5 | 2 | 2 | 4 | 5 | 🔵 | A |
-| E2-2 | Alembic-Migration für E2-1, backfill-tauglich. | 3 | 2 | 2 | 4 | 4 | 🔵 | A |
+| E2-1 | `Entry` erweitern: `telegram_chat_id`, `telegram_message_id`, `telegram_update_id` (unique), `raw_input`, `vault_path`, `status`, `kind` (text/voice). | 5 | 2 | 2 | 4 | 5 | 🟢 | A |
+| E2-2 | Alembic-Migration für E2-1, backfill-tauglich. | 3 | 2 | 2 | 4 | 4 | 🟢 | A |
 | E2-3 | Dev-Endpunkte `POST/GET /entries` aus `main.py` entfernen (oder hinter `DEBUG=1`). | 3 | 1 | 1 | 2 | 4 | 🟢 | A |
 
 ---
@@ -171,9 +171,10 @@ Reihenfolge ist Vorschlag, nicht Zwang:
 1. 🟢 **Doku-Fundament**: ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
 2. 🟢 **E1-1** — Allowlist
 3. 🟢 **E2-3** — Dev-Endpunkte entfernen
-4. 🔵 **E2-1 + E2-2** — Entry-Modell erweitern + Migration (~1–2 h)
+4. 🟢 **E2-1 + E2-2** — Entry-Modell erweitern + Migration
 5. 🔵 **E3-1** — Filename-Kollision verhindern (~30 min)
 6. 🔵 **E8-1** — Settings-Klasse (pydantic-settings) (~1 h)
+7. 🔵 **E1-2** — Update-Idempotenz (~45 min, jetzt umsetzbar dank E2-1)
 
 Erst danach Phase B (Append-Logik = E3-2 + E4-1).
 

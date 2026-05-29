@@ -9,6 +9,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- `Entry`-Modell um sieben Felder erweitert: `raw_input`, `vault_path`,
+  `telegram_chat_id` (Index), `telegram_message_id`, `telegram_update_id`
+  (UNIQUE — Fundament für E1-2 Idempotenz), `kind` (Default `text`),
+  `status` (Default `processed`). Service-Layer befüllt die neuen Felder noch
+  nicht; das übernehmen die Folgestories E1-2 und E3-1. (#4, #5)
+- Alembic-Migration `5caa4134853e_extend_entries_table.py`; nutzt
+  `server_default` für `kind`/`status`, sodass bestehende Zeilen sauber
+  backfilled werden.
 - Telegram-Allowlist über `TELEGRAM_ALLOWED_USER_IDS` (komma-separiert).
   Wenn gesetzt, akzeptiert der Webhook nur Nachrichten von diesen Telegram-User-IDs;
   abgelehnte User erhalten "Dieser Bot ist privat." mit `200 OK`, damit Telegram
