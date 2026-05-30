@@ -11,18 +11,50 @@ from app.worker.celery_app import celery_app
 logger = logging.getLogger(__name__)
 
 
-async def _process_text(text: str, chat_id: int) -> None:
+async def _process_text(
+    text: str,
+    chat_id: int,
+    *,
+    telegram_update_id: int | None = None,
+    telegram_message_id: int | None = None,
+    kind: str = "text",
+) -> None:
     async with worker_session() as db:
-        result = await process_text_message(text, db)
+        result = await process_text_message(
+            text,
+            db,
+            telegram_update_id=telegram_update_id,
+            telegram_message_id=telegram_message_id,
+            telegram_chat_id=chat_id,
+            kind=kind,
+        )
+        if result is None:
+            logger.info(
+                "Skipped confirmation for duplicate telegram_update_id=%s",
+                telegram_update_id,
+            )
+            return
         folder = CATEGORY_FOLDERS.get(result.category.lower(), "Notes")
         await send_message(chat_id, f"Gespeichert als [[{result.title}]] unter {folder}")
 
 
-async def _process_voice(file_id: str, chat_id: int) -> None:
+async def _process_voice(
+    file_id: str,
+    chat_id: int,
+    *,
+    telegram_update_id: int | None = None,
+    telegram_message_id: int | None = None,
+) -> None:
     audio_bytes = await download_file(file_id)
     text = await transcribe_audio(audio_bytes)
     logger.info("Transcribed voice message for chat_id=%s: %s", chat_id, text[:80])
-    await _process_text(text, chat_id)
+    await _process_text(
+        text,
+        chat_id,
+        telegram_update_id=telegram_update_id,
+        telegram_message_id=telegram_message_id,
+        kind="voice",
+    )
 
 
 async def _send_error(chat_id: int) -> None:
@@ -34,10 +66,23 @@ def _run(coro) -> None:
 
 
 @celery_app.task(name="process_text_message", bind=True)
-def process_text_message_task(self, text: str, chat_id: int) -> None:
+def process_text_message_task(
+    self,
+    text: str,
+    chat_id: int,
+    telegram_update_id: int | None = None,
+    telegram_message_id: int | None = None,
+) -> None:
     logger.info("Task %s started: process_text_message chat_id=%s", self.request.id, chat_id)
     try:
-        _run(_process_text(text, chat_id))
+        _run(
+            _process_text(
+                text,
+                chat_id,
+                telegram_update_id=telegram_update_id,
+                telegram_message_id=telegram_message_id,
+            )
+        )
         logger.info("Task %s done: process_text_message chat_id=%s", self.request.id, chat_id)
     except Exception:
         logger.exception("Task %s failed: process_text_message chat_id=%s", self.request.id, chat_id)
@@ -46,10 +91,23 @@ def process_text_message_task(self, text: str, chat_id: int) -> None:
 
 
 @celery_app.task(name="process_voice_message", bind=True)
-def process_voice_message_task(self, file_id: str, chat_id: int) -> None:
+def process_voice_message_task(
+    self,
+    file_id: str,
+    chat_id: int,
+    telegram_update_id: int | None = None,
+    telegram_message_id: int | None = None,
+) -> None:
     logger.info("Task %s started: process_voice_message chat_id=%s", self.request.id, chat_id)
     try:
-        _run(_process_voice(file_id, chat_id))
+        _run(
+            _process_voice(
+                file_id,
+                chat_id,
+                telegram_update_id=telegram_update_id,
+                telegram_message_id=telegram_message_id,
+            )
+        )
         logger.info("Task %s done: process_voice_message chat_id=%s", self.request.id, chat_id)
     except Exception:
         logger.exception("Task %s failed: process_voice_message chat_id=%s", self.request.id, chat_id)

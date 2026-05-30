@@ -9,6 +9,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- Update-Idempotenz: Webhook prüft `telegram_update_id` per indexed Lookup
+  und verwirft Telegram-Retries still (kein doppeltes "Wird verarbeitet…").
+  Der Service-Layer hat zusätzlich einen Pre-Check und einen `IntegrityError`-
+  Fallback als Race-Schutz. Bei einem als Duplikat erkannten Update geht
+  keine zweite Telegram-Bestätigung raus. (#8)
+- Service-Layer befüllt jetzt `raw_input`, `telegram_chat_id`,
+  `telegram_message_id`, `telegram_update_id` und `kind` (`text`/`voice`)
+  bei jedem `Entry`. `vault_path` bleibt der Folge-Story E3-1 vorbehalten.
 - `Entry`-Modell um sieben Felder erweitert: `raw_input`, `vault_path`,
   `telegram_chat_id` (Index), `telegram_message_id`, `telegram_update_id`
   (UNIQUE — Fundament für E1-2 Idempotenz), `kind` (Default `text`),
@@ -32,6 +40,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 - `scripts/bootstrap_github.sh` — optionales Bootstrap für Labels, Milestones und Initial-Issues
 
 ### Changed
+- Celery-Tasks `process_text_message_task` und `process_voice_message_task`
+  erhalten zwei optionale Parameter (`telegram_update_id`,
+  `telegram_message_id`) — Default `None` für Rückwärtskompatibilität.
+- `process_text_message` (Service) liefert jetzt `ClassificationResult | None`
+  statt `ClassificationResult`. `None` = Duplikat, keine Bestätigung senden.
 - `app/telegram/webhook.py`: `print(...)` durch `logger.warning(...)` ersetzt;
   Modul nutzt jetzt einheitliches Logging.
 
