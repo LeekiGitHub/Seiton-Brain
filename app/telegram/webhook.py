@@ -3,7 +3,10 @@ import os
 
 import httpx
 from fastapi import APIRouter, Header, HTTPException, Request
+from sqlalchemy import select
 
+from app.db.session import SessionLocal
+from app.models.entry import Entry
 from app.telegram.client import send_message
 from app.worker.tasks import process_text_message_task, process_voice_message_task
 
@@ -13,6 +16,17 @@ logger = logging.getLogger(__name__)
 
 def _get_secret() -> str:
     return os.environ["TELEGRAM_WEBHOOK_SECRET"]
+
+
+async def _is_duplicate_update(update_id: int) -> bool:
+    """True wenn bereits ein Entry mit dieser telegram_update_id existiert."""
+    async with SessionLocal() as db:
+        result = await db.execute(
+            select(Entry.id)
+            .where(Entry.telegram_update_id == update_id)
+            .limit(1)
+        )
+        return result.scalar_one_or_none() is not None
 
 
 def _get_allowed_user_ids() -> set[int] | None:
@@ -69,15 +83,27 @@ async def telegram_webhook(
                 logger.warning("Telegram sendMessage failed: %s", exc)
             return {"ok": True}
 
+    update_id = update.get("update_id")
+    if update_id is not None and await _is_duplicate_update(update_id):
+        logger.info(
+            "Duplicate webhook update_id=%s chat_id=%s, silently ignoring",
+            update_id,
+            chat_id,
+        )
+        return {"ok": True}
+
+    message_id = message.get("message_id")
     text = message.get("text")
     voice = message.get("voice")
 
     try:
         if text:
-            process_text_message_task.delay(text, chat_id)
+            process_text_message_task.delay(text, chat_id, update_id, message_id)
             await send_message(chat_id, "Wird verarbeitet…")
         elif voice:
-            process_voice_message_task.delay(voice["file_id"], chat_id)
+            process_voice_message_task.delay(
+                voice["file_id"], chat_id, update_id, message_id
+            )
             await send_message(chat_id, "Sprachnachricht wird verarbeitet…")
         else:
             await send_message(

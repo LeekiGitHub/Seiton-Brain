@@ -28,71 +28,95 @@ def test_webhook_rejects_wrong_secret():
     assert response.status_code == 401
 
 
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
 @patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
 @patch("app.telegram.webhook.process_text_message_task")
-def test_webhook_enqueues_text_message(mock_task, mock_send):
-    response = client.post(
-        "/webhook",
-        json={"message": {"text": "Hello", "chat": {"id": 42}}},
-        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
-    )
-
-    assert response.status_code == 200
-    assert response.json() == {"ok": True}
-    mock_task.delay.assert_called_once_with("Hello", 42)
-    mock_send.assert_called_once()
-    assert mock_send.call_args[0][1] == "Wird verarbeitet…"
-
-
-@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
-@patch("app.telegram.webhook.process_voice_message_task")
-def test_webhook_enqueues_voice_message(mock_task, mock_send):
-    response = client.post(
-        "/webhook",
-        json={"message": {"voice": {"file_id": "voice123"}, "chat": {"id": 42}}},
-        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
-    )
-
-    assert response.status_code == 200
-    mock_task.delay.assert_called_once_with("voice123", 42)
-    mock_send.assert_called_once()
-    assert "Sprachnachricht" in mock_send.call_args[0][1]
-
-
-@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
-@patch("app.telegram.webhook.process_text_message_task")
-def test_webhook_allows_user_in_allowlist(mock_task, mock_send, monkeypatch):
-    monkeypatch.setenv("TELEGRAM_ALLOWED_USER_IDS", "42,99")
+def test_webhook_enqueues_text_message(mock_task, mock_send, mock_dup):
     response = client.post(
         "/webhook",
         json={
+            "update_id": 1001,
             "message": {
-                "text": "Hi",
-                "from": {"id": 42},
+                "message_id": 7,
+                "text": "Hello",
                 "chat": {"id": 42},
-            }
+            },
         },
         headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
     )
 
     assert response.status_code == 200
-    mock_task.delay.assert_called_once_with("Hi", 42)
+    assert response.json() == {"ok": True}
+    mock_task.delay.assert_called_once_with("Hello", 42, 1001, 7)
     mock_send.assert_called_once()
     assert mock_send.call_args[0][1] == "Wird verarbeitet…"
 
 
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+@patch("app.telegram.webhook.process_voice_message_task")
+def test_webhook_enqueues_voice_message(mock_task, mock_send, mock_dup):
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 1002,
+            "message": {
+                "message_id": 8,
+                "voice": {"file_id": "voice123"},
+                "chat": {"id": 42},
+            },
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+
+    assert response.status_code == 200
+    mock_task.delay.assert_called_once_with("voice123", 42, 1002, 8)
+    mock_send.assert_called_once()
+    assert "Sprachnachricht" in mock_send.call_args[0][1]
+
+
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
 @patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
 @patch("app.telegram.webhook.process_text_message_task")
-def test_webhook_rejects_user_not_in_allowlist(mock_task, mock_send, monkeypatch):
+def test_webhook_allows_user_in_allowlist(mock_task, mock_send, mock_dup, monkeypatch):
     monkeypatch.setenv("TELEGRAM_ALLOWED_USER_IDS", "42,99")
     response = client.post(
         "/webhook",
         json={
+            "update_id": 2001,
             "message": {
+                "message_id": 1,
+                "text": "Hi",
+                "from": {"id": 42},
+                "chat": {"id": 42},
+            },
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+
+    assert response.status_code == 200
+    mock_task.delay.assert_called_once_with("Hi", 42, 2001, 1)
+    mock_send.assert_called_once()
+    assert mock_send.call_args[0][1] == "Wird verarbeitet…"
+
+
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+@patch("app.telegram.webhook.process_text_message_task")
+def test_webhook_rejects_user_not_in_allowlist(
+    mock_task, mock_send, mock_dup, monkeypatch
+):
+    monkeypatch.setenv("TELEGRAM_ALLOWED_USER_IDS", "42,99")
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 2002,
+            "message": {
+                "message_id": 1,
                 "text": "Hi",
                 "from": {"id": 7},
                 "chat": {"id": 7},
-            }
+            },
         },
         headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
     )
@@ -104,12 +128,58 @@ def test_webhook_rejects_user_not_in_allowlist(mock_task, mock_send, monkeypatch
     assert "privat" in mock_send.call_args[0][1].lower()
 
 
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
 @patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
 @patch("app.telegram.webhook.process_text_message_task")
 def test_webhook_rejects_missing_from_when_allowlist_active(
-    mock_task, mock_send, monkeypatch
+    mock_task, mock_send, mock_dup, monkeypatch
 ):
     monkeypatch.setenv("TELEGRAM_ALLOWED_USER_IDS", "42")
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 2003,
+            "message": {"message_id": 1, "text": "Hi", "chat": {"id": 42}},
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+
+    assert response.status_code == 200
+    mock_task.delay.assert_not_called()
+    mock_send.assert_called_once()
+    assert "privat" in mock_send.call_args[0][1].lower()
+
+
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=True)
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+@patch("app.telegram.webhook.process_text_message_task")
+def test_webhook_silently_drops_duplicate_update(mock_task, mock_send, mock_dup):
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 3001,
+            "message": {
+                "message_id": 1,
+                "text": "Hi",
+                "chat": {"id": 42},
+            },
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}
+    mock_dup.assert_awaited_once_with(3001)
+    mock_task.delay.assert_not_called()
+    mock_send.assert_not_called()
+
+
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock)
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+@patch("app.telegram.webhook.process_text_message_task")
+def test_webhook_skips_duplicate_check_when_no_update_id(
+    mock_task, mock_send, mock_dup
+):
     response = client.post(
         "/webhook",
         json={"message": {"text": "Hi", "chat": {"id": 42}}},
@@ -117,6 +187,5 @@ def test_webhook_rejects_missing_from_when_allowlist_active(
     )
 
     assert response.status_code == 200
-    mock_task.delay.assert_not_called()
-    mock_send.assert_called_once()
-    assert "privat" in mock_send.call_args[0][1].lower()
+    mock_dup.assert_not_awaited()
+    mock_task.delay.assert_called_once_with("Hi", 42, None, None)

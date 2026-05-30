@@ -88,13 +88,15 @@ Externe Artefakte:
 ## Datenfluss: Text-Nachricht
 
 1. Telegram POSTed Update an `/webhook` mit Header `X-Telegram-Bot-Api-Secret-Token`
-2. `webhook.py` validiert Secret → enqueued `process_text_message_task(text, chat_id)` → antwortet `200 OK` + sendet „Wird verarbeitet…" zurück
-3. Celery-Worker greift Task ab → öffnet **neue** Async-Engine (`worker_session()`) → übergibt an `services.process_message.process_text_message`
-4. Service:
+2. `webhook.py` validiert Secret → Allowlist-Check → **Idempotenz-Check**: indexed Lookup auf `entries.telegram_update_id`; bei Duplikat sofort `200 OK` ohne Bot-Reply (Telegram-Retry-Schutz)
+3. Sonst: enqueued `process_text_message_task(text, chat_id, update_id, message_id)` → antwortet `200 OK` + sendet „Wird verarbeitet…" zurück
+4. Celery-Worker greift Task ab → öffnet **neue** Async-Engine (`worker_session()`) → übergibt an `services.process_message.process_text_message`
+5. Service:
+   - Pre-Check `telegram_update_id` (Race-Schutz)
    - `LLMProvider.classify(text)` — Prompt enthält Vault-Kontext (existierende Notizen)
-   - `Entry` in DB persistieren (Audit-Trail)
+   - `Entry` in DB persistieren (Audit-Trail mit Telegram-Metadaten, `raw_input`, `kind`); `IntegrityError` → `None` zurück (last-resort Race-Fallback)
    - `write_note(result)` — Markdown-Datei im Vault anlegen
-5. Worker sendet Bestätigung „Gespeichert als [[Title]] unter Folder" zurück
+6. Worker sendet Bestätigung „Gespeichert als [[Title]] unter Folder" zurück — bei `None`-Result (Duplikat) keine Bestätigung
 
 ## Datenfluss: Voice-Nachricht
 
