@@ -27,14 +27,30 @@ def _related_section(related: list[str]) -> str:
     return f"\n\n## Related\n{links}"
 
 
+def _next_available_path(target_dir: Path, base_name: str) -> Path:
+    """Erster freier Pfad: `<base>.md`, `<base> (2).md`, `<base> (3).md`, …
+
+    Nutzt Obsidian-Style-Suffixe statt stillschweigend zu ueberschreiben.
+    """
+    candidate = target_dir / f"{base_name}.md"
+    if not candidate.exists():
+        return candidate
+    counter = 2
+    while True:
+        candidate = target_dir / f"{base_name} ({counter}).md"
+        if not candidate.exists():
+            return candidate
+        counter += 1
+
+
 def write_note(result: ClassificationResult) -> Path:
     vault_path = Path(os.environ["OBSIDIAN_VAULT_PATH"])
     folder = CATEGORY_FOLDERS.get(result.category.lower(), "Notes")
     target_dir = vault_path / folder
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    filename = f"{_sanitize_filename(result.title)}.md"
-    filepath = target_dir / filename
+    base_name = _sanitize_filename(result.title)
+    filepath = _next_available_path(target_dir, base_name)
 
     content = f"""---
 title: {result.title}
