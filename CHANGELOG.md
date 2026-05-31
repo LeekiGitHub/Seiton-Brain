@@ -9,6 +9,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- Vault-Writer wählt bei Titelkollision den nächsten freien Pfad im
+  Obsidian-Stil (`Title.md`, `Title (2).md`, `Title (3).md`, …) statt
+  existierende Notizen stillschweigend zu überschreiben. (#6)
+- Service-Layer befüllt `entry.vault_path` mit dem relativen Pfad zur
+  geschriebenen `.md`-Datei (z.B. `Ideas/Fitness App.md`); Fundament für
+  künftige Append-/Update-Logik (E3-2).
 - Update-Idempotenz: Webhook prüft `telegram_update_id` per indexed Lookup
   und verwirft Telegram-Retries still (kein doppeltes "Wird verarbeitet…").
   Der Service-Layer hat zusätzlich einen Pre-Check und einen `IntegrityError`-

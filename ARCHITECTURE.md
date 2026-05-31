@@ -188,7 +188,11 @@ created: YYYY-MM-DD
 - [[<related title>]]
 ```
 
-Speicherort: `<VAULT>/<Category-Folder>/<sanitized-title>.md`
+Speicherort: `<VAULT>/<Category-Folder>/<sanitized-title>.md`. Bei
+Titelkollision wird der naechste freie Slot im Obsidian-Stil verwendet:
+`<sanitized-title> (2).md`, `<sanitized-title> (3).md`, ... Der finale
+relative Pfad (z.B. `Ideas/Fitness App (2).md`) landet in
+`entries.vault_path`.
 
 Mapping Category → Folder in `app/vault/writer.py:CATEGORY_FOLDERS`:
 

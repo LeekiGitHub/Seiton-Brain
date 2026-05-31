@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -5,6 +7,8 @@ from sqlalchemy.exc import IntegrityError
 
 from app.llm.schemas import ClassificationResult
 from app.services.process_message import process_text_message
+
+VAULT_ROOT = Path(os.environ["OBSIDIAN_VAULT_PATH"])
 
 
 def _classification(title: str = "Test", category: str = "note") -> ClassificationResult:
@@ -37,6 +41,7 @@ async def test_process_text_message_persists_with_telegram_fields(
     llm = MagicMock()
     llm.classify = AsyncMock(return_value=_classification(title="Idea X", category="idea"))
     mock_provider.return_value = llm
+    mock_write_note.return_value = VAULT_ROOT / "Ideas" / "Idea X.md"
     db = _db_with_pre_check_result(found=False)
 
     result = await process_text_message(
@@ -53,6 +58,7 @@ async def test_process_text_message_persists_with_telegram_fields(
     db.add.assert_called_once()
     entry = db.add.call_args[0][0]
     assert entry.raw_input == "Original text"
+    assert entry.vault_path == "Ideas/Idea X.md"
     assert entry.telegram_update_id == 1234
     assert entry.telegram_message_id == 42
     assert entry.telegram_chat_id == 99
@@ -91,6 +97,7 @@ async def test_process_text_message_handles_integrity_error_race(
     llm = MagicMock()
     llm.classify = AsyncMock(return_value=_classification())
     mock_provider.return_value = llm
+    mock_write_note.return_value = VAULT_ROOT / "Notes" / "Test.md"
     db = _db_with_pre_check_result(found=False)
     db.commit = AsyncMock(side_effect=IntegrityError("INSERT", {}, Exception("dup")))
 
@@ -102,7 +109,8 @@ async def test_process_text_message_handles_integrity_error_race(
 
     assert result is None
     db.rollback.assert_awaited_once()
-    mock_write_note.assert_not_called()
+    # Vault-Datei wurde geschrieben (Race-Edge-Case dokumentiert im Code).
+    mock_write_note.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -115,6 +123,7 @@ async def test_process_text_message_without_update_id_skips_pre_check(
     llm = MagicMock()
     llm.classify = AsyncMock(return_value=_classification())
     mock_provider.return_value = llm
+    mock_write_note.return_value = VAULT_ROOT / "Notes" / "Test.md"
 
     db = MagicMock()
     db.execute = AsyncMock()
@@ -126,5 +135,7 @@ async def test_process_text_message_without_update_id_skips_pre_check(
     assert result is not None
     db.execute.assert_not_called()
     db.add.assert_called_once()
+    entry = db.add.call_args[0][0]
+    assert entry.vault_path == "Notes/Test.md"
     db.commit.assert_awaited_once()
     mock_write_note.assert_called_once()

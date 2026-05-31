@@ -1,4 +1,6 @@
 import logging
+import os
+from pathlib import Path
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -10,6 +12,17 @@ from app.models.entry import Entry
 from app.vault.writer import write_note
 
 logger = logging.getLogger(__name__)
+
+
+def _to_vault_relative(note_path: Path) -> str:
+    """Macht den Vault-Pfad relativ zum Vault-Root fuer die DB-Spalte."""
+    vault_root = Path(os.environ["OBSIDIAN_VAULT_PATH"])
+    try:
+        return str(note_path.relative_to(vault_root))
+    except ValueError:
+        # Sollte nie passieren — Writer schreibt immer unterhalb des Vault-Roots.
+        # Fallback: absoluten Pfad speichern, statt den Insert zu sprengen.
+        return str(note_path)
 
 
 async def process_text_message(
@@ -43,11 +56,19 @@ async def process_text_message(
     llm = get_llm_provider()
     result = await llm.classify(text)
 
+    # Erst die Vault-Datei schreiben — der Writer findet einen kollisionsfreien
+    # Pfad (Title.md / Title (2).md / Title (3).md / ...). Den finalen Pfad
+    # speichern wir am Entry, damit wir spaeter z.B. Append-Updates wieder an
+    # die richtige Datei adressieren koennen (E3-2).
+    note_path = write_note(result)
+    vault_relative = _to_vault_relative(note_path)
+
     entry = Entry(
         title=result.title,
         category=result.category,
         summary=result.summary,
         raw_input=text,
+        vault_path=vault_relative,
         telegram_update_id=telegram_update_id,
         telegram_message_id=telegram_message_id,
         telegram_chat_id=telegram_chat_id,
@@ -58,13 +79,18 @@ async def process_text_message(
         await db.commit()
     except IntegrityError:
         # Race-Fallback: zwischen Pre-Check und Commit hat ein anderer Lauf
-        # den gleichen update_id eingefügt. UNIQUE-Constraint hat uns gerettet.
+        # den gleichen update_id eingefuegt. UNIQUE-Constraint hat uns
+        # gerettet. Die Vault-Datei wurde aber schon geschrieben — sie bleibt
+        # als Schatten-Datei liegen (gleicher Titel -> hat ein
+        # Kollisions-Suffix bekommen). Race ist in der Praxis nahezu
+        # unmoeglich (Telegram-Retries kommen Sekunden auseinander).
         await db.rollback()
-        logger.info(
-            "Race on telegram_update_id=%s, skipping after IntegrityError",
+        logger.warning(
+            "Race on telegram_update_id=%s after IntegrityError; "
+            "orphan vault file may exist at %s",
             telegram_update_id,
+            note_path,
         )
         return None
 
-    write_note(result)
     return result

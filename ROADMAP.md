@@ -63,7 +63,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E3-1 | Filename-Kollision verhindern: keine stillschweigende Überschreibung. | 5 | 2 | 3 | 3 | 5 | 🔵 | A |
+| E3-1 | Filename-Kollision verhindern: keine stillschweigende Überschreibung. | 5 | 2 | 3 | 3 | 5 | 🟢 | A |
 | E3-2 | „Bestehende Notiz ergänzen": LLM-`action: create\|append`, Writer hängt unter `## Update YYYY-MM-DD` an. | 5 | 4 | 3 | 5 | 5 | ⚪ | B |
 | E3-3 | Frontmatter-Updates bei Append (`updated:`, Tag-Merge). | 3 | 2 | 2 | 3 | 3 | ⚪ | B |
 | E3-4 | Atomares Schreiben (Tempfile + `os.replace`), damit Obsidian-Sync keine halben Dateien sieht. | 3 | 1 | 2 | 4 | 3 | ⚪ | B |
@@ -173,8 +173,8 @@ Reihenfolge ist Vorschlag, nicht Zwang:
 3. 🟢 **E2-3** — Dev-Endpunkte entfernen
 4. 🟢 **E2-1 + E2-2** — Entry-Modell erweitern + Migration
 5. 🟢 **E1-2** — Update-Idempotenz
-6. 🔵 **E3-1** — Filename-Kollision verhindern (~30 min)
-7. 🔵 **E8-1** — Settings-Klasse (pydantic-settings) (~1 h)
+6. 🟢 **E3-1** — Filename-Kollision verhindern
+7. 🔵 **E8-1** — Settings-Klasse (pydantic-settings) (~1 h) — letzte Phase-A-Story
 
 Erst danach Phase B (Append-Logik = E3-2 + E4-1).
 
