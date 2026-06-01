@@ -1,9 +1,8 @@
-import os
-
 import httpx
 
-BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
+from app.config import settings
+
+API_URL = f"https://api.telegram.org/bot{settings.telegram_bot_token}"
 
 
 async def send_message(chat_id: int, text: str) -> None:
@@ -27,7 +26,7 @@ async def download_file(file_id: str) -> bytes:
         file_path = file_response.json()["result"]["file_path"]
 
         download_response = await client.get(
-            f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}",
+            f"https://api.telegram.org/file/bot{settings.telegram_bot_token}/{file_path}",
             timeout=30.0,
         )
         download_response.raise_for_status()

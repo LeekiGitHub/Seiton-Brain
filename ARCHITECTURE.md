@@ -53,6 +53,7 @@ Volumes:
 ```
 app/
 ├── main.py                  FastAPI-App, /health, registriert Webhook-Router
+├── config.py                Settings-Klasse (pydantic-settings), zentrale Env-Konfig
 ├── telegram/
 │   ├── webhook.py           POST /webhook, Secret-Check, enqueue
 │   └── client.py            sendMessage, downloadFile
@@ -115,6 +116,7 @@ Diese Regeln gelten projektweit. Bei Verstößen → ADR schreiben statt heimlic
 
 ### Code & Architektur
 - **Prompts in Git, Secrets in `.env`** — niemals API-Keys oder Bot-Tokens committen
+- **Konfiguration ausschließlich über `app/config.py`** — App-Module lesen *nicht* direkt aus `os.environ`. Neue Env-Variable? → Feld in `Settings` ergänzen, `.env.example` aktualisieren. Einzige Ausnahme: `alembic/env.py` (eigenständiger Bootstrap außerhalb des App-Lifecycles)
 - **Vault ist Source of Truth** — die Postgres-Datenbank ist Audit/Cache, kein Ersatz für die Markdown-Dateien
 - **Celery + Async DB** — immer `worker_session()` verwenden, nie die globale `engine` aus `app/db/session.py` (siehe [ADR 0001](./docs/adr/0001-async-engine-per-celery-task.md))
 - **LLM-Output strikt validieren** — alle LLM-Antworten gehen durch Pydantic (`ClassificationResult`), keine `dict[str, Any]`-Durchreichen

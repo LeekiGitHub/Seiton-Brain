@@ -1,8 +1,8 @@
-import os
 import re
 from datetime import date
 from pathlib import Path
 
+from app.config import settings
 from app.llm.schemas import ClassificationResult
 
 CATEGORY_FOLDERS = {
@@ -44,7 +44,7 @@ def _next_available_path(target_dir: Path, base_name: str) -> Path:
 
 
 def write_note(result: ClassificationResult) -> Path:
-    vault_path = Path(os.environ["OBSIDIAN_VAULT_PATH"])
+    vault_path = Path(settings.obsidian_vault_path)
     folder = CATEGORY_FOLDERS.get(result.category.lower(), "Notes")
     target_dir = vault_path / folder
     target_dir.mkdir(parents=True, exist_ok=True)

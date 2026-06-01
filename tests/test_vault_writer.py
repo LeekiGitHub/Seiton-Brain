@@ -1,3 +1,4 @@
+from app.config import settings
 from app.llm.schemas import ClassificationResult
 from app.vault.writer import (
     _next_available_path,
@@ -23,7 +24,7 @@ def test_related_section_with_links():
 
 
 def test_write_note(tmp_path, monkeypatch):
-    monkeypatch.setenv("OBSIDIAN_VAULT_PATH", str(tmp_path))
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
     result = ClassificationResult(
         category="idea",
         title="Fitness App",
@@ -58,7 +59,7 @@ def test_next_available_path_many_collisions(tmp_path):
 
 
 def test_write_note_does_not_overwrite_existing(tmp_path, monkeypatch):
-    monkeypatch.setenv("OBSIDIAN_VAULT_PATH", str(tmp_path))
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
     base = ClassificationResult(
         category="idea",
         title="Fitness App",

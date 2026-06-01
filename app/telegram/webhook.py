@@ -1,10 +1,10 @@
 import logging
-import os
 
 import httpx
 from fastapi import APIRouter, Header, HTTPException, Request
 from sqlalchemy import select
 
+from app.config import settings
 from app.db.session import SessionLocal
 from app.models.entry import Entry
 from app.telegram.client import send_message
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def _get_secret() -> str:
-    return os.environ["TELEGRAM_WEBHOOK_SECRET"]
+    return settings.telegram_webhook_secret
 
 
 async def _is_duplicate_update(update_id: int) -> bool:
@@ -35,7 +35,7 @@ def _get_allowed_user_ids() -> set[int] | None:
     Rückgabe ``None`` bedeutet: Allowlist nicht konfiguriert -> alle erlaubt.
     Rückgabe ``set[int]``: nur diese User-IDs sind erlaubt (strict).
     """
-    raw = os.environ.get("TELEGRAM_ALLOWED_USER_IDS", "").strip()
+    raw = settings.telegram_allowed_user_ids.strip()
     if not raw:
         return None
     ids: set[int] = set()

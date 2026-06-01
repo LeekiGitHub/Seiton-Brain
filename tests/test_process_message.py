@@ -1,14 +1,14 @@
-import os
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from sqlalchemy.exc import IntegrityError
 
+from app.config import settings
 from app.llm.schemas import ClassificationResult
 from app.services.process_message import process_text_message
 
-VAULT_ROOT = Path(os.environ["OBSIDIAN_VAULT_PATH"])
+VAULT_ROOT = Path(settings.obsidian_vault_path)
 
 
 def _classification(title: str = "Test", category: str = "note") -> ClassificationResult:

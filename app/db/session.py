@@ -1,11 +1,10 @@
-import os
 from contextlib import asynccontextmanager
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+from app.config import settings
 
-engine = create_async_engine(DATABASE_URL)
+engine = create_async_engine(settings.database_url)
 SessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
@@ -17,7 +16,7 @@ async def get_db():
 @asynccontextmanager
 async def worker_session():
     """Fresh engine per Celery task — avoids async event loop conflicts."""
-    task_engine = create_async_engine(DATABASE_URL)
+    task_engine = create_async_engine(settings.database_url)
     session_factory = async_sessionmaker(
         task_engine, class_=AsyncSession, expire_on_commit=False
     )

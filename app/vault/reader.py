@@ -1,7 +1,8 @@
-import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
+
+from app.config import settings
 
 
 @dataclass
@@ -38,7 +39,7 @@ def _body_snippet(content: str, limit: int = 120) -> str:
 
 
 def list_existing_notes(limit: int = 80) -> list[VaultNote]:
-    vault_path = Path(os.environ["OBSIDIAN_VAULT_PATH"])
+    vault_path = Path(settings.obsidian_vault_path)
     if not vault_path.exists():
         return []
 

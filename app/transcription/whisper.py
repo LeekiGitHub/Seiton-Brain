@@ -1,14 +1,15 @@
 import io
 import logging
-import os
 
 from openai import AsyncOpenAI
+
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
 
 async def transcribe_audio(audio_bytes: bytes, filename: str = "voice.ogg") -> str:
-    client = AsyncOpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = AsyncOpenAI(api_key=settings.openai_api_key)
     audio_file = io.BytesIO(audio_bytes)
     audio_file.name = filename
 

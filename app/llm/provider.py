@@ -1,6 +1,6 @@
-import os
 from abc import ABC, abstractmethod
 
+from app.config import settings
 from app.llm.openai_provider import OpenAIProvider
 from app.llm.schemas import ClassificationResult
 
@@ -12,7 +12,7 @@ class LLMProvider(ABC):
 
 
 def get_llm_provider() -> LLMProvider:
-    provider = os.environ.get("LLM_PROVIDER", "openai")
+    provider = settings.llm_provider
     if provider == "openai":
         return OpenAIProvider()
     raise ValueError(f"Unsupported LLM_PROVIDER: {provider}")
