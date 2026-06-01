@@ -1,11 +1,11 @@
 import logging
-import os
 from pathlib import Path
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.llm.provider import get_llm_provider
 from app.llm.schemas import ClassificationResult
 from app.models.entry import Entry
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def _to_vault_relative(note_path: Path) -> str:
     """Macht den Vault-Pfad relativ zum Vault-Root fuer die DB-Spalte."""
-    vault_root = Path(os.environ["OBSIDIAN_VAULT_PATH"])
+    vault_root = Path(settings.obsidian_vault_path)
     try:
         return str(note_path.relative_to(vault_root))
     except ValueError:

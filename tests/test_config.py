@@ -1,0 +1,41 @@
+from app.config import Settings, settings
+
+
+def test_settings_singleton_loads_required_fields_from_env():
+    """Die Modul-Level-Instanz wurde beim Import via conftest aus den
+    Env-Variablen befuellt (TELEGRAM_*, OPENAI_API_KEY, DATABASE_URL, ...)."""
+    assert settings.telegram_bot_token == "123456:TEST-BOT-TOKEN"
+    assert settings.telegram_webhook_secret == "test-webhook-secret"
+    assert settings.openai_api_key == "test-openai-key"
+    assert settings.database_url.startswith("postgresql+asyncpg://")
+    assert settings.redis_url.startswith("redis://")
+    assert settings.obsidian_vault_path
+
+
+def test_settings_defaults_are_applied():
+    """Felder ohne Env-Variable bekommen die Default-Werte."""
+    assert settings.llm_provider == "openai"
+    assert settings.openai_model == "gpt-4o-mini"
+    assert settings.telegram_allowed_user_ids == ""
+
+
+def test_settings_accept_extra_env_vars():
+    """``extra='ignore'`` -- zusaetzliche Env-Vars wie OBSIDIAN_VAULT_HOST_PATH
+    sollen die Settings-Instantiation nicht crashen lassen."""
+    s = Settings(  # type: ignore[call-arg]
+        _env_file=None,  # bypass .env discovery; nur explizit gesetzte Werte
+        telegram_bot_token="x",
+        telegram_webhook_secret="y",
+        openai_api_key="z",
+        obsidian_vault_path="/tmp/v",
+        database_url="postgresql+asyncpg://u:p@h/d",
+        redis_url="redis://h:6379/0",
+    )
+    assert s.llm_provider == "openai"
+
+
+def test_settings_monkeypatch_works_per_test(monkeypatch):
+    """Sicherheitsnetz: Tests duerfen Felder pro Test ueberschreiben,
+    monkeypatch raeumt am Ende auf."""
+    monkeypatch.setattr(settings, "telegram_allowed_user_ids", "42,99")
+    assert settings.telegram_allowed_user_ids == "42,99"

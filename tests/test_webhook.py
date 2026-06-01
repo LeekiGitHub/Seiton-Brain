@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock, patch
 
 from fastapi.testclient import TestClient
 
+from app.config import settings
 from app.main import app
 
 SECRET = "test-webhook-secret"
@@ -79,7 +80,7 @@ def test_webhook_enqueues_voice_message(mock_task, mock_send, mock_dup):
 @patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
 @patch("app.telegram.webhook.process_text_message_task")
 def test_webhook_allows_user_in_allowlist(mock_task, mock_send, mock_dup, monkeypatch):
-    monkeypatch.setenv("TELEGRAM_ALLOWED_USER_IDS", "42,99")
+    monkeypatch.setattr(settings, "telegram_allowed_user_ids", "42,99")
     response = client.post(
         "/webhook",
         json={
@@ -106,7 +107,7 @@ def test_webhook_allows_user_in_allowlist(mock_task, mock_send, mock_dup, monkey
 def test_webhook_rejects_user_not_in_allowlist(
     mock_task, mock_send, mock_dup, monkeypatch
 ):
-    monkeypatch.setenv("TELEGRAM_ALLOWED_USER_IDS", "42,99")
+    monkeypatch.setattr(settings, "telegram_allowed_user_ids", "42,99")
     response = client.post(
         "/webhook",
         json={
@@ -134,7 +135,7 @@ def test_webhook_rejects_user_not_in_allowlist(
 def test_webhook_rejects_missing_from_when_allowlist_active(
     mock_task, mock_send, mock_dup, monkeypatch
 ):
-    monkeypatch.setenv("TELEGRAM_ALLOWED_USER_IDS", "42")
+    monkeypatch.setattr(settings, "telegram_allowed_user_ids", "42")
     response = client.post(
         "/webhook",
         json={

@@ -1,3 +1,4 @@
+from app.config import settings
 from app.vault.reader import (
     VaultNote,
     _parse_frontmatter,
@@ -25,7 +26,7 @@ def test_parse_frontmatter_missing():
 
 
 def test_list_existing_notes(tmp_path, monkeypatch):
-    monkeypatch.setenv("OBSIDIAN_VAULT_PATH", str(tmp_path))
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
     ideas_dir = tmp_path / "Ideas"
     ideas_dir.mkdir()
     (ideas_dir / "Startup Idea.md").write_text(

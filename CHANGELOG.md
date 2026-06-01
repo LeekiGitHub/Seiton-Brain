@@ -9,6 +9,13 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- Zentrale `Settings`-Klasse (`app/config.py`) auf Basis von
+  `pydantic-settings`: alle Konfigurations-Werte werden typisiert aus
+  Env-Variablen (und optional einer `.env`-Datei) gelesen. Pflichtfelder
+  ohne Default sorgen für klaren Fail-Fast beim Start statt kryptischer
+  `KeyError`-Crashes zur Laufzeit. Alle App-Module nutzen jetzt
+  `from app.config import settings` statt verstreuter `os.environ[...]`-
+  Lookups. `alembic/env.py` bleibt bewusst eigenständig. (#7)
 - Vault-Writer wählt bei Titelkollision den nächsten freien Pfad im
   Obsidian-Stil (`Title.md`, `Title (2).md`, `Title (3).md`, …) statt
   existierende Notizen stillschweigend zu überschreiben. (#6)
@@ -46,6 +53,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 - `scripts/bootstrap_github.sh` — optionales Bootstrap für Labels, Milestones und Initial-Issues
 
 ### Changed
+- `requirements.txt`: neue Dependency `pydantic-settings`.
+- `tests/conftest.py`: setzt Test-Werte jetzt hart (Assignment statt
+  `setdefault`), damit eine lokale `.env`-Datei (die pydantic-settings
+  zusätzlich lädt) die Tests nicht verfälscht. Tests sind dadurch
+  reproduzierbar unabhängig von der lokalen Entwickler-Umgebung.
 - Celery-Tasks `process_text_message_task` und `process_voice_message_task`
   erhalten zwei optionale Parameter (`telegram_update_id`,
   `telegram_message_id`) — Default `None` für Rückwärtskompatibilität.

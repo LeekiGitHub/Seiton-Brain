@@ -1,21 +1,20 @@
 import json
-import os
 from pathlib import Path
 
 from openai import AsyncOpenAI
 
+from app.config import settings
 from app.llm.schemas import ClassificationResult
 from app.vault.reader import format_notes_for_prompt, known_titles, list_existing_notes
 
 PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "classify.txt"
-DEFAULT_MODEL = "gpt-4o-mini"
 MAX_RELATED = 3
 
 
 class OpenAIProvider:
     def __init__(self) -> None:
-        self.client = AsyncOpenAI(api_key=os.environ["OPENAI_API_KEY"])
-        self.model = os.environ.get("OPENAI_MODEL", DEFAULT_MODEL)
+        self.client = AsyncOpenAI(api_key=settings.openai_api_key)
+        self.model = settings.openai_model
         self.prompt_template = PROMPT_PATH.read_text()
 
     async def classify(self, text: str) -> ClassificationResult:

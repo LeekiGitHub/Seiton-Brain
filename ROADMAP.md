@@ -23,7 +23,7 @@ Ergebnis: eine gepflegte Markdown-Datei in meinem Obsidian-Vault, ohne dass ich 
 
 | Phase | Ziel | Status |
 |---|---|---|
-| **A — MVP-Härtung** | Ich nutze es zuverlässig allein. Auth, saubere Datenhygiene, keine Überschreibung von Notizen. | 🔵 aktiv |
+| **A — MVP-Härtung** | Ich nutze es zuverlässig allein. Auth, saubere Datenhygiene, keine Überschreibung von Notizen. | 🟢 done |
 | **B — Produktfunktionen** | Echtes Second-Brain-Verhalten: „bestehende Notiz ergänzen", Telegram-Commands, Tags. | ⚪ |
 | **C — Robustheit & Self-Hosting** | Retries, Logging, Mac Mini als 24/7-Host (Cloudflare Tunnel statt ngrok). | ⚪ |
 | **D — Public Release v1.0** | LICENSE, Setup-Doku für Selfhoster, optionaler Ollama-Provider. | ⚪ |
@@ -115,7 +115,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E8-1 | Zentrale `Settings`-Klasse (pydantic-settings) statt verstreuter `os.environ[...]`. | 4 | 2 | 1 | 4 | 4 | ⚪ | A |
+| E8-1 | Zentrale `Settings`-Klasse (pydantic-settings) statt verstreuter `os.environ[...]`. | 4 | 2 | 1 | 4 | 4 | 🟢 | A |
 | E8-2 | Klare Fehlermeldung beim Start, wenn Env fehlt. | 3 | 1 | 1 | 2 | 3 | ⚪ | A |
 
 ---
@@ -164,9 +164,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 ---
 
-## Aktueller Sprint (Phase A — MVP-Härtung)
-
-Reihenfolge ist Vorschlag, nicht Zwang:
+## Aktueller Sprint (Phase A — MVP-Härtung) ✅ abgeschlossen
 
 1. 🟢 **Doku-Fundament**: ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
 2. 🟢 **E1-1** — Allowlist
@@ -174,9 +172,17 @@ Reihenfolge ist Vorschlag, nicht Zwang:
 4. 🟢 **E2-1 + E2-2** — Entry-Modell erweitern + Migration
 5. 🟢 **E1-2** — Update-Idempotenz
 6. 🟢 **E3-1** — Filename-Kollision verhindern
-7. 🔵 **E8-1** — Settings-Klasse (pydantic-settings) (~1 h) — letzte Phase-A-Story
+7. 🟢 **E8-1** — Settings-Klasse (pydantic-settings)
 
-Erst danach Phase B (Append-Logik = E3-2 + E4-1).
+## Nächster Sprint (Phase B — Produktfunktionen)
+
+Killer-Feature steht an. Reihenfolge:
+
+1. 🔵 **E4-1** — Prompt erweitern um `action: create | append` + `target_title`
+2. 🔵 **E3-2** — Vault-Writer: bei `action=append` an bestehende Notiz unter `## Update YYYY-MM-DD` anhängen (nutzt `vault_path` aus E3-1)
+3. ⚪ **E3-3** — Frontmatter-Updates bei Append (`updated:`-Datum, Tag-Merge)
+4. ⚪ **E4-2** — Tags als strukturiertes Feld
+5. ⚪ **E10-2** — Celery-Retries für OpenAI/Whisper (Reliability-Boost)
 
 ---
 
