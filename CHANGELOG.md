@@ -9,6 +9,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- Vision Phase E (Integrations & Ökosystem) in `ROADMAP.md`: Epics E13 (REST API),
+  E14 (n8n), E15 (Vault Backends), E16 (Setup CLI); Stories E7-3/E7-4
+  (Multi-LLM/Agenten); erweiterte Produktvision „Engine + Adapter".
+- [ADR 0003](./docs/adr/0003-engine-and-adapters.md): Architekturentscheidung
+  Headless Second-Brain-Engine mit Input/Output-Adaptern; Celery bleibt intern,
+  n8n als Integrationsschicht; Keys nur lokal beim Setup.
+- `docs/integrations/`: n8n-Anbindung (3 Stufen), Setup/Onboarding (TUI, doctor,
+  Key-Handling), Vault-Backends (Obsidian optional, `VaultBackend`-Interface).
 - Zentrale `Settings`-Klasse (`app/config.py`) auf Basis von
   `pydantic-settings`: alle Konfigurations-Werte werden typisiert aus
   Env-Variablen (und optional einer `.env`-Datei) gelesen. Pflichtfelder

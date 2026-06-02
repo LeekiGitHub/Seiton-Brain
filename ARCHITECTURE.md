@@ -83,6 +83,8 @@ Externe Artefakte:
 - `alembic/versions/*.py` — DB-Migrationen
 - `vault.example/` — Vault-Template für neue Selfhoster
 - `/vault/` (Bind Mount, gitignored) — der echte persönliche Vault
+- `docs/integrations/` — Vision: n8n, REST-API, Setup-CLI, Vault-Backends
+- `docs/adr/` — Architecture Decision Records
 
 ---
 
@@ -206,3 +208,63 @@ Mapping Category → Folder in `app/vault/writer.py:CATEGORY_FOLDERS`:
 | idea     | Ideas |
 | travel   | Travel |
 | note     | Notes (Default) |
+
+---
+
+## Langfristige Architektur: Engine + Adapter
+
+> **Status:** Vision / Phase E. Entscheidung dokumentiert in
+> [ADR 0003](./docs/adr/0003-engine-and-adapters.md). Heute implementiert:
+> Telegram-Input + Filesystem-Vault (Obsidian-kompatibel).
+
+Telegram und Obsidian sind **Default-Adapter**, nicht der Produktkern. Langfristig
+docken weitere Eingänge und Ausgänge an dieselbe Pipeline an.
+
+```mermaid
+flowchart LR
+  subgraph inputs [Input Adapters]
+    TG[Telegram]
+    API[HTTP API v1]
+    N8N[n8n]
+    CLI[CLI / TUI]
+  end
+
+  subgraph core [Seiton Brain Core]
+    Q[Celery Queue]
+    SVC[classify · route · append]
+    LLM[LLMProvider]
+    DB[(Postgres Audit)]
+  end
+
+  subgraph outputs [Output Adapters]
+    VAULT[VaultBackend<br/>Filesystem Markdown]
+    HOOK[Outbound Webhooks]
+    ALT[Weitere Backends]
+  end
+
+  TG --> Q
+  API --> Q
+  N8N --> API
+  CLI --> API
+  Q --> SVC --> LLM
+  SVC --> DB
+  SVC --> VAULT
+  SVC --> ALT
+  SVC --> HOOK
+  HOOK --> N8N
+```
+
+| Adapter | Heute | Geplant (Epic) |
+|---------|-------|----------------|
+| Telegram | ✅ | E1-3 Commands |
+| HTTP REST | — | E13 REST API |
+| n8n | — | E14 (HTTP zuerst, Custom Node später) |
+| Setup CLI | — | E16 (`init`, `doctor`, TUI) |
+| Filesystem Vault | ✅ | E15 `VaultBackend`-Interface |
+| Outbound Events | — | E13-3 Webhooks |
+
+Integrations-Details: [`docs/integrations/`](./docs/integrations/).
+Roadmap-Stories: Phase E, Epics E13–E16 in [`ROADMAP.md`](./ROADMAP.md).
+
+**Bewusst nicht:** Celery durch n8n ersetzen; Remote-Setup mit Key-Upload;
+eigene Obsidian-Ersatz-App.

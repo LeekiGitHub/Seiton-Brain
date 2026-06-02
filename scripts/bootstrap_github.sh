@@ -25,6 +25,8 @@ LABELS=(
   "epic:infra|FBCA04|Docker, config, hosting, reliability"
   "epic:docs|C2E0C6|Documentation, onboarding, ADRs"
   "epic:public-ready|BFD4F2|Licensing, contributor docs, public-release prep"
+  "epic:api|006B75|REST API, webhooks, external integrations"
+  "epic:n8n|FF6D00|n8n workflows and community node"
 
   # Types
   "type:feature|A2EEEF|New feature"
@@ -42,6 +44,7 @@ LABELS=(
   "phase:B-product|1D76DB|Phase B — Product features"
   "phase:C-robustness|5319E7|Phase C — Robustness & self-hosting"
   "phase:D-public|FBCA04|Phase D — Public release v1.0"
+  "phase:E-integrations|FF6D00|Phase E — Integrations & ecosystem"
 )
 
 echo ""
@@ -64,6 +67,7 @@ MILESTONES=(
   "Phase B — Product|Append-Logik, Telegram-Commands, Tags."
   "Phase C — Robustness|Retries, Logging, Mac Mini 24/7-Host, Cloudflare Tunnel."
   "Phase D — Public v1.0|Setup-Doku, optionaler Ollama-Provider, LICENSE-Ergänzungen."
+  "Phase E — Integrations|REST-API, n8n, Vault-Backends, Setup-CLI. Siehe docs/integrations/."
 )
 
 echo ""

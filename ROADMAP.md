@@ -15,7 +15,17 @@ Ich schicke dem Bot per Telegram (Text oder Sprache) einen Gedanken — eine hal
 - **Welche bestehenden Notizen sind verwandt → `[[Links]]`?**
 - **Titel, Zusammenfassung, Tags?**
 
-Ergebnis: eine gepflegte Markdown-Datei in meinem Obsidian-Vault, ohne dass ich Obsidian dafür öffne. Langfristig public-ready, sodass andere mit eigenem OpenAI-Key selbst hosten können.
+Ergebnis: eine gepflegte Markdown-Datei in meinem Obsidian-Vault, ohne dass ich Obsidian dafür öffne.
+
+**Langfristige Produktvision:** Seiton Brain ist eine **self-hosted Second-Brain-Engine**.
+Telegram und Obsidian sind die **Default-Adapter** — nicht das gesamte Produkt.
+Andere Eingänge (HTTP-API, n8n, CLI) und Ausgänge (andere Vault-Backends,
+Webhooks) sollen später andocken können, ohne den Kern neu zu bauen.
+Public-ready: andere hosten mit eigenem OpenAI-Key (oder Ollama), einfaches
+lokales Setup, Keys verlassen nie die Maschine des Users.
+
+Architektur-Entscheidung: [ADR 0003 — Engine + Adapter](./docs/adr/0003-engine-and-adapters.md).
+Integrations-Details: [`docs/integrations/`](./docs/integrations/).
 
 ---
 
@@ -27,6 +37,7 @@ Ergebnis: eine gepflegte Markdown-Datei in meinem Obsidian-Vault, ohne dass ich 
 | **B — Produktfunktionen** | Echtes Second-Brain-Verhalten: „bestehende Notiz ergänzen", Telegram-Commands, Tags. | ⚪ |
 | **C — Robustheit & Self-Hosting** | Retries, Logging, Mac Mini als 24/7-Host (Cloudflare Tunnel statt ngrok). | ⚪ |
 | **D — Public Release v1.0** | LICENSE, Setup-Doku für Selfhoster, optionaler Ollama-Provider. | ⚪ |
+| **E — Integrations & Ökosystem** | REST-API, n8n, Vault-Backends, Setup-CLI, Multi-LLM-Agenten (optional). | ⚪ |
 
 ---
 
@@ -108,6 +119,8 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 |----|-------|---|---|---|---|---|--------|-------|
 | E7-1 | Provider-unabhängige JSON-Validierung + Retry bei `JSONDecodeError`. | 3 | 2 | 2 | 4 | 3 | ⚪ | C |
 | E7-2 | Ollama-Provider implementieren (gleiches Pydantic-Schema). | 3 | 3 | 3 | 5 | 3 | ⚪ | D-Bonus |
+| E7-3 | Spezialisierte LLM-Rollen: Router (create/append), Writer (Summary/Tags), Linker (related) — je Prompt + Pydantic-Schema, max. 2–3 Steps im Core. | 4 | 3 | 2 | 5 | 3 | ⚪ | C/E |
+| E7-4 | (Optional) Multi-LLM-Orchestrierung in n8n statt im Python-Core dokumentieren + Beispiel-Workflow. | 3 | 2 | 1 | 4 | 2 | ⚪ | E |
 
 ---
 
@@ -164,6 +177,68 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 ---
 
+### E13 — REST API & Events · `epic:api`
+
+Voraussetzung für n8n, externe Tools und spätere Custom Nodes. Engine bleibt
+intern; API ist dünner Adapter nach außen.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E13-1 | REST-API v1: `POST /v1/capture`, `POST /v1/classify`, `GET /v1/entries` — gleiche Pipeline wie Telegram. | 5 | 3 | 2 | 5 | 4 | ⚪ | C |
+| E13-2 | API-Key-Auth (`SEITON_API_KEY` in `.env`, Header `X-Seiton-Api-Key`). | 4 | 1 | 1 | 3 | 4 | ⚪ | C |
+| E13-3 | Outbound Webhooks: `note.created`, `note.appended`, `entry.failed` (URL in Settings). | 4 | 2 | 2 | 4 | 3 | ⚪ | E |
+| E13-4 | OpenAPI/Swagger-Dokumentation unter `/docs` (nur wenn API-Key gesetzt / DEBUG). | 2 | 1 | 1 | 2 | 2 | ⚪ | D |
+
+Details: [`docs/integrations/n8n.md`](./docs/integrations/n8n.md)
+
+---
+
+### E14 — n8n-Ökosystem · `epic:n8n`
+
+n8n als Integrationsschicht — **nicht** Ersatz für Celery. Stufe 1: HTTP Request;
+Stufe 3: Custom Community-Node in **separatem** npm-Repo.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E14-1 | `examples/n8n/`: exportierte Workflow-JSONs (Capture, Webhook-Trigger, Todoist→Seiton). | 4 | 1 | 1 | 3 | 3 | ⚪ | D |
+| E14-2 | Community-Node `n8n-nodes-seiton-brain` (eigenes Repo): Capture, Search, Append, Get Entry. | 4 | 3 | 2 | 5 | 2 | ⚪ | E |
+| E14-3 | Doku: „Seiton + n8n“ im README + Link zu ADR 0003. | 2 | 1 | 1 | 2 | 3 | ⚪ | D |
+
+Details: [`docs/integrations/n8n.md`](./docs/integrations/n8n.md)
+
+---
+
+### E15 — Vault Backends · `epic:vault`
+
+Obsidian = Markdown-Ordner. Weitere Backends über Interface — keine eigene
+Notiz-App als Obsidian-Ersatz.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E15-1 | `VaultBackend`-Protocol; Filesystem-Implementierung extrahiert aus reader/writer. | 4 | 3 | 2 | 5 | 3 | ⚪ | D |
+| E15-2 | Doku: „Obsidian optional“ — jeder Markdown-Ordner reicht (`vault.example/`). | 3 | 1 | 1 | 2 | 3 | ⚪ | D |
+| E15-3 | (Optional) Git-backed Vault: Commit pro Note / konfigurierbarer Push. | 3 | 3 | 3 | 4 | 2 | ⚪ | E |
+| E15-4 | (Optional) Read-only Web-UI für Vault-Browse ohne Obsidian. | 3 | 4 | 2 | 4 | 1 | ⚪ | E |
+
+Details: [`docs/integrations/vault-backends.md`](./docs/integrations/vault-backends.md)
+
+---
+
+### E16 — Setup & Onboarding CLI · `epic:public-ready`
+
+Easy Setup für Selfhoster. **Keys nur lokal** — nie Remote-Install mit Key-Upload.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E16-1 | `scripts/init.sh` / `make init`: `.env` aus Example, Vault-Ordner, Docker-Hinweise — ohne Secrets abfragen. | 4 | 1 | 1 | 2 | 4 | ⚪ | D |
+| E16-2 | `seiton doctor`: prüft `.env`, DB, Redis, Vault-Pfad, optional OpenAI/Telegram. | 4 | 2 | 1 | 3 | 4 | ⚪ | D |
+| E16-3 | `seiton init` TUI: interaktiv `.env` schreiben (lokal, kein Netzwerk-Upload). | 4 | 2 | 1 | 3 | 3 | ⚪ | D/E |
+| E16-4 | (Optional) Browser-Setup `localhost:8000/setup` — einmalig, nur localhost. | 2 | 3 | 2 | 3 | 1 | ⚪ | E |
+
+Details: [`docs/integrations/setup-onboarding.md`](./docs/integrations/setup-onboarding.md)
+
+---
+
 ## Aktueller Sprint (Phase A — MVP-Härtung) ✅ abgeschlossen
 
 1. 🟢 **Doku-Fundament**: ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
@@ -183,6 +258,16 @@ Killer-Feature steht an. Reihenfolge:
 3. ⚪ **E3-3** — Frontmatter-Updates bei Append (`updated:`-Datum, Tag-Merge)
 4. ⚪ **E4-2** — Tags als strukturiertes Feld
 5. ⚪ **E10-2** — Celery-Retries für OpenAI/Whisper (Reliability-Boost)
+
+## Spätere Phasen (Kurzüberblick)
+
+| Phase | Fokus | Wichtigste Epics |
+|-------|-------|------------------|
+| **C** | Robustheit, Self-Hosting, REST-API | E9, E10, **E13** (API v1) |
+| **D** | Public v1.0, Setup, n8n-Beispiele | E11, E12, **E14-1**, **E16**, E7-2 |
+| **E** | Ökosystem | **E13-3** Webhooks, **E14-2** n8n-Node, **E15** Vault-Backends, E7-3/4 |
+
+Integrations-Vision und Szenarien: [`docs/integrations/`](./docs/integrations/).
 
 ---
 
