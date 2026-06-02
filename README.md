@@ -29,6 +29,7 @@ Stand jetzt (v0.1.0):
 
 Vollständige Historie: [`CHANGELOG.md`](./CHANGELOG.md).
 Was als nächstes kommt: [`ROADMAP.md`](./ROADMAP.md).
+Langfristige Integrations-Ideen (n8n, REST-API, Setup-CLI): [`docs/integrations/`](./docs/integrations/).
 Wie es gebaut ist: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 Wie selbst betreiben: [`docs/setup.md`](./docs/setup.md).
 
@@ -97,6 +98,7 @@ v0.1.0:
 
 Full history: [`CHANGELOG.md`](./CHANGELOG.md).
 What's next: [`ROADMAP.md`](./ROADMAP.md).
+Long-term integrations (n8n, REST API, setup CLI): [`docs/integrations/`](./docs/integrations/).
 How it's built: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 How to self-host: [`docs/setup.md`](./docs/setup.md).
 

@@ -177,3 +177,15 @@ docker compose down -v   # entfernt auch DB-Volume!
 rm -rf <dein-vault>      # nur wenn du den Vault wirklich löschen willst
 docker compose up --build
 ```
+
+---
+
+## Geplantes Setup (Phase D — noch nicht implementiert)
+
+Für Public Self-Hosting sind geplant: `scripts/init.sh`, `seiton doctor` und
+optional `seiton init` (TUI). **API-Keys werden dabei nur lokal in `.env`
+geschrieben** — nie an externe Server gesendet.
+
+Details: [`docs/integrations/setup-onboarding.md`](./integrations/setup-onboarding.md)
+
+Weitere Integrations-Ideen (n8n, Vault-Backends): [`docs/integrations/`](./integrations/)
