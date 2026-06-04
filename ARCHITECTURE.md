@@ -259,6 +259,7 @@ flowchart LR
     VAULT[VaultBackend<br/>Filesystem Markdown]
     HOOK[Outbound Webhooks]
     ALT[Weitere Backends]
+    RET[Retrieval / Q&A<br/>REST + MCP]
   end
 
   TG --> Q
@@ -271,6 +272,10 @@ flowchart LR
   SVC --> ALT
   SVC --> HOOK
   HOOK --> N8N
+  VAULT --> RET
+  RET --> TG
+  RET --> API
+  RET --> N8N
 ```
 
 | Adapter | Heute | Geplant (Epic) |
@@ -281,9 +286,21 @@ flowchart LR
 | Setup CLI | — | E16 (`init`, `doctor`, TUI) |
 | Filesystem Vault | ✅ | E15 `VaultBackend`-Interface |
 | Outbound Events | — | E13-3 Webhooks |
+| Retrieval / Q&A | — | E17 (Keyword → semantisch → RAG) |
+| MCP-Server (Brain als Tool für LLM-Agents) | — | E17-6 (separates Repo) |
 
 Integrations-Details: [`docs/integrations/`](./docs/integrations/).
 Roadmap-Stories: Phase E, Epics E13–E16 in [`ROADMAP.md`](./ROADMAP.md).
 
 **Bewusst nicht:** Celery durch n8n ersetzen; Remote-Setup mit Key-Upload;
-eigene Obsidian-Ersatz-App.
+eigene Obsidian-Ersatz-App; ungeschützte Public-Retrieval-Endpunkte (Auth
+identisch zur Capture-API).
+
+### Capture und Retrieve als gleichwertige Hälften
+
+Die Engine hat zwei Daseinszwecke: **Capture** (heute implementiert) und
+**Retrieve** (Epic E17, Phase F geplant). Beide Hälften nutzen denselben
+Engine-Kern, dieselben Pydantic-Schemas und denselben `VaultBackend`. Ohne
+Retrieve bleibt das System ein gut sortiertes Archiv; mit Retrieve wird es
+zur Wissensquelle, auf die Telegram (`/ask`), REST-Konsumenten und externe
+LLM-Agenten via MCP zugreifen können.
