@@ -182,6 +182,7 @@ Folgestories E1-2 (Idempotenz) und E3-1 (Filename-Kollision/vault_path).
 title: <title>
 category: <category>
 created: YYYY-MM-DD
+tags: [<tag>, <tag>]   ← nur wenn tags-Liste nicht leer (E4-2)
 ---
 
 # <title>

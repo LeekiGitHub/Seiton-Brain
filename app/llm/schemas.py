@@ -15,6 +15,13 @@ class ClassificationResult(BaseModel):
         default_factory=list,
         description="Titles of existing vault notes to link to",
     )
+    tags: list[str] = Field(
+        default_factory=list,
+        description=(
+            "0-5 short lowercase tags describing the note "
+            "(topic keywords, no spaces, no '#' prefix)"
+        ),
+    )
     action: Action = Field(
         default="create",
         description=(

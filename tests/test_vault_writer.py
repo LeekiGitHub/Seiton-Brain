@@ -8,6 +8,7 @@ from app.vault.writer import (
     _next_available_path,
     _related_section,
     _sanitize_filename,
+    _tags_frontmatter_line,
     append_to_note,
     write_note,
 )
@@ -26,6 +27,38 @@ def test_related_section_with_links():
     assert "[[Note A]]" in section
     assert "[[Note B]]" in section
     assert "## Related" in section
+
+
+def test_tags_frontmatter_line_empty():
+    assert _tags_frontmatter_line([]) == ""
+
+
+def test_tags_frontmatter_line_inline_list():
+    line = _tags_frontmatter_line(["idea", "side-project"])
+    assert line == "tags: [idea, side-project]\n"
+
+
+def test_write_note_includes_tags_in_frontmatter(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    result = ClassificationResult(
+        category="idea",
+        title="Tagged Note",
+        summary="Body.",
+        tags=["idea", "fitness"],
+    )
+    path = write_note(result)
+    content = path.read_text(encoding="utf-8")
+    assert "tags: [idea, fitness]" in content
+
+
+def test_write_note_omits_tags_line_when_empty(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    result = ClassificationResult(
+        category="note", title="Untagged", summary="Body.",
+    )
+    path = write_note(result)
+    content = path.read_text(encoding="utf-8")
+    assert "tags:" not in content
 
 
 def test_write_note(tmp_path, monkeypatch):

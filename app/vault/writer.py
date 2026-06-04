@@ -27,6 +27,17 @@ def _related_section(related: list[str]) -> str:
     return f"\n\n## Related\n{links}"
 
 
+def _tags_frontmatter_line(tags: list[str]) -> str:
+    """Rendert Tags als YAML-Inline-Liste im Frontmatter.
+
+    Leere Tag-Liste -> leerer String (keine Frontmatter-Zeile). Obsidian
+    erkennt Inline-Listen genauso wie Block-Listen.
+    """
+    if not tags:
+        return ""
+    return f"tags: [{', '.join(tags)}]\n"
+
+
 def _next_available_path(target_dir: Path, base_name: str) -> Path:
     """Erster freier Pfad: `<base>.md`, `<base> (2).md`, `<base> (3).md`, …
 
@@ -56,7 +67,7 @@ def write_note(result: ClassificationResult) -> Path:
 title: {result.title}
 category: {result.category}
 created: {date.today().isoformat()}
----
+{_tags_frontmatter_line(result.tags)}---
 
 # {result.title}
 

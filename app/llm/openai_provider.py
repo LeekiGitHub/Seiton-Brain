@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "classify.txt"
 MAX_RELATED = 3
+MAX_TAGS = 5
 
 
 class OpenAIProvider:
@@ -36,6 +37,7 @@ class OpenAIProvider:
         result = ClassificationResult.model_validate(data)
         result = self._sanitize_related(result, existing)
         result = self._sanitize_action(result, existing)
+        result = self._sanitize_tags(result)
         return result
 
     def _sanitize_related(
@@ -84,4 +86,26 @@ class OpenAIProvider:
             return result
 
         result.target_title = canonical
+        return result
+
+    def _sanitize_tags(self, result: ClassificationResult) -> ClassificationResult:
+        """Normalisiert Tags: lowercase, getrimmt, ohne '#'-Prefix, dedupliziert,
+        Whitespace -> Hyphen, max ``MAX_TAGS``.
+
+        Wir bleiben tolerant: was nicht zu retten ist (leer, nur Sonderzeichen),
+        wird verworfen. Bewusst kein Hard-Fail -- Tag-Qualitaet ist Cosmetic.
+        """
+        cleaned: list[str] = []
+        seen: set[str] = set()
+        for raw in result.tags:
+            if not isinstance(raw, str):
+                continue
+            tag = raw.strip().lstrip("#").lower()
+            tag = "-".join(tag.split())
+            tag = "".join(ch for ch in tag if ch.isalnum() or ch in "-_")
+            if not tag or tag in seen:
+                continue
+            seen.add(tag)
+            cleaned.append(tag)
+        result.tags = cleaned[:MAX_TAGS]
         return result

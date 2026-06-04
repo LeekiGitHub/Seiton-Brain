@@ -63,7 +63,7 @@ def test_classification_result_defaults_related():
         title="Test",
         summary="Summary.",
     )
-    assert result.related == []
+    assert result.tags == []
     assert result.action == "create"
     assert result.target_title is None
 
@@ -130,3 +130,44 @@ def test_sanitize_action_clears_target_for_create():
 
     sanitized = provider._sanitize_action(result, [])
     assert sanitized.target_title is None
+
+
+def test_sanitize_tags_normalizes_case_and_strip_hash():
+    provider = _provider()
+    result = ClassificationResult(
+        category="note", title="X", summary="Y",
+        tags=["#FitnessApp", "  Workout ", "fitness-app"],
+    )
+    sanitized = provider._sanitize_tags(result)
+    # lowercase + ohne '#' + deduped (FitnessApp und fitness-app sind verschieden)
+    assert sanitized.tags == ["fitnessapp", "workout", "fitness-app"]
+
+
+def test_sanitize_tags_replaces_spaces_with_hyphens():
+    provider = _provider()
+    result = ClassificationResult(
+        category="note", title="X", summary="Y",
+        tags=["Side Project", "second  brain"],
+    )
+    sanitized = provider._sanitize_tags(result)
+    assert sanitized.tags == ["side-project", "second-brain"]
+
+
+def test_sanitize_tags_drops_garbage_and_caps_to_five():
+    provider = _provider()
+    result = ClassificationResult(
+        category="note", title="X", summary="Y",
+        tags=["", "   ", "###", "a", "b", "c", "d", "e", "f"],
+    )
+    sanitized = provider._sanitize_tags(result)
+    assert sanitized.tags == ["a", "b", "c", "d", "e"]
+
+
+def test_sanitize_tags_dedupes():
+    provider = _provider()
+    result = ClassificationResult(
+        category="note", title="X", summary="Y",
+        tags=["work", "Work", "WORK", "meeting"],
+    )
+    sanitized = provider._sanitize_tags(result)
+    assert sanitized.tags == ["work", "meeting"]
