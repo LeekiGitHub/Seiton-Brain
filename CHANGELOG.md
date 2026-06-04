@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **Tags strukturiert (E4-2):** Das LLM gibt jetzt bis zu 5 kurze, lowercase
+  Tags pro Notiz zurueck. Sie landen als YAML-Inline-Liste
+  (`tags: [idea, fitness]`) im Frontmatter, sodass Obsidian sie direkt
+  indexiert. Sanitizer im OpenAI-Provider erzwingt Lowercase, ersetzt
+  Whitespace durch Hyphens, entfernt `#`-Prefixe und dedupliziert.
 - **Append-Logik (Killer-Feature von Phase B):** Das LLM entscheidet pro
   Nachricht zwischen `action: "create"` (neue Notiz) und `action: "append"`
   (bestehende Notiz ergaenzen). Bei Append haengt der Vault-Writer einen

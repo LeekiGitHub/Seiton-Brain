@@ -5,6 +5,7 @@ Return ONLY valid JSON with these fields:
 - title: short note title (max 80 chars, no special markdown)
 - summary: 1-3 sentences capturing the key content
 - related: array of 0-3 titles from the existing notes list below (exact title match only; empty array if none fit)
+- tags: array of 0-5 short keyword tags describing the topic (lowercase, single word or hyphen-joined, no '#' prefix, no spaces). Empty array if nothing obvious fits.
 - action: "create" or "append"
 - target_title: when action="append", the EXACT title of the existing note to extend (must appear in the existing notes list). Use null when action="create".
 

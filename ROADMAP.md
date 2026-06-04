@@ -86,7 +86,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
 | E4-1 | Prompt um `action` + `target_title` ergänzen (Append vs. Create). | 5 | 2 | 3 | 4 | 5 | 🟢 | B |
-| E4-2 | Tags als strukturiertes Feld in `ClassificationResult` + Frontmatter. | 4 | 1 | 1 | 3 | 4 | ⚪ | B |
+| E4-2 | Tags als strukturiertes Feld in `ClassificationResult` + Frontmatter. | 4 | 1 | 1 | 3 | 4 | 🟢 | B |
 | E4-3 | Konfigurierbare Kategorien (`vault_config.yaml`) statt hardcoded `CATEGORY_FOLDERS`. | 3 | 2 | 2 | 3 | 3 | ⚪ | B |
 | E4-4 | Prompt-Versionierung (`classify.v1.txt`, `classify.v2.txt`, `PROMPT_VERSION` in DB). | 2 | 1 | 1 | 4 | 2 | ⚪ | C |
 
