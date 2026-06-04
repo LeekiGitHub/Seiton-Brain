@@ -54,12 +54,19 @@ LABELS=(
 
 echo ""
 echo "── Labels ─────────────────────────────────────────"
+# Liste einmalig holen (war im alten Code pro Iteration und konnte still scheitern).
+existing_labels=$(gh label list --repo "$REPO" --limit 500 --json name -q '.[].name' || true)
 for entry in "${LABELS[@]}"; do
   IFS='|' read -r name color desc <<< "$entry"
-  if gh label list --repo "$REPO" --limit 200 --json name -q '.[].name' | grep -Fxq "$name"; then
+  if printf '%s\n' "$existing_labels" | grep -Fxq "$name"; then
+    # Existiert: trotzdem mit --force aktualisieren, damit Farbe/Beschreibung
+    # immer dem Stand des Skripts entsprechen. Idempotent.
+    gh label edit "$name" --repo "$REPO" --color "$color" --description "$desc" >/dev/null 2>&1 || true
     echo "  ✓ exists: $name"
   else
-    gh label create "$name" --repo "$REPO" --color "$color" --description "$desc" >/dev/null
+    # --force fängt seltene Race-Bedingungen ab, falls das Label
+    # zwischenzeitlich angelegt wurde.
+    gh label create "$name" --repo "$REPO" --color "$color" --description "$desc" --force >/dev/null
     echo "  + created: $name"
   fi
 done
@@ -78,14 +85,15 @@ MILESTONES=(
 
 echo ""
 echo "── Milestones ─────────────────────────────────────"
-existing_ms=$(gh api "repos/$REPO/milestones?state=all" --jq '.[].title')
+existing_ms=$(gh api "repos/$REPO/milestones?state=all" --jq '.[].title' || true)
 for entry in "${MILESTONES[@]}"; do
   IFS='|' read -r title desc <<< "$entry"
-  if echo "$existing_ms" | grep -Fxq "$title"; then
+  if printf '%s\n' "$existing_ms" | grep -Fxq "$title"; then
     echo "  ✓ exists: $title"
   else
-    gh api "repos/$REPO/milestones" -f title="$title" -f description="$desc" >/dev/null
-    echo "  + created: $title"
+    gh api "repos/$REPO/milestones" -f title="$title" -f description="$desc" >/dev/null \
+      && echo "  + created: $title" \
+      || echo "  ! skip:    $title (API-Fehler — Milestone evtl. schon vorhanden)"
   fi
 done
 
@@ -306,20 +314,23 @@ Details: \`docs/integrations/knowledge-retrieval.md\`, ROADMAP Epic E17."
 
 echo ""
 echo "── Issues ─────────────────────────────────────────"
-existing_titles=$(gh issue list --repo "$REPO" --state all --limit 200 --json title -q '.[].title')
+existing_titles=$(gh issue list --repo "$REPO" --state all --limit 500 --json title -q '.[].title' || true)
 
 for entry in "${ISSUES[@]}"; do
   IFS='|' read -r title milestone labels body <<< "$entry"
-  if echo "$existing_titles" | grep -Fxq "$title"; then
+  if printf '%s\n' "$existing_titles" | grep -Fxq "$title"; then
     echo "  ✓ exists: $title"
   else
-    gh issue create \
-      --repo "$REPO" \
-      --title "$title" \
-      --body "$body" \
-      --milestone "$milestone" \
-      --label "$labels" >/dev/null
-    echo "  + created: $title"
+    if gh issue create \
+        --repo "$REPO" \
+        --title "$title" \
+        --body "$body" \
+        --milestone "$milestone" \
+        --label "$labels" >/dev/null 2>&1; then
+      echo "  + created: $title"
+    else
+      echo "  ! skip:    $title (gh issue create fehlgeschlagen — Labels/Milestone vorhanden?)"
+    fi
   fi
 done
 
