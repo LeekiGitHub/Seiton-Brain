@@ -1,9 +1,14 @@
+from datetime import date
+
+import pytest
+
 from app.config import settings
 from app.llm.schemas import ClassificationResult
 from app.vault.writer import (
     _next_available_path,
     _related_section,
     _sanitize_filename,
+    append_to_note,
     write_note,
 )
 
@@ -79,3 +84,63 @@ def test_write_note_does_not_overwrite_existing(tmp_path, monkeypatch):
     assert first.read_text(encoding="utf-8") != second.read_text(encoding="utf-8")
     assert "First version." in first.read_text(encoding="utf-8")
     assert "A second, different note" in second.read_text(encoding="utf-8")
+
+
+def test_append_to_note_adds_update_section(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    base = ClassificationResult(
+        category="idea",
+        title="Fitness App",
+        summary="Initial idea.",
+    )
+    original = write_note(base)
+    relative = str(original.relative_to(tmp_path))
+
+    update = ClassificationResult(
+        category="idea",
+        title="Workout log feature",
+        summary="Add daily workout logging.",
+        action="append",
+        target_title="Fitness App",
+    )
+    result_path = append_to_note(relative, update)
+
+    assert result_path == original
+    content = original.read_text(encoding="utf-8")
+    assert "Initial idea." in content
+    assert f"## Update {date.today().isoformat()}" in content
+    assert "Add daily workout logging." in content
+
+
+def test_append_to_note_includes_related_section(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    base = ClassificationResult(
+        category="note", title="Project X", summary="Start."
+    )
+    path = write_note(base)
+    relative = str(path.relative_to(tmp_path))
+
+    update = ClassificationResult(
+        category="note",
+        title="More on X",
+        summary="Linking related work.",
+        related=["Other Note"],
+        action="append",
+        target_title="Project X",
+    )
+    append_to_note(relative, update)
+    content = path.read_text(encoding="utf-8")
+    assert "[[Other Note]]" in content
+
+
+def test_append_to_note_raises_if_file_missing(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    update = ClassificationResult(
+        category="note",
+        title="X",
+        summary="Y",
+        action="append",
+        target_title="Nope",
+    )
+    with pytest.raises(FileNotFoundError):
+        append_to_note("Notes/does-not-exist.md", update)

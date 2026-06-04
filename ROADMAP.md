@@ -75,7 +75,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
 | E3-1 | Filename-Kollision verhindern: keine stillschweigende Überschreibung. | 5 | 2 | 3 | 3 | 5 | 🟢 | A |
-| E3-2 | „Bestehende Notiz ergänzen": LLM-`action: create\|append`, Writer hängt unter `## Update YYYY-MM-DD` an. | 5 | 4 | 3 | 5 | 5 | ⚪ | B |
+| E3-2 | „Bestehende Notiz ergänzen": LLM-`action: create\|append`, Writer hängt unter `## Update YYYY-MM-DD` an. | 5 | 4 | 3 | 5 | 5 | 🟢 | B |
 | E3-3 | Frontmatter-Updates bei Append (`updated:`, Tag-Merge). | 3 | 2 | 2 | 3 | 3 | ⚪ | B |
 | E3-4 | Atomares Schreiben (Tempfile + `os.replace`), damit Obsidian-Sync keine halben Dateien sieht. | 3 | 1 | 2 | 4 | 3 | ⚪ | B |
 
@@ -85,7 +85,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E4-1 | Prompt um `action` + `target_title` ergänzen (Append vs. Create). | 5 | 2 | 3 | 4 | 5 | ⚪ | B |
+| E4-1 | Prompt um `action` + `target_title` ergänzen (Append vs. Create). | 5 | 2 | 3 | 4 | 5 | 🟢 | B |
 | E4-2 | Tags als strukturiertes Feld in `ClassificationResult` + Frontmatter. | 4 | 1 | 1 | 3 | 4 | ⚪ | B |
 | E4-3 | Konfigurierbare Kategorien (`vault_config.yaml`) statt hardcoded `CATEGORY_FOLDERS`. | 3 | 2 | 2 | 3 | 3 | ⚪ | B |
 | E4-4 | Prompt-Versionierung (`classify.v1.txt`, `classify.v2.txt`, `PROMPT_VERSION` in DB). | 2 | 1 | 1 | 4 | 2 | ⚪ | C |
@@ -249,15 +249,13 @@ Details: [`docs/integrations/setup-onboarding.md`](./docs/integrations/setup-onb
 6. 🟢 **E3-1** — Filename-Kollision verhindern
 7. 🟢 **E8-1** — Settings-Klasse (pydantic-settings)
 
-## Nächster Sprint (Phase B — Produktfunktionen)
+## Aktueller Sprint (Phase B — Produktfunktionen)
 
-Killer-Feature steht an. Reihenfolge:
-
-1. 🔵 **E4-1** — Prompt erweitern um `action: create | append` + `target_title`
-2. 🔵 **E3-2** — Vault-Writer: bei `action=append` an bestehende Notiz unter `## Update YYYY-MM-DD` anhängen (nutzt `vault_path` aus E3-1)
-3. ⚪ **E3-3** — Frontmatter-Updates bei Append (`updated:`-Datum, Tag-Merge)
-4. ⚪ **E4-2** — Tags als strukturiertes Feld
-5. ⚪ **E10-2** — Celery-Retries für OpenAI/Whisper (Reliability-Boost)
+1. 🟢 **E4-1 + E3-2** — Append-Logik (Killer-Feature)
+2. 🔵 **E3-3** — Frontmatter-Updates bei Append (`updated:`-Datum, Tag-Merge)
+3. 🔵 **E4-2** — Tags als strukturiertes Feld
+4. ⚪ **E10-2** — Celery-Retries für OpenAI/Whisper (Reliability-Boost)
+5. ⚪ **E1-3** — Telegram-Commands (`/recent`, `/find`, `/undo`)
 
 ## Spätere Phasen (Kurzüberblick)
 

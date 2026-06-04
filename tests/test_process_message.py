@@ -139,3 +139,80 @@ async def test_process_text_message_without_update_id_skips_pre_check(
     assert entry.vault_path == "Notes/Test.md"
     db.commit.assert_awaited_once()
     mock_write_note.assert_called_once()
+
+
+@pytest.mark.asyncio
+@patch("app.services.process_message._resolve_append_target", new_callable=AsyncMock)
+@patch("app.services.process_message.append_to_note")
+@patch("app.services.process_message.write_note")
+@patch("app.services.process_message.get_llm_provider")
+async def test_process_text_message_appends_when_target_resolves(
+    mock_provider, mock_write_note, mock_append, mock_resolve
+):
+    classification = ClassificationResult(
+        category="idea",
+        title="Workout log feature",
+        summary="Add daily log.",
+        action="append",
+        target_title="Fitness App",
+    )
+    llm = MagicMock()
+    llm.classify = AsyncMock(return_value=classification)
+    mock_provider.return_value = llm
+    mock_resolve.return_value = "Ideas/Fitness App.md"
+    mock_append.return_value = VAULT_ROOT / "Ideas" / "Fitness App.md"
+    db = _db_with_pre_check_result(found=False)
+
+    result = await process_text_message(
+        "Add daily log to fitness app",
+        db,
+        telegram_update_id=7001,
+    )
+
+    assert result is not None
+    assert result.action == "append"
+    assert result.target_title == "Fitness App"
+    mock_append.assert_called_once_with("Ideas/Fitness App.md", classification)
+    mock_write_note.assert_not_called()
+    entry = db.add.call_args[0][0]
+    assert entry.status == "appended"
+    assert entry.vault_path == "Ideas/Fitness App.md"
+    assert entry.title == "Workout log feature"
+
+
+@pytest.mark.asyncio
+@patch("app.services.process_message._resolve_append_target", new_callable=AsyncMock)
+@patch("app.services.process_message.append_to_note")
+@patch("app.services.process_message.write_note")
+@patch("app.services.process_message.get_llm_provider")
+async def test_process_text_message_falls_back_to_create_when_target_missing(
+    mock_provider, mock_write_note, mock_append, mock_resolve
+):
+    classification = ClassificationResult(
+        category="idea",
+        title="Solo idea",
+        summary="Stand alone.",
+        action="append",
+        target_title="Vanished Note",
+    )
+    llm = MagicMock()
+    llm.classify = AsyncMock(return_value=classification)
+    mock_provider.return_value = llm
+    mock_resolve.return_value = None
+    mock_write_note.return_value = VAULT_ROOT / "Ideas" / "Solo idea.md"
+    db = _db_with_pre_check_result(found=False)
+
+    result = await process_text_message(
+        "Some content",
+        db,
+        telegram_update_id=7002,
+    )
+
+    assert result is not None
+    assert result.action == "create"
+    assert result.target_title is None
+    mock_append.assert_not_called()
+    mock_write_note.assert_called_once()
+    entry = db.add.call_args[0][0]
+    assert entry.status == "processed"
+    assert entry.vault_path == "Ideas/Solo idea.md"

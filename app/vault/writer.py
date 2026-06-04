@@ -64,3 +64,29 @@ created: {date.today().isoformat()}
 """
     filepath.write_text(content, encoding="utf-8")
     return filepath
+
+
+def append_to_note(vault_relative_path: str, result: ClassificationResult) -> Path:
+    """Haengt einen Update-Block an eine bestehende Notiz an.
+
+    Das Format ist bewusst minimal: eine Leerzeile, eine ``## Update <Datum>``-
+    Ueberschrift, der Summary-Text, optional eine kleine Related-Sektion.
+    Frontmatter-Updates (``updated:``, Tag-Merge) bleiben Story E3-3.
+    """
+    vault_root = Path(settings.obsidian_vault_path)
+    filepath = vault_root / vault_relative_path
+    if not filepath.exists():
+        raise FileNotFoundError(
+            f"Cannot append to missing vault file: {vault_relative_path}"
+        )
+
+    existing = filepath.read_text(encoding="utf-8")
+    if not existing.endswith("\n"):
+        existing += "\n"
+
+    block = f"\n## Update {date.today().isoformat()}\n\n{result.summary}\n"
+    if result.related:
+        block += _related_section(result.related).lstrip("\n") + "\n"
+
+    filepath.write_text(existing + block, encoding="utf-8")
+    return filepath
