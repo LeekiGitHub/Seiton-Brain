@@ -9,6 +9,26 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **Planungsergänzung „Brain als Wissensquelle":** ROADMAP-Vision um die
+  zweite Produkthälfte (Retrieve neben Capture) erweitert, neue Phase **F**
+  und neues **Epic E17 — Knowledge Retrieval & Q&A** mit acht Stories
+  (Keyword-Suche, semantische Suche via pgvector, RAG-Antwort-Service,
+  Telegram-`/ask`, Retrieval-API `POST /v1/ask`, MCP-Server in separatem
+  Repo für externe LLM-Agenten, `note.indexed`-Event, Digest-Synthese).
+  `ARCHITECTURE.md`: Engine+Adapter-Diagramm und -Tabelle um Output-Adapter
+  „Retrieval / Q&A" und „MCP-Server" ergänzt; expliziter Abschnitt
+  „Capture und Retrieve als gleichwertige Hälften". Neue Integrations-Doc
+  [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowledge-retrieval.md)
+  beschreibt die drei Stufen, MCP-Tools, Szenarien und offene Fragen.
+  Keine Code-Änderungen — reine Planungslücke geschlossen.
+- **Backlog-Hygiene:** `scripts/bootstrap_github.sh` um neue Labels
+  (`epic:retrieval`, `phase:F-knowledge`, `meta:epic-tracker`), Milestone
+  „Phase F — Knowledge" und neue Issue-Vorlagen erweitert: konkrete
+  Story-Issues für Phase B (E3-3, E3-4, E10-2, E1-3, E1-4) sowie
+  Epic-Tracker-Issues mit Story-Checklisten für E13–E17.
+- **Konsistenz-Fix in ROADMAP:** E1-3 nicht mehr mit `/ask`-Hinweis
+  überladen (`/ask` gehört zu E17-4). E5-1/E5-2 nach Phase C verschoben,
+  damit der Vault-Index zeitlich zu seinem Konsumenten E17-1 passt.
 - **Tags strukturiert (E4-2):** Das LLM gibt jetzt bis zu 5 kurze, lowercase
   Tags pro Notiz zurueck. Sie landen als YAML-Inline-Liste
   (`tags: [idea, fitness]`) im Frontmatter, sodass Obsidian sie direkt

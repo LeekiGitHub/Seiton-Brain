@@ -17,10 +17,19 @@ Ich schicke dem Bot per Telegram (Text oder Sprache) einen Gedanken — eine hal
 
 Ergebnis: eine gepflegte Markdown-Datei in meinem Obsidian-Vault, ohne dass ich Obsidian dafür öffne.
 
+**Zweite Hälfte der Vision — Brain als Wissensquelle:** Erfasstes Wissen muss
+auch wieder *raus*. Ich frage den Bot „Was weiß ich über X?", lasse mir Themen
+zusammenfassen, oder lasse andere Systeme (n8n-Workflows, LLM-Agenten via
+MCP/Tool-Use, ChatGPT/Claude Desktop) auf meinen Vault als Wissensbasis
+zugreifen. Capture **und** Retrieve sind gleichwertige Produkthälften — ein
+Second Brain, das man nur befüllen, aber nicht befragen kann, ist ein Archiv,
+kein Brain. Siehe Epic **E17**.
+
 **Langfristige Produktvision:** Seiton Brain ist eine **self-hosted Second-Brain-Engine**.
 Telegram und Obsidian sind die **Default-Adapter** — nicht das gesamte Produkt.
 Andere Eingänge (HTTP-API, n8n, CLI) und Ausgänge (andere Vault-Backends,
-Webhooks) sollen später andocken können, ohne den Kern neu zu bauen.
+Webhooks, Retrieval/Q&A-API, MCP-Server) sollen später andocken können, ohne
+den Kern neu zu bauen.
 Public-ready: andere hosten mit eigenem OpenAI-Key (oder Ollama), einfaches
 lokales Setup, Keys verlassen nie die Maschine des Users.
 
@@ -38,6 +47,7 @@ Integrations-Details: [`docs/integrations/`](./docs/integrations/).
 | **C — Robustheit & Self-Hosting** | Retries, Logging, Mac Mini als 24/7-Host (Cloudflare Tunnel statt ngrok). | ⚪ |
 | **D — Public Release v1.0** | LICENSE, Setup-Doku für Selfhoster, optionaler Ollama-Provider. | ⚪ |
 | **E — Integrations & Ökosystem** | REST-API, n8n, Vault-Backends, Setup-CLI, Multi-LLM-Agenten (optional). | ⚪ |
+| **F — Knowledge Retrieval & Q&A** | Brain wird befragbar: semantische Suche, RAG-Antworten via Telegram, Retrieval-API + MCP-Server für Fremdagents. | ⚪ |
 
 ---
 
@@ -96,8 +106,8 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E5-1 | Vault-Index in Postgres spiegeln (Titel, Pfad, mtime); statt jedes Mal `rglob`. | 3 | 3 | 3 | 4 | 3 | ⚪ | B |
-| E5-2 | Heuristisches Pre-Filtering vor LLM (Token-Match, max. 30 Notizen). | 3 | 2 | 1 | 3 | 3 | ⚪ | B |
+| E5-1 | Vault-Index in Postgres spiegeln (Titel, Pfad, mtime); statt jedes Mal `rglob`. Voraussetzung für E17-1 (Keyword-Suche). | 3 | 3 | 3 | 4 | 3 | ⚪ | C |
+| E5-2 | Heuristisches Pre-Filtering vor LLM (Token-Match, max. 30 Notizen). | 3 | 2 | 1 | 3 | 3 | ⚪ | C |
 | E5-3 | (Optional v2) pgvector-Embeddings für semantische Ähnlichkeit. | 4 | 4 | 3 | 5 | 2 | ⚪ | später |
 
 ---
@@ -239,6 +249,37 @@ Details: [`docs/integrations/setup-onboarding.md`](./docs/integrations/setup-onb
 
 ---
 
+### E17 — Knowledge Retrieval & Q&A · `epic:retrieval`
+
+Brain als **Wissensquelle**, nicht nur als Schreibtisch. Stufenweise von
+Keyword-Liste über semantische Suche bis zu RAG-Antworten und externer
+Programmatic-Access-Schicht (MCP / Tool-Use für LLM-Agenten). Baut auf
+E5-3 (pgvector), E13 (REST-API) und E15 (`VaultBackend`-Interface) auf.
+
+Default-Adapter: Telegram (`/ask`). Weitere Konsumenten: REST-API,
+n8n-Workflows, externe LLM-Agenten via MCP — alle gegen denselben
+Retrieval-Service.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E17-1 | Keyword-Suche über Vault-Index (DB-gespiegelt aus E5-1): Titel/Body-Match, Top-N Resultate mit `vault_path` + Snippet. Fundament für `/find` und `/v1/notes/search`. | 4 | 2 | 1 | 3 | 4 | ⚪ | C |
+| E17-2 | Semantische Suche via pgvector (setzt E5-3 voraus): Embedding pro Notiz beim Schreiben/Append, Query-Embedding, kNN-Retrieval. | 5 | 4 | 3 | 5 | 3 | ⚪ | E/F |
+| E17-3 | RAG-Antwort-Service: Retrieval (E17-1/2) → Prompt mit Kontext-Snippets + Quellen → LLM-Antwort mit `[[Wiki-Links]]` zu Source-Notes. Eigener Pydantic-Schema (`AnswerResult`: `answer`, `sources[]`, `confidence`). | 5 | 4 | 3 | 5 | 4 | ⚪ | F |
+| E17-4 | Telegram-Command `/ask <frage>`: nutzt E17-3, Antwort im Chat mit anklickbaren Source-Links zur Vault-Notiz. | 5 | 2 | 2 | 4 | 4 | ⚪ | F |
+| E17-5 | Retrieval-API: `POST /v1/ask` (RAG-Antwort), `GET /v1/notes/search?q=...&semantic=true` (Treffer-Liste). Gleiche API-Key-Auth wie E13-2. | 5 | 3 | 2 | 4 | 4 | ⚪ | F |
+| E17-6 | MCP-Server `seiton-brain-mcp` (separates Repo, analog zu E14-2): exponiert `search_notes`, `ask_brain`, `get_note` als MCP-Tools, damit Claude Desktop / Cursor / beliebige LLM-Agenten den Vault als Wissensquelle nutzen können. Authentifiziert per `SEITON_API_KEY`. | 5 | 4 | 3 | 5 | 3 | ⚪ | F |
+| E17-7 | Outbound-Event `note.indexed` (für n8n-Trigger nach Embedding-Berechnung) + Doku „Brain als Knowledge-Backend in n8n-/Agent-Workflows". | 3 | 2 | 2 | 3 | 2 | ⚪ | F |
+| E17-8 | (Optional) Aggregierte Sichten: `/digest <thema>` / `POST /v1/digest` — LLM-Synthese mehrerer verwandter Notizen (Wochenrückblick, Themen-Brief). | 4 | 3 | 2 | 4 | 2 | ⚪ | F-Bonus |
+
+Bewusst **nicht** in E17: eigene Such-UI (Obsidian-Suche bleibt für Browsing
+zuständig); Re-Implementierung von Embedding-Berechnung außerhalb des Engine-
+Cores; ungeschützter Public-Endpunkt (Retrieval ist genauso sensibel wie
+Capture — Auth identisch zu E13-2).
+
+Details: [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowledge-retrieval.md)
+
+---
+
 ## Aktueller Sprint (Phase A — MVP-Härtung) ✅ abgeschlossen
 
 1. 🟢 **Doku-Fundament**: ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
@@ -252,10 +293,11 @@ Details: [`docs/integrations/setup-onboarding.md`](./docs/integrations/setup-onb
 ## Aktueller Sprint (Phase B — Produktfunktionen)
 
 1. 🟢 **E4-1 + E3-2** — Append-Logik (Killer-Feature)
-2. 🔵 **E3-3** — Frontmatter-Updates bei Append (`updated:`-Datum, Tag-Merge)
-3. 🔵 **E4-2** — Tags als strukturiertes Feld
+2. 🟢 **E4-2** — Tags als strukturiertes Feld
+3. ⚪ **E3-3** — Frontmatter-Updates bei Append (`updated:`-Datum, Tag-Merge) ← **als nächstes**
 4. ⚪ **E10-2** — Celery-Retries für OpenAI/Whisper (Reliability-Boost)
 5. ⚪ **E1-3** — Telegram-Commands (`/recent`, `/find`, `/undo`)
+6. ⚪ **E3-4** — Atomares Schreiben (Tempfile + `os.replace`)
 
 ## Spätere Phasen (Kurzüberblick)
 
@@ -263,7 +305,8 @@ Details: [`docs/integrations/setup-onboarding.md`](./docs/integrations/setup-onb
 |-------|-------|------------------|
 | **C** | Robustheit, Self-Hosting, REST-API | E9, E10, **E13** (API v1) |
 | **D** | Public v1.0, Setup, n8n-Beispiele | E11, E12, **E14-1**, **E16**, E7-2 |
-| **E** | Ökosystem | **E13-3** Webhooks, **E14-2** n8n-Node, **E15** Vault-Backends, E7-3/4 |
+| **E** | Ökosystem | **E13-3** Webhooks, **E14-2** n8n-Node, **E15** Vault-Backends, E7-3/4, **E17-1/2** Suche |
+| **F** | Brain als Wissensquelle | **E17-3/4** RAG + `/ask`, **E17-5** Retrieval-API, **E17-6** MCP-Server, **E17-8** Digest |
 
 Integrations-Vision und Szenarien: [`docs/integrations/`](./docs/integrations/).
 
