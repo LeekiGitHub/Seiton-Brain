@@ -96,10 +96,11 @@ Externe Artefakte:
 4. Celery-Worker greift Task ab → öffnet **neue** Async-Engine (`worker_session()`) → übergibt an `services.process_message.process_text_message`
 5. Service:
    - Pre-Check `telegram_update_id` (Race-Schutz)
-   - `LLMProvider.classify(text)` — Prompt enthält Vault-Kontext (existierende Notizen)
-   - `Entry` in DB persistieren (Audit-Trail mit Telegram-Metadaten, `raw_input`, `kind`); `IntegrityError` → `None` zurück (last-resort Race-Fallback)
-   - `write_note(result)` — Markdown-Datei im Vault anlegen
-6. Worker sendet Bestätigung „Gespeichert als [[Title]] unter Folder" zurück — bei `None`-Result (Duplikat) keine Bestätigung
+   - `LLMProvider.classify(text)` — Prompt enthält Vault-Kontext + entscheidet `action: create | append`
+   - **Branch Create:** `write_note(result)` legt neue `.md` an (Kollisionsschutz aus E3-1)
+   - **Branch Append:** `_resolve_append_target()` sucht den juengsten Entry mit gleichem `title` in der DB; gibt es ihn und liegt die Datei noch im Vault, ruft `append_to_note(vault_path, result)` einen `## Update YYYY-MM-DD`-Block ein. Sonst transparenter Fallback auf Create (mit Warn-Log)
+   - `Entry` persistieren (Audit, Telegram-Metadaten, `raw_input`, `kind`, `status` = `processed`/`appended`); `IntegrityError` → `None` zurück (last-resort Race-Fallback)
+6. Worker sendet Bestätigung zurück — bei Create `„Gespeichert als [[Title]] unter Folder"`, bei Append `„Ergänzt: [[Target-Title]]"`. Duplikat → keine Bestätigung.
 
 ## Datenfluss: Voice-Nachricht
 
@@ -197,6 +198,23 @@ Titelkollision wird der naechste freie Slot im Obsidian-Stil verwendet:
 `<sanitized-title> (2).md`, `<sanitized-title> (3).md`, ... Der finale
 relative Pfad (z.B. `Ideas/Fitness App (2).md`) landet in
 `entries.vault_path`.
+
+### Append-Format (E3-2)
+
+Bei `action="append"` haengt der Writer einen Update-Block an die bestehende
+Datei an statt eine neue anzulegen:
+
+```markdown
+## Update 2026-06-04
+
+<summary>
+
+## Related      ← nur wenn related-Liste nicht leer
+- [[<related title>]]
+```
+
+Frontmatter wird in E3-2 noch **nicht** mit-aktualisiert (`updated:`-Datum,
+Tag-Merge) — das ist Story E3-3.
 
 Mapping Category → Folder in `app/vault/writer.py:CATEGORY_FOLDERS`:
 

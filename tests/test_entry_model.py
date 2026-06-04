@@ -41,5 +41,6 @@ def test_value_sets_are_documented():
     assert "text" in KIND_VALUES
     assert "voice" in KIND_VALUES
     assert "processed" in STATUS_VALUES
+    assert "appended" in STATUS_VALUES
     assert "failed" in STATUS_VALUES
     assert "rejected" in STATUS_VALUES

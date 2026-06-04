@@ -34,8 +34,12 @@ async def _process_text(
                 telegram_update_id,
             )
             return
-        folder = CATEGORY_FOLDERS.get(result.category.lower(), "Notes")
-        await send_message(chat_id, f"Gespeichert als [[{result.title}]] unter {folder}")
+        if result.action == "append" and result.target_title:
+            message = f"Ergänzt: [[{result.target_title}]]"
+        else:
+            folder = CATEGORY_FOLDERS.get(result.category.lower(), "Notes")
+            message = f"Gespeichert als [[{result.title}]] unter {folder}"
+        await send_message(chat_id, message)
 
 
 async def _process_voice(

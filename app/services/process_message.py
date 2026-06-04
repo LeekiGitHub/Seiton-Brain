@@ -9,7 +9,7 @@ from app.config import settings
 from app.llm.provider import get_llm_provider
 from app.llm.schemas import ClassificationResult
 from app.models.entry import Entry
-from app.vault.writer import write_note
+from app.vault.writer import append_to_note, write_note
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +23,37 @@ def _to_vault_relative(note_path: Path) -> str:
         # Sollte nie passieren — Writer schreibt immer unterhalb des Vault-Roots.
         # Fallback: absoluten Pfad speichern, statt den Insert zu sprengen.
         return str(note_path)
+
+
+async def _resolve_append_target(
+    db: AsyncSession, target_title: str
+) -> str | None:
+    """Findet den juengsten Entry mit passendem Titel und liefert vault_path.
+
+    Liefert ``None``, wenn kein Eintrag passt oder die Vault-Datei verschwunden
+    ist — der Caller soll dann auf ``create`` zurueckfallen.
+    """
+    stmt = (
+        select(Entry.vault_path)
+        .where(Entry.title == target_title)
+        .where(Entry.vault_path.is_not(None))
+        .order_by(Entry.created_at.desc())
+        .limit(1)
+    )
+    vault_relative = (await db.execute(stmt)).scalar_one_or_none()
+    if vault_relative is None:
+        return None
+
+    abs_path = Path(settings.obsidian_vault_path) / vault_relative
+    if not abs_path.exists():
+        logger.warning(
+            "Append target %r has vault_path=%r but file is missing on disk",
+            target_title,
+            vault_relative,
+        )
+        return None
+
+    return vault_relative
 
 
 async def process_text_message(
@@ -56,12 +87,29 @@ async def process_text_message(
     llm = get_llm_provider()
     result = await llm.classify(text)
 
-    # Erst die Vault-Datei schreiben — der Writer findet einen kollisionsfreien
-    # Pfad (Title.md / Title (2).md / Title (3).md / ...). Den finalen Pfad
-    # speichern wir am Entry, damit wir spaeter z.B. Append-Updates wieder an
-    # die richtige Datei adressieren koennen (E3-2).
-    note_path = write_note(result)
-    vault_relative = _to_vault_relative(note_path)
+    # Append vs. Create. Bei action=append versuchen wir, die Ziel-Notiz ueber
+    # ihren Titel in der DB zu finden (juengster Entry). Klappt das nicht
+    # (z.B. Notiz wurde manuell geloescht, oder Titel existiert nur im Vault
+    # aber nicht in unserer DB), fallen wir transparent auf Create zurueck.
+    entry_status = "processed"
+    if result.action == "append" and result.target_title:
+        target_relative = await _resolve_append_target(db, result.target_title)
+        if target_relative is not None:
+            note_path = append_to_note(target_relative, result)
+            vault_relative = target_relative
+            entry_status = "appended"
+        else:
+            logger.info(
+                "Append fallback to create: target_title=%r not resolvable",
+                result.target_title,
+            )
+            result.action = "create"
+            result.target_title = None
+            note_path = write_note(result)
+            vault_relative = _to_vault_relative(note_path)
+    else:
+        note_path = write_note(result)
+        vault_relative = _to_vault_relative(note_path)
 
     entry = Entry(
         title=result.title,
@@ -73,6 +121,7 @@ async def process_text_message(
         telegram_message_id=telegram_message_id,
         telegram_chat_id=telegram_chat_id,
         kind=kind,
+        status=entry_status,
     )
     db.add(entry)
     try:
@@ -93,4 +142,10 @@ async def process_text_message(
         )
         return None
 
+    if entry_status == "appended":
+        logger.info(
+            "Appended to existing note %s (target_title=%r)",
+            vault_relative,
+            result.target_title,
+        )
     return result

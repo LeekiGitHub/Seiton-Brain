@@ -9,7 +9,7 @@ from app.models.base import Base
 # Wir benutzen VARCHAR statt Enum, damit Werte ohne Migration ergaenzt werden
 # koennen; die Listen hier sind die Quelle der Wahrheit fuer Code-Reviews.
 KIND_VALUES = {"text", "voice"}
-STATUS_VALUES = {"processed", "failed", "rejected"}
+STATUS_VALUES = {"processed", "appended", "failed", "rejected"}
 
 
 class Entry(Base):

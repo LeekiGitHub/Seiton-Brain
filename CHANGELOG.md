@@ -9,6 +9,21 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **Append-Logik (Killer-Feature von Phase B):** Das LLM entscheidet pro
+  Nachricht zwischen `action: "create"` (neue Notiz) und `action: "append"`
+  (bestehende Notiz ergaenzen). Bei Append haengt der Vault-Writer einen
+  `## Update YYYY-MM-DD`-Block an die vorhandene Markdown-Datei an, statt eine
+  neue anzulegen. `ClassificationResult` bekommt dafuer die Felder `action`
+  und `target_title`. Das Telegram-Reply ist `Ergänzt: [[Title]]` statt
+  `Gespeichert als ...`. (#6, E3-2 + E4-1)
+- `_sanitize_action` im OpenAI-Provider: halluziniert das LLM einen
+  `target_title`, der nicht im Vault existiert, faellt das System transparent
+  auf `action="create"` zurueck (mit Warn-Log) — kein Bot-Crash.
+- Service-Layer-Fallback: existiert der DB-Eintrag fuer den Append-Target,
+  aber die Vault-Datei wurde manuell geloescht, wird ebenfalls auf `create`
+  zurueckgefallen statt einen `FileNotFoundError` zu werfen.
+- Neuer Entry-Status `"appended"` und neue Writer-Funktion
+  `append_to_note(vault_relative_path, result)`.
 - Vision Phase E (Integrations & Ökosystem) in `ROADMAP.md`: Epics E13 (REST API),
   E14 (n8n), E15 (Vault Backends), E16 (Setup CLI); Stories E7-3/E7-4
   (Multi-LLM/Agenten); erweiterte Produktvision „Engine + Adapter".
