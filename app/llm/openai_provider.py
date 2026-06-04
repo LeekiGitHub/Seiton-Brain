@@ -6,6 +6,7 @@ from openai import AsyncOpenAI
 
 from app.config import settings
 from app.llm.schemas import ClassificationResult
+from app.llm.tags import normalize_tags
 from app.vault.reader import format_notes_for_prompt, known_titles, list_existing_notes
 
 logger = logging.getLogger(__name__)
@@ -89,23 +90,5 @@ class OpenAIProvider:
         return result
 
     def _sanitize_tags(self, result: ClassificationResult) -> ClassificationResult:
-        """Normalisiert Tags: lowercase, getrimmt, ohne '#'-Prefix, dedupliziert,
-        Whitespace -> Hyphen, max ``MAX_TAGS``.
-
-        Wir bleiben tolerant: was nicht zu retten ist (leer, nur Sonderzeichen),
-        wird verworfen. Bewusst kein Hard-Fail -- Tag-Qualitaet ist Cosmetic.
-        """
-        cleaned: list[str] = []
-        seen: set[str] = set()
-        for raw in result.tags:
-            if not isinstance(raw, str):
-                continue
-            tag = raw.strip().lstrip("#").lower()
-            tag = "-".join(tag.split())
-            tag = "".join(ch for ch in tag if ch.isalnum() or ch in "-_")
-            if not tag or tag in seen:
-                continue
-            seen.add(tag)
-            cleaned.append(tag)
-        result.tags = cleaned[:MAX_TAGS]
+        result.tags = normalize_tags(result.tags, max_tags=MAX_TAGS)
         return result

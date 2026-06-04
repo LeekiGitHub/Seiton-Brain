@@ -86,7 +86,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 |----|-------|---|---|---|---|---|--------|-------|
 | E3-1 | Filename-Kollision verhindern: keine stillschweigende Überschreibung. | 5 | 2 | 3 | 3 | 5 | 🟢 | A |
 | E3-2 | „Bestehende Notiz ergänzen": LLM-`action: create\|append`, Writer hängt unter `## Update YYYY-MM-DD` an. | 5 | 4 | 3 | 5 | 5 | 🟢 | B |
-| E3-3 | Frontmatter-Updates bei Append (`updated:`, Tag-Merge). | 3 | 2 | 2 | 3 | 3 | ⚪ | B |
+| E3-3 | Frontmatter-Updates bei Append (`updated:`, Tag-Merge). | 3 | 2 | 2 | 3 | 3 | 🟢 | B |
 | E3-4 | Atomares Schreiben (Tempfile + `os.replace`), damit Obsidian-Sync keine halben Dateien sieht. | 3 | 1 | 2 | 4 | 3 | ⚪ | B |
 
 ---
@@ -294,8 +294,8 @@ Details: [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowle
 
 1. 🟢 **E4-1 + E3-2** — Append-Logik (Killer-Feature)
 2. 🟢 **E4-2** — Tags als strukturiertes Feld
-3. ⚪ **E3-3** — Frontmatter-Updates bei Append (`updated:`-Datum, Tag-Merge) ← **als nächstes**
-4. ⚪ **E10-2** — Celery-Retries für OpenAI/Whisper (Reliability-Boost)
+3. 🟢 **E3-3** — Frontmatter-Updates bei Append (`updated:`-Datum, Tag-Merge)
+4. ⚪ **E10-2** — Celery-Retries für OpenAI/Whisper (Reliability-Boost) ← **als nächstes**
 5. ⚪ **E1-3** — Telegram-Commands (`/recent`, `/find`, `/undo`)
 6. ⚪ **E3-4** — Atomares Schreiben (Tempfile + `os.replace`)
 

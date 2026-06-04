@@ -6,7 +6,9 @@ from app.config import settings
 from app.llm.schemas import ClassificationResult
 from app.vault.writer import (
     _next_available_path,
+    _parse_frontmatter,
     _related_section,
+    _render_frontmatter,
     _sanitize_filename,
     _tags_frontmatter_line,
     append_to_note,
@@ -164,6 +166,147 @@ def test_append_to_note_includes_related_section(tmp_path, monkeypatch):
     append_to_note(relative, update)
     content = path.read_text(encoding="utf-8")
     assert "[[Other Note]]" in content
+
+
+def test_parse_frontmatter_inline_tags():
+    text = "---\ntitle: Foo\ntags: [a, b]\n---\nBody\n"
+    fm, body = _parse_frontmatter(text)
+    assert fm == {"title": "Foo", "tags": ["a", "b"]}
+    assert body == "Body\n"
+
+
+def test_parse_frontmatter_block_tags():
+    text = "---\ntitle: Foo\ntags:\n- a\n- b\n---\nBody\n"
+    fm, body = _parse_frontmatter(text)
+    assert fm is not None
+    assert fm["tags"] == ["a", "b"]
+    assert body == "Body\n"
+
+
+def test_parse_frontmatter_no_frontmatter():
+    fm, body = _parse_frontmatter("Just a body\n")
+    assert fm is None
+    assert body == "Just a body\n"
+
+
+def test_parse_frontmatter_unterminated():
+    fm, body = _parse_frontmatter("---\ntitle: Foo\nno closing fence\n")
+    assert fm is None
+
+
+def test_render_frontmatter_preserves_canonical_order():
+    rendered = _render_frontmatter(
+        {
+            "tags": ["x"],
+            "title": "T",
+            "extra": "keep",
+            "created": "2026-01-01",
+        }
+    )
+    assert rendered == (
+        "---\n"
+        "title: T\n"
+        "created: 2026-01-01\n"
+        "tags: [x]\n"
+        "extra: keep\n"
+        "---\n"
+    )
+
+
+def test_render_frontmatter_skips_empty_tag_list():
+    rendered = _render_frontmatter({"title": "T", "tags": []})
+    assert "tags:" not in rendered
+
+
+def test_append_to_note_sets_updated_date(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    base = ClassificationResult(
+        category="idea", title="Fitness App", summary="Start.", tags=["idea"]
+    )
+    path = write_note(base)
+    relative = str(path.relative_to(tmp_path))
+
+    update = ClassificationResult(
+        category="idea",
+        title="More",
+        summary="Add feature.",
+        action="append",
+        target_title="Fitness App",
+    )
+    append_to_note(relative, update)
+
+    content = path.read_text(encoding="utf-8")
+    assert f"updated: {date.today().isoformat()}" in content
+    assert content.count("---") >= 2, "frontmatter fences must remain"
+
+
+def test_append_to_note_merges_tags_without_duplicates(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    base = ClassificationResult(
+        category="idea",
+        title="Project X",
+        summary="Start.",
+        tags=["idea", "fitness"],
+    )
+    path = write_note(base)
+    relative = str(path.relative_to(tmp_path))
+
+    update = ClassificationResult(
+        category="idea",
+        title="More on X",
+        summary="More.",
+        tags=["fitness", "training"],
+        action="append",
+        target_title="Project X",
+    )
+    append_to_note(relative, update)
+
+    content = path.read_text(encoding="utf-8")
+    assert "tags: [idea, fitness, training]" in content
+    assert content.count("fitness") == 1, "fitness must not be duplicated in tags"
+
+
+def test_append_to_note_adds_tags_when_original_had_none(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    base = ClassificationResult(category="note", title="Untagged", summary="Body.")
+    path = write_note(base)
+    relative = str(path.relative_to(tmp_path))
+
+    update = ClassificationResult(
+        category="note",
+        title="Add tags now",
+        summary="Update.",
+        tags=["new"],
+        action="append",
+        target_title="Untagged",
+    )
+    append_to_note(relative, update)
+
+    content = path.read_text(encoding="utf-8")
+    assert "tags: [new]" in content
+
+
+def test_append_to_note_keeps_body_intact(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    base = ClassificationResult(
+        category="idea", title="Body Test", summary="Original body.", tags=["x"]
+    )
+    path = write_note(base)
+    relative = str(path.relative_to(tmp_path))
+
+    update = ClassificationResult(
+        category="idea",
+        title="More",
+        summary="Update text.",
+        action="append",
+        target_title="Body Test",
+    )
+    append_to_note(relative, update)
+
+    content = path.read_text(encoding="utf-8")
+    assert "Original body." in content
+    assert "Update text." in content
+    assert f"## Update {date.today().isoformat()}" in content
 
 
 def test_append_to_note_raises_if_file_missing(tmp_path, monkeypatch):
