@@ -9,6 +9,17 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E3-3: Frontmatter-Updates beim Append.** `append_to_note()` pflegt jetzt
+  beim Anhängen eines Update-Blocks auch das YAML-Frontmatter: Feld
+  `updated: <heute>` wird gesetzt (neu angelegt, falls noch nicht vorhanden),
+  und Tags aus dem Update werden mit den bestehenden Tags der Notiz gemergt
+  (deduplizierend, Reihenfolge stabil, Normalisierung wie bei Erstanlage).
+  Damit sortiert Obsidian „Sort by modified" wieder korrekt und Tag-Listen
+  bleiben konsolidiert. Hand-rollter Mini-Frontmatter-Parser in
+  `app/vault/writer.py` — bewusst keine PyYAML-Abhängigkeit, weil unser
+  Format auf ein paar wohldefinierte Keys beschränkt ist. Tag-Normalisierung
+  und -Merge in neues Modul `app/llm/tags.py` extrahiert, vom LLM-Provider
+  und Vault-Writer geteilt.
 - **Planungsergänzung „Brain als Wissensquelle":** ROADMAP-Vision um die
   zweite Produkthälfte (Retrieve neben Capture) erweitert, neue Phase **F**
   und neues **Epic E17 — Knowledge Retrieval & Q&A** mit acht Stories
