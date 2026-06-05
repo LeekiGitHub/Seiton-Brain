@@ -9,6 +9,17 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E10-2: Celery-Retries mit Backoff für OpenAI/Whisper.** Beide
+  Worker-Tasks (`process_text_message`, `process_voice_message`) sind
+  jetzt mit `autoretry_for=(RateLimitError, APITimeoutError,
+  APIConnectionError, APIError, httpx.HTTPError, ConnectionError,
+  TimeoutError)` konfiguriert: bis zu 3 Retries, exponentieller Backoff
+  mit Jitter, gedeckelt bei 60s. Transiente OpenAI-5xx, Rate-Limits oder
+  Netzwerk-Hiccups führen damit nicht mehr zum Verlust der Nachricht,
+  sondern werden im Hintergrund wiederholt. Celery's `Retry`-Exception
+  wird im `except`-Block ausgenommen, damit der User nicht pro Retry eine
+  „Etwas ist schiefgelaufen"-Telegram-Meldung bekommt — die kommt nur,
+  wenn alle Versuche erschöpft sind.
 - **E3-3: Frontmatter-Updates beim Append.** `append_to_note()` pflegt jetzt
   beim Anhängen eines Update-Blocks auch das YAML-Frontmatter: Feld
   `updated: <heute>` wird gesetzt (neu angelegt, falls noch nicht vorhanden),

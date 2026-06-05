@@ -159,7 +159,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
 | E10-1 | Strukturiertes Logging (JSON, Task-ID-Korrelation). | 3 | 2 | 1 | 4 | 4 | ⚪ | C |
-| E10-2 | Celery-Retries mit Backoff für OpenAI/Whisper (`autoretry_for`). | 4 | 2 | 2 | 4 | 4 | ⚪ | B |
+| E10-2 | Celery-Retries mit Backoff für OpenAI/Whisper (`autoretry_for`). | 4 | 2 | 2 | 4 | 4 | 🟢 | B |
 | E10-3 | Error-Forward via Telegram-DM an Admin (statt nur Log). | 3 | 2 | 1 | 3 | 3 | ⚪ | C |
 | E10-4 | Health-Endpunkt prüft DB + Redis. | 2 | 1 | 1 | 2 | 2 | ⚪ | C |
 
@@ -295,9 +295,10 @@ Details: [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowle
 1. 🟢 **E4-1 + E3-2** — Append-Logik (Killer-Feature)
 2. 🟢 **E4-2** — Tags als strukturiertes Feld
 3. 🟢 **E3-3** — Frontmatter-Updates bei Append (`updated:`-Datum, Tag-Merge)
-4. ⚪ **E10-2** — Celery-Retries für OpenAI/Whisper (Reliability-Boost) ← **als nächstes**
-5. ⚪ **E1-3** — Telegram-Commands (`/recent`, `/find`, `/undo`)
+4. 🟢 **E10-2** — Celery-Retries für OpenAI/Whisper (Reliability-Boost)
+5. ⚪ **E1-3** — Telegram-Commands (`/recent`, `/find`, `/undo`) ← **als nächstes**
 6. ⚪ **E3-4** — Atomares Schreiben (Tempfile + `os.replace`)
+7. ⚪ **E1-4** — Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen
 
 ## Spätere Phasen (Kurzüberblick)
 
