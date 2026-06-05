@@ -9,6 +9,20 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E1-3: Telegram-Slash-Commands.** Der Bot versteht jetzt
+  `/start`/`/help` (Hilfe-Text), `/recent [n]` (letzte N Notizen,
+  Default 5, max 20), `/find <begriff>` (case-insensitive
+  Substring-Suche über Titel via Postgres `ILIKE`, max 10 Treffer) und
+  `/undo` (zeigt die letzte Notiz inkl. Status; `/undo confirm` löscht
+  sie). Commands gehen synchron im Webhook durch, nicht über den
+  Celery-Worker — schnelle DB-Lookups statt LLM-Calls. Bei
+  `status="appended"`-Einträgen löscht `/undo confirm` bewusst nur den
+  DB-Eintrag, nicht die Vault-Datei (sonst wäre die ganze Notiz mit
+  evtl. vielen Update-Blöcken weg); der User wird auf den manuellen
+  Cleanup hingewiesen. Alle Queries werden per `telegram_chat_id`
+  isoliert, damit ein User nur seine eigenen Notizen sieht. Neuer
+  `delete_note()`-Helper im Vault-Writer. 22 neue Tests
+  (Command-Handler, Webhook-Dispatch, Vault-Delete).
 - **E10-2: Celery-Retries mit Backoff für OpenAI/Whisper.** Beide
   Worker-Tasks (`process_text_message`, `process_voice_message`) sind
   jetzt mit `autoretry_for=(RateLimitError, APITimeoutError,

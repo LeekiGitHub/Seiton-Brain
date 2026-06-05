@@ -8,6 +8,7 @@ from app.config import settings
 from app.db.session import SessionLocal
 from app.models.entry import Entry
 from app.telegram.client import send_message
+from app.telegram.commands import handle_command
 from app.worker.tasks import process_text_message_task, process_voice_message_task
 
 router = APIRouter()
@@ -97,7 +98,14 @@ async def telegram_webhook(
     voice = message.get("voice")
 
     try:
-        if text:
+        if text and text.startswith("/"):
+            # Slash-Commands synchron im Request — keine Worker-Queue.
+            # Schnelle DB-Lookups, kein LLM-Call. Antwort geht direkt zurueck.
+            async with SessionLocal() as db:
+                reply = await handle_command(text, chat_id, db)
+            if reply is not None:
+                await send_message(chat_id, reply)
+        elif text:
             process_text_message_task.delay(text, chat_id, update_id, message_id)
             await send_message(chat_id, "Wird verarbeitet…")
         elif voice:

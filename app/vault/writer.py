@@ -158,6 +158,22 @@ def _render_frontmatter(data: dict[str, str | list[str]]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def delete_note(vault_relative_path: str) -> bool:
+    """Loescht eine Vault-Datei, wenn sie existiert.
+
+    Liefert ``True``, wenn geloescht wurde, ``False`` wenn die Datei nicht
+    (mehr) da war. Wirft nichts — der Caller soll selbst entscheiden, ob
+    eine fehlende Datei ein Fehler ist (zB hat der User sie schon manuell
+    geloescht).
+    """
+    vault_root = Path(settings.obsidian_vault_path)
+    filepath = vault_root / vault_relative_path
+    if not filepath.exists():
+        return False
+    filepath.unlink()
+    return True
+
+
 def append_to_note(vault_relative_path: str, result: ClassificationResult) -> Path:
     """Haengt einen Update-Block an eine bestehende Notiz an und pflegt
     das Frontmatter (``updated:``-Datum, Tag-Merge — Story E3-3).

@@ -65,7 +65,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 |----|-------|---|---|---|---|---|--------|-------|
 | E1-1 | Allowlist: nur konfigurierte Telegram-User-IDs dürfen Nachrichten senden (`TELEGRAM_ALLOWED_USER_IDS`). | 5 | 1 | 1 | 2 | 5 | 🟢 | A |
 | E1-2 | Update-Idempotenz: gleiche `update_id` wird nur einmal verarbeitet (DB-Unique). | 4 | 2 | 2 | 4 | 4 | 🟢 | A |
-| E1-3 | Telegram-Commands: `/start`, `/help`, `/recent`, `/find <q>`, `/undo`. | 4 | 2 | 1 | 3 | 4 | ⚪ | B |
+| E1-3 | Telegram-Commands: `/start`, `/help`, `/recent`, `/find <q>`, `/undo`. | 4 | 2 | 1 | 3 | 4 | 🟢 | B |
 | E1-4 | Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen. | 2 | 1 | 2 | 2 | 2 | ⚪ | A |
 
 ---
@@ -296,8 +296,8 @@ Details: [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowle
 2. 🟢 **E4-2** — Tags als strukturiertes Feld
 3. 🟢 **E3-3** — Frontmatter-Updates bei Append (`updated:`-Datum, Tag-Merge)
 4. 🟢 **E10-2** — Celery-Retries für OpenAI/Whisper (Reliability-Boost)
-5. ⚪ **E1-3** — Telegram-Commands (`/recent`, `/find`, `/undo`) ← **als nächstes**
-6. ⚪ **E3-4** — Atomares Schreiben (Tempfile + `os.replace`)
+5. 🟢 **E1-3** — Telegram-Commands (`/start`, `/help`, `/recent`, `/find`, `/undo`)
+6. ⚪ **E3-4** — Atomares Schreiben (Tempfile + `os.replace`) ← **als nächstes**
 7. ⚪ **E1-4** — Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen
 
 ## Spätere Phasen (Kurzüberblick)
