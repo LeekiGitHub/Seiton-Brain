@@ -1,6 +1,15 @@
 import asyncio
 import logging
 
+import httpx
+from celery.exceptions import Retry
+from openai import (
+    APIConnectionError,
+    APIError,
+    APITimeoutError,
+    RateLimitError,
+)
+
 from app.db.session import worker_session
 from app.services.process_message import process_text_message
 from app.telegram.client import download_file, send_message
@@ -9,6 +18,35 @@ from app.vault.writer import CATEGORY_FOLDERS
 from app.worker.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
+
+# Transiente Fehler, die einen Retry rechtfertigen. Bewusst keine
+# Validation-/Auth-Fehler (4xx ausser 429) — die werden nie besser durch
+# Warten. Wir verlassen uns auf die OpenAI-SDK-Hierarchie:
+#   - RateLimitError, APITimeoutError, APIConnectionError -> spezifisch
+#   - APIError -> Basisklasse, faengt 5xx und generische API-Fehler
+# Daneben httpx- und Standard-Netzwerk-Fehler fuer alles davor (Telegram-
+# Download, andere HTTP-Calls).
+RETRYABLE_EXCEPTIONS: tuple[type[BaseException], ...] = (
+    RateLimitError,
+    APITimeoutError,
+    APIConnectionError,
+    APIError,
+    httpx.HTTPError,
+    ConnectionError,
+    TimeoutError,
+)
+
+# Celery-Retry-Konfiguration. Exponentieller Backoff mit Jitter, deckelt
+# bei 60s, gibt nach 3 Versuchen auf. Auf die Art "spuert" der User
+# einen Retry kaum (Telegram-Bestaetigung kommt halt 1-2s spaeter), aber
+# transiente OpenAI-Hiccups (429, 5xx) brennen nicht mehr die Notiz weg.
+RETRY_KWARGS = {
+    "autoretry_for": RETRYABLE_EXCEPTIONS,
+    "retry_backoff": True,
+    "retry_backoff_max": 60,
+    "retry_jitter": True,
+    "max_retries": 3,
+}
 
 
 async def _process_text(
@@ -69,7 +107,7 @@ def _run(coro) -> None:
     asyncio.run(coro)
 
 
-@celery_app.task(name="process_text_message", bind=True)
+@celery_app.task(name="process_text_message", bind=True, **RETRY_KWARGS)
 def process_text_message_task(
     self,
     text: str,
@@ -88,13 +126,21 @@ def process_text_message_task(
             )
         )
         logger.info("Task %s done: process_text_message chat_id=%s", self.request.id, chat_id)
+    except Retry:
+        # Celery hat den Retry geplant. Nicht als "echten" Fehler behandeln,
+        # keine Telegram-Nachricht senden — der User wuerde sonst pro Retry
+        # eine "schiefgelaufen"-Meldung bekommen.
+        raise
     except Exception:
-        logger.exception("Task %s failed: process_text_message chat_id=%s", self.request.id, chat_id)
+        logger.exception(
+            "Task %s failed permanently: process_text_message chat_id=%s",
+            self.request.id, chat_id,
+        )
         _run(_send_error(chat_id))
         raise
 
 
-@celery_app.task(name="process_voice_message", bind=True)
+@celery_app.task(name="process_voice_message", bind=True, **RETRY_KWARGS)
 def process_voice_message_task(
     self,
     file_id: str,
@@ -113,7 +159,12 @@ def process_voice_message_task(
             )
         )
         logger.info("Task %s done: process_voice_message chat_id=%s", self.request.id, chat_id)
+    except Retry:
+        raise
     except Exception:
-        logger.exception("Task %s failed: process_voice_message chat_id=%s", self.request.id, chat_id)
+        logger.exception(
+            "Task %s failed permanently: process_voice_message chat_id=%s",
+            self.request.id, chat_id,
+        )
         _run(_send_error(chat_id))
         raise
