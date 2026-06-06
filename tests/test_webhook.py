@@ -175,6 +175,67 @@ def test_webhook_silently_drops_duplicate_update(mock_task, mock_send, mock_dup)
     mock_send.assert_not_called()
 
 
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+@patch("app.telegram.webhook.process_text_message_task")
+@patch("app.telegram.webhook.handle_command", new_callable=AsyncMock)
+def test_webhook_dispatches_slash_command_without_enqueue(
+    mock_handle, mock_task, mock_send, mock_dup
+):
+    """Slash-Commands gehen direkt durch handle_command, nicht in den
+    Celery-Worker — kein LLM-Call, keine Notiz-Anlage."""
+    mock_handle.return_value = "Letzte Notizen: ..."
+
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 4001,
+            "message": {
+                "message_id": 1,
+                "text": "/recent",
+                "chat": {"id": 42},
+            },
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+
+    assert response.status_code == 200
+    mock_handle.assert_awaited_once()
+    args, _ = mock_handle.call_args
+    assert args[0] == "/recent"
+    assert args[1] == 42
+    mock_task.delay.assert_not_called()
+    mock_send.assert_called_once()
+    assert mock_send.call_args[0][1] == "Letzte Notizen: ..."
+
+
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+@patch("app.telegram.webhook.process_text_message_task")
+@patch("app.telegram.webhook.handle_command", new_callable=AsyncMock)
+def test_webhook_normal_text_still_goes_to_worker(
+    mock_handle, mock_task, mock_send, mock_dup
+):
+    """Sanity: nicht-Command-Text loest weiterhin den Worker aus
+    (kein versehentlicher Command-Dispatch)."""
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 4002,
+            "message": {
+                "message_id": 1,
+                "text": "Merke dir diese Idee",
+                "chat": {"id": 42},
+            },
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+
+    assert response.status_code == 200
+    mock_handle.assert_not_awaited()
+    mock_task.delay.assert_called_once()
+
+
 @patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock)
 @patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
 @patch("app.telegram.webhook.process_text_message_task")

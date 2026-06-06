@@ -12,6 +12,7 @@ from app.vault.writer import (
     _sanitize_filename,
     _tags_frontmatter_line,
     append_to_note,
+    delete_note,
     write_note,
 )
 
@@ -307,6 +308,20 @@ def test_append_to_note_keeps_body_intact(tmp_path, monkeypatch):
     assert "Original body." in content
     assert "Update text." in content
     assert f"## Update {date.today().isoformat()}" in content
+
+
+def test_delete_note_removes_existing_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    (tmp_path / "Notes").mkdir()
+    target = tmp_path / "Notes" / "Foo.md"
+    target.write_text("x")
+    assert delete_note("Notes/Foo.md") is True
+    assert not target.exists()
+
+
+def test_delete_note_returns_false_for_missing_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    assert delete_note("Notes/does-not-exist.md") is False
 
 
 def test_append_to_note_raises_if_file_missing(tmp_path, monkeypatch):
