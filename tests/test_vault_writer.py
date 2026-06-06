@@ -5,6 +5,7 @@ import pytest
 from app.config import settings
 from app.llm.schemas import ClassificationResult
 from app.vault.writer import (
+    _atomic_write,
     _next_available_path,
     _parse_frontmatter,
     _related_section,
@@ -308,6 +309,104 @@ def test_append_to_note_keeps_body_intact(tmp_path, monkeypatch):
     assert "Original body." in content
     assert "Update text." in content
     assert f"## Update {date.today().isoformat()}" in content
+
+
+def test_atomic_write_creates_file_with_content(tmp_path):
+    target = tmp_path / "sub" / "note.md"
+    _atomic_write(target, "hello\nworld\n")
+    assert target.exists()
+    assert target.read_text(encoding="utf-8") == "hello\nworld\n"
+
+
+def test_atomic_write_overwrites_existing_file(tmp_path):
+    target = tmp_path / "note.md"
+    target.write_text("OLD")
+    _atomic_write(target, "NEW")
+    assert target.read_text(encoding="utf-8") == "NEW"
+
+
+def test_atomic_write_leaves_no_tempfiles_on_success(tmp_path):
+    target = tmp_path / "note.md"
+    _atomic_write(target, "x")
+    leftovers = [
+        p for p in tmp_path.iterdir() if p.name.startswith(".") and p.name.endswith(".tmp")
+    ]
+    assert leftovers == []
+
+
+def test_atomic_write_preserves_original_on_replace_failure(
+    tmp_path, monkeypatch
+):
+    """Wenn os.replace failt, muss die Zieldatei unveraendert bleiben
+    und kein Tempfile zurueckbleiben."""
+    target = tmp_path / "note.md"
+    target.write_text("ORIGINAL CONTENT")
+
+    import app.vault.writer as writer_mod
+
+    def boom(*_a, **_kw):
+        raise OSError("simulated disk full at replace")
+
+    monkeypatch.setattr(writer_mod.os, "replace", boom)
+
+    with pytest.raises(OSError, match="simulated disk full"):
+        _atomic_write(target, "NEW CONTENT")
+
+    # Original ist intakt
+    assert target.read_text(encoding="utf-8") == "ORIGINAL CONTENT"
+    # Tempfile wurde aufgeraeumt
+    tmpfiles = [
+        p for p in tmp_path.iterdir()
+        if p.name.startswith(".note.md.") and p.name.endswith(".tmp")
+    ]
+    assert tmpfiles == [], f"Tempfile-Leak: {tmpfiles}"
+
+
+def test_atomic_write_cleans_up_tempfile_on_write_failure(tmp_path, monkeypatch):
+    """Wenn das Schreiben in den Tempfile failt (z.B. Disk-Full mitten drin),
+    darf kein halber Tempfile zurueckbleiben und das Ziel nicht entstehen."""
+    target = tmp_path / "note.md"
+
+    import app.vault.writer as writer_mod
+    original_fdopen = writer_mod.os.fdopen
+
+    def evil_fdopen(*args, **kwargs):
+        fh = original_fdopen(*args, **kwargs)
+
+        def broken_write(_text):
+            raise OSError("simulated disk full mid-write")
+
+        fh.write = broken_write  # type: ignore[method-assign]
+        return fh
+
+    monkeypatch.setattr(writer_mod.os, "fdopen", evil_fdopen)
+
+    with pytest.raises(OSError, match="mid-write"):
+        _atomic_write(target, "anything")
+
+    assert not target.exists()
+    leftovers = [p for p in tmp_path.iterdir() if p.name.endswith(".tmp")]
+    assert leftovers == []
+
+
+def test_write_note_is_atomic_under_replace_failure(tmp_path, monkeypatch):
+    """End-to-end: write_note darf bei Replace-Fehler keine halbe Datei
+    am Ziel hinterlassen."""
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+
+    import app.vault.writer as writer_mod
+
+    def boom(*_a, **_kw):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(writer_mod.os, "replace", boom)
+
+    result = ClassificationResult(category="note", title="Crashy", summary="x")
+    with pytest.raises(OSError):
+        write_note(result)
+
+    target = tmp_path / "Notes" / "Crashy.md"
+    assert not target.exists()
 
 
 def test_delete_note_removes_existing_file(tmp_path, monkeypatch):
