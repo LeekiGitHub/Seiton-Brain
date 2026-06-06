@@ -1,4 +1,6 @@
+import os
 import re
+import tempfile
 from datetime import date
 from pathlib import Path
 
@@ -41,6 +43,38 @@ def _tags_frontmatter_line(tags: list[str]) -> str:
     return f"tags: [{', '.join(tags)}]\n"
 
 
+def _atomic_write(target: Path, content: str) -> None:
+    """Schreibt ``content`` atomar in ``target``.
+
+    Strategie: Tempfile im selben Verzeichnis anlegen, vollstaendig
+    beschreiben, fsync, dann ``os.replace`` auf den Zielpfad. ``os.replace``
+    ist auf POSIX und Windows atomar, *solange* Quelle und Ziel auf demselben
+    Dateisystem liegen — deshalb das Tempfile zwingend ins selbe Verzeichnis.
+
+    Damit sehen Sync-Clients (Obsidian Sync, Syncthing, iCloud) nie eine halb
+    geschriebene Datei, und ein Crash zwischen Schreiben und Replace
+    hinterlaesst hoechstens eine ``.tmp``-Datei statt korrupten Inhalt am Ziel.
+    """
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_path_str = tempfile.mkstemp(
+        prefix=f".{target.name}.",
+        suffix=".tmp",
+        dir=str(target.parent),
+    )
+    tmp_path = Path(tmp_path_str)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(content)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp_path, target)
+    except BaseException:
+        # Schreiben oder Replace fehlgeschlagen — Tempfile aufraeumen, damit
+        # das Vault-Verzeichnis nicht mit Leichen vollaeuft.
+        tmp_path.unlink(missing_ok=True)
+        raise
+
+
 def _next_available_path(target_dir: Path, base_name: str) -> Path:
     """Erster freier Pfad: `<base>.md`, `<base> (2).md`, `<base> (3).md`, …
 
@@ -76,7 +110,7 @@ created: {date.today().isoformat()}
 
 {result.summary}{_related_section(result.related)}
 """
-    filepath.write_text(content, encoding="utf-8")
+    _atomic_write(filepath, content)
     return filepath
 
 
@@ -206,5 +240,5 @@ def append_to_note(vault_relative_path: str, result: ClassificationResult) -> Pa
     if result.related:
         block += _related_section(result.related).lstrip("\n") + "\n"
 
-    filepath.write_text(rebuilt + block, encoding="utf-8")
+    _atomic_write(filepath, rebuilt + block)
     return filepath

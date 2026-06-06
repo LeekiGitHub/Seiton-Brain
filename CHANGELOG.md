@@ -9,6 +9,16 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E3-4: Atomares Schreiben im Vault.** `write_note` und `append_to_note`
+  schreiben jetzt in eine versteckte `.tmp`-Datei im Zielverzeichnis und
+  ersetzen die Zieldatei dann via `os.replace` — eine atomare Operation auf
+  POSIX und Windows (solange Quelle und Ziel im selben Verzeichnis liegen).
+  Damit sehen Sync-Clients wie Obsidian Sync, Syncthing oder iCloud nie eine
+  halb geschriebene Notiz, und ein Crash zwischen Schreiben und Replace
+  hinterlässt höchstens eine `.tmp`-Datei statt korrupten Inhalt am Ziel.
+  `fsync` vor dem Replace sorgt zusätzlich dafür, dass der Inhalt physisch
+  auf dem Datenträger ist. Failure-Path räumt das Tempfile sauber auf.
+  6 neue Tests inkl. simuliertem Disk-Full-Crash.
 - **E1-3: Telegram-Slash-Commands.** Der Bot versteht jetzt
   `/start`/`/help` (Hilfe-Text), `/recent [n]` (letzte N Notizen,
   Default 5, max 20), `/find <begriff>` (case-insensitive
