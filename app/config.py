@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     # Leer (Default) bedeutet: Allowlist deaktiviert -> alle erlaubt.
     # Geparst wird im Webhook (dort sitzt auch der Logger).
     telegram_allowed_user_ids: str = ""
+    # Maximale akzeptierte Webhook-Body-Groesse in Bytes. Echte Telegram-
+    # Updates sind typischerweise <10 KB; 1 MB ist grosszuegig und schuetzt
+    # vor Resource-Exhaustion durch fehlgeleitete oder boesartige Requests.
+    telegram_webhook_max_body_bytes: int = 1_048_576
 
     # LLM
     llm_provider: str = "openai"

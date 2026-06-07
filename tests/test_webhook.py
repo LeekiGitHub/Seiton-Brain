@@ -251,3 +251,102 @@ def test_webhook_skips_duplicate_check_when_no_update_id(
     assert response.status_code == 200
     mock_dup.assert_not_awaited()
     mock_task.delay.assert_called_once_with("Hi", 42, None, None)
+
+
+# ─── E1-4: Body-Size-Limit ────────────────────────────────────────────────
+
+
+def test_webhook_rejects_oversized_body(monkeypatch):
+    monkeypatch.setattr(settings, "telegram_webhook_max_body_bytes", 100)
+    big_payload = {"x": "a" * 1000}
+    response = client.post(
+        "/webhook",
+        json=big_payload,
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+    assert response.status_code == 413
+
+
+@patch("app.telegram.webhook.process_text_message_task")
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
+def test_webhook_accepts_body_under_limit(mock_dup, mock_send, mock_task, monkeypatch):
+    """Sanity: knapp unter dem Limit geht durch."""
+    monkeypatch.setattr(settings, "telegram_webhook_max_body_bytes", 10_000)
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 9001,
+            "message": {"message_id": 1, "text": "hi", "chat": {"id": 42}},
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+    assert response.status_code == 200
+    mock_task.delay.assert_called_once()
+
+
+def test_webhook_rejects_invalid_json():
+    response = client.post(
+        "/webhook",
+        content=b"not json {{{",
+        headers={
+            "X-Telegram-Bot-Api-Secret-Token": SECRET,
+            "Content-Type": "application/json",
+        },
+    )
+    assert response.status_code == 400
+
+
+# ─── E1-4: Bekannte unsupported Update-Typen ──────────────────────────────
+
+
+@patch("app.telegram.webhook.process_text_message_task")
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+def test_webhook_silently_ignores_edited_message(mock_send, mock_task):
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 5001,
+            "edited_message": {
+                "message_id": 1,
+                "text": "edited",
+                "chat": {"id": 42},
+            },
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}
+    mock_task.delay.assert_not_called()
+    mock_send.assert_not_called()
+
+
+@patch("app.telegram.webhook.process_text_message_task")
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+def test_webhook_silently_ignores_callback_query(mock_send, mock_task):
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 5002,
+            "callback_query": {"id": "cb1", "from": {"id": 42}, "data": "x"},
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+    assert response.status_code == 200
+    mock_task.delay.assert_not_called()
+    mock_send.assert_not_called()
+
+
+@patch("app.telegram.webhook.process_text_message_task")
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+def test_webhook_silently_ignores_unknown_update_shape(mock_send, mock_task):
+    """Vollkommen unbekanntes Update — wir 200en trotzdem, damit Telegram
+    nicht retried."""
+    response = client.post(
+        "/webhook",
+        json={"update_id": 5003, "some_future_field": {"foo": "bar"}},
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+    assert response.status_code == 200
+    mock_task.delay.assert_not_called()
+    mock_send.assert_not_called()

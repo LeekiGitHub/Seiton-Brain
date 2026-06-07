@@ -1,3 +1,4 @@
+import json
 import logging
 
 import httpx
@@ -13,6 +14,36 @@ from app.worker.tasks import process_text_message_task, process_voice_message_ta
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+# Update-Typen, die Telegram sendet, die wir aber bewusst nicht verarbeiten.
+# Werden mit 200 OK ohne Log-Warning beantwortet — Telegram retried sonst.
+# Quelle: https://core.telegram.org/bots/api#update
+KNOWN_UNSUPPORTED_UPDATE_KEYS = frozenset(
+    {
+        "edited_message",
+        "channel_post",
+        "edited_channel_post",
+        "business_connection",
+        "business_message",
+        "edited_business_message",
+        "deleted_business_messages",
+        "message_reaction",
+        "message_reaction_count",
+        "inline_query",
+        "chosen_inline_result",
+        "callback_query",
+        "shipping_query",
+        "pre_checkout_query",
+        "purchased_paid_media",
+        "poll",
+        "poll_answer",
+        "my_chat_member",
+        "chat_member",
+        "chat_join_request",
+        "chat_boost",
+        "removed_chat_boost",
+    }
+)
 
 
 def _get_secret() -> str:
@@ -59,10 +90,41 @@ async def telegram_webhook(
     if x_telegram_bot_api_secret_token != _get_secret():
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    update = await request.json()
+    # Body-Size-Limit. Wir lesen den Body selbst (statt request.json()), um den
+    # Length-Check vor JSON-Parsing zu machen. Content-Length-Header reicht
+    # nicht: er ist optional und manipulierbar.
+    body = await request.body()
+    if len(body) > settings.telegram_webhook_max_body_bytes:
+        logger.warning(
+            "Webhook body too large: %d bytes (limit %d)",
+            len(body),
+            settings.telegram_webhook_max_body_bytes,
+        )
+        raise HTTPException(status_code=413, detail="Payload too large")
+
+    try:
+        update = json.loads(body)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+    if not isinstance(update, dict):
+        raise HTTPException(status_code=400, detail="Invalid update payload")
+
     message = update.get("message")
 
     if not message:
+        # Bekannte aber unsupported Update-Typen: silent 200, kein Warn-Spam.
+        # Telegram retried sonst alle 1s und blockiert die Queue.
+        unsupported = KNOWN_UNSUPPORTED_UPDATE_KEYS.intersection(update.keys())
+        if unsupported:
+            logger.debug(
+                "Ignoring unsupported update types: %s",
+                ", ".join(sorted(unsupported)),
+            )
+        else:
+            logger.debug(
+                "Update without 'message' field: keys=%s",
+                list(update.keys()),
+            )
         return {"ok": True}
 
     chat_id = message.get("chat", {}).get("id")
