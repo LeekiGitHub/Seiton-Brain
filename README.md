@@ -133,3 +133,9 @@ I wanted to build something that feels like a small real backend — not five lo
 `vault.example/` is just a template for the folder structure. My actual vault lives locally and is not in the repo.
 
 Setup details: [`docs/setup.md`](./docs/setup.md).
+
+---
+
+## License
+
+[MIT](./LICENSE) — du darfst es nutzen, forken und selbst hosten. Wenn du etwas Cooles damit baust, lass es mich gerne wissen.
