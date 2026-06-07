@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E11-1: LICENSE-Hinweis im README.** Die MIT-LICENSE liegt seit dem
+  ersten Doku-Commit im Repo-Root, das README verlinkt jetzt explizit
+  darauf. Damit erfüllt das Repo die formale Public-Release-Voraussetzung
+  und Forks finden die Lizenz auf den ersten Blick.
 - **E3-4: Atomares Schreiben im Vault.** `write_note` und `append_to_note`
   schreiben jetzt in eine versteckte `.tmp`-Datei im Zielverzeichnis und
   ersetzen die Zieldatei dann via `os.replace` — eine atomare Operation auf
