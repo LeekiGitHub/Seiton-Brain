@@ -66,7 +66,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 | E1-1 | Allowlist: nur konfigurierte Telegram-User-IDs dürfen Nachrichten senden (`TELEGRAM_ALLOWED_USER_IDS`). | 5 | 1 | 1 | 2 | 5 | 🟢 | A |
 | E1-2 | Update-Idempotenz: gleiche `update_id` wird nur einmal verarbeitet (DB-Unique). | 4 | 2 | 2 | 4 | 4 | 🟢 | A |
 | E1-3 | Telegram-Commands: `/start`, `/help`, `/recent`, `/find <q>`, `/undo`. | 4 | 2 | 1 | 3 | 4 | 🟢 | B |
-| E1-4 | Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen. | 2 | 1 | 2 | 2 | 2 | ⚪ | A |
+| E1-4 | Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen. | 2 | 1 | 2 | 2 | 2 | 🟢 | A |
 
 ---
 
@@ -298,7 +298,11 @@ Details: [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowle
 4. 🟢 **E10-2** — Celery-Retries für OpenAI/Whisper (Reliability-Boost)
 5. 🟢 **E1-3** — Telegram-Commands (`/start`, `/help`, `/recent`, `/find`, `/undo`)
 6. 🟢 **E3-4** — Atomares Schreiben (Tempfile + `os.replace`)
-7. ⚪ **E1-4** — Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen ← **als nächstes**
+7. 🟢 **E1-4** — Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen
+
+**Phase A (MVP) und Phase B (Product) sind damit komplett.**
+Nächstes Ziel: in **Phase C** wechseln (Mac-Mini-Hosting, REST-API, Logging-Stack).
+Vorher empfohlen: **v0.2.0 taggen** als Release-Marker zwischen den Phasen.
 
 ## Spätere Phasen (Kurzüberblick)
 

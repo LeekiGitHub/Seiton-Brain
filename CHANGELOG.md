@@ -9,6 +9,18 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E1-4: Webhook-Hardening (Body-Limit + unsupported Update-Typen).**
+  Der Webhook lehnt Bodies > `telegram_webhook_max_body_bytes` (Default
+  1 MB, konfigurierbar) mit HTTP 413 ab — echte Telegram-Updates sind
+  typischerweise <10 KB, das Limit schützt vor Resource-Exhaustion durch
+  fehlgeleitete oder bösartige Requests. Ungültiges JSON wird mit 400
+  beantwortet statt zu crashen. Bekannte aber unsupported Update-Typen
+  (`edited_message`, `channel_post`, `callback_query`, `inline_query`,
+  `chat_member`, `poll`, `business_*`, `chat_boost*`, …) werden mit
+  silent 200 OK beantwortet — Telegram retried sonst alle 1s und
+  blockiert die Bot-Queue. Statt Warn-Spam landen sie auf DEBUG-Level.
+  6 neue Tests (Limit, Invalid-JSON, Edited-Message, Callback-Query,
+  Unbekannte-Form).
 - **E11-1: LICENSE-Hinweis im README.** Die MIT-LICENSE liegt seit dem
   ersten Doku-Commit im Repo-Root, das README verlinkt jetzt explizit
   darauf. Damit erfüllt das Repo die formale Public-Release-Voraussetzung
