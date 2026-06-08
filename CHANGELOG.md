@@ -9,6 +9,20 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Removed
+
+---
+
+## [0.2.0] — 2026-06-07 — Phase A+B: robustes Second-Brain-Inbox
+
+Phase A (MVP-Härtung) und Phase B (Produkt-Features) abgeschlossen. Das System ist
+jetzt ein zuverlässiges persönliches Second-Brain-Inbox für Obsidian — nicht mehr nur
+eine erste Pipeline.
+
+### Added
 - **E1-4: Webhook-Hardening (Body-Limit + unsupported Update-Typen).**
   Der Webhook lehnt Bodies > `telegram_webhook_max_body_bytes` (Default
   1 MB, konfigurierbar) mit HTTP 413 ab — echte Telegram-Updates sind
@@ -201,5 +215,6 @@ Erste lauffähige Version (Epic 1–7). Persönliches Lern-/Portfolio-Projekt.
 - Vault-Bind-Mount über `OBSIDIAN_VAULT_HOST_PATH`
 - `.gitignore` mit Schutz gegen `vault/`- und `models/`-Pattern-Konflikte (Root-Only)
 
-[Unreleased]: https://github.com/LeekiGitHub/Seiton-Brain/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/LeekiGitHub/Seiton-Brain/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/LeekiGitHub/Seiton-Brain/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/LeekiGitHub/Seiton-Brain/releases/tag/v0.1.0

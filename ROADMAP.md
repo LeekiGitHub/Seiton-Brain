@@ -300,9 +300,8 @@ Details: [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowle
 6. 🟢 **E3-4** — Atomares Schreiben (Tempfile + `os.replace`)
 7. 🟢 **E1-4** — Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen
 
-**Phase A (MVP) und Phase B (Product) sind damit komplett.**
-Nächstes Ziel: in **Phase C** wechseln (Mac-Mini-Hosting, REST-API, Logging-Stack).
-Vorher empfohlen: **v0.2.0 taggen** als Release-Marker zwischen den Phasen.
+**Phase A (MVP) und Phase B (Product) sind komplett — Release v0.2.0.**
+Nächstes Ziel: **Phase C** (Mac-Mini-Hosting, REST-API, Logging-Stack).
 
 ## Spätere Phasen (Kurzüberblick)
 

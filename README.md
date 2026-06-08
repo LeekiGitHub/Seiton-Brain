@@ -18,14 +18,18 @@ Seiton Brain soll diesen Schritt wegnehmen. Gleichzeitig ist es für mich kein T
 
 ## Was schon läuft
 
-Stand jetzt (v0.1.0):
+Stand jetzt (v0.2.0):
 
 - Telegram-Bot: Text **und** Sprachnachrichten über Webhook
-- Sofortige Antwort, Verarbeitung async via Celery + Redis
-- OpenAI klassifiziert (Kategorie, Titel, Summary) — Prompt in `/prompts`
+- Sofortige Antwort, Verarbeitung async via Celery + Redis (mit Retries bei transienten OpenAI-Fehlern)
+- OpenAI klassifiziert (Kategorie, Titel, Summary, Tags) — Prompt in `/prompts`
+- **Append vs. Create:** LLM entscheidet, ob eine neue Notiz angelegt oder eine bestehende ergänzt wird
+- Strukturierte Tags im YAML-Frontmatter; `updated:` + Tag-Merge beim Append
+- Slash-Commands: `/recent`, `/find`, `/undo` (mit Bestätigung)
+- Allowlist, Update-Idempotenz, Filename-Kollisionsschutz, atomares Vault-Schreiben
 - OpenAI Whisper transkribiert Voice
 - PostgreSQL + Alembic, Obsidian-Vault mit `[[links]]` zu bestehenden Notizen
-- Docker Compose (api, worker, db, redis), pytest + GitHub CI
+- Zentrale Settings-Klasse (`pydantic-settings`), Docker Compose, pytest + GitHub CI (117 Tests)
 
 Vollständige Historie: [`CHANGELOG.md`](./CHANGELOG.md).
 Was als nächstes kommt: [`ROADMAP.md`](./ROADMAP.md).
@@ -87,14 +91,18 @@ Seiton Brain is meant to remove that step. At the same time, this isn't a tutori
 
 ## What works already
 
-v0.1.0:
+v0.2.0:
 
 - Telegram bot: text **and** voice via webhook
-- Immediate reply, async processing via Celery + Redis
-- OpenAI classification — prompt in `/prompts`
+- Immediate reply, async processing via Celery + Redis (with retries on transient OpenAI errors)
+- OpenAI classification (category, title, summary, tags) — prompt in `/prompts`
+- **Append vs. create:** LLM decides whether to create a new note or append to an existing one
+- Structured tags in YAML frontmatter; `updated:` + tag merge on append
+- Slash commands: `/recent`, `/find`, `/undo` (with confirmation)
+- Allowlist, update idempotency, filename collision handling, atomic vault writes
 - OpenAI Whisper for voice transcription
 - PostgreSQL + Alembic, Obsidian vault with `[[links]]` to related notes
-- Docker Compose (api, worker, db, redis), pytest + GitHub CI
+- Central settings class (`pydantic-settings`), Docker Compose, pytest + GitHub CI (117 tests)
 
 Full history: [`CHANGELOG.md`](./CHANGELOG.md).
 What's next: [`ROADMAP.md`](./ROADMAP.md).

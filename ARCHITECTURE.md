@@ -1,6 +1,6 @@
 # Architecture
 
-Stand: 0.1.0 (Initial pipeline, Epic 1–7).
+Stand: 0.2.0 (Phase A+B — robustes Second-Brain-Inbox; Append, Tags, Commands, Retries).
 Diagramme als Mermaid. Für Roadmap siehe [`ROADMAP.md`](./ROADMAP.md), für Setup [`docs/setup.md`](./docs/setup.md).
 
 ---
