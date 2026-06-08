@@ -33,9 +33,9 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 
 Vault folders: School, Work, Private, Ideas, Travel, Notes (`vault.example/` is template; personal vault is gitignored at `/vault/`).
 
-## Status (v0.1.0 — Epic 1–7 done)
+## Status (v0.2.0 — Phase A+B done)
 
-Core pipeline works: text + voice, async workers, DB persistence, vault files with related-note links, pytest + GitHub CI.
+Core pipeline works: text + voice, async workers with retries, DB persistence, append/create logic, structured tags, Telegram slash commands (`/recent`, `/find`, `/undo`), atomic vault writes, allowlist + idempotency, 117 tests + GitHub CI. Phase C next (self-hosting, REST API, logging).
 
 ## Roadmap & Backlog
 
