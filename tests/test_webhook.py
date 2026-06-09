@@ -9,10 +9,15 @@ SECRET = "test-webhook-secret"
 client = TestClient(app)
 
 
-def test_health():
+@patch("app.main.run_health_checks", new_callable=AsyncMock)
+def test_health(mock_checks):
+    mock_checks.return_value = {"database": "ok", "redis": "ok"}
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert response.json() == {
+        "status": "ok",
+        "checks": {"database": "ok", "redis": "ok"},
+    }
 
 
 def test_webhook_rejects_missing_secret():

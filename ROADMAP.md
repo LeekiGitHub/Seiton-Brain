@@ -161,7 +161,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 | E10-1 | Strukturiertes Logging (JSON, Task-ID-Korrelation). | 3 | 2 | 1 | 4 | 4 | ⚪ | C |
 | E10-2 | Celery-Retries mit Backoff für OpenAI/Whisper (`autoretry_for`). | 4 | 2 | 2 | 4 | 4 | 🟢 | B |
 | E10-3 | Error-Forward via Telegram-DM an Admin (statt nur Log). | 3 | 2 | 1 | 3 | 3 | ⚪ | C |
-| E10-4 | Health-Endpunkt prüft DB + Redis. | 2 | 1 | 1 | 2 | 2 | ⚪ | C |
+| E10-4 | Health-Endpunkt prüft DB + Redis. | 2 | 1 | 1 | 2 | 2 | 🟢 | C |
 
 ---
 
@@ -301,7 +301,8 @@ Details: [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowle
 7. 🟢 **E1-4** — Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen
 
 **Phase A (MVP) und Phase B (Product) sind komplett — Release v0.2.0.**
-Nächstes Ziel: **Phase C** (Mac-Mini-Hosting, REST-API, Logging-Stack).
+**Phase C** läuft: E10-4 (Health DB+Redis) 🟢. Nächstes: E10-1 (Logging), E8-2, E13-1.
+Mac-Mini-Stories (E9-2/E9-3) zurückgestellt bis Hardware da ist.
 
 ## Spätere Phasen (Kurzüberblick)
 

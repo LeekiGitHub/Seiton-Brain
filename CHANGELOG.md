@@ -9,6 +9,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E10-4: Health-Endpunkt prüft DB + Redis.** `GET /health` führt jetzt echte
+  Connectivity-Checks aus (`SELECT 1` gegen Postgres, `PING` gegen Redis).
+  Antwort enthält `status` und `checks`-Objekt pro Dependency. Bei Fehler:
+  HTTP 503 mit `status: "unhealthy"` — für Docker-Compose, Uptime-Monitore
+  und späteres Hosting. Checks in neuem Modul `app/health.py`, Fehlerdetails
+  nur im Log (kein Leak von Connection-Strings). 7 neue Tests.
 
 ### Changed
 
