@@ -11,6 +11,7 @@ from openai import (
 )
 
 from app.db.session import worker_session
+from app.logging_config import bind_log_context
 from app.services.process_message import process_text_message
 from app.telegram.client import download_file, send_message
 from app.transcription.whisper import transcribe_audio
@@ -115,7 +116,11 @@ def process_text_message_task(
     telegram_update_id: int | None = None,
     telegram_message_id: int | None = None,
 ) -> None:
-    logger.info("Task %s started: process_text_message chat_id=%s", self.request.id, chat_id)
+    bind_log_context(
+        task_id=self.request.id,
+        telegram_update_id=telegram_update_id,
+    )
+    logger.info("process_text_message started chat_id=%s", chat_id)
     try:
         _run(
             _process_text(
@@ -125,17 +130,14 @@ def process_text_message_task(
                 telegram_message_id=telegram_message_id,
             )
         )
-        logger.info("Task %s done: process_text_message chat_id=%s", self.request.id, chat_id)
+        logger.info("process_text_message done chat_id=%s", chat_id)
     except Retry:
         # Celery hat den Retry geplant. Nicht als "echten" Fehler behandeln,
         # keine Telegram-Nachricht senden — der User wuerde sonst pro Retry
         # eine "schiefgelaufen"-Meldung bekommen.
         raise
     except Exception:
-        logger.exception(
-            "Task %s failed permanently: process_text_message chat_id=%s",
-            self.request.id, chat_id,
-        )
+        logger.exception("process_text_message failed permanently chat_id=%s", chat_id)
         _run(_send_error(chat_id))
         raise
 
@@ -148,7 +150,11 @@ def process_voice_message_task(
     telegram_update_id: int | None = None,
     telegram_message_id: int | None = None,
 ) -> None:
-    logger.info("Task %s started: process_voice_message chat_id=%s", self.request.id, chat_id)
+    bind_log_context(
+        task_id=self.request.id,
+        telegram_update_id=telegram_update_id,
+    )
+    logger.info("process_voice_message started chat_id=%s", chat_id)
     try:
         _run(
             _process_voice(
@@ -158,13 +164,10 @@ def process_voice_message_task(
                 telegram_message_id=telegram_message_id,
             )
         )
-        logger.info("Task %s done: process_voice_message chat_id=%s", self.request.id, chat_id)
+        logger.info("process_voice_message done chat_id=%s", chat_id)
     except Retry:
         raise
     except Exception:
-        logger.exception(
-            "Task %s failed permanently: process_voice_message chat_id=%s",
-            self.request.id, chat_id,
-        )
+        logger.exception("process_voice_message failed permanently chat_id=%s", chat_id)
         _run(_send_error(chat_id))
         raise
