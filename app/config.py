@@ -50,5 +50,10 @@ class Settings(BaseSettings):
     database_url: str
     redis_url: str
 
+    # Logging
+    log_level: str = "INFO"
+    # true -> eine JSON-Zeile pro Log (Production/Docker); false -> lesbares Text-Format
+    log_json: bool = True
+
 
 settings = Settings()  # type: ignore[call-arg]

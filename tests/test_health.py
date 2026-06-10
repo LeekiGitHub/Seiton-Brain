@@ -11,9 +11,10 @@ client = TestClient(app)
 def test_health_returns_ok_when_all_checks_pass(mock_checks):
     mock_checks.return_value = {"database": "ok", "redis": "ok"}
 
-    response = client.get("/health")
+    response = client.get("/health", headers={"X-Request-ID": "req-health-1"})
 
     assert response.status_code == 200
+    assert response.headers["X-Request-ID"] == "req-health-1"
     assert response.json() == {
         "status": "ok",
         "checks": {"database": "ok", "redis": "ok"},

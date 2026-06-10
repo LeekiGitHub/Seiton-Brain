@@ -9,6 +9,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E10-1: Strukturiertes Logging mit Korrelation.** Neues Modul
+  `app/logging_config.py`: JSON-Logformat (Default, `LOG_JSON=true`) oder
+  lesbares Text-Format (`LOG_JSON=false` für lokale Entwicklung). Jede Zeile
+  kann `task_id` (Celery), `request_id` (HTTP-Middleware, auch als
+  `X-Request-ID`-Response-Header) und `telegram_update_id` (Worker) enthalten.
+  Kontext via `contextvars` — async-/thread-sicher. API und Celery-Worker
+  konfigurieren Logging beim Start; Celery `task_prerun`/`task_postrun` setzen
+  bzw. leeren `task_id`. Settings: `LOG_LEVEL`, `LOG_JSON`. 6 neue Tests.
 - **E10-4: Health-Endpunkt prüft DB + Redis.** `GET /health` führt jetzt echte
   Connectivity-Checks aus (`SELECT 1` gegen Postgres, `PING` gegen Redis).
   Antwort enthält `status` und `checks`-Objekt pro Dependency. Bei Fehler:
