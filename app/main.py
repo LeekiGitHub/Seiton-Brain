@@ -1,14 +1,23 @@
+import logging
 import uuid
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.api.v1.routes import router as api_v1_router
+from app.config import settings
 from app.health import run_health_checks
 from app.logging_config import bind_log_context, clear_log_context, configure_logging
 from app.telegram.webhook import router as telegram_router
 
 configure_logging()
+_logger = logging.getLogger(__name__)
+if settings.seiton_api_key:
+    _logger.info("REST API v1 enabled (X-Seiton-Api-Key required)")
+else:
+    _logger.warning(
+        "REST API v1 disabled — set SEITON_API_KEY in .env to enable /v1 endpoints"
+    )
 
 app = FastAPI()
 app.include_router(telegram_router)
