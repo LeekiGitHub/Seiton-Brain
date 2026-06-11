@@ -20,6 +20,10 @@ def _classification(title: str = "Test", category: str = "note") -> Classificati
     )
 
 
+async def _assign_entry_id(entry) -> None:
+    entry.id = 42
+
+
 def _db_with_pre_check_result(found: bool) -> MagicMock:
     """Mock-DB, deren erstes execute() einen 'gefunden / nicht gefunden'-Result liefert."""
     db = MagicMock()
@@ -27,6 +31,7 @@ def _db_with_pre_check_result(found: bool) -> MagicMock:
     pre_check.scalar_one_or_none.return_value = 1 if found else None
     db.execute = AsyncMock(return_value=pre_check)
     db.commit = AsyncMock()
+    db.refresh = AsyncMock(side_effect=_assign_entry_id)
     db.rollback = AsyncMock()
     db.add = MagicMock()
     return db
@@ -54,7 +59,8 @@ async def test_process_text_message_persists_with_telegram_fields(
     )
 
     assert result is not None
-    assert result.title == "Idea X"
+    assert result.classification.title == "Idea X"
+    assert result.entry_id == 42
     db.add.assert_called_once()
     entry = db.add.call_args[0][0]
     assert entry.raw_input == "Original text"
@@ -128,6 +134,7 @@ async def test_process_text_message_without_update_id_skips_pre_check(
     db = MagicMock()
     db.execute = AsyncMock()
     db.commit = AsyncMock()
+    db.refresh = AsyncMock(side_effect=_assign_entry_id)
     db.add = MagicMock()
 
     result = await process_text_message("Hi", db)
@@ -170,8 +177,8 @@ async def test_process_text_message_appends_when_target_resolves(
     )
 
     assert result is not None
-    assert result.action == "append"
-    assert result.target_title == "Fitness App"
+    assert result.classification.action == "append"
+    assert result.classification.target_title == "Fitness App"
     mock_append.assert_called_once_with("Ideas/Fitness App.md", classification)
     mock_write_note.assert_not_called()
     entry = db.add.call_args[0][0]
@@ -209,8 +216,8 @@ async def test_process_text_message_falls_back_to_create_when_target_missing(
     )
 
     assert result is not None
-    assert result.action == "create"
-    assert result.target_title is None
+    assert result.classification.action == "create"
+    assert result.classification.target_title is None
     mock_append.assert_not_called()
     mock_write_note.assert_called_once()
     entry = db.add.call_args[0][0]

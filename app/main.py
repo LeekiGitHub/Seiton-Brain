@@ -3,6 +3,7 @@ import uuid
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.api.v1.routes import router as api_v1_router
 from app.health import run_health_checks
 from app.logging_config import bind_log_context, clear_log_context, configure_logging
 from app.telegram.webhook import router as telegram_router
@@ -11,6 +12,7 @@ configure_logging()
 
 app = FastAPI()
 app.include_router(telegram_router)
+app.include_router(api_v1_router)
 
 
 @app.middleware("http")

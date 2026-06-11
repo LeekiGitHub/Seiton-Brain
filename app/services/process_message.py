@@ -1,4 +1,5 @@
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 
 from sqlalchemy import select
@@ -12,6 +13,16 @@ from app.models.entry import Entry
 from app.vault.writer import append_to_note, write_note
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class ProcessMessageResult:
+    """Ergebnis einer vollstaendigen Capture-Pipeline (LLM + Vault + DB)."""
+
+    classification: ClassificationResult
+    entry_id: int
+    vault_path: str
+    status: str
 
 
 def _to_vault_relative(note_path: Path) -> str:
@@ -64,7 +75,7 @@ async def process_text_message(
     telegram_message_id: int | None = None,
     telegram_chat_id: int | None = None,
     kind: str = "text",
-) -> ClassificationResult | None:
+) -> ProcessMessageResult | None:
     """Klassifiziert die Nachricht und persistiert Entry + Vault-Datei.
 
     Liefert ``None``, wenn ein Entry mit der gleichen ``telegram_update_id``
@@ -126,6 +137,7 @@ async def process_text_message(
     db.add(entry)
     try:
         await db.commit()
+        await db.refresh(entry)
     except IntegrityError:
         # Race-Fallback: zwischen Pre-Check und Commit hat ein anderer Lauf
         # den gleichen update_id eingefuegt. UNIQUE-Constraint hat uns
@@ -148,4 +160,9 @@ async def process_text_message(
             vault_relative,
             result.target_title,
         )
-    return result
+    return ProcessMessageResult(
+        classification=result,
+        entry_id=entry.id,
+        vault_path=vault_relative,
+        status=entry_status,
+    )

@@ -1,6 +1,6 @@
 # Architecture
 
-Stand: 0.2.0 (Phase A+B — robustes Second-Brain-Inbox; Append, Tags, Commands, Retries).
+Stand: 0.2.0+ (Phase C begonnen: Health, Logging, REST-API v1 `/v1/*`).
 Diagramme als Mermaid. Für Roadmap siehe [`ROADMAP.md`](./ROADMAP.md), für Setup [`docs/setup.md`](./docs/setup.md).
 
 ---
