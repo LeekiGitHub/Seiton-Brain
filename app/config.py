@@ -117,6 +117,10 @@ class Settings(BaseSettings):
     # true -> eine JSON-Zeile pro Log (Production/Docker); false -> lesbares Text-Format
     log_json: bool = True
 
+    # REST API (/v1/*). Leer = API deaktiviert (503). Gesetzt = Header X-Seiton-Api-Key
+    # muss exakt uebereinstimmen (timing-safe Vergleich).
+    seiton_api_key: str = ""
+
 
 def load_settings() -> Settings:
     try:

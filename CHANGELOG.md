@@ -9,6 +9,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E13-2: API-Key-Auth für REST-API v1.** Neues Setting `SEITON_API_KEY`
+  (optional, Default leer). Ohne Key sind alle `/v1/*`-Endpunkte deaktiviert
+  (HTTP 503 mit Hinweis). Mit gesetztem Key muss jeder Request den Header
+  `X-Seiton-Api-Key` senden — timing-safe Vergleich via `secrets.compare_digest`.
+  Fehlender/falscher Key → 401. Startup-Log warnt bzw. bestätigt API-Status.
+  `.env.example` ergänzt. 3 neue Auth-Tests.
 - **E13-1: REST-API v1.** Neue Endpunkte unter `/v1/` (ohne Auth — `E13-2`
   folgt): `POST /v1/capture` (gleiche Pipeline wie Telegram: klassifizieren,
   Vault schreiben, Entry in DB), `POST /v1/classify` (nur LLM, ohne

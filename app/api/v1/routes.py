@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+
+from app.api.auth import verify_api_key
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,7 +17,11 @@ from app.llm.schemas import ClassificationResult
 from app.models.entry import Entry
 from app.services.process_message import process_text_message
 
-router = APIRouter(prefix="/v1", tags=["v1"])
+router = APIRouter(
+    prefix="/v1",
+    tags=["v1"],
+    dependencies=[Depends(verify_api_key)],
+)
 
 
 @router.post("/capture", response_model=CaptureResponse)

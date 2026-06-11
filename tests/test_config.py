@@ -22,6 +22,7 @@ def test_settings_defaults_are_applied():
     assert settings.telegram_allowed_user_ids == ""
     assert settings.log_level == "INFO"
     assert settings.log_json is True
+    assert settings.seiton_api_key == "test-seiton-api-key"
 
 
 def test_settings_accept_extra_env_vars():
