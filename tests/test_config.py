@@ -1,4 +1,7 @@
-from app.config import Settings, settings
+import pytest
+from pydantic import ValidationError
+
+from app.config import Settings, format_settings_validation_error, settings
 
 
 def test_settings_singleton_loads_required_fields_from_env():
@@ -34,6 +37,27 @@ def test_settings_accept_extra_env_vars():
         redis_url="redis://h:6379/0",
     )
     assert s.llm_provider == "openai"
+
+
+def test_format_settings_validation_error_lists_env_names(monkeypatch):
+    for key in (
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_WEBHOOK_SECRET",
+        "OPENAI_API_KEY",
+        "OBSIDIAN_VAULT_PATH",
+        "DATABASE_URL",
+        "REDIS_URL",
+    ):
+        monkeypatch.delenv(key, raising=False)
+
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(_env_file=None)  # type: ignore[call-arg]
+
+    message = format_settings_validation_error(exc_info.value)
+    assert "TELEGRAM_BOT_TOKEN" in message
+    assert "OPENAI_API_KEY" in message
+    assert ".env.example" in message
+    assert "docs/setup.md" in message
 
 
 def test_settings_monkeypatch_works_per_test(monkeypatch):
