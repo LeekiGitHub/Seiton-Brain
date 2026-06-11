@@ -1,0 +1,37 @@
+from datetime import datetime
+
+from pydantic import BaseModel, Field
+
+from app.llm.schemas import ClassificationResult
+
+
+class CaptureRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=100_000)
+
+
+class CaptureResponse(BaseModel):
+    classification: ClassificationResult
+    entry_id: int
+    vault_path: str
+    status: str
+
+
+class ClassifyRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=100_000)
+
+
+class EntrySummary(BaseModel):
+    id: int
+    title: str
+    category: str
+    summary: str
+    vault_path: str | None
+    status: str
+    kind: str
+    created_at: datetime
+
+
+class EntryListResponse(BaseModel):
+    items: list[EntrySummary]
+    limit: int
+    offset: int

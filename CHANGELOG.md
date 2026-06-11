@@ -9,6 +9,17 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E13-1: REST-API v1.** Neue Endpunkte unter `/v1/` (ohne Auth — `E13-2`
+  folgt): `POST /v1/capture` (gleiche Pipeline wie Telegram: klassifizieren,
+  Vault schreiben, Entry in DB), `POST /v1/classify` (nur LLM, ohne
+  Persistenz), `GET /v1/entries` (paginierte Liste, `limit`/`offset`).
+  `process_text_message` liefert jetzt `ProcessMessageResult` mit
+  `classification`, `entry_id`, `vault_path` und `status` — Worker und API
+  teilen sich dieselbe Pipeline. Modul `app/api/v1/`. 5 neue API-Tests.
+- **E8-2: Klare Fehlermeldungen bei fehlender Konfiguration.** `load_settings()`
+  fängt pydantic `ValidationError` ab und gibt pro fehlendem Pflichtfeld
+  ENV-Name + Kurzhilfe auf stderr aus (Verweis auf `.env.example` und
+  `docs/setup.md`), dann `SystemExit(1)`.
 - **E10-1: Strukturiertes Logging mit Korrelation.** Neues Modul
   `app/logging_config.py`: JSON-Logformat (Default, `LOG_JSON=true`) oder
   lesbares Text-Format (`LOG_JSON=false` für lokale Entwicklung). Jede Zeile
