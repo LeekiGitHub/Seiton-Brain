@@ -127,7 +127,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E7-1 | Provider-unabhängige JSON-Validierung + Retry bei `JSONDecodeError`. | 3 | 2 | 2 | 4 | 3 | ⚪ | C |
+| E7-1 | Provider-unabhängige JSON-Validierung + Retry bei `JSONDecodeError`. | 3 | 2 | 2 | 4 | 3 | 🟢 | C |
 | E7-2 | Ollama-Provider implementieren (gleiches Pydantic-Schema). | 3 | 3 | 3 | 5 | 3 | ⚪ | D-Bonus |
 | E7-3 | Spezialisierte LLM-Rollen: Router (create/append), Writer (Summary/Tags), Linker (related) — je Prompt + Pydantic-Schema, max. 2–3 Steps im Core. | 4 | 3 | 2 | 5 | 3 | ⚪ | C/E |
 | E7-4 | (Optional) Multi-LLM-Orchestrierung in n8n statt im Python-Core dokumentieren + Beispiel-Workflow. | 3 | 2 | 1 | 4 | 2 | ⚪ | E |
@@ -301,7 +301,7 @@ Details: [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowle
 7. 🟢 **E1-4** — Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen
 
 **Phase A (MVP) und Phase B (Product) sind komplett — Release v0.2.0.**
-**Phase C** läuft: E10-4, E10-1, E8-2, E13-1, E13-2 🟢. Nächstes: E7-1, E9-1.
+**Phase C** läuft: E10-4, E10-1, E8-2, E13-1, E13-2, E7-1 🟢. Nächstes: E9-1, E10-3.
 Mac-Mini-Stories (E9-2/E9-3) zurückgestellt bis Hardware da ist.
 
 ## Spätere Phasen (Kurzüberblick)

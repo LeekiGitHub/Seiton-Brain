@@ -9,6 +9,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E7-1: Provider-unabhängige JSON-Validierung + LLM-Retry.** Neues Modul
+  `app/llm/parser.py` mit `parse_classification_json()` — zentrales
+  `json.loads` + `ClassificationResult.model_validate` für alle Provider.
+  `OpenAIProvider.classify()` wiederholt den LLM-Aufruf bis zu 3× bei
+  `JSONDecodeError` oder Pydantic-`ValidationError` (kaputtes Schema).
+  Nach allen Versuchen: `ClassificationParseError`. 5 neue Tests.
 - **E13-2: API-Key-Auth für REST-API v1.** Neues Setting `SEITON_API_KEY`
   (optional, Default leer). Ohne Key sind alle `/v1/*`-Endpunkte deaktiviert
   (HTTP 503 mit Hinweis). Mit gesetztem Key muss jeder Request den Header

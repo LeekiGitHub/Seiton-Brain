@@ -1,4 +1,11 @@
+import json
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+from pydantic import ValidationError
+
 from app.llm.openai_provider import OpenAIProvider
+from app.llm.parser import ClassificationParseError, parse_classification_json
 from app.llm.schemas import ClassificationResult
 from app.vault.reader import VaultNote
 
@@ -161,6 +168,77 @@ def test_sanitize_tags_drops_garbage_and_caps_to_five():
     )
     sanitized = provider._sanitize_tags(result)
     assert sanitized.tags == ["a", "b", "c", "d", "e"]
+
+
+def test_parse_classification_json_valid():
+    raw = json.dumps(
+        {
+            "category": "idea",
+            "title": "My Idea",
+            "summary": "A short summary.",
+            "related": [],
+            "tags": ["idea"],
+            "action": "create",
+        }
+    )
+    result = parse_classification_json(raw)
+    assert result.title == "My Idea"
+    assert result.category == "idea"
+
+
+def test_parse_classification_json_raises_on_invalid_json():
+    with pytest.raises(json.JSONDecodeError):
+        parse_classification_json("{not valid json")
+
+
+def test_parse_classification_json_raises_on_schema_mismatch():
+    raw = json.dumps({"category": "idea"})
+    with pytest.raises(ValidationError):
+        parse_classification_json(raw)
+
+
+@pytest.mark.asyncio
+async def test_classify_retries_on_invalid_json_then_succeeds():
+    provider = OpenAIProvider.__new__(OpenAIProvider)
+    provider.client = MagicMock()
+    provider.model = "gpt-4o-mini"
+    provider.prompt_template = "{input} {existing_notes}"
+
+    bad = MagicMock()
+    bad.choices[0].message.content = "<<<not json>>>"
+    good = MagicMock()
+    good.choices[0].message.content = json.dumps(
+        {
+            "category": "note",
+            "title": "Retry Win",
+            "summary": "Worked on second try.",
+        }
+    )
+    provider.client.chat.completions.create = AsyncMock(side_effect=[bad, good])
+
+    with patch("app.llm.openai_provider.list_existing_notes", return_value=[]):
+        result = await provider.classify("hello")
+
+    assert result.title == "Retry Win"
+    assert provider.client.chat.completions.create.await_count == 2
+
+
+@pytest.mark.asyncio
+async def test_classify_raises_after_max_parse_attempts():
+    provider = OpenAIProvider.__new__(OpenAIProvider)
+    provider.client = MagicMock()
+    provider.model = "gpt-4o-mini"
+    provider.prompt_template = "{input} {existing_notes}"
+
+    bad = MagicMock()
+    bad.choices[0].message.content = "still not json"
+    provider.client.chat.completions.create = AsyncMock(return_value=bad)
+
+    with patch("app.llm.openai_provider.list_existing_notes", return_value=[]):
+        with pytest.raises(ClassificationParseError):
+            await provider.classify("hello")
+
+    assert provider.client.chat.completions.create.await_count == 3
 
 
 def test_sanitize_tags_dedupes():
