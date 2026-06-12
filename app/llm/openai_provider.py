@@ -3,8 +3,10 @@ import logging
 from pathlib import Path
 
 from openai import AsyncOpenAI
+from pydantic import ValidationError
 
 from app.config import settings
+from app.llm.parser import MAX_PARSE_ATTEMPTS, ClassificationParseError, parse_classification_json
 from app.llm.schemas import ClassificationResult
 from app.llm.tags import normalize_tags
 from app.vault.reader import format_notes_for_prompt, known_titles, list_existing_notes
@@ -28,18 +30,36 @@ class OpenAIProvider:
             self.prompt_template.replace("{input}", text)
             .replace("{existing_notes}", format_notes_for_prompt(existing))
         )
-        response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
-        )
-        content = response.choices[0].message.content or "{}"
-        data = json.loads(content)
-        result = ClassificationResult.model_validate(data)
-        result = self._sanitize_related(result, existing)
-        result = self._sanitize_action(result, existing)
-        result = self._sanitize_tags(result)
-        return result
+
+        last_error: json.JSONDecodeError | ValidationError | None = None
+        for attempt in range(1, MAX_PARSE_ATTEMPTS + 1):
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
+            )
+            content = response.choices[0].message.content or ""
+            try:
+                result = parse_classification_json(content)
+            except (json.JSONDecodeError, ValidationError) as exc:
+                last_error = exc
+                logger.warning(
+                    "LLM classification parse failed (attempt %d/%d): %s",
+                    attempt,
+                    MAX_PARSE_ATTEMPTS,
+                    exc,
+                )
+                continue
+
+            result = self._sanitize_related(result, existing)
+            result = self._sanitize_action(result, existing)
+            result = self._sanitize_tags(result)
+            return result
+
+        assert last_error is not None
+        raise ClassificationParseError(
+            f"LLM returned invalid classification JSON after {MAX_PARSE_ATTEMPTS} attempts"
+        ) from last_error
 
     def _sanitize_related(
         self, result: ClassificationResult, existing: list
