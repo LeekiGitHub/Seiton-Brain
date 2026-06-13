@@ -165,6 +165,7 @@ Tests laufen offline — keine echten API-/DB-Calls.
 | `api` startet nicht | `docker compose logs api` — meist fehlt eine Env-Variable |
 | Migrationen schlagen fehl | `docker compose down -v` (löscht DB-Volume!) und neu starten |
 | Datei landet nicht im Vault | `OBSIDIAN_VAULT_HOST_PATH` prüfen, muss absoluter Host-Pfad sein |
+| `Permission denied` beim Vault-Schreiben | Container läuft als UID 1000 — Vault-Ordner auf dem Host muss für diesen User beschreibbar sein |
 | ngrok-URL wechselt ständig | Cloudflare Tunnel verwenden (Variante B) |
 | `worker` hängt bei OpenAI | Outage/Quota → `docker compose logs worker` zeigt Stacktrace |
 

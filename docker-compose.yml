@@ -41,6 +41,8 @@ services:
   worker:
     build: .
     command: celery -A app.worker.celery_app worker --loglevel=info
+    healthcheck:
+      disable: true
     env_file:
       - .env
     environment:
