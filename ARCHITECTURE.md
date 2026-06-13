@@ -42,6 +42,8 @@ flowchart LR
 | `db` | `postgres:16` | Datenbank | intern |
 | `redis` | `redis:7-alpine` | Celery Broker + Result Backend | intern |
 
+**Dockerfile:** Multi-Stage-Build (venv in Builder-Stage), Container läuft als User `seiton` (UID/GID 1000), `HEALTHCHECK` gegen `GET /health` (nur `api`; `worker` deaktiviert den Check in Compose).
+
 Volumes:
 - `postgres-data` (Named Volume) — DB-Persistenz
 - `${OBSIDIAN_VAULT_HOST_PATH} → /vault` (Bind Mount) — der echte Obsidian-Vault auf dem Host
