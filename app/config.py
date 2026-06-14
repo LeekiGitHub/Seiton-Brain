@@ -95,6 +95,9 @@ class Settings(BaseSettings):
     # Leer (Default) bedeutet: Allowlist deaktiviert -> alle erlaubt.
     # Geparst wird im Webhook (dort sitzt auch der Logger).
     telegram_allowed_user_ids: str = ""
+    # Telegram-Chat-ID fuer Admin-DMs bei dauerhaften Worker-Fehlern (E10-3).
+    # Leer = deaktiviert. Eigene ID: /start an @userinfobot.
+    telegram_admin_chat_id: str = ""
     # Maximale akzeptierte Webhook-Body-Groesse in Bytes. Echte Telegram-
     # Updates sind typischerweise <10 KB; 1 MB ist grosszuegig und schuetzt
     # vor Resource-Exhaustion durch fehlgeleitete oder boesartige Requests.
