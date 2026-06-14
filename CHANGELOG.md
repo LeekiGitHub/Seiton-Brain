@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E9-1: Dockerfile härten.** Multi-Stage-Build (venv in separater Builder-Stage),
+  Runtime-Image ohne Build-Artefakte. Container läuft als non-root User `seiton`
+  (UID/GID 1000). `HEALTHCHECK` prüft `GET /health` (nutzt E10-4). `worker` in
+  Compose deaktiviert den API-Healthcheck. Troubleshooting-Hinweis zu Vault-Rechten.
 - **E7-1: Provider-unabhängige JSON-Validierung + LLM-Retry.** Neues Modul
   `app/llm/parser.py` mit `parse_classification_json()` — zentrales
   `json.loads` + `ClassificationResult.model_validate` für alle Provider.
