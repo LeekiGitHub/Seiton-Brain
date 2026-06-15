@@ -9,6 +9,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E10-3: Admin-Fehler-DM per Telegram.** Neues optionales Setting
+  `TELEGRAM_ADMIN_CHAT_ID`. Bei dauerhaft fehlgeschlagenen Worker-Tasks
+  (nach allen Celery-Retries) erhält der Admin eine DM mit Task-Name,
+  Task-ID, Chat/Update-Kontext und gekürztem Traceback — zusätzlich zur
+  generischen User-Meldung und zum Log. Modul `app/telegram/admin_notify.py`.
+  5 neue Tests.
 - **E9-1: Dockerfile härten.** Multi-Stage-Build (venv in separater Builder-Stage),
   Runtime-Image ohne Build-Artefakte. Container läuft als non-root User `seiton`
   (UID/GID 1000). `HEALTHCHECK` prüft `GET /health` (nutzt E10-4). `worker` in

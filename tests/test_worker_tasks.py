@@ -79,9 +79,9 @@ def _close_coro_and_raise(exc: BaseException):
     return side_effect
 
 
-@patch("app.worker.tasks._send_error")
+@patch("app.worker.tasks._handle_permanent_failure")
 @patch("app.worker.tasks._run")
-def test_text_task_does_not_send_error_on_retry(mock_run, mock_send_error):
+def test_text_task_does_not_send_error_on_retry(mock_run, mock_handle_failure):
     """Beim Celery-Retry darf der User keine Fehler-Meldung sehen — er
     bekommt sie nur, wenn alle Versuche erschoepft sind."""
     mock_run.side_effect = _close_coro_and_raise(Retry())
@@ -89,12 +89,12 @@ def test_text_task_does_not_send_error_on_retry(mock_run, mock_send_error):
     with pytest.raises(Retry):
         process_text_message_task.run("hi", 42)
 
-    mock_send_error.assert_not_called()
+    mock_handle_failure.assert_not_called()
 
 
-@patch("app.worker.tasks._send_error")
+@patch("app.worker.tasks._handle_permanent_failure")
 @patch("app.worker.tasks._run")
-def test_text_task_sends_error_on_permanent_failure(mock_run, mock_send_error):
+def test_text_task_sends_error_on_permanent_failure(mock_run, mock_handle_failure):
     """Bei nicht-retryable Exception bekommt der User die Fehlermeldung."""
     call_count = {"n": 0}
 
@@ -111,17 +111,21 @@ def test_text_task_sends_error_on_permanent_failure(mock_run, mock_send_error):
         process_text_message_task.run("hi", 42)
 
     # _run wurde 2x aufgerufen: einmal fuer _process_text (failt), einmal
-    # fuer _send_error
+    # fuer _handle_permanent_failure
     assert call_count["n"] == 2
-    mock_send_error.assert_called_once_with(42)
+    mock_handle_failure.assert_called_once()
+    kwargs = mock_handle_failure.call_args.kwargs
+    assert mock_handle_failure.call_args.args[0] == 42
+    assert isinstance(mock_handle_failure.call_args.args[1], ValueError)
+    assert kwargs["task_name"] == "process_text_message"
 
 
-@patch("app.worker.tasks._send_error")
+@patch("app.worker.tasks._handle_permanent_failure")
 @patch("app.worker.tasks._run")
-def test_voice_task_does_not_send_error_on_retry(mock_run, mock_send_error):
+def test_voice_task_does_not_send_error_on_retry(mock_run, mock_handle_failure):
     mock_run.side_effect = _close_coro_and_raise(Retry())
 
     with pytest.raises(Retry):
         process_voice_message_task.run("voice123", 42)
 
-    mock_send_error.assert_not_called()
+    mock_handle_failure.assert_not_called()

@@ -20,6 +20,7 @@ def test_settings_defaults_are_applied():
     assert settings.llm_provider == "openai"
     assert settings.openai_model == "gpt-4o-mini"
     assert settings.telegram_allowed_user_ids == ""
+    assert settings.telegram_admin_chat_id == ""
     assert settings.log_level == "INFO"
     assert settings.log_json is True
     assert settings.seiton_api_key == "test-seiton-api-key"

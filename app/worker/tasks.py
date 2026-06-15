@@ -13,6 +13,7 @@ from openai import (
 from app.db.session import worker_session
 from app.logging_config import bind_log_context
 from app.services.process_message import process_text_message
+from app.telegram.admin_notify import notify_admin_error
 from app.telegram.client import download_file, send_message
 from app.transcription.whisper import transcribe_audio
 from app.vault.writer import CATEGORY_FOLDERS
@@ -105,6 +106,24 @@ async def _send_error(chat_id: int) -> None:
     await send_message(chat_id, "Etwas ist schiefgelaufen — bitte später nochmal versuchen.")
 
 
+async def _handle_permanent_failure(
+    chat_id: int,
+    exc: BaseException,
+    *,
+    task_name: str,
+    task_id: str | None,
+    telegram_update_id: int | None,
+) -> None:
+    await _send_error(chat_id)
+    await notify_admin_error(
+        task_name=task_name,
+        error=exc,
+        chat_id=chat_id,
+        task_id=task_id,
+        telegram_update_id=telegram_update_id,
+    )
+
+
 def _run(coro) -> None:
     asyncio.run(coro)
 
@@ -137,9 +156,17 @@ def process_text_message_task(
         # keine Telegram-Nachricht senden — der User wuerde sonst pro Retry
         # eine "schiefgelaufen"-Meldung bekommen.
         raise
-    except Exception:
+    except Exception as exc:
         logger.exception("process_text_message failed permanently chat_id=%s", chat_id)
-        _run(_send_error(chat_id))
+        _run(
+            _handle_permanent_failure(
+                chat_id,
+                exc,
+                task_name="process_text_message",
+                task_id=self.request.id,
+                telegram_update_id=telegram_update_id,
+            )
+        )
         raise
 
 
@@ -168,7 +195,15 @@ def process_voice_message_task(
         logger.info("process_voice_message done chat_id=%s", chat_id)
     except Retry:
         raise
-    except Exception:
+    except Exception as exc:
         logger.exception("process_voice_message failed permanently chat_id=%s", chat_id)
-        _run(_send_error(chat_id))
+        _run(
+            _handle_permanent_failure(
+                chat_id,
+                exc,
+                task_name="process_voice_message",
+                task_id=self.request.id,
+                telegram_update_id=telegram_update_id,
+            )
+        )
         raise

@@ -58,7 +58,8 @@ app/
 ├── config.py                Settings-Klasse (pydantic-settings), zentrale Env-Konfig
 ├── telegram/
 │   ├── webhook.py           POST /webhook, Secret-Check, enqueue
-│   └── client.py            sendMessage, downloadFile
+│   ├── client.py            sendMessage, downloadFile
+│   └── admin_notify.py      Admin-DM bei dauerhaften Worker-Fehlern (E10-3)
 ├── worker/
 │   ├── celery_app.py        Celery-Config
 │   └── tasks.py             process_text_message_task, process_voice_message_task

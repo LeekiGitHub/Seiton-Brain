@@ -168,6 +168,7 @@ Tests laufen offline — keine echten API-/DB-Calls.
 | `Permission denied` beim Vault-Schreiben | Container läuft als UID 1000 — Vault-Ordner auf dem Host muss für diesen User beschreibbar sein |
 | ngrok-URL wechselt ständig | Cloudflare Tunnel verwenden (Variante B) |
 | `worker` hängt bei OpenAI | Outage/Quota → `docker compose logs worker` zeigt Stacktrace |
+| Fehler nur im Log, keine Admin-DM | `TELEGRAM_ADMIN_CHAT_ID` in `.env` setzen (eigene ID via @userinfobot) |
 
 ---
 
