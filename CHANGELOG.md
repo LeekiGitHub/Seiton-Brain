@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E9-4: Lokale Backups.** Neues Skript `scripts/backup.sh` erstellt einen
+  Zeitstempel-Ordner mit `postgres.sql` (via `docker compose exec db pg_dump`),
+  `vault.tar.gz` (Archiv von `OBSIDIAN_VAULT_HOST_PATH`) und `manifest.txt`.
+  `backups/` ist gitignored. Restore-Anleitung in `docs/setup.md`. Shell-Syntax-Test.
 - **E10-3: Admin-Fehler-DM per Telegram.** Neues optionales Setting
   `TELEGRAM_ADMIN_CHAT_ID`. Bei dauerhaft fehlgeschlagenen Worker-Tasks
   (nach allen Celery-Retries) erhält der Admin eine DM mit Task-Name,

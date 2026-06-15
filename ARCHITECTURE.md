@@ -48,6 +48,8 @@ Volumes:
 - `postgres-data` (Named Volume) — DB-Persistenz
 - `${OBSIDIAN_VAULT_HOST_PATH} → /vault` (Bind Mount) — der echte Obsidian-Vault auf dem Host
 
+**Backups:** `scripts/backup.sh` — lokaler Postgres-Dump + Vault-`tar.gz` nach `backups/` (siehe `docs/setup.md`).
+
 ---
 
 ## Modul-Map (`app/`)

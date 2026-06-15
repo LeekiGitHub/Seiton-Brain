@@ -172,6 +172,40 @@ Tests laufen offline — keine echten API-/DB-Calls.
 
 ---
 
+## Backups (lokal)
+
+Mit dem Backup-Skript sicherst du Postgres und den Obsidian-Vault in einem
+Zeitstempel-Ordner unter `backups/` (gitignored):
+
+```bash
+docker compose up -d          # db muss laufen
+./scripts/backup.sh
+# oder: ./scripts/backup.sh /pfad/zu/backups
+```
+
+Pro Lauf entsteht z. B. `backups/seiton-20260608-143000/` mit:
+
+| Datei | Inhalt |
+|-------|--------|
+| `postgres.sql` | `pg_dump` der Datenbank `seitonbrain` |
+| `vault.tar.gz` | Archiv von `OBSIDIAN_VAULT_HOST_PATH` |
+| `manifest.txt` | Metadaten (Zeitstempel, Pfade) |
+
+**Wiederherstellen** (manuell, Stack muss laufen):
+
+```bash
+# Datenbank (Vorsicht: überschreibt bestehende Daten)
+docker compose exec -T db psql -U user -d seitonbrain < backups/seiton-.../postgres.sql
+
+# Vault (Vorsicht: entpackt über den bestehenden Ordner)
+tar -xzf backups/seiton-.../vault.tar.gz -C "$(dirname "$OBSIDIAN_VAULT_HOST_PATH")"
+```
+
+Empfehlung: Backups regelmäßig auf externes Laufzeug oder Cloud-Sync kopieren
+(`backups/` liegt nur lokal im Projektverzeichnis).
+
+---
+
 ## Saubere Neuinstallation
 
 ```bash

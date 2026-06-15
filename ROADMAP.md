@@ -150,7 +150,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 | E9-1 | Dockerfile härten: non-root user, multi-stage, `HEALTHCHECK`. | 3 | 2 | 2 | 4 | 3 | 🟢 | C |
 | E9-2 | Mac Mini M4 als 24/7-Host: Anleitung + Compose-Override. | 4 | 2 | 2 | 4 | 4 | ⚪ | C |
 | E9-3 | Cloudflare Tunnel statt ngrok (stabile öffentliche URL). | 4 | 2 | 2 | 4 | 4 | ⚪ | C |
-| E9-4 | Backups: Postgres-Dump + Vault-Snapshot (lokal). | 3 | 2 | 2 | 3 | 3 | ⚪ | C |
+| E9-4 | Backups: Postgres-Dump + Vault-Snapshot (lokal). | 3 | 2 | 2 | 3 | 3 | 🟢 | C |
 
 ---
 
@@ -301,7 +301,7 @@ Details: [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowle
 7. 🟢 **E1-4** — Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen
 
 **Phase A (MVP) und Phase B (Product) sind komplett — Release v0.2.0.**
-**Phase C** läuft: E10-4, E10-1, E8-2, E13-1, E13-2, E7-1, E9-1, E10-3 🟢. Phase C Epic E10 abgeschlossen.
+**Phase C** läuft: E10-4, E10-1, E8-2, E13-1, E13-2, E7-1, E9-1, E10-3, E9-4 🟢. Phase C Epic E10 abgeschlossen.
 Mac-Mini-Stories (E9-2/E9-3) zurückgestellt bis Hardware da ist.
 
 ## Spätere Phasen (Kurzüberblick)
