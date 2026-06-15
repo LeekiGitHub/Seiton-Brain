@@ -70,6 +70,7 @@ pgdata/
 # --- Docker ---
 docker-compose.override.yml
 .docker/
+/backups/
 
 # --- Obsidian vault (personal vault, mounted via OBSIDIAN_VAULT_PATH) ---
 /vault/
