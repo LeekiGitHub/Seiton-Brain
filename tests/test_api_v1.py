@@ -61,8 +61,9 @@ def test_api_rejects_invalid_key_header():
     assert response.json()["detail"] == "Invalid API key"
 
 
+@patch("app.api.v1.routes.emit_capture_event", new_callable=AsyncMock)
 @patch("app.api.v1.routes.process_text_message", new_callable=AsyncMock)
-def test_capture_returns_pipeline_result(mock_process):
+def test_capture_returns_pipeline_result(mock_process, mock_emit):
     mock_process.return_value = _process_result()
 
     response = client.post(
@@ -77,6 +78,7 @@ def test_capture_returns_pipeline_result(mock_process):
     assert data["vault_path"] == "Ideas/API Idea.md"
     assert data["status"] == "processed"
     assert data["classification"]["title"] == "API Idea"
+    mock_emit.assert_awaited_once()
 
 
 @patch("app.api.v1.routes.process_text_message", new_callable=AsyncMock)

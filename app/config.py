@@ -124,6 +124,10 @@ class Settings(BaseSettings):
     # muss exakt uebereinstimmen (timing-safe Vergleich).
     seiton_api_key: str = ""
 
+    # Outbound Webhooks (E13-3). Leer = deaktiviert. Eine URL fuer alle Events;
+    # Event-Typ steht im JSON-Feld ``event`` und Header ``X-Seiton-Event``.
+    seiton_webhook_url: str = ""
+
 
 def load_settings() -> Settings:
     try:

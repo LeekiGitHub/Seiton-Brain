@@ -24,6 +24,7 @@ def test_settings_defaults_are_applied():
     assert settings.log_level == "INFO"
     assert settings.log_json is True
     assert settings.seiton_api_key == "test-seiton-api-key"
+    assert settings.seiton_webhook_url == ""
 
 
 def test_settings_accept_extra_env_vars():

@@ -9,6 +9,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E13-3: Outbound Webhooks.** Optionales Setting `SEITON_WEBHOOK_URL`.
+  Nach erfolgreichem Capture (Telegram-Worker und `POST /v1/capture`) POST
+  mit `note.created` bzw. `note.appended`; bei dauerhaft fehlgeschlagenen
+  Worker-Tasks `entry.failed`. Event im JSON-Feld `event` und Header
+  `X-Seiton-Event`. Best-effort — Fehler beim Versand nur im Log.
+  Modul `app/webhooks/outbound.py`. 9 neue Tests.
 - **E9-4: Lokale Backups.** Neues Skript `scripts/backup.sh` erstellt einen
   Zeitstempel-Ordner mit `postgres.sql` (via `docker compose exec db pg_dump`),
   `vault.tar.gz` (Archiv von `OBSIDIAN_VAULT_HOST_PATH`) und `manifest.txt`.

@@ -31,17 +31,18 @@ Auth: API-Key im Header (z. B. `X-Seiton-Api-Key`), konfiguriert in `.env`
 **Deliverable Phase D:** Ordner `examples/n8n/` mit exportierten Workflow-JSONs
 (`E14-1`).
 
-### Stufe 2 — Webhooks / Events (Phase E)
+### Stufe 2 — Webhooks / Events (Phase E) 🟢
 
-Seiton sendet nach erfolgreichem Speichern Events an konfigurierte URLs:
+Seiton sendet nach erfolgreichem Speichern Events an `SEITON_WEBHOOK_URL`:
 
 | Event | Wann | n8n-Nutzung |
 |-------|------|-------------|
 | `note.created` | Neue `.md` angelegt | Slack, Mail, Kalender, … |
 | `note.appended` | Bestehende Notiz ergänzt | Review-Workflows |
-| `entry.failed` | Verarbeitung fehlgeschlagen | Alert an Admin |
+| `entry.failed` | Verarbeitung endgültig fehlgeschlagen | Alert an Admin |
 
-n8n-Workflow startet per **Webhook**-Trigger-Node.
+n8n-Workflow startet per **Webhook**-Trigger-Node; Event per `$json.event`
+oder Header `X-Seiton-Event` filtern.
 
 **Story:** `E13-3` in ROADMAP.
 
@@ -109,9 +110,9 @@ Sinnvoll auf Mac Mini mit Ollama — Seiton speichert nur das finale Ergebnis.
 ## Abhängigkeiten (Reihenfolge)
 
 1. Phase B: Append-Logik (`E3-2`, `E4-1`) — sonst ist „Brain“ noch zu dünn
-2. Phase C: REST-API v1 + API-Key-Auth (`E13-1`, `E13-2`)
+2. Phase C: REST-API v1 + API-Key-Auth (`E13-1`, `E13-2`) 🟢
 3. Phase D: Beispiel-Workflows (`E14-1`)
-4. Phase E: Outbound Webhooks (`E13-3`), Custom Node (`E14-2`)
+4. Phase E: Outbound Webhooks (`E13-3`) 🟢, Custom Node (`E14-2`)
 
 ---
 
