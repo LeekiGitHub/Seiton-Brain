@@ -16,6 +16,7 @@ from app.llm.provider import get_llm_provider
 from app.llm.schemas import ClassificationResult
 from app.models.entry import Entry
 from app.services.process_message import process_text_message
+from app.webhooks.outbound import emit_capture_event
 
 router = APIRouter(
     prefix="/v1",
@@ -30,6 +31,7 @@ async def capture_text(body: CaptureRequest, db: AsyncSession = Depends(get_db))
     result = await process_text_message(body.text, db, kind="text")
     if result is None:
         raise HTTPException(status_code=409, detail="Duplicate capture rejected")
+    await emit_capture_event(result, kind="text")
     return CaptureResponse(
         classification=result.classification,
         entry_id=result.entry_id,

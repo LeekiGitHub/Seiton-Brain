@@ -206,6 +206,30 @@ Empfehlung: Backups regelmäßig auf externes Laufzeug oder Cloud-Sync kopieren
 
 ---
 
+## Outbound Webhooks (n8n & Co.)
+
+Optional: Seiton sendet nach erfolgreichem Speichern oder bei dauerhaft
+fehlgeschlagener Verarbeitung ein JSON-Event per HTTP POST an eine URL:
+
+```env
+SEITON_WEBHOOK_URL=https://n8n.example/webhook/seiton-events
+```
+
+| Event | Wann |
+|-------|------|
+| `note.created` | Neue Notiz im Vault angelegt |
+| `note.appended` | Bestehende Notiz ergänzt |
+| `entry.failed` | Worker-Task endgültig fehlgeschlagen (nach allen Retries) |
+
+Der Event-Typ steht im JSON-Feld `event` und im Header `X-Seiton-Event`.
+Fehler beim Webhook-Versand werden nur geloggt — Capture/Telegram laufen
+weiter.
+
+**n8n:** Webhook-Trigger-Node → Switch auf `$json.event` → z. B. Slack,
+Kalender, Mail. Details: [`docs/integrations/n8n.md`](./integrations/n8n.md).
+
+---
+
 ## Saubere Neuinstallation
 
 ```bash

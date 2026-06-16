@@ -76,6 +76,8 @@ app/
 │   └── writer.py            write_note, CATEGORY_FOLDERS
 ├── transcription/
 │   └── whisper.py           OpenAI Whisper API
+├── webhooks/
+│   └── outbound.py          Outbound Events (note.created, entry.failed, …)
 ├── models/
 │   ├── base.py              SQLAlchemy DeclarativeBase
 │   └── entry.py             Entry-ORM
@@ -290,7 +292,7 @@ flowchart LR
 | n8n | — | E14 (HTTP zuerst, Custom Node später) |
 | Setup CLI | — | E16 (`init`, `doctor`, TUI) |
 | Filesystem Vault | ✅ | E15 `VaultBackend`-Interface |
-| Outbound Events | — | E13-3 Webhooks |
+| Outbound Events | ✅ | E13-3 Webhooks |
 | Retrieval / Q&A | — | E17 (Keyword → semantisch → RAG) |
 | MCP-Server (Brain als Tool für LLM-Agents) | — | E17-6 (separates Repo) |
 

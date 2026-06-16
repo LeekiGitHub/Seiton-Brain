@@ -15,6 +15,7 @@ from app.logging_config import bind_log_context
 from app.services.process_message import process_text_message
 from app.telegram.admin_notify import notify_admin_error
 from app.telegram.client import download_file, send_message
+from app.webhooks.outbound import emit_capture_event, emit_entry_failed_event
 from app.transcription.whisper import transcribe_audio
 from app.vault.writer import CATEGORY_FOLDERS
 from app.worker.celery_app import celery_app
@@ -81,6 +82,12 @@ async def _process_text(
             folder = CATEGORY_FOLDERS.get(classification.category.lower(), "Notes")
             message = f"Gespeichert als [[{classification.title}]] unter {folder}"
         await send_message(chat_id, message)
+        await emit_capture_event(
+            result,
+            kind=kind,
+            telegram_chat_id=chat_id,
+            telegram_update_id=telegram_update_id,
+        )
 
 
 async def _process_voice(
@@ -113,6 +120,8 @@ async def _handle_permanent_failure(
     task_name: str,
     task_id: str | None,
     telegram_update_id: int | None,
+    kind: str | None = None,
+    raw_input: str | None = None,
 ) -> None:
     await _send_error(chat_id)
     await notify_admin_error(
@@ -121,6 +130,15 @@ async def _handle_permanent_failure(
         chat_id=chat_id,
         task_id=task_id,
         telegram_update_id=telegram_update_id,
+    )
+    await emit_entry_failed_event(
+        task_name=task_name,
+        error=exc,
+        chat_id=chat_id,
+        task_id=task_id,
+        telegram_update_id=telegram_update_id,
+        kind=kind,
+        raw_input=raw_input,
     )
 
 
@@ -165,6 +183,8 @@ def process_text_message_task(
                 task_name="process_text_message",
                 task_id=self.request.id,
                 telegram_update_id=telegram_update_id,
+                kind="text",
+                raw_input=text,
             )
         )
         raise
@@ -204,6 +224,7 @@ def process_voice_message_task(
                 task_name="process_voice_message",
                 task_id=self.request.id,
                 telegram_update_id=telegram_update_id,
+                kind="voice",
             )
         )
         raise

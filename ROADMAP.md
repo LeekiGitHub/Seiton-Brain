@@ -196,7 +196,7 @@ intern; API ist dünner Adapter nach außen.
 |----|-------|---|---|---|---|---|--------|-------|
 | E13-1 | REST-API v1: `POST /v1/capture`, `POST /v1/classify`, `GET /v1/entries` — gleiche Pipeline wie Telegram. | 5 | 3 | 2 | 5 | 4 | 🟢 | C |
 | E13-2 | API-Key-Auth (`SEITON_API_KEY` in `.env`, Header `X-Seiton-Api-Key`). | 4 | 1 | 1 | 3 | 4 | 🟢 | C |
-| E13-3 | Outbound Webhooks: `note.created`, `note.appended`, `entry.failed` (URL in Settings). | 4 | 2 | 2 | 4 | 3 | ⚪ | E |
+| E13-3 | Outbound Webhooks: `note.created`, `note.appended`, `entry.failed` (URL in Settings). | 4 | 2 | 2 | 4 | 3 | 🟢 | E |
 | E13-4 | OpenAPI/Swagger-Dokumentation unter `/docs` (nur wenn API-Key gesetzt / DEBUG). | 2 | 1 | 1 | 2 | 2 | ⚪ | D |
 
 Details: [`docs/integrations/n8n.md`](./docs/integrations/n8n.md)
@@ -301,7 +301,7 @@ Details: [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowle
 7. 🟢 **E1-4** — Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen
 
 **Phase A (MVP) und Phase B (Product) sind komplett — Release v0.2.0.**
-**Phase C** läuft: E10-4, E10-1, E8-2, E13-1, E13-2, E7-1, E9-1, E10-3, E9-4 🟢. Phase C Epic E10 abgeschlossen.
+**Phase C** läuft: E10-4, E10-1, E8-2, E13-1, E13-2, E7-1, E9-1, E10-3, E9-4, E13-3 🟢.
 Mac-Mini-Stories (E9-2/E9-3) zurückgestellt bis Hardware da ist.
 
 ## Spätere Phasen (Kurzüberblick)
