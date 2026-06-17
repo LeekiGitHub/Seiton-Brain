@@ -29,7 +29,7 @@ Auth: API-Key im Header (z. B. `X-Seiton-Api-Key`), konfiguriert in `.env`
 (`SEITON_API_KEY`). Nur lokaler Self-Host — kein Cloud-Dienst von uns.
 
 **Deliverable Phase D:** Ordner `examples/n8n/` mit exportierten Workflow-JSONs
-(`E14-1`).
+(`E14-1`) — 🟢 siehe [`examples/n8n/`](../../examples/n8n/README.md).
 
 ### Stufe 2 — Webhooks / Events (Phase E) 🟢
 
@@ -111,7 +111,7 @@ Sinnvoll auf Mac Mini mit Ollama — Seiton speichert nur das finale Ergebnis.
 
 1. Phase B: Append-Logik (`E3-2`, `E4-1`) — sonst ist „Brain“ noch zu dünn
 2. Phase C: REST-API v1 + API-Key-Auth (`E13-1`, `E13-2`) 🟢
-3. Phase D: Beispiel-Workflows (`E14-1`)
+3. Phase D: Beispiel-Workflows (`E14-1`) 🟢
 4. Phase E: Outbound Webhooks (`E13-3`) 🟢, Custom Node (`E14-2`)
 
 ---

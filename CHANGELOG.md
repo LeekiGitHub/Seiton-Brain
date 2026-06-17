@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E14-1: n8n-Beispiel-Workflows.** Neuer Ordner `examples/n8n/` mit drei
+  importierbaren JSON-Workflows: Capture via `POST /v1/capture`, Webhook-Event-Router
+  (`note.created` / `note.appended` / `entry.failed`), Todoist → Capture.
+  Setup-Anleitung in `examples/n8n/README.md`. 3 JSON-Validierungstests.
 - **E13-3: Outbound Webhooks.** Optionales Setting `SEITON_WEBHOOK_URL`.
   Nach erfolgreichem Capture (Telegram-Worker und `POST /v1/capture`) POST
   mit `note.created` bzw. `note.appended`; bei dauerhaft fehlgeschlagenen

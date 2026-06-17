@@ -6,6 +6,7 @@ alles sofort umsetzen. Architektur-Grundlage: [ADR 0003 — Engine + Adapter](..
 | Dokument | Inhalt |
 |----------|--------|
 | [n8n.md](./n8n.md) | n8n-Anbindung: HTTP zuerst, Custom Node später, Beispiel-Szenarien |
+| [`examples/n8n/`](../../examples/n8n/README.md) | Importierbare Workflow-JSONs (Capture, Webhooks, Todoist) |
 | [setup-onboarding.md](./setup-onboarding.md) | Easy Setup, TUI/CLI, API-Key-Handling, `seiton doctor` |
 | [vault-backends.md](./vault-backends.md) | Obsidian-Alternative, `VaultBackend`-Interface, Backends |
 | [knowledge-retrieval.md](./knowledge-retrieval.md) | Brain als Wissensquelle: Suche, RAG-Q&A, Retrieval-API, MCP-Server |
