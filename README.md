@@ -34,6 +34,7 @@ Stand jetzt (v0.2.0):
 Vollständige Historie: [`CHANGELOG.md`](./CHANGELOG.md).
 Was als nächstes kommt: [`ROADMAP.md`](./ROADMAP.md).
 Langfristige Integrations-Ideen (n8n, REST-API, Setup-CLI): [`docs/integrations/`](./docs/integrations/).
+n8n-Beispiel-Workflows (importierbar): [`examples/n8n/`](./examples/n8n/README.md).
 Wie es gebaut ist: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 Wie selbst betreiben: [`docs/setup.md`](./docs/setup.md).
 

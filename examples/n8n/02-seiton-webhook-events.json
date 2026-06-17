@@ -1,0 +1,231 @@
+{
+  "name": "Seiton Brain — Webhook Events",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "seiton-events",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "a1b2c3d4-1111-4000-8000-000000000011",
+      "name": "Seiton Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "e14-02-seiton-events-webhook"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "cond-note-created",
+                    "leftValue": "={{ $json.body.event }}",
+                    "rightValue": "note.created",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "note.created"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "cond-note-appended",
+                    "leftValue": "={{ $json.body.event }}",
+                    "rightValue": "note.appended",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "note.appended"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "cond-entry-failed",
+                    "leftValue": "={{ $json.body.event }}",
+                    "rightValue": "entry.failed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "entry.failed"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2c3d4e5-2222-4000-8000-000000000012",
+      "name": "Event Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "set-created-msg",
+              "name": "message",
+              "value": "=Neue Notiz: {{ $json.body.classification.title }} ({{ $json.body.vault_path }})",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c3d4e5f6-3333-4000-8000-000000000013",
+      "name": "Created — Slack/Mail hier",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [760, 140]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "set-appended-msg",
+              "name": "message",
+              "value": "=Notiz ergänzt: {{ $json.body.vault_path }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d4e5f6a7-4444-4000-8000-000000000014",
+      "name": "Appended — Review hier",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [760, 300]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "set-failed-msg",
+              "name": "message",
+              "value": "=Seiton Fehler ({{ $json.body.task }}): {{ $json.body.error_message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e5f6a7b8-5555-4000-8000-000000000015",
+      "name": "Failed — Alert hier",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [760, 460]
+    },
+    {
+      "parameters": {
+        "content": "## Webhook Setup\n\n1. Workflow aktivieren\n2. Production-URL → `SEITON_WEBHOOK_URL` in Seiton `.env`\n3. Seiton neu starten\n\nFalls `$json.body.event` leer: auf `$json.event` umstellen (n8n-Version).",
+        "height": 200,
+        "width": 340
+      },
+      "id": "f6a7b8c9-6666-4000-8000-000000000016",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, 80]
+    }
+  ],
+  "connections": {
+    "Seiton Webhook": {
+      "main": [
+        [
+          {
+            "node": "Event Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event Router": {
+      "main": [
+        [
+          {
+            "node": "Created — Slack/Mail hier",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Appended — Review hier",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failed — Alert hier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e14-02-webhook-events",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": [
+    {
+      "name": "seiton-brain"
+    }
+  ]
+}

@@ -210,7 +210,7 @@ Stufe 3: Custom Community-Node in **separatem** npm-Repo.
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E14-1 | `examples/n8n/`: exportierte Workflow-JSONs (Capture, Webhook-Trigger, Todoist→Seiton). | 4 | 1 | 1 | 3 | 3 | ⚪ | D |
+| E14-1 | `examples/n8n/`: exportierte Workflow-JSONs (Capture, Webhook-Trigger, Todoist→Seiton). | 4 | 1 | 1 | 3 | 3 | 🟢 | D |
 | E14-2 | Community-Node `n8n-nodes-seiton-brain` (eigenes Repo): Capture, Search, Append, Get Entry. | 4 | 3 | 2 | 5 | 2 | ⚪ | E |
 | E14-3 | Doku: „Seiton + n8n“ im README + Link zu ADR 0003. | 2 | 1 | 1 | 2 | 3 | ⚪ | D |
 
