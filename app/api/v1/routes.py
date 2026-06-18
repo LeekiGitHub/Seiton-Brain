@@ -10,12 +10,15 @@ from app.api.v1.schemas import (
     ClassifyRequest,
     EntryListResponse,
     EntrySummary,
+    NoteSearchHit,
+    NoteSearchResponse,
 )
 from app.db.session import get_db
 from app.llm.provider import get_llm_provider
 from app.llm.schemas import ClassificationResult
 from app.models.entry import Entry
 from app.services.process_message import process_text_message
+from app.vault.index import search_vault_notes
 from app.webhooks.outbound import emit_capture_event
 
 router = APIRouter(
@@ -75,3 +78,24 @@ async def list_entries(
         for row in rows
     ]
     return EntryListResponse(items=items, limit=limit, offset=offset)
+
+
+@router.get("/notes/search", response_model=NoteSearchResponse)
+async def search_notes(
+    q: str = Query(min_length=1, max_length=200),
+    limit: int = Query(default=10, ge=1, le=50),
+    db: AsyncSession = Depends(get_db),
+):
+    """Keyword-Suche über den Vault-Index (Titel + Inhalt)."""
+    hits = await search_vault_notes(db, q, limit=limit)
+    items = [
+        NoteSearchHit(
+            title=hit.title,
+            vault_path=hit.vault_path,
+            snippet=hit.snippet,
+            category=hit.category,
+            folder=hit.folder,
+        )
+        for hit in hits
+    ]
+    return NoteSearchResponse(query=q, items=items, limit=limit)

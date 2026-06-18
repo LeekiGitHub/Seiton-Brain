@@ -28,7 +28,7 @@ stellen (n8n-Workflows, Claude Desktop, Cursor, eigene LLM-Agenten).
 
 ## Drei Stufen (empfohlene Reihenfolge)
 
-### Stufe 1 — Keyword-Suche (Phase C)
+### Stufe 1 — Keyword-Suche (Phase C) 🟢
 
 Nutzt den Vault-Index aus `E5-1` (DB-Spiegel von Titel/Pfad/mtime, optional
 Body-Snippets). Reicht für Telegram-`/find`, REST-`/v1/notes/search` und

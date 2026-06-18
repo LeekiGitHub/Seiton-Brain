@@ -148,6 +148,34 @@ def test_list_entries_returns_summaries():
     assert data["items"][0]["title"] == "Note A"
 
 
+@patch("app.api.v1.routes.search_vault_notes", new_callable=AsyncMock)
+def test_search_notes_returns_hits(mock_search):
+    from app.vault.index import SearchHit
+
+    mock_search.return_value = [
+        SearchHit(
+            title="Fitness App",
+            vault_path="Ideas/Fitness App.md",
+            snippet="Workout tracking",
+            category="idea",
+            folder="Ideas",
+        )
+    ]
+
+    response = client.get(
+        "/v1/notes/search?q=fitness&limit=5",
+        headers=API_HEADERS,
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["query"] == "fitness"
+    assert data["limit"] == 5
+    assert len(data["items"]) == 1
+    assert data["items"][0]["title"] == "Fitness App"
+    mock_search.assert_awaited_once()
+
+
 def test_capture_rejects_empty_text():
     response = client.post(
         "/v1/capture",

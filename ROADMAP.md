@@ -106,7 +106,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E5-1 | Vault-Index in Postgres spiegeln (Titel, Pfad, mtime); statt jedes Mal `rglob`. Voraussetzung für E17-1 (Keyword-Suche). | 3 | 3 | 3 | 4 | 3 | ⚪ | C |
+| E5-1 | Vault-Index in Postgres spiegeln (Titel, Pfad, mtime); statt jedes Mal `rglob`. Voraussetzung für E17-1 (Keyword-Suche). | 3 | 3 | 3 | 4 | 3 | 🟢 | C |
 | E5-2 | Heuristisches Pre-Filtering vor LLM (Token-Match, max. 30 Notizen). | 3 | 2 | 1 | 3 | 3 | ⚪ | C |
 | E5-3 | (Optional v2) pgvector-Embeddings für semantische Ähnlichkeit. | 4 | 4 | 3 | 5 | 2 | ⚪ | später |
 
@@ -262,7 +262,7 @@ Retrieval-Service.
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E17-1 | Keyword-Suche über Vault-Index (DB-gespiegelt aus E5-1): Titel/Body-Match, Top-N Resultate mit `vault_path` + Snippet. Fundament für `/find` und `/v1/notes/search`. | 4 | 2 | 1 | 3 | 4 | ⚪ | C |
+| E17-1 | Keyword-Suche über Vault-Index (DB-gespiegelt aus E5-1): Titel/Body-Match, Top-N Resultate mit `vault_path` + Snippet. Fundament für `/find` und `/v1/notes/search`. | 4 | 2 | 1 | 3 | 4 | 🟢 | C |
 | E17-2 | Semantische Suche via pgvector (setzt E5-3 voraus): Embedding pro Notiz beim Schreiben/Append, Query-Embedding, kNN-Retrieval. | 5 | 4 | 3 | 5 | 3 | ⚪ | E/F |
 | E17-3 | RAG-Antwort-Service: Retrieval (E17-1/2) → Prompt mit Kontext-Snippets + Quellen → LLM-Antwort mit `[[Wiki-Links]]` zu Source-Notes. Eigener Pydantic-Schema (`AnswerResult`: `answer`, `sources[]`, `confidence`). | 5 | 4 | 3 | 5 | 4 | ⚪ | F |
 | E17-4 | Telegram-Command `/ask <frage>`: nutzt E17-3, Antwort im Chat mit anklickbaren Source-Links zur Vault-Notiz. | 5 | 2 | 2 | 4 | 4 | ⚪ | F |
@@ -301,7 +301,7 @@ Details: [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowle
 7. 🟢 **E1-4** — Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen
 
 **Phase A (MVP) und Phase B (Product) sind komplett — Release v0.2.0.**
-**Phase C** läuft: E10-4, E10-1, E8-2, E13-1, E13-2, E7-1, E9-1, E10-3, E9-4, E13-3 🟢.
+**Phase C** läuft: E10-4, E10-1, E8-2, E13-1, E13-2, E7-1, E9-1, E10-3, E9-4, E13-3, E14-1, E5-1, E17-1 🟢.
 Mac-Mini-Stories (E9-2/E9-3) zurückgestellt bis Hardware da ist.
 
 ## Spätere Phasen (Kurzüberblick)

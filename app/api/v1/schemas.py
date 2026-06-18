@@ -35,3 +35,17 @@ class EntryListResponse(BaseModel):
     items: list[EntrySummary]
     limit: int
     offset: int
+
+
+class NoteSearchHit(BaseModel):
+    title: str
+    vault_path: str
+    snippet: str
+    category: str
+    folder: str
+
+
+class NoteSearchResponse(BaseModel):
+    query: str
+    items: list[NoteSearchHit]
+    limit: int

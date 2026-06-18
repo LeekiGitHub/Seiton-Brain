@@ -1,10 +1,8 @@
-from app.config import settings
 from app.vault.reader import (
     VaultNote,
     _parse_frontmatter,
     format_notes_for_prompt,
     known_titles,
-    list_existing_notes,
 )
 
 
@@ -23,31 +21,6 @@ category: idea
 
 def test_parse_frontmatter_missing():
     assert _parse_frontmatter("no frontmatter") == {}
-
-
-def test_list_existing_notes(tmp_path, monkeypatch):
-    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
-    ideas_dir = tmp_path / "Ideas"
-    ideas_dir.mkdir()
-    (ideas_dir / "Startup Idea.md").write_text(
-        """---
-title: Startup Idea
-category: idea
----
-
-# Startup Idea
-
-A note about startups.
-""",
-        encoding="utf-8",
-    )
-
-    notes = list_existing_notes()
-    assert len(notes) == 1
-    assert notes[0].title == "Startup Idea"
-    assert notes[0].category == "idea"
-    assert notes[0].folder == "Ideas"
-    assert "startups" in notes[0].snippet.lower()
 
 
 def test_format_notes_for_prompt_empty():

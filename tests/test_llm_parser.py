@@ -216,7 +216,7 @@ async def test_classify_retries_on_invalid_json_then_succeeds():
     )
     provider.client.chat.completions.create = AsyncMock(side_effect=[bad, good])
 
-    with patch("app.llm.openai_provider.list_existing_notes", return_value=[]):
+    with patch("app.llm.openai_provider.list_existing_notes", new_callable=AsyncMock, return_value=[]):
         result = await provider.classify("hello")
 
     assert result.title == "Retry Win"
@@ -234,7 +234,7 @@ async def test_classify_raises_after_max_parse_attempts():
     bad.choices[0].message.content = "still not json"
     provider.client.chat.completions.create = AsyncMock(return_value=bad)
 
-    with patch("app.llm.openai_provider.list_existing_notes", return_value=[]):
+    with patch("app.llm.openai_provider.list_existing_notes", new_callable=AsyncMock, return_value=[]):
         with pytest.raises(ClassificationParseError):
             await provider.classify("hello")
 
