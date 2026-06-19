@@ -25,6 +25,12 @@ zugreifen. Capture **und** Retrieve sind gleichwertige Produkthälften — ein
 Second Brain, das man nur befüllen, aber nicht befragen kann, ist ein Archiv,
 kein Brain. Siehe Epic **E17**.
 
+Der Vault enthält dabei **nicht nur selbst geschriebene Notizen**, sondern alles,
+was ein Second Brain anhäuft — Bewerbungen, Zeugnisse, Rechnungen, PDFs,
+Office-Dokumente, Fotos. Seiton liest diese Dateien (read-only), extrahiert Text
+und macht ihn über Retrieval & RAG befragbar. Priorisiert nach RAG-Tauglichkeit
+(Text-Formate zuerst, Scans/Bilder via OCR/Vision später). Siehe Epic **E18**.
+
 **Langfristige Produktvision:** Seiton Brain ist eine **self-hosted Second-Brain-Engine**.
 Telegram und Obsidian sind die **Default-Adapter** — nicht das gesamte Produkt.
 Andere Eingänge (HTTP-API, n8n, CLI) und Ausgänge (andere Vault-Backends,
@@ -277,6 +283,42 @@ Cores; ungeschützter Public-Endpunkt (Retrieval ist genauso sensibel wie
 Capture — Auth identisch zu E13-2).
 
 Details: [`docs/integrations/knowledge-retrieval.md`](./docs/integrations/knowledge-retrieval.md)
+
+---
+
+### E18 — Multi-Format Ingestion · `epic:ingestion`
+
+Vault = **echtes Second Brain**: nicht nur Markdown, sondern alles, was sich
+ansammelt — Bewerbungen, Zeugnisse, Rechnungen, PDFs, Office-Dokumente, Fotos.
+Seiton **liest** diese Dateien (verändert sie nie), extrahiert Text, chunkt ihn
+und speist ihn in den Vault-Index (E5-1) ein, damit Retrieval & RAG (E17) über
+**alle** Inhalte arbeiten — nicht nur über selbst geschriebene Notizen.
+
+Priorisierung nach **RAG-Tauglichkeit** (Text first, Bild/Scan später):
+
+- **Tier 1 — direkt RAG-tauglich (Text-Layer vorhanden):** `.md` ✅, `.txt`,
+  PDF mit Text-Layer, `.docx`, `.pptx`
+- **Tier 2 — Scans/Foto-Dokumente (brauchen OCR):** gescannte PDFs, abfotografierte
+  Zeugnisse/Rechnungen
+- **Tier 3 — reine Bilder (brauchen Vision-Modell):** Fotos ohne Text
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E18-1 | `DocumentExtractor`-Interface (Engine+Adapter) + Plain-Text/Markdown-Extractor. Vault-Index (E5-1) erfasst auch Nicht-`.md`-Dateien: `vault_path`, `mime`/Typ, extrahierter Text, `indexed_at`. | 4 | 3 | 2 | 4 | 4 | ⚪ | F |
+| E18-2 | PDF-Text-Extraktion (Text-Layer via `pypdf`/`pdfplumber`). Erkennt „kein Text-Layer" → markiert für OCR (E18-5). | 5 | 2 | 2 | 3 | 4 | ⚪ | F |
+| E18-3 | Office-Formate: `.docx` (`python-docx`), `.pptx` (`python-pptx`). | 4 | 2 | 2 | 3 | 3 | ⚪ | F |
+| E18-4 | Chunking großer Dokumente in retrieval-taugliche Abschnitte; Index-Schema von 1 Zeile/Notiz → N Chunks/Dokument (eigene `vault_chunk`-Tabelle). Voraussetzung für sinnvolles semantisches Retrieval (E17-2/3) über lange Dateien. | 4 | 3 | 3 | 4 | 3 | ⚪ | F |
+| E18-5 | OCR für gescannte PDFs / Foto-Dokumente (Zeugnisse, Rechnungen) via Tesseract (`pytesseract`) — optionaler Adapter, nur wenn installiert. | 4 | 4 | 3 | 4 | 2 | ⚪ | F-Bonus |
+| E18-6 | Vision-LLM für reine Foto-Inhalte: Bildbeschreibung + Tags als durchsuchbare Text-Repräsentation im Index. | 3 | 4 | 3 | 4 | 2 | ⚪ | F-Bonus |
+
+Abhängigkeiten: **E5-1** (Vault-Index ✅) als Speicherziel, **E17-2** (Embeddings)
+und **E17-3** (RAG) als Konsumenten des extrahierten Texts. Sinnvolle Reihenfolge:
+E18-1 → E18-2/3 (Text-Formate) → E17-2 (Semantik) → E18-4 (Chunking) → E17-3 (RAG),
+danach OCR/Vision (E18-5/6) als Bonus.
+
+Bewusst **nicht** in E18: Originaldateien verändern oder neu schreiben (Dateien
+kommen über Obsidian/Sync rein, Seiton liest nur); Seiton als Upload-Ziel/Dateimanager;
+verlustfreie Format-Konvertierung. Fokus ist reine **Text-Gewinnung für Retrieval**.
 
 ---
 
