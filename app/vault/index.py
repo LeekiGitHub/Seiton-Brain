@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.db.session import SessionLocal
 from app.models.vault_note_index import VaultNoteIndex
+from app.vault.extractors import get_extractor
 from app.vault.reader import VaultNote, _body_snippet, _parse_frontmatter
 
 logger = logging.getLogger(__name__)
@@ -57,16 +58,19 @@ def parse_note_file(path: Path) -> VaultNote:
     return VaultNote(title=title, category=category, folder=folder, snippet=snippet)
 
 
-def _note_to_index_row(path: Path) -> VaultNoteIndex:
-    content = path.read_text(encoding="utf-8")
-    meta = _parse_frontmatter(content)
-    title = meta.get("title") or path.stem
+def _file_to_index_row(path: Path) -> VaultNoteIndex | None:
+    """Indexzeile fuer eine Datei — ``None`` bei nicht unterstuetztem Typ."""
+    extractor = get_extractor(path)
+    if extractor is None:
+        return None
+    doc = extractor.extract(path)
     return VaultNoteIndex(
         vault_path=_relative_vault_path(path),
-        title=title,
-        category=meta.get("category", ""),
+        title=doc.title,
+        category=doc.category,
         folder=path.parent.name,
-        body_snippet=_index_body_snippet(content),
+        doc_type=doc.doc_type,
+        body_snippet=_index_body_snippet(doc.text),
         mtime=_file_mtime(path),
     )
 
@@ -83,7 +87,9 @@ async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) ->
         await remove_vault_note_index(db, vault_relative_path)
         return
 
-    row = _note_to_index_row(filepath)
+    row = _file_to_index_row(filepath)
+    if row is None:
+        return  # nicht unterstuetzter Dateityp — nicht indexieren
     existing = (
         await db.execute(
             select(VaultNoteIndex).where(
@@ -98,6 +104,7 @@ async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) ->
         existing.title = row.title
         existing.category = row.category
         existing.folder = row.folder
+        existing.doc_type = row.doc_type
         existing.body_snippet = row.body_snippet
         existing.mtime = row.mtime
         existing.indexed_at = datetime.now(UTC)
@@ -120,13 +127,20 @@ async def sync_vault_index_from_disk(db: AsyncSession) -> int:
 
     found_paths: set[str] = set()
     count = 0
-    for md_file in sorted(vault_path.rglob("*.md")):
-        if md_file.name.startswith("."):
+    for file in sorted(vault_path.rglob("*")):
+        if not file.is_file():
             continue
+        rel_parts = file.relative_to(vault_path).parts
+        if any(part.startswith(".") for part in rel_parts):
+            continue  # versteckte Dateien/Ordner (.obsidian, .trash, …)
+        if get_extractor(file) is None:
+            continue  # nicht unterstuetzter Dateityp
         try:
-            rel = _relative_vault_path(md_file)
+            rel = _relative_vault_path(file)
+            row = _file_to_index_row(file)
+            if row is None:
+                continue
             found_paths.add(rel)
-            row = _note_to_index_row(md_file)
             existing = (
                 await db.execute(
                     select(VaultNoteIndex).where(
@@ -140,11 +154,12 @@ async def sync_vault_index_from_disk(db: AsyncSession) -> int:
                 existing.title = row.title
                 existing.category = row.category
                 existing.folder = row.folder
+                existing.doc_type = row.doc_type
                 existing.body_snippet = row.body_snippet
                 existing.mtime = row.mtime
             count += 1
         except OSError as exc:
-            logger.warning("Skipping unreadable vault file %s: %s", md_file, exc)
+            logger.warning("Skipping unreadable vault file %s: %s", file, exc)
 
     if found_paths:
         await db.execute(
@@ -156,7 +171,7 @@ async def sync_vault_index_from_disk(db: AsyncSession) -> int:
         await db.execute(delete(VaultNoteIndex))
 
     await db.commit()
-    logger.info("Vault index sync complete: %d notes", count)
+    logger.info("Vault index sync complete: %d files", count)
     return count
 
 

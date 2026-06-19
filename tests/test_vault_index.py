@@ -57,6 +57,34 @@ async def test_sync_vault_index_from_disk(tmp_path, monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_sync_indexes_multiple_formats_skips_unsupported(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    (tmp_path / "Notes").mkdir()
+    (tmp_path / "Notes" / "Hello.md").write_text(
+        "---\ntitle: Hello\n---\n\nBody.", encoding="utf-8"
+    )
+    (tmp_path / "Notes" / "Rechnung.txt").write_text("Betrag 42", encoding="utf-8")
+    (tmp_path / "Notes" / "Scan.pdf").write_bytes(b"%PDF-1.4 binary")
+    obsidian = tmp_path / ".obsidian"
+    obsidian.mkdir()
+    (obsidian / "workspace.md").write_text("config", encoding="utf-8")
+
+    added_rows = []
+    db = AsyncMock()
+    db.add = MagicMock(side_effect=added_rows.append)
+    db.commit = AsyncMock()
+    db.execute = AsyncMock(
+        return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None))
+    )
+
+    count = await sync_vault_index_from_disk(db)
+
+    assert count == 2  # .md + .txt; .pdf und .obsidian/* ignoriert
+    doc_types = {row.doc_type for row in added_rows}
+    assert doc_types == {"markdown", "text"}
+
+
+@pytest.mark.asyncio
 async def test_upsert_removes_missing_file(tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
     db = AsyncMock()
