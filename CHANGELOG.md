@@ -9,6 +9,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E5-1 + E17-1: Vault-Index und Keyword-Suche.** Neue Tabelle
+  `vault_note_index` (Pfad, Titel, Kategorie, Ordner, Body-Snippet, mtime).
+  Index wird bei Capture/Append aktualisiert, `/undo`-Löschung entfernt Einträge,
+  leerer Index bootstrappt per Vault-Scan. LLM-Kontext liest aus DB statt
+  `rglob`. `/find` durchsucht Titel + Inhalt im gesamten Vault;
+  `GET /v1/notes/search?q=...`. Modul `app/vault/index.py`. Alembic-Migration.
 - **E14-1: n8n-Beispiel-Workflows.** Neuer Ordner `examples/n8n/` mit drei
   importierbaren JSON-Workflows: Capture via `POST /v1/capture`, Webhook-Event-Router
   (`note.created` / `note.appended` / `entry.failed`), Todoist → Capture.

@@ -38,10 +38,11 @@ def _db_with_pre_check_result(found: bool) -> MagicMock:
 
 
 @pytest.mark.asyncio
+@patch("app.services.process_message.upsert_vault_note_index", new_callable=AsyncMock)
 @patch("app.services.process_message.write_note")
 @patch("app.services.process_message.get_llm_provider")
 async def test_process_text_message_persists_with_telegram_fields(
-    mock_provider, mock_write_note
+    mock_provider, mock_write_note, mock_upsert_index
 ):
     llm = MagicMock()
     llm.classify = AsyncMock(return_value=_classification(title="Idea X", category="idea"))
@@ -71,6 +72,7 @@ async def test_process_text_message_persists_with_telegram_fields(
     assert entry.kind == "text"
     db.commit.assert_awaited_once()
     mock_write_note.assert_called_once()
+    mock_upsert_index.assert_awaited_once_with(db, "Ideas/Idea X.md")
 
 
 @pytest.mark.asyncio
@@ -120,10 +122,11 @@ async def test_process_text_message_handles_integrity_error_race(
 
 
 @pytest.mark.asyncio
+@patch("app.services.process_message.upsert_vault_note_index", new_callable=AsyncMock)
 @patch("app.services.process_message.write_note")
 @patch("app.services.process_message.get_llm_provider")
 async def test_process_text_message_without_update_id_skips_pre_check(
-    mock_provider, mock_write_note
+    mock_provider, mock_write_note, mock_upsert_index
 ):
     """Backwards compat: ohne update_id keine Duplikat-Pruefung."""
     llm = MagicMock()
@@ -149,12 +152,13 @@ async def test_process_text_message_without_update_id_skips_pre_check(
 
 
 @pytest.mark.asyncio
+@patch("app.services.process_message.upsert_vault_note_index", new_callable=AsyncMock)
 @patch("app.services.process_message._resolve_append_target", new_callable=AsyncMock)
 @patch("app.services.process_message.append_to_note")
 @patch("app.services.process_message.write_note")
 @patch("app.services.process_message.get_llm_provider")
 async def test_process_text_message_appends_when_target_resolves(
-    mock_provider, mock_write_note, mock_append, mock_resolve
+    mock_provider, mock_write_note, mock_append, mock_resolve, mock_upsert_index
 ):
     classification = ClassificationResult(
         category="idea",
@@ -188,12 +192,13 @@ async def test_process_text_message_appends_when_target_resolves(
 
 
 @pytest.mark.asyncio
+@patch("app.services.process_message.upsert_vault_note_index", new_callable=AsyncMock)
 @patch("app.services.process_message._resolve_append_target", new_callable=AsyncMock)
 @patch("app.services.process_message.append_to_note")
 @patch("app.services.process_message.write_note")
 @patch("app.services.process_message.get_llm_provider")
 async def test_process_text_message_falls_back_to_create_when_target_missing(
-    mock_provider, mock_write_note, mock_append, mock_resolve
+    mock_provider, mock_write_note, mock_append, mock_resolve, mock_upsert_index
 ):
     classification = ClassificationResult(
         category="idea",

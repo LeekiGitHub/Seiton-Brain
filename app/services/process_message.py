@@ -10,6 +10,7 @@ from app.config import settings
 from app.llm.provider import get_llm_provider
 from app.llm.schemas import ClassificationResult
 from app.models.entry import Entry
+from app.vault.index import upsert_vault_note_index
 from app.vault.writer import append_to_note, write_note
 
 logger = logging.getLogger(__name__)
@@ -160,6 +161,9 @@ async def process_text_message(
             vault_relative,
             result.target_title,
         )
+
+    await upsert_vault_note_index(db, vault_relative)
+
     return ProcessMessageResult(
         classification=result,
         entry_id=entry.id,

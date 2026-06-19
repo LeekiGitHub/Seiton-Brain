@@ -72,7 +72,8 @@ app/
 │   ├── openai_provider.py   OpenAI-Implementierung (Chat-Completions, JSON-Mode)
 │   └── schemas.py           ClassificationResult (Pydantic)
 ├── vault/
-│   ├── reader.py            list_existing_notes, format_notes_for_prompt
+│   ├── reader.py            VaultNote-Parsing, format_notes_for_prompt
+│   ├── index.py             Vault-Index (Postgres) + Keyword-Suche (E5-1/E17-1)
 │   └── writer.py            write_note, CATEGORY_FOLDERS
 ├── transcription/
 │   └── whisper.py           OpenAI Whisper API

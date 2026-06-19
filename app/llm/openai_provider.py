@@ -9,7 +9,8 @@ from app.config import settings
 from app.llm.parser import MAX_PARSE_ATTEMPTS, ClassificationParseError, parse_classification_json
 from app.llm.schemas import ClassificationResult
 from app.llm.tags import normalize_tags
-from app.vault.reader import format_notes_for_prompt, known_titles, list_existing_notes
+from app.vault.index import list_existing_notes
+from app.vault.reader import format_notes_for_prompt, known_titles
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ class OpenAIProvider:
         self.prompt_template = PROMPT_PATH.read_text()
 
     async def classify(self, text: str) -> ClassificationResult:
-        existing = list_existing_notes()
+        existing = await list_existing_notes()
         prompt = (
             self.prompt_template.replace("{input}", text)
             .replace("{existing_notes}", format_notes_for_prompt(existing))

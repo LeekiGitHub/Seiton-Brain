@@ -1,8 +1,5 @@
 import re
 from dataclasses import dataclass
-from pathlib import Path
-
-from app.config import settings
 
 
 @dataclass
@@ -36,39 +33,6 @@ def _body_snippet(content: str, limit: int = 120) -> str:
     text = re.sub(r"#+\s*", "", body)
     text = re.sub(r"\s+", " ", text).strip()
     return text[:limit]
-
-
-def list_existing_notes(limit: int = 80) -> list[VaultNote]:
-    vault_path = Path(settings.obsidian_vault_path)
-    if not vault_path.exists():
-        return []
-
-    notes: list[VaultNote] = []
-    for md_file in sorted(vault_path.rglob("*.md")):
-        if md_file.name.startswith("."):
-            continue
-        try:
-            content = md_file.read_text(encoding="utf-8")
-        except OSError:
-            continue
-
-        meta = _parse_frontmatter(content)
-        title = meta.get("title") or md_file.stem
-        category = meta.get("category", "")
-        folder = md_file.parent.name
-        snippet = _body_snippet(content)
-
-        notes.append(
-            VaultNote(
-                title=title,
-                category=category,
-                folder=folder,
-                snippet=snippet,
-            )
-        )
-
-    notes.sort(key=lambda n: (n.folder.lower(), n.title.lower()))
-    return notes[:limit]
 
 
 def format_notes_for_prompt(notes: list[VaultNote]) -> str:

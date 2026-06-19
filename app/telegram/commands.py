@@ -15,6 +15,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.entry import Entry
+from app.vault.index import remove_vault_note_index, search_vault_notes
 from app.vault.writer import delete_note
 
 logger = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ HELP_TEXT = (
     "Verfügbare Commands:\n"
     "/help — diese Hilfe\n"
     "/recent [n] — letzte N Notizen (max 20, Default 5)\n"
-    "/find <begriff> — sucht Notizen nach Titel\n"
+    "/find <begriff> — sucht Notizen nach Titel und Inhalt\n"
     "/undo — zeigt deine letzte Notiz; /undo confirm löscht sie\n"
     "\n"
     "Sonst: Text- oder Sprachnachricht senden — wird klassifiziert und in "
@@ -48,18 +49,9 @@ async def _query_recent(
 
 
 async def _query_find(
-    db: AsyncSession, chat_id: int, query: str, limit: int
-) -> list[Entry]:
-    # Postgres ILIKE — case-insensitive Substring-Match. Wenn wir spaeter
-    # mal pg_trgm oder pgvector (E17) dranbauen, lebt der Code hier.
-    stmt = (
-        select(Entry)
-        .where(Entry.telegram_chat_id == chat_id)
-        .where(Entry.title.ilike(f"%{query}%"))
-        .order_by(Entry.created_at.desc())
-        .limit(limit)
-    )
-    return list((await db.execute(stmt)).scalars().all())
+    db: AsyncSession, query: str, limit: int
+) -> list:
+    return await search_vault_notes(db, query, limit)
 
 
 async def _query_latest(
@@ -110,12 +102,15 @@ async def _cmd_recent(db: AsyncSession, chat_id: int, args: str) -> str:
 async def _cmd_find(db: AsyncSession, chat_id: int, args: str) -> str:
     query = args.strip()
     if not query:
-        return "Nutzung: /find <begriff> — sucht in deinen Notiz-Titeln."
-    entries = await _query_find(db, chat_id, query, MAX_FIND_RESULTS)
-    if not entries:
+        return "Nutzung: /find <begriff> — sucht in Titel und Inhalt deiner Vault-Notizen."
+    hits = await _query_find(db, query, MAX_FIND_RESULTS)
+    if not hits:
         return f'Keine Notiz gefunden für „{query}“.'
-    lines = [f'Treffer für „{query}“ ({len(entries)}):']
-    lines.extend(_format_entry_line(e) for e in entries)
+    lines = [f'Treffer für „{query}“ ({len(hits)}):']
+    for hit in hits:
+        lines.append(f"• [[{hit.title}]] ({hit.folder})")
+        if hit.snippet:
+            lines.append(f"  {hit.snippet}")
     return "\n".join(lines)
 
 
@@ -152,6 +147,9 @@ async def _cmd_undo(db: AsyncSession, chat_id: int, args: str) -> str:
             logger.warning("Failed to delete vault file %r: %s", vault_path, exc)
 
     await _delete_entry(db, latest)
+
+    if file_was_deleted and vault_path:
+        await remove_vault_note_index(db, vault_path)
 
     if status == "appended":
         return (

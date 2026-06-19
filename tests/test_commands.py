@@ -122,12 +122,21 @@ async def test_find_without_query_shows_usage():
 @pytest.mark.asyncio
 @patch("app.telegram.commands._query_find", new_callable=AsyncMock)
 async def test_find_with_query_passes_through(mock_query):
-    mock_query.return_value = [_make_entry(1, "Fitness App")]
+    from app.vault.index import SearchHit
+
+    mock_query.return_value = [
+        SearchHit(
+            title="Fitness App",
+            vault_path="Ideas/Fitness App.md",
+            snippet="Workouts",
+            category="idea",
+            folder="Ideas",
+        )
+    ]
     reply = await handle_command("/find fitness", 42, None)  # type: ignore[arg-type]
     mock_query.assert_awaited_once()
     args, _ = mock_query.call_args
-    assert args[1] == 42
-    assert args[2] == "fitness"
+    assert args[1] == "fitness"
     assert "Fitness App" in reply
 
 
@@ -173,11 +182,12 @@ async def test_undo_when_nothing_to_delete(mock_latest):
 
 
 @pytest.mark.asyncio
+@patch("app.telegram.commands.remove_vault_note_index", new_callable=AsyncMock)
 @patch("app.telegram.commands._delete_entry", new_callable=AsyncMock)
 @patch("app.telegram.commands.delete_note")
 @patch("app.telegram.commands._query_latest", new_callable=AsyncMock)
 async def test_undo_confirm_deletes_db_and_vault(
-    mock_latest, mock_delete_note, mock_delete_entry
+    mock_latest, mock_delete_note, mock_delete_entry, mock_remove_index
 ):
     entry = _make_entry(7, "Doomed", status="processed", vault_path="Notes/Doomed.md")
     mock_latest.return_value = entry
@@ -187,6 +197,7 @@ async def test_undo_confirm_deletes_db_and_vault(
 
     mock_delete_note.assert_called_once_with("Notes/Doomed.md")
     mock_delete_entry.assert_awaited_once()
+    mock_remove_index.assert_awaited_once()
     assert "Gelöscht" in reply
     assert "Doomed" in reply
 
