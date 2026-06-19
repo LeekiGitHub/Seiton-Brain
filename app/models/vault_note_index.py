@@ -7,10 +7,11 @@ from app.models.base import Base
 
 
 class VaultNoteIndex(Base):
-    """DB-Spiegel von Vault-Markdown-Dateien (E5-1).
+    """DB-Spiegel von Vault-Dateien (E5-1, multi-format ab E18-1).
 
     Wird beim Schreiben/Append/Delete aktualisiert und fuer Keyword-Suche
     (E17-1) genutzt — statt bei jedem LLM-Aufruf ``rglob`` ueber den Vault.
+    ``doc_type`` unterscheidet die Quelle (markdown, text, pdf, …).
     """
 
     __tablename__ = "vault_note_index"
@@ -20,6 +21,9 @@ class VaultNoteIndex(Base):
     title: Mapped[str] = mapped_column(String(255), index=True)
     category: Mapped[str] = mapped_column(String(50), default="", server_default="")
     folder: Mapped[str] = mapped_column(String(100), default="", server_default="")
+    doc_type: Mapped[str] = mapped_column(
+        String(30), default="markdown", server_default="markdown", index=True
+    )
     body_snippet: Mapped[str] = mapped_column(Text, default="", server_default="")
     mtime: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     indexed_at: Mapped[datetime] = mapped_column(

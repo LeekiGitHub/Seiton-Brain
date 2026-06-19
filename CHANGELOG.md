@@ -9,6 +9,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E18-1: Multi-Format-Ingestion — Fundament.** Neues Modul
+  `app/vault/extractors.py` mit `DocumentExtractor`-Interface (Engine+Adapter)
+  und Adaptern für Markdown (`.md`, `.markdown`) und Plain-Text (`.txt`, `.text`,
+  `.log`). Der Vault-Index (E5-1) erfasst jetzt **alle** unterstützten Formate
+  statt nur Markdown; neue Spalte `doc_type` (`markdown`/`text`/…) plus Alembic-
+  Migration. Vollscan überspringt versteckte Ordner (z. B. `.obsidian`) und nicht
+  unterstützte Typen (z. B. `.pdf`). Damit docken PDF (E18-2), Office (E18-3),
+  OCR (E18-5) und Vision (E18-6) ohne Index-Änderung an. 6 neue Tests.
 - **E5-1 + E17-1: Vault-Index und Keyword-Suche.** Neue Tabelle
   `vault_note_index` (Pfad, Titel, Kategorie, Ordner, Body-Snippet, mtime).
   Index wird bei Capture/Append aktualisiert, `/undo`-Löschung entfernt Einträge,
