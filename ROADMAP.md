@@ -304,8 +304,8 @@ Priorisierung nach **RAG-Tauglichkeit** (Text first, Bild/Scan später):
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E18-1 | `DocumentExtractor`-Interface (Engine+Adapter) + Plain-Text/Markdown-Extractor. Vault-Index (E5-1) erfasst auch Nicht-`.md`-Dateien: `vault_path`, `mime`/Typ, extrahierter Text, `indexed_at`. | 4 | 3 | 2 | 4 | 4 | ⚪ | F |
-| E18-2 | PDF-Text-Extraktion (Text-Layer via `pypdf`/`pdfplumber`). Erkennt „kein Text-Layer" → markiert für OCR (E18-5). | 5 | 2 | 2 | 3 | 4 | ⚪ | F |
+| E18-1 | `DocumentExtractor`-Interface (Engine+Adapter) + Plain-Text/Markdown-Extractor. Vault-Index (E5-1) erfasst auch Nicht-`.md`-Dateien: `vault_path`, `doc_type`, extrahierter Text, `indexed_at`. | 4 | 3 | 2 | 4 | 4 | 🟢 | C |
+| E18-2 | PDF-Text-Extraktion (Text-Layer via `pypdf`). Erkennt „kein Text-Layer" → markiert (`doc_type=pdf_no_text`) für OCR (E18-5). | 5 | 2 | 2 | 3 | 4 | 🟢 | C |
 | E18-3 | Office-Formate: `.docx` (`python-docx`), `.pptx` (`python-pptx`). | 4 | 2 | 2 | 3 | 3 | ⚪ | F |
 | E18-4 | Chunking großer Dokumente in retrieval-taugliche Abschnitte; Index-Schema von 1 Zeile/Notiz → N Chunks/Dokument (eigene `vault_chunk`-Tabelle). Voraussetzung für sinnvolles semantisches Retrieval (E17-2/3) über lange Dateien. | 4 | 3 | 3 | 4 | 3 | ⚪ | F |
 | E18-5 | OCR für gescannte PDFs / Foto-Dokumente (Zeugnisse, Rechnungen) via Tesseract (`pytesseract`) — optionaler Adapter, nur wenn installiert. | 4 | 4 | 3 | 4 | 2 | ⚪ | F-Bonus |
