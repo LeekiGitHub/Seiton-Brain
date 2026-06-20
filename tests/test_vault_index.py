@@ -64,7 +64,7 @@ async def test_sync_indexes_multiple_formats_skips_unsupported(tmp_path, monkeyp
         "---\ntitle: Hello\n---\n\nBody.", encoding="utf-8"
     )
     (tmp_path / "Notes" / "Rechnung.txt").write_text("Betrag 42", encoding="utf-8")
-    (tmp_path / "Notes" / "Scan.pdf").write_bytes(b"%PDF-1.4 binary")
+    (tmp_path / "Notes" / "Foto.jpg").write_bytes(b"\xff\xd8\xff binary")
     obsidian = tmp_path / ".obsidian"
     obsidian.mkdir()
     (obsidian / "workspace.md").write_text("config", encoding="utf-8")
@@ -79,7 +79,7 @@ async def test_sync_indexes_multiple_formats_skips_unsupported(tmp_path, monkeyp
 
     count = await sync_vault_index_from_disk(db)
 
-    assert count == 2  # .md + .txt; .pdf und .obsidian/* ignoriert
+    assert count == 2  # .md + .txt; .jpg und .obsidian/* ignoriert
     doc_types = {row.doc_type for row in added_rows}
     assert doc_types == {"markdown", "text"}
 

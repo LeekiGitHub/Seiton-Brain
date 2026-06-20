@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E18-2: PDF-Text-Extraktion.** Neuer `PdfExtractor` (via `pypdf`) liest den
+  Text-Layer von `.pdf`-Dateien in den Vault-Index. PDFs ohne Text-Layer (Scans)
+  werden als `doc_type=pdf_no_text` markiert — Aufhänger für späteres OCR (E18-5).
+  Defekte PDFs brechen den Vault-Scan nicht ab (werden geloggt und übersprungen).
+  Neue Dependency `pypdf`. 4 neue Tests.
 - **E18-1: Multi-Format-Ingestion — Fundament.** Neues Modul
   `app/vault/extractors.py` mit `DocumentExtractor`-Interface (Engine+Adapter)
   und Adaptern für Markdown (`.md`, `.markdown`) und Plain-Text (`.txt`, `.text`,
