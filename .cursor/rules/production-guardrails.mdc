@@ -1,0 +1,40 @@
+---
+description: Stille Hintergrund-Checks für Produktreife (Qualität, Lizenzen, Betrieb, Datenschutz)
+alwaysApply: true
+---
+
+# Stille Hintergrundprüfung
+
+Bei allen Entscheidungen, Implementierungen und Planungen folgende Punkte **still
+mitdenken**. Standardmäßig **nicht** aktiv erwähnen und **nicht** als eigene
+Roadmap-/Doku-Einträge aufnehmen. Nur dann ansprechen, wenn ein **konkreter,
+jetzt relevanter** Anlass besteht (z. B. eine Entscheidung verletzt einen Punkt
+spürbar oder es gibt eine günstige Gelegenheit, es richtig zu machen). Kurz und
+sachlich flaggen, dann normal weiterarbeiten.
+
+## Code & Architektur
+- Skaliert die Entscheidung später (keine Sackgassen, klare Schnittstellen)?
+- Konfig konsequent aus dem Code: API-Keys, Pfade, Secrets nur via `app/config.py`
+  / `.env` — niemals hartcodiert.
+- Wartbar für andere Entwickler: klare Modulgrenzen, Tests, lesbar.
+
+## Dependencies & Lizenzen
+- Neue Pakete kurz auf Lizenz prüfen. MIT/BSD/Apache/ISC = ok; **AGPL/GPL/LGPL/
+  SSPL/Commons Clause/BSL → aktiv Hinweis geben** und permissivere Alternative nennen.
+- Versionen perspektivisch pinnen, um nicht unbemerkt in neu-relizenzierte oder
+  breaking Versionen zu rutschen.
+
+## Bedienbarkeit & Einrichtung
+- Wäre der Schritt auch für weniger technische Nutzer nachvollziehbar?
+- Stark manuelle / entwicklerspezifische Schritte erkennen, die später vereinfacht
+  werden müssten.
+
+## Wartung & Betrieb
+- Single Points of Failure für einen Produktivbetrieb vermeiden/benennen.
+- Logging, Fehlerbehandlung und Monitoring so, dass Probleme nachvollziehbar sind
+  (strukturierte Logs, Korrelation, keine stillen Fehler).
+
+## Datenschutz & Sicherheit
+- Nutzerdaten so behandeln, dass ein DSGVO-konformer Betrieb später möglich bleibt
+  (Datensparsamkeit, Löschbarkeit, keine unnötige Persistenz).
+- Secrets/API-Keys sicher handhaben (kein Klartext in Logs, Repo, Images).
