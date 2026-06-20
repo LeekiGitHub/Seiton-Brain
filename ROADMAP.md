@@ -250,8 +250,15 @@ Easy Setup für Selfhoster. **Keys nur lokal** — nie Remote-Install mit Key-Up
 | E16-2 | `seiton doctor`: prüft `.env`, DB, Redis, Vault-Pfad, optional OpenAI/Telegram. | 4 | 2 | 1 | 3 | 4 | ⚪ | D |
 | E16-3 | `seiton init` TUI: interaktiv `.env` schreiben (lokal, kein Netzwerk-Upload). | 4 | 2 | 1 | 3 | 3 | ⚪ | D/E |
 | E16-4 | (Optional) Browser-Setup `localhost:8000/setup` — einmalig, nur localhost. | 2 | 3 | 2 | 3 | 1 | ⚪ | E |
+| E16-5 | (Optional) At-Rest-Key-Schutz via OS-Keystore (`keyring` → macOS Keychain / Windows Credential Manager / libsecret). `seiton init` legt Keys im Store ab; Launcher injiziert sie beim `docker compose up` als Env statt Klartext-`.env`. Baut auf E16-3. | 3 | 4 | 3 | 4 | 2 | ⚪ | E |
 
-Details: [`docs/integrations/setup-onboarding.md`](./docs/integrations/setup-onboarding.md)
+Bewusst **nicht** in E16: universeller Dependency-Installer (kein Auto-Install von
+Python/Docker/Obsidian über brew/winget/choco/apt/… — zu fragil, hoher Wartungsaufwand,
+und durch Docker ohnehin grösstenteils überflüssig). Stattdessen **detect + guide**:
+OS erkennen, prüfen ob Docker läuft, sonst OS-spezifischen Hinweis + Download-Link.
+Obsidian bleibt eine separat installierte (und laut E15-2 optionale) App. Kein
+OAuth-/Device-Flow für OpenAI/Telegram möglich (Provider bieten ihn nicht) — Vertrauen
+entsteht über lokale Speicherung, auditierbaren Open-Source-Code und klare Kommunikation.
 
 ---
 

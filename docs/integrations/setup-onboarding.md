@@ -86,6 +86,39 @@ einmalig, danach deaktiviert). Alternative zur TUI für weniger CLI-affine User.
 
 **Story:** `E16-4` (Backlog, niedrige Priorität)
 
+### Stufe 6 — OS-Keystore (Phase E, optional)
+
+At-Rest-Schutz statt Klartext-`.env`: `seiton init` legt Keys via
+[`keyring`](https://pypi.org/project/keyring/) im nativen OS-Store ab (macOS
+Keychain, Windows Credential Manager, libsecret). Ein Launcher liest sie beim
+`docker compose up` und injiziert sie als Env — es liegt nichts Klartext auf der
+Platte.
+
+**Docker-Vorbehalt:** Ein Container kann **nicht** direkt auf den OS-Keystore
+zugreifen; der Key muss zur Laufzeit als Env in den Container. Der Keystore löst
+daher nur den At-Rest-Teil, nicht die Laufzeit-Sichtbarkeit (unvermeidbar — die
+App muss OpenAI aufrufen). `.env` bleibt die Baseline (headless/Server, CI).
+
+**Referenz-Pattern:** Docker Credential Helpers (`osxkeychain`, `wincred`,
+`secretservice`) machen exakt das. Kein OAuth-/Device-Flow für OpenAI/Telegram
+verfügbar — die Provider bieten ihn nicht.
+
+**Story:** `E16-5` (Backlog, niedrige Priorität)
+
+---
+
+## Bewusst nicht: universeller Dependency-Installer
+
+Kein Auto-Install von Python/Docker/Obsidian über Paketmanager (brew/winget/
+choco/apt/dnf/pacman). Zu fragil (Sudo-Prompts, Versions-Edge-Cases, pro-OS-
+Pflege) und durch das Docker-Modell grösstenteils überflüssig — die einzige
+echte Host-Abhängigkeit ist **Docker** selbst.
+
+Stattdessen **detect + guide**: OS erkennen (`platform.system()`), prüfen ob
+Docker läuft, sonst OS-spezifischen Hinweis + Download-Link zu Docker Desktop
+zeigen. Obsidian wird vom User separat installiert (und ist laut `E15-2`
+optional — jeder Markdown-Ordner reicht).
+
 ---
 
 ## Vertrauenskommunikation (Public Repo)
