@@ -9,6 +9,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E18-3: Office-Formate (Word & PowerPoint).** Neue Extractoren `DocxExtractor`
+  (via `python-docx`, `.docx`) und `PptxExtractor` (via `python-pptx`, `.pptx`)
+  speisen Office-Dokumente in den Vault-Index. Word: Absätze plus Tabellentext
+  (Zeugnisse/Rechnungen liegen oft in Tabellen). PowerPoint: Folientext plus
+  Sprechernotizen. Titel kommt aus den Office-Core-Properties, sonst Dateiname.
+  Defekte Dateien brechen den Vault-Scan nicht ab (geloggt, leerer Text). Altes
+  `.doc`-Binärformat bleibt bewusst unsupported. Neue Dependencies `python-docx`,
+  `python-pptx` (beide MIT). 7 neue Tests.
 - **E18-2: PDF-Text-Extraktion.** Neuer `PdfExtractor` (via `pypdf`) liest den
   Text-Layer von `.pdf`-Dateien in den Vault-Index. PDFs ohne Text-Layer (Scans)
   werden als `doc_type=pdf_no_text` markiert — Aufhänger für späteres OCR (E18-5).

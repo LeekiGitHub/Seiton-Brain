@@ -73,7 +73,7 @@ app/
 │   └── schemas.py           ClassificationResult (Pydantic)
 ├── vault/
 │   ├── reader.py            VaultNote-Parsing, format_notes_for_prompt
-│   ├── extractors.py        DocumentExtractor (ABC) + md/txt/pdf-Adapter (E18-1/2)
+│   ├── extractors.py        DocumentExtractor (ABC) + md/txt/pdf/docx/pptx-Adapter (E18-1/2/3)
 │   ├── index.py             Vault-Index (Postgres) + Keyword-Suche (E5-1/E17-1)
 │   └── writer.py            write_note, CATEGORY_FOLDERS
 ├── transcription/
