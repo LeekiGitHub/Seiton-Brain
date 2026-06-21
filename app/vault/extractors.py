@@ -1,12 +1,13 @@
-"""Document-Extraktion (E18-1, E18-2).
+"""Document-Extraktion (E18-1, E18-2, E18-3).
 
 Engine+Adapter-Muster fuer Multi-Format-Ingestion: Jeder ``DocumentExtractor``
 liest eine bestimmte Dateigruppe (read-only) und liefert reinen Text fuer den
 Vault-Index (E5-1) und spaeteres Retrieval/RAG (E17).
 
-Aktuell Tier 1 (direkt text-basiert): Markdown, Plain-Text und PDF (Text-Layer).
-Office (E18-3), OCR (E18-5) und Vision (E18-6) docken hier als weitere
-Extractoren an, ohne den Index-Code zu aendern.
+Aktuell Tier 1 (direkt text-basiert): Markdown, Plain-Text, PDF (Text-Layer)
+sowie Office-Formate Word (.docx) und PowerPoint (.pptx).
+OCR (E18-5) und Vision (E18-6) docken hier als weitere Extractoren an, ohne den
+Index-Code zu aendern.
 """
 
 from __future__ import annotations
@@ -17,6 +18,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar
 
+from docx import Document
+from pptx import Presentation
 from pypdf import PdfReader
 
 from app.vault.reader import _parse_frontmatter
@@ -108,11 +111,76 @@ class PdfExtractor(DocumentExtractor):
         return ExtractedDocument(title=title, text=text, doc_type=doc_type)
 
 
+def _doc_core_title(properties) -> str | None:
+    """Titel aus Office-Core-Properties, falls gepflegt."""
+    title = getattr(properties, "title", None)
+    return title.strip() if title and title.strip() else None
+
+
+class DocxExtractor(DocumentExtractor):
+    """Word-Dokumente (.docx). Aeltere .doc-Binaerformate werden nicht unterstuetzt."""
+
+    doc_type = "docx"
+    extensions = (".docx",)
+
+    def extract(self, path: Path) -> ExtractedDocument:
+        title = path.stem
+        text_parts: list[str] = []
+        try:
+            document = Document(str(path))
+            title = _doc_core_title(document.core_properties) or title
+            for paragraph in document.paragraphs:
+                if paragraph.text.strip():
+                    text_parts.append(paragraph.text.strip())
+            # Tabellen separat anhaengen — Zeugnisse/Rechnungen liegen oft darin.
+            for table in document.tables:
+                for row in table.rows:
+                    cells = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+                    if cells:
+                        text_parts.append(" | ".join(cells))
+        except Exception as exc:  # noqa: BLE001 — defekte Dateien duerfen den Scan nicht abbrechen
+            logger.warning("DOCX-Extraktion fehlgeschlagen fuer %s: %s", path, exc)
+
+        return ExtractedDocument(
+            title=title, text="\n\n".join(text_parts).strip(), doc_type=self.doc_type
+        )
+
+
+class PptxExtractor(DocumentExtractor):
+    """PowerPoint-Praesentationen (.pptx): Folientext + Sprechernotizen."""
+
+    doc_type = "pptx"
+    extensions = (".pptx",)
+
+    def extract(self, path: Path) -> ExtractedDocument:
+        title = path.stem
+        text_parts: list[str] = []
+        try:
+            presentation = Presentation(str(path))
+            title = _doc_core_title(presentation.core_properties) or title
+            for slide in presentation.slides:
+                for shape in slide.shapes:
+                    if shape.has_text_frame and shape.text_frame.text.strip():
+                        text_parts.append(shape.text_frame.text.strip())
+                if slide.has_notes_slide:
+                    notes = slide.notes_slide.notes_text_frame
+                    if notes is not None and notes.text.strip():
+                        text_parts.append(notes.text.strip())
+        except Exception as exc:  # noqa: BLE001 — defekte Dateien duerfen den Scan nicht abbrechen
+            logger.warning("PPTX-Extraktion fehlgeschlagen fuer %s: %s", path, exc)
+
+        return ExtractedDocument(
+            title=title, text="\n\n".join(text_parts).strip(), doc_type=self.doc_type
+        )
+
+
 # Reihenfolge bestimmt die Aufloesung bei mehrdeutigen Endungen (hier eindeutig).
 _EXTRACTORS: tuple[DocumentExtractor, ...] = (
     MarkdownExtractor(),
     PlainTextExtractor(),
     PdfExtractor(),
+    DocxExtractor(),
+    PptxExtractor(),
 )
 
 SUPPORTED_EXTENSIONS: frozenset[str] = frozenset(

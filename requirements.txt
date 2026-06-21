@@ -10,3 +10,5 @@ celery
 redis
 pydantic-settings
 pypdf
+python-docx
+python-pptx
