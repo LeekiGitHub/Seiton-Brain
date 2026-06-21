@@ -91,6 +91,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   nur im Log (kein Leak von Connection-Strings). 7 neue Tests.
 
 ### Changed
+- **Python 3.12 → 3.14.** Dockerfile (builder + runtime) und CI laufen jetzt auf
+  Python 3.14 (neueste stabile Version, Bugfix-Maintenance bis 2030). 3.12 war
+  seit Okt 2025 nur noch im Security-Modus. C-Extension-Deps (asyncpg, greenlet,
+  lxml, Pillow) haben cp314-Wheels. (#56)
 
 ### Removed
 
