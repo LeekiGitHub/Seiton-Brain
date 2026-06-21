@@ -1,7 +1,13 @@
 # Integrationen & Ökosystem
 
 Langfristige Integrations-Ideen für Seiton Brain — **Backlog / Vision**, nicht
-alles sofort umsetzen. Architektur-Grundlage: [ADR 0003 — Engine + Adapter](../adr/0003-engine-and-adapters.md).
+alles sofort umsetzen. Architektur-Grundlage: [ADR 0003 — Engine + Adapter](../adr/0003-engine-and-adapters.md)
+und [ADR 0004 — Kommerzielles Produkt](../adr/0004-commercial-consumer-product.md).
+
+> ⚠️ **Produkt-Pivot (ADR 0004):** Seiton wird ein kommerzielles, self-hosted
+> Consumer-Produkt (buy-once, BYO-Key). Schwerpunkt verschiebt sich auf **UI**
+> (Epic E19), **Packaging/Distribution** (E20) und **Lizenzierung** (E21). Der
+> **n8n-Eigenbau ist gestrichen** (REST-API bleibt für Power-User).
 
 | Dokument | Inhalt |
 |----------|--------|

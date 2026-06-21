@@ -32,14 +32,34 @@ und macht ihn über Retrieval & RAG befragbar. Priorisiert nach RAG-Tauglichkeit
 (Text-Formate zuerst, Scans/Bilder via OCR/Vision später). Siehe Epic **E18**.
 
 **Langfristige Produktvision:** Seiton Brain ist eine **self-hosted Second-Brain-Engine**.
-Telegram und Obsidian sind die **Default-Adapter** — nicht das gesamte Produkt.
-Andere Eingänge (HTTP-API, n8n, CLI) und Ausgänge (andere Vault-Backends,
-Webhooks, Retrieval/Q&A-API, MCP-Server) sollen später andocken können, ohne
-den Kern neu zu bauen.
-Public-ready: andere hosten mit eigenem OpenAI-Key (oder Ollama), einfaches
-lokales Setup, Keys verlassen nie die Maschine des Users.
+Obsidian ist ein **Default-Vault-Backend**, Telegram ein **optionaler Eingang** —
+nicht das gesamte Produkt. Andere Eingänge (UI, HTTP-API, CLI) und Ausgänge
+(andere Vault-Backends, Retrieval/Q&A-API, MCP-Server) docken an, ohne den Kern
+neu zu bauen.
 
-Architektur-Entscheidung: [ADR 0003 — Engine + Adapter](./docs/adr/0003-engine-and-adapters.md).
+### Produktstrategie (ab 2026-06) — kommerzielles Produkt
+
+Seiton Brain wird als **kommerzielles, self-hosted Produkt für Privatpersonen**
+weiterentwickelt — **einmal kaufen**, Kunde hostet selbst und verantwortet seine
+Daten, nutzt seinen **eigenen LLM-Key** (BYO-Key). Wir betreiben nichts (keine
+fremden Daten, keine Inferenzkosten, keine 24/7-Server-Verantwortung) und liefern
+**Produkt + Bugfixes + Updates**. Privacy („deine Daten verlassen nie deine
+Maschine") ist das zentrale Verkaufsargument.
+
+Daraus folgt eine Schwerpunktverschiebung **von „mehr Features" zu „aus dem
+Server-Stack ein konsumierbares Produkt machen"**:
+
+- **UI-first:** grafische Oberfläche als Hauptsurface (Setup-Wizard, Dashboard,
+  Verwalten, Suche, `/ask`). Telegram wird optionales Power-Feature.
+- **Einfaches, plattformübergreifendes Self-Hosting:** Mac, Windows, Linux
+  (lokal) und VPS (z. B. IONOS) für Dauerbetrieb — mehrere Wege, es laufen zu
+  lassen. **Reduzierte Version zuerst, vollwertige Desktop-App zum offiziellen
+  Release.**
+- **Buy-once-Lizenzierung**, offline-validierbar (kein Server-Zwang).
+- **Entfällt:** n8n-Custom-Node (REST-API bleibt für Power-User).
+
+Architektur-Entscheidung: [ADR 0004 — Kommerzielles Produkt](./docs/adr/0004-commercial-consumer-product.md)
+(ergänzt/überschreibt Teile von [ADR 0003 — Engine + Adapter](./docs/adr/0003-engine-and-adapters.md)).
 Integrations-Details: [`docs/integrations/`](./docs/integrations/).
 
 ---
@@ -52,8 +72,14 @@ Integrations-Details: [`docs/integrations/`](./docs/integrations/).
 | **B — Produktfunktionen** | Echtes Second-Brain-Verhalten: „bestehende Notiz ergänzen", Telegram-Commands, Tags. | ⚪ |
 | **C — Robustheit & Self-Hosting** | Retries, Logging, Mac Mini als 24/7-Host (Cloudflare Tunnel statt ngrok). | ⚪ |
 | **D — Public Release v1.0** | LICENSE, Setup-Doku für Selfhoster, optionaler Ollama-Provider. | ⚪ |
-| **E — Integrations & Ökosystem** | REST-API, n8n, Vault-Backends, Setup-CLI, Multi-LLM-Agenten (optional). | ⚪ |
-| **F — Knowledge Retrieval & Q&A** | Brain wird befragbar: semantische Suche, RAG-Antworten via Telegram, Retrieval-API + MCP-Server für Fremdagents. | ⚪ |
+| **E — Integrations & Ökosystem** | REST-API, Vault-Backends, Multi-LLM-Agenten (optional). n8n-Eigenbau gestrichen (→ ADR 0004). | ⚪ |
+| **F — Knowledge Retrieval & Q&A** | Brain wird befragbar: semantische Suche, RAG-Antworten, Retrieval-API + MCP-Server für Fremdagents. | ⚪ |
+| **G — Produktisierung (kommerziell)** | UI/Dashboard, einfaches Multi-Plattform-Self-Hosting (Mac/Win/Linux/VPS), Packaging/Installer, Lizenzierung. Reduzierte Version → später Desktop-App. | 🔵 |
+
+> **Hinweis (ADR 0004):** Mit dem Pivot zum kommerziellen Produkt verschiebt sich
+> der Schwerpunkt Richtung **Phase G**. Die UI (Phase G) ist Voraussetzung dafür,
+> dass Privatkunden Retrieval (Phase F) und Verwaltung überhaupt nutzen können —
+> Phase F und G greifen daher ineinander.
 
 ---
 
@@ -73,6 +99,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 | E1-2 | Update-Idempotenz: gleiche `update_id` wird nur einmal verarbeitet (DB-Unique). | 4 | 2 | 2 | 4 | 4 | 🟢 | A |
 | E1-3 | Telegram-Commands: `/start`, `/help`, `/recent`, `/find <q>`, `/undo`. | 4 | 2 | 1 | 3 | 4 | 🟢 | B |
 | E1-4 | Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen. | 2 | 1 | 2 | 2 | 2 | 🟢 | A |
+| E1-5 | Long-Polling-Modus als Alternative zum Webhook (kein öffentlicher URL-/Tunnel-Zwang) — Voraussetzung für lokales Consumer-Hosting. | 5 | 2 | 2 | 4 | 4 | ⚪ | G |
 
 ---
 
@@ -151,12 +178,18 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 ### E9 — Hosting / Deployment · `epic:infra`
 
+> **Reframe (ADR 0004):** Der Mac-Mini-Spezialfall stammt aus der reinen
+> Eigennutzungs-Zeit. Für das Produkt geht es um **mehrere Self-Hosting-Wege für
+> Privatpersonen**: lokal (Mac/Windows/Linux) und VPS (z. B. IONOS) für
+> Dauerbetrieb. Packaging/Installer der Consumer-Edition liegt in Epic **E20**.
+
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
 | E9-1 | Dockerfile härten: non-root user, multi-stage, `HEALTHCHECK`. | 3 | 2 | 2 | 4 | 3 | 🟢 | C |
-| E9-2 | Mac Mini M4 als 24/7-Host: Anleitung + Compose-Override. | 4 | 2 | 2 | 4 | 4 | ⚪ | C |
-| E9-3 | Cloudflare Tunnel statt ngrok (stabile öffentliche URL). | 4 | 2 | 2 | 4 | 4 | ⚪ | C |
+| E9-2 | Multi-Plattform-Self-Hosting: Anleitungen + Compose-Profile für Mac/Windows/Linux **und** VPS (z. B. IONOS). Verallgemeinert den früheren „Mac Mini 24/7"-Plan. | 4 | 2 | 2 | 4 | 4 | ⚪ | G |
+| E9-3 | Optionaler Remote-Zugang für VPS-Betrieb (Reverse-Proxy/Tunnel, TLS). Für lokales Consumer-Hosting **nicht** nötig (Long-Polling, E1-5). | 3 | 2 | 2 | 3 | 3 | ⚪ | G |
 | E9-4 | Backups: Postgres-Dump + Vault-Snapshot (lokal). | 3 | 2 | 2 | 3 | 3 | 🟢 | C |
+| E9-5 | (Eval) Vereinfachter Stack für Consumer-Edition: SQLite statt Postgres, in-process Worker statt Redis/Celery — weniger bewegliche Teile beim Endnutzer. Server-/VPS-Edition behält vollen Stack. Offen: eine vs. zwei Editionen (ADR 0004). | 4 | 4 | 4 | 5 | 3 | ⚪ | G |
 
 ---
 
@@ -209,18 +242,21 @@ Details: [`docs/integrations/n8n.md`](./docs/integrations/n8n.md)
 
 ---
 
-### E14 — n8n-Ökosystem · `epic:n8n`
+### E14 — n8n-Ökosystem · `epic:n8n` · ❌ GESTRICHEN (ADR 0004)
 
-n8n als Integrationsschicht — **nicht** Ersatz für Celery. Stufe 1: HTTP Request;
-Stufe 3: Custom Community-Node in **separatem** npm-Repo.
+> **Status: gestrichen für das Produkt.** Eine eigene n8n-Community-Node zu bauen
+> und zu pflegen (eigenes Repo, npm-Releases, n8n-Review) bringt Privatkunden
+> keinen Mehrwert und erzeugt nur Wartungslast. **Die REST-API (E13) bleibt** —
+> Power-User können n8n jederzeit selbst per HTTP-Request-Node anbinden, ohne
+> dass wir etwas dafür maintainen. Siehe [ADR 0004](./docs/adr/0004-commercial-consumer-product.md).
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E14-1 | `examples/n8n/`: exportierte Workflow-JSONs (Capture, Webhook-Trigger, Todoist→Seiton). | 4 | 1 | 1 | 3 | 3 | 🟢 | D |
-| E14-2 | Community-Node `n8n-nodes-seiton-brain` (eigenes Repo): Capture, Search, Append, Get Entry. | 4 | 3 | 2 | 5 | 2 | ⚪ | E |
-| E14-3 | Doku: „Seiton + n8n“ im README + Link zu ADR 0003. | 2 | 1 | 1 | 2 | 3 | ⚪ | D |
+| E14-1 | ~~`examples/n8n/`: exportierte Workflow-JSONs~~ | — | — | — | — | — | ❌ | — |
+| E14-2 | ~~Community-Node `n8n-nodes-seiton-brain`~~ | — | — | — | — | — | ❌ | — |
+| E14-3 | ~~Doku „Seiton + n8n"~~ | — | — | — | — | — | ❌ | — |
 
-Details: [`docs/integrations/n8n.md`](./docs/integrations/n8n.md)
+Historischer Kontext: [`docs/integrations/n8n.md`](./docs/integrations/n8n.md) (als „zurückgestellt" markiert).
 
 ---
 
@@ -234,7 +270,7 @@ Notiz-App als Obsidian-Ersatz.
 | E15-1 | `VaultBackend`-Protocol; Filesystem-Implementierung extrahiert aus reader/writer. | 4 | 3 | 2 | 5 | 3 | ⚪ | D |
 | E15-2 | Doku: „Obsidian optional“ — jeder Markdown-Ordner reicht (`vault.example/`). | 3 | 1 | 1 | 2 | 3 | ⚪ | D |
 | E15-3 | (Optional) Git-backed Vault: Commit pro Note / konfigurierbarer Push. | 3 | 3 | 3 | 4 | 2 | ⚪ | E |
-| E15-4 | (Optional) Read-only Web-UI für Vault-Browse ohne Obsidian. | 3 | 4 | 2 | 4 | 1 | ⚪ | E |
+| E15-4 | ~~(Optional) Read-only Web-UI für Vault-Browse~~ → **aufgegangen in Epic E19 (UI/Dashboard)**. | — | — | — | — | — | ➡️ E19 | G |
 
 Details: [`docs/integrations/vault-backends.md`](./docs/integrations/vault-backends.md)
 
@@ -243,6 +279,12 @@ Details: [`docs/integrations/vault-backends.md`](./docs/integrations/vault-backe
 ### E16 — Setup & Onboarding CLI · `epic:public-ready`
 
 Easy Setup für Selfhoster. **Keys nur lokal** — nie Remote-Install mit Key-Upload.
+
+> **Reframe (ADR 0004):** Für das Consumer-Produkt verschiebt sich Onboarding von
+> CLI/TUI in die **grafische UI** (Setup-Wizard, Epic **E19**). Die CLI-Stufen
+> bleiben relevant für die Server-/VPS-Edition und Power-User; `seiton doctor`
+> (E16-2) bleibt als Diagnose nützlich. `init`-TUI (E16-3) und Browser-Setup
+> (E16-4) werden durch den UI-Wizard weitgehend abgelöst.
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
@@ -329,6 +371,57 @@ verlustfreie Format-Konvertierung. Fokus ist reine **Text-Gewinnung für Retriev
 
 ---
 
+### E19 — UI / Dashboard · `epic:ui`
+
+Grafische Oberfläche als **Hauptsurface des Produkts** (ADR 0004). Macht Seiton
+für Privatpersonen ohne Terminal/Obsidian nutzbar. Löst E15-4 (read-only Web-UI)
+ab und nimmt den Setup-Wizard aus E16 auf.
+
+> **Architektur-Abgrenzung:** Dashboard/Management/Retrieval-UI — **kein**
+> vollwertiger Obsidian-Ersatz-Editor (ADR 0003/0004). Beginnt read-/manage-first.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E19-1 | Setup-Wizard in der UI: Vault-Ordner wählen, LLM-Key + (optional) Telegram eintragen, Verbindung testen. Ersetzt CLI/TUI-Onboarding für Consumer. | 5 | 3 | 2 | 4 | 5 | ⚪ | G |
+| E19-2 | Dashboard: Entries/Notizen ansehen, Status, letzte Aktivität. | 5 | 3 | 2 | 4 | 5 | ⚪ | G |
+| E19-3 | Suche + `/ask`-Chat in der UI (Konsument von E17 Retrieval/RAG). | 5 | 3 | 2 | 4 | 4 | ⚪ | G |
+| E19-4 | Verwalten: Notiz öffnen/bearbeiten/löschen, Tags/Kategorien, Vault-Konfig. | 4 | 4 | 3 | 4 | 3 | ⚪ | G |
+| E19-5 | Settings-UI: Keys/Provider, Kategorien, Backup, Edition-Optionen. | 3 | 2 | 2 | 3 | 3 | ⚪ | G |
+
+Offen: Tech-Stack der UI (lokale Web-App vs. eingebettet in spätere Desktop-App, E20).
+
+---
+
+### E20 — Packaging & Distribution · `epic:packaging`
+
+Aus dem Stack ein **konsumierbares Produkt** machen — der eigentliche Hebel für
+„passives Einkommen". Reduzierte Version zuerst, vollwertige Desktop-App zum
+offiziellen Release (ADR 0004).
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E20-1 | Reduzierte Version: stark vereinfachtes Setup / gebündelter Installer für lokales Self-Hosting (Mac/Windows/Linux). | 5 | 4 | 4 | 5 | 5 | ⚪ | G |
+| E20-2 | VPS-Deployment-Pfad (z. B. IONOS): 1-Klick-/Skript-Setup für Dauerbetrieb. | 4 | 3 | 3 | 4 | 3 | ⚪ | G |
+| E20-3 | Vollwertige Desktop-App (Mac/Windows/Linux) — **Ziel zum offiziellen Release**, nicht erster Wurf. | 5 | 5 | 4 | 5 | 3 | ⚪ | G+ |
+| E20-4 | Auto-Update-Mechanismus (liefert Bugfixes/Updates an Kunden aus). | 4 | 3 | 3 | 4 | 3 | ⚪ | G |
+| E20-5 | Code-Signing / Notarization pro OS (Vertrauen, „App lässt sich öffnen"). | 3 | 3 | 3 | 3 | 2 | ⚪ | G+ |
+
+---
+
+### E21 — Commercial / Licensing · `epic:commercial`
+
+Verkaufsmechanik für **buy-once**, ohne dass wir Server betreiben (ADR 0004).
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E21-1 | Lizenz-Key: Format + **offline-validierbare** Prüfung (kein Server-Zwang). | 5 | 4 | 3 | 4 | 4 | ⚪ | G |
+| E21-2 | Verkaufskanal (Eigenshop/Store) + Lizenz-Ausgabe an Käufer. | 4 | 3 | 2 | 3 | 3 | ⚪ | G+ |
+| E21-3 | Klare Lizenz-/Edition-Kommunikation (was ist im Kauf enthalten, Update-Politik). | 3 | 1 | 1 | 2 | 3 | ⚪ | G+ |
+
+Offen: genaue Lizenz-Mechanik, Update-Auslieferung, evtl. Edition-Stufen (ADR 0004).
+
+---
+
 ## Aktueller Sprint (Phase A — MVP-Härtung) ✅ abgeschlossen
 
 1. 🟢 **Doku-Fundament**: ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
@@ -358,9 +451,10 @@ Mac-Mini-Stories (E9-2/E9-3) zurückgestellt bis Hardware da ist.
 | Phase | Fokus | Wichtigste Epics |
 |-------|-------|------------------|
 | **C** | Robustheit, Self-Hosting, REST-API | E9, E10, **E13** (API v1) |
-| **D** | Public v1.0, Setup, n8n-Beispiele | E11, E12, **E14-1**, **E16**, E7-2 |
-| **E** | Ökosystem | **E13-3** Webhooks, **E14-2** n8n-Node, **E15** Vault-Backends, E7-3/4, **E17-1/2** Suche |
+| **D** | Setup, Doku, Public-Readiness | E11, E12, **E16**, E7-2 |
+| **E** | Ökosystem | **E15** Vault-Backends, E7-3/4, **E17-1/2** Suche (n8n-Eigenbau gestrichen, ADR 0004) |
 | **F** | Brain als Wissensquelle | **E17-3/4** RAG + `/ask`, **E17-5** Retrieval-API, **E17-6** MCP-Server, **E17-8** Digest |
+| **G** | Produktisierung (kommerziell) | **E19** UI/Dashboard, **E20** Packaging/Distribution, **E21** Lizenzierung, **E1-5** Long-Polling, **E9-2/5** Multi-Plattform/Stack |
 
 Integrations-Vision und Szenarien: [`docs/integrations/`](./docs/integrations/).
 

@@ -3,8 +3,15 @@
 Wie Seiton Brain für andere Nutzer **einfach einrichtbar** wird — ohne
 Vertrauensprobleme bei API-Keys.
 
-> **Grundregel:** Wir sehen die Keys des Users **nie**. Alles bleibt in der
-> lokalen `.env` auf seiner Maschine.
+> **Grundregel:** Wir sehen die Keys des Users **nie**. Alles bleibt lokal auf
+> seiner Maschine.
+
+> ⚠️ **Produkt-Pivot (ADR 0004):** Für das kommerzielle Consumer-Produkt
+> verschiebt sich das Onboarding von **CLI/TUI in einen UI-Setup-Wizard**
+> (Epic E19-1). Die hier beschriebenen CLI-Stufen bleiben relevant für die
+> **Server-/VPS-Edition** und Power-User; `seiton doctor` (E16-2) bleibt als
+> Diagnose nützlich. `init`-TUI (E16-3) und Browser-Setup (E16-4) werden vom
+> UI-Wizard weitgehend abgelöst.
 
 ---
 

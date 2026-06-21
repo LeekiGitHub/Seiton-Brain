@@ -40,7 +40,7 @@ direkt mit `Path`/`os`.
 | **Atomares Schreiben** | Tempfile + `os.replace` (Obsidian-Sync-sicher) | Gering | B | `E3-4` |
 | **Git-backed vault** | Commit pro Note/Push (Backup + History) | Mittel | E | `E15-3` |
 | **S3 / Object Storage** | Vault in Bucket (Cloud-Self-Hoster) | Mittel | E | Backlog |
-| **Read-only Web-UI** | Browser-Ansicht ohne Obsidian | Hoch | E | `E15-4` |
+| **Read-only Web-UI** | Browser-Ansicht ohne Obsidian → **aufgegangen in UI-Epic** | Hoch | G | ➡️ `E19` |
 | **Notion / Google Docs API** | Fremdes Ökosystem | Hoch | später | Backlog |
 
 **Bewusst ausgeschlossen:** Vollwertige Obsidian-Ersatz-App (Editor, Graph, Plugins)
