@@ -241,69 +241,79 @@ Mapping Category → Folder in `app/vault/writer.py:CATEGORY_FOLDERS`:
 
 ## Langfristige Architektur: Engine + Adapter
 
-> **Status:** Vision / Phase E. Entscheidung dokumentiert in
-> [ADR 0003](./docs/adr/0003-engine-and-adapters.md). Heute implementiert:
-> Telegram-Input + Filesystem-Vault (Obsidian-kompatibel).
+> **Status:** Vision. Entscheidungen in
+> [ADR 0003](./docs/adr/0003-engine-and-adapters.md) (Engine + Adapter) und
+> [ADR 0004](./docs/adr/0004-commercial-consumer-product.md) (kommerzielles
+> Produkt). Heute implementiert: Telegram-Input + Filesystem-Vault.
 
-Telegram und Obsidian sind **Default-Adapter**, nicht der Produktkern. Langfristig
-docken weitere Eingänge und Ausgänge an dieselbe Pipeline an.
+Der Kern ist eine **headless Engine**; Eingänge und Ausgänge sind Adapter. Mit
+dem Produkt-Pivot (ADR 0004) wird die **UI zum Hauptadapter**, Telegram zum
+optionalen Eingang (Long-Polling), und der n8n-Eigenbau entfällt.
 
 ```mermaid
 flowchart LR
   subgraph inputs [Input Adapters]
-    TG[Telegram]
+    UI[Desktop / Web UI<br/>Hauptsurface]
+    TG[Telegram optional<br/>Long-Polling]
     API[HTTP API v1]
-    N8N[n8n]
-    CLI[CLI / TUI]
+    CLI[CLI · Server-Edition]
   end
 
   subgraph core [Seiton Brain Core]
-    Q[Celery Queue]
+    Q[Queue / Worker]
     SVC[classify · route · append]
     LLM[LLMProvider]
-    DB[(Postgres Audit)]
+    DB[(Audit-DB)]
   end
 
   subgraph outputs [Output Adapters]
     VAULT[VaultBackend<br/>Filesystem Markdown]
-    HOOK[Outbound Webhooks]
     ALT[Weitere Backends]
     RET[Retrieval / Q&A<br/>REST + MCP]
   end
 
+  UI --> Q
   TG --> Q
   API --> Q
-  N8N --> API
-  CLI --> API
+  CLI --> Q
   Q --> SVC --> LLM
   SVC --> DB
   SVC --> VAULT
   SVC --> ALT
-  SVC --> HOOK
-  HOOK --> N8N
   VAULT --> RET
+  RET --> UI
   RET --> TG
   RET --> API
-  RET --> N8N
 ```
 
 | Adapter | Heute | Geplant (Epic) |
 |---------|-------|----------------|
-| Telegram | ✅ | E1-3 Commands |
-| HTTP REST | — | E13 REST API |
-| n8n | — | E14 (HTTP zuerst, Custom Node später) |
-| Setup CLI | — | E16 (`init`, `doctor`, TUI) |
+| UI / Dashboard (Hauptsurface) | — | **E19** (Wizard, Dashboard, `/ask`, Verwalten) |
+| Telegram (optional, Long-Polling) | ✅ Webhook | E1-5 Long-Polling |
+| HTTP REST | ✅ | E13 REST API |
+| Setup | — | E19-1 UI-Wizard (CLI/`doctor` für Server-Edition, E16) |
 | Filesystem Vault | ✅ | E15 `VaultBackend`-Interface |
-| Outbound Events | ✅ | E13-3 Webhooks |
-| Retrieval / Q&A | — | E17 (Keyword → semantisch → RAG) |
+| Retrieval / Q&A | teilw. (E17-1) | E17 (Keyword → semantisch → RAG) |
 | MCP-Server (Brain als Tool für LLM-Agents) | — | E17-6 (separates Repo) |
+| ~~n8n~~ | — | ❌ gestrichen (ADR 0004); via REST durch Power-User möglich |
 
 Integrations-Details: [`docs/integrations/`](./docs/integrations/).
-Roadmap-Stories: Phase E, Epics E13–E16 in [`ROADMAP.md`](./ROADMAP.md).
+Roadmap-Stories: Phasen E–G, Epics E13–E21 in [`ROADMAP.md`](./ROADMAP.md).
 
-**Bewusst nicht:** Celery durch n8n ersetzen; Remote-Setup mit Key-Upload;
-eigene Obsidian-Ersatz-App; ungeschützte Public-Retrieval-Endpunkte (Auth
-identisch zur Capture-API).
+**Bewusst nicht:** Remote-Setup mit Key-Upload; eigene Obsidian-Ersatz-App
+(Editor/Graph/Plugins); ungeschützte Public-Retrieval-Endpunkte (Auth identisch
+zur Capture-API); eigene n8n-Node bauen/pflegen.
+
+### Produkt-Editionen (ADR 0004)
+
+Mit dem kommerziellen Pivot zeichnet sich eine mögliche Zweiteilung ab — bewusst
+zu entscheiden, noch offen:
+
+- **Consumer-Edition:** UI-first, lokales Self-Hosting (Mac/Win/Linux), Telegram
+  per Long-Polling, ggf. vereinfachter Stack (SQLite/in-process Worker, E9-5),
+  reduzierte Version → später Desktop-App (E20).
+- **Server/VPS-Edition:** voller Stack (Postgres/Redis/Celery), Webhook möglich,
+  Dauerbetrieb auf VPS (z. B. IONOS), CLI-Setup.
 
 ### Capture und Retrieve als gleichwertige Hälften
 

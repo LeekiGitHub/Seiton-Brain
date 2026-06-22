@@ -9,6 +9,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **Produkt-Pivot in der Planung (ADR 0004).** Neue Architekturentscheidung
+  [ADR 0004](./docs/adr/0004-commercial-consumer-product.md): Seiton Brain wird
+  ein **kommerzielles, self-hosted Consumer-Produkt** (einmal kaufen, Kunde
+  hostet selbst, eigener LLM-Key; wir liefern Produkt + Updates). ROADMAP-Vision
+  um Produktstrategie ergänzt, neue **Phase G (Produktisierung)** und drei neue
+  Epics: **E19 UI/Dashboard**, **E20 Packaging & Distribution**, **E21
+  Commercial/Licensing**; neue Story **E1-5 (Telegram Long-Polling)**. Reine
+  Planungs-/Doku-Änderung, kein Code.
 - **E18-3: Office-Formate (Word & PowerPoint).** Neue Extractoren `DocxExtractor`
   (via `python-docx`, `.docx`) und `PptxExtractor` (via `python-pptx`, `.pptx`)
   speisen Office-Dokumente in den Vault-Index. Word: Absätze plus Tabellentext
@@ -99,6 +107,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   nur im Log (kein Leak von Connection-Strings). 7 neue Tests.
 
 ### Changed
+- **Roadmap-Umpriorisierung durch Produkt-Pivot (ADR 0004).** **E14 (n8n-
+  Ökosystem) gestrichen** — kein Eigenbau/keine Custom-Node mehr (REST-API bleibt
+  für Power-User). **E9 (Hosting)** von „Mac Mini 24/7" zu **Multi-Plattform-
+  Self-Hosting + VPS** (Mac/Win/Linux/IONOS) verallgemeinert. **E16 (Setup)**
+  verschiebt sich Richtung UI-Wizard; **E15-4 (read-only Web-UI)** geht in das
+  UI-Epic E19 auf. Integrations-Docs (`n8n.md`, `README.md`, `setup-onboarding.md`,
+  `vault-backends.md`) und `ARCHITECTURE.md` entsprechend angepasst (Telegram
+  optional/Long-Polling, UI als Hauptadapter, Produkt-Editionen).
 - **Python 3.12 → 3.14.** Dockerfile (builder + runtime) und CI laufen jetzt auf
   Python 3.14 (neueste stabile Version, Bugfix-Maintenance bis 2030). 3.12 war
   seit Okt 2025 nur noch im Security-Modus. C-Extension-Deps (asyncpg, greenlet,

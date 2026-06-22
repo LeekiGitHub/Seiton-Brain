@@ -1,5 +1,12 @@
 # n8n-Integration
 
+> ⚠️ **Status: zurückgestellt (ADR 0004).** Mit dem Pivot zum kommerziellen
+> Consumer-Produkt bauen und pflegen wir **keine eigene n8n-Node** mehr und
+> liefern keine offiziellen n8n-Beispiele aus (Epic E14 gestrichen). Die
+> **REST-API (E13) bleibt** — Power-User können n8n jederzeit selbst per
+> HTTP-Request-Node anbinden. Dieses Dokument bleibt als **historischer/Community-
+> Referenz** erhalten. Siehe [ADR 0004](../adr/0004-commercial-consumer-product.md).
+
 Wie Seiton Brain mit [n8n](https://n8n.io/) zusammenspielen kann — ohne den
 Python-Core zu verkomplizieren.
 
