@@ -49,13 +49,15 @@ Maschine") ist das zentrale Verkaufsargument.
 Daraus folgt eine Schwerpunktverschiebung **von „mehr Features" zu „aus dem
 Server-Stack ein konsumierbares Produkt machen"**:
 
-- **UI-first:** grafische Oberfläche als Hauptsurface (Setup-Wizard, Dashboard,
-  Verwalten, Suche, `/ask`). Telegram wird optionales Power-Feature.
-- **Einfaches, plattformübergreifendes Self-Hosting:** Mac, Windows, Linux
-  (lokal) und VPS (z. B. IONOS) für Dauerbetrieb — mehrere Wege, es laufen zu
-  lassen. **Reduzierte Version zuerst, vollwertige Desktop-App zum offiziellen
-  Release.**
-- **Buy-once-Lizenzierung**, offline-validierbar (kein Server-Zwang).
+- **UI-first als lokale Web-UI:** Oberfläche im Browser, **serviert vom
+  Always-on-Host des Kunden** (nicht von uns) — plattformunabhängig (Mac/Win/
+  Linux/Handy) und passend zum 24/7-Betrieb. Native Desktop-App ist **kein
+  Nahziel**. Datenschutz: localhost/LAN + Fernzugriff via Tailscale o. Ä.
+- **Leitbild Always-on-Box beim Kunden:** Heimserver / Mini-PC / Mac Mini
+  (Privacy = Verkaufsargument). **VPS (z. B. IONOS) = spätere Alternative**, kein
+  Nahziel. Fernzugriff ohne Router-Konfig via **Telegram Long-Polling** (E1-5).
+- **Buy-once-Lizenzierung**, offline-validierbar (kein Server-Zwang) — geparkt,
+  bis das Produkt steht.
 - **Entfällt:** n8n-Custom-Node (REST-API bleibt für Power-User).
 
 Architektur-Entscheidung: [ADR 0004 — Kommerzielles Produkt](./docs/adr/0004-commercial-consumer-product.md)
@@ -400,11 +402,11 @@ offiziellen Release (ADR 0004).
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E20-1 | Reduzierte Version: stark vereinfachtes Setup / gebündelter Installer für lokales Self-Hosting (Mac/Windows/Linux). | 5 | 4 | 4 | 5 | 5 | ⚪ | G |
-| E20-2 | VPS-Deployment-Pfad (z. B. IONOS): 1-Klick-/Skript-Setup für Dauerbetrieb. | 4 | 3 | 3 | 4 | 3 | ⚪ | G |
-| E20-3 | Vollwertige Desktop-App (Mac/Windows/Linux) — **Ziel zum offiziellen Release**, nicht erster Wurf. | 5 | 5 | 4 | 5 | 3 | ⚪ | G+ |
+| E20-1 | Reduzierte Version: stark vereinfachtes Setup / gebündelter Installer für die Heim-Box (Mac/Windows/Linux). | 5 | 4 | 4 | 5 | 5 | ⚪ | G |
+| E20-2 | (Später) VPS-Deployment-Pfad (z. B. IONOS): Skript-Setup für Dauerbetrieb. | 4 | 3 | 3 | 4 | 2 | ⚪ | G+ |
+| E20-3 | ~~Vollwertige native Desktop-App~~ — **kein Nahziel** (Web-UI E19 deckt den Bedarf ab, ADR 0004). Nur falls später echter Bedarf. | 2 | 5 | 4 | 4 | 1 | ⚪ | G+ |
 | E20-4 | Auto-Update-Mechanismus (liefert Bugfixes/Updates an Kunden aus). | 4 | 3 | 3 | 4 | 3 | ⚪ | G |
-| E20-5 | Code-Signing / Notarization pro OS (Vertrauen, „App lässt sich öffnen"). | 3 | 3 | 3 | 3 | 2 | ⚪ | G+ |
+| E20-5 | Code-Signing / Notarization (nur relevant, falls native App; sonst entbehrlich). | 2 | 3 | 3 | 3 | 1 | ⚪ | G+ |
 
 ---
 
