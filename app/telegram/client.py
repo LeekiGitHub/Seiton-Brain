@@ -15,6 +15,41 @@ async def send_message(chat_id: int, text: str) -> None:
         response.raise_for_status()
 
 
+async def get_updates(offset: int | None = None, timeout: int = 25) -> list[dict]:
+    """Holt neue Updates per Long-Polling (``getUpdates``).
+
+    ``timeout`` ist das serverseitige Long-Poll-Fenster in Sekunden; der
+    HTTP-Client-Timeout liegt bewusst darueber. ``offset`` = letzte
+    verarbeitete ``update_id`` + 1 (bestaetigt aeltere Updates).
+    """
+    params: dict = {"timeout": timeout}
+    if offset is not None:
+        params["offset"] = offset
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{API_URL}/getUpdates",
+            params=params,
+            timeout=timeout + 10,
+        )
+        response.raise_for_status()
+        return response.json().get("result", [])
+
+
+async def delete_webhook(drop_pending_updates: bool = False) -> None:
+    """Entfernt einen ggf. registrierten Webhook.
+
+    Telegram erlaubt ``getUpdates`` nicht, solange ein Webhook gesetzt ist —
+    der Poller ruft dies daher beim Start auf.
+    """
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"{API_URL}/deleteWebhook",
+            json={"drop_pending_updates": drop_pending_updates},
+            timeout=10.0,
+        )
+        response.raise_for_status()
+
+
 async def download_file(file_id: str) -> bytes:
     async with httpx.AsyncClient() as client:
         file_response = await client.get(

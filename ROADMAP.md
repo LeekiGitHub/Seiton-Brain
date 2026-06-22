@@ -99,7 +99,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 | E1-2 | Update-Idempotenz: gleiche `update_id` wird nur einmal verarbeitet (DB-Unique). | 4 | 2 | 2 | 4 | 4 | 🟢 | A |
 | E1-3 | Telegram-Commands: `/start`, `/help`, `/recent`, `/find <q>`, `/undo`. | 4 | 2 | 1 | 3 | 4 | 🟢 | B |
 | E1-4 | Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen. | 2 | 1 | 2 | 2 | 2 | 🟢 | A |
-| E1-5 | Long-Polling-Modus als Alternative zum Webhook (kein öffentlicher URL-/Tunnel-Zwang) — Voraussetzung für lokales Consumer-Hosting. | 5 | 2 | 2 | 4 | 4 | ⚪ | G |
+| E1-5 | Long-Polling-Modus als Alternative zum Webhook (kein öffentlicher URL-/Tunnel-Zwang) — Voraussetzung für lokales Consumer-Hosting. | 5 | 2 | 2 | 4 | 4 | 🟢 | G |
 
 ---
 
