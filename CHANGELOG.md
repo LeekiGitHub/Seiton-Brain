@@ -9,6 +9,17 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E1-5: Telegram Long-Polling als Webhook-Alternative.** Neuer Poller
+  `app/telegram/polling.py` (`python -m app.telegram.polling` bzw. Compose-Profil
+  `polling`) holt Updates aktiv per `getUpdates` — keine öffentliche HTTPS-URL,
+  kein Reverse-Proxy/Tunnel nötig. Passt zum Deployment-Leitbild „Always-on-Box"
+  (Mini-PC/Mac Mini/Heimserver, ADR 0004). Die Update-Verarbeitung ist jetzt
+  transport-agnostisch in `process_update` gekapselt und wird von Webhook **und**
+  Poller geteilt (Allowlist, Idempotenz, Slash-Commands, Worker-Enqueue
+  unverändert). Poller ruft beim Start `deleteWebhook` (Telegram erlaubt nur
+  Webhook *oder* Polling); ein einzelnes kaputtes Update killt den Loop nicht.
+  Neue Client-Funktionen `get_updates`/`delete_webhook`, Setting
+  `TELEGRAM_POLLING_TIMEOUT` (Default 25 s). 7 neue Tests.
 - **Produkt-Pivot in der Planung (ADR 0004).** Neue Architekturentscheidung
   [ADR 0004](./docs/adr/0004-commercial-consumer-product.md): Seiton Brain wird
   ein **kommerzielles, self-hosted Consumer-Produkt** (einmal kaufen, Kunde

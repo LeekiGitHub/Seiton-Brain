@@ -38,6 +38,29 @@ services:
       redis:
         condition: service_healthy
 
+  # Long-Polling-Alternative zum Webhook (E1-5). Nur mit Profil aktiv:
+  #   docker compose --profile polling up
+  # Webhook (api) und Poller schliessen sich aus — der Poller ruft beim
+  # Start deleteWebhook auf. Braucht keine oeffentliche URL.
+  poller:
+    build: .
+    command: python -m app.telegram.polling
+    profiles: ["polling"]
+    healthcheck:
+      disable: true
+    env_file:
+      - .env
+    environment:
+      OBSIDIAN_VAULT_PATH: /vault
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - "${OBSIDIAN_VAULT_HOST_PATH}:/vault"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   worker:
     build: .
     command: celery -A app.worker.celery_app worker --loglevel=info
