@@ -82,6 +82,88 @@ def _get_allowed_user_ids() -> set[int] | None:
     return ids or None
 
 
+async def process_update(update: dict) -> None:
+    """Verarbeitet ein einzelnes Telegram-Update — **transport-agnostisch**.
+
+    Genutzt vom Webhook (``POST /webhook``) und vom Long-Polling-Poller
+    (``app.telegram.polling``). Behandelt Allowlist, Idempotenz,
+    Slash-Commands und das Einreihen in den Worker. Wirft keine Exceptions
+    nach aussen (Fehler werden geloggt), damit der Poller an einem einzelnen
+    Update nicht stirbt.
+    """
+    message = update.get("message")
+
+    if not message:
+        # Bekannte aber unsupported Update-Typen: kein Warn-Spam.
+        unsupported = KNOWN_UNSUPPORTED_UPDATE_KEYS.intersection(update.keys())
+        if unsupported:
+            logger.debug(
+                "Ignoring unsupported update types: %s",
+                ", ".join(sorted(unsupported)),
+            )
+        else:
+            logger.debug(
+                "Update without 'message' field: keys=%s",
+                list(update.keys()),
+            )
+        return
+
+    chat_id = message.get("chat", {}).get("id")
+    if not chat_id:
+        return
+
+    allowed_ids = _get_allowed_user_ids()
+    if allowed_ids is not None:
+        user_id = message.get("from", {}).get("id")
+        if user_id not in allowed_ids:
+            logger.warning(
+                "Rejected message from non-allowed user_id=%s chat_id=%s",
+                user_id,
+                chat_id,
+            )
+            try:
+                await send_message(chat_id, "Dieser Bot ist privat.")
+            except httpx.HTTPError as exc:
+                logger.warning("Telegram sendMessage failed: %s", exc)
+            return
+
+    update_id = update.get("update_id")
+    if update_id is not None and await _is_duplicate_update(update_id):
+        logger.info(
+            "Duplicate update_id=%s chat_id=%s, silently ignoring",
+            update_id,
+            chat_id,
+        )
+        return
+
+    message_id = message.get("message_id")
+    text = message.get("text")
+    voice = message.get("voice")
+
+    try:
+        if text and text.startswith("/"):
+            # Slash-Commands synchron — keine Worker-Queue, kein LLM-Call.
+            async with SessionLocal() as db:
+                reply = await handle_command(text, chat_id, db)
+            if reply is not None:
+                await send_message(chat_id, reply)
+        elif text:
+            process_text_message_task.delay(text, chat_id, update_id, message_id)
+            await send_message(chat_id, "Wird verarbeitet…")
+        elif voice:
+            process_voice_message_task.delay(
+                voice["file_id"], chat_id, update_id, message_id
+            )
+            await send_message(chat_id, "Sprachnachricht wird verarbeitet…")
+        else:
+            await send_message(
+                chat_id,
+                "Aktuell werden nur Text- und Sprachnachrichten unterstützt.",
+            )
+    except httpx.HTTPError as exc:
+        logger.warning("Telegram sendMessage failed: %s", exc)
+
+
 @router.post("/webhook")
 async def telegram_webhook(
     request: Request,
@@ -109,78 +191,5 @@ async def telegram_webhook(
     if not isinstance(update, dict):
         raise HTTPException(status_code=400, detail="Invalid update payload")
 
-    message = update.get("message")
-
-    if not message:
-        # Bekannte aber unsupported Update-Typen: silent 200, kein Warn-Spam.
-        # Telegram retried sonst alle 1s und blockiert die Queue.
-        unsupported = KNOWN_UNSUPPORTED_UPDATE_KEYS.intersection(update.keys())
-        if unsupported:
-            logger.debug(
-                "Ignoring unsupported update types: %s",
-                ", ".join(sorted(unsupported)),
-            )
-        else:
-            logger.debug(
-                "Update without 'message' field: keys=%s",
-                list(update.keys()),
-            )
-        return {"ok": True}
-
-    chat_id = message.get("chat", {}).get("id")
-    if not chat_id:
-        return {"ok": True}
-
-    allowed_ids = _get_allowed_user_ids()
-    if allowed_ids is not None:
-        user_id = message.get("from", {}).get("id")
-        if user_id not in allowed_ids:
-            logger.warning(
-                "Rejected message from non-allowed user_id=%s chat_id=%s",
-                user_id,
-                chat_id,
-            )
-            try:
-                await send_message(chat_id, "Dieser Bot ist privat.")
-            except httpx.HTTPError as exc:
-                logger.warning("Telegram sendMessage failed: %s", exc)
-            return {"ok": True}
-
-    update_id = update.get("update_id")
-    if update_id is not None and await _is_duplicate_update(update_id):
-        logger.info(
-            "Duplicate webhook update_id=%s chat_id=%s, silently ignoring",
-            update_id,
-            chat_id,
-        )
-        return {"ok": True}
-
-    message_id = message.get("message_id")
-    text = message.get("text")
-    voice = message.get("voice")
-
-    try:
-        if text and text.startswith("/"):
-            # Slash-Commands synchron im Request — keine Worker-Queue.
-            # Schnelle DB-Lookups, kein LLM-Call. Antwort geht direkt zurueck.
-            async with SessionLocal() as db:
-                reply = await handle_command(text, chat_id, db)
-            if reply is not None:
-                await send_message(chat_id, reply)
-        elif text:
-            process_text_message_task.delay(text, chat_id, update_id, message_id)
-            await send_message(chat_id, "Wird verarbeitet…")
-        elif voice:
-            process_voice_message_task.delay(
-                voice["file_id"], chat_id, update_id, message_id
-            )
-            await send_message(chat_id, "Sprachnachricht wird verarbeitet…")
-        else:
-            await send_message(
-                chat_id,
-                "Aktuell werden nur Text- und Sprachnachrichten unterstützt.",
-            )
-    except httpx.HTTPError as exc:
-        logger.warning("Telegram sendMessage failed: %s", exc)
-
+    await process_update(update)
     return {"ok": True}

@@ -126,6 +126,28 @@ curl -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook" \
 
 Vorteil: Die URL bleibt stabil.
 
+### Variante C — Long-Polling (kein Webhook, keine öffentliche URL) (E1-5)
+
+Statt einen Webhook zu registrieren, kann ein eigener Prozess Telegram aktiv
+per `getUpdates` abfragen. Ideal für lokales Self-Hosting auf einer
+Always-on-Box (Mini-PC / Mac Mini / Heimserver): kein Tunnel, kein
+`setWebhook`, kein TLS-Zertifikat nötig.
+
+```bash
+docker compose --profile polling up --build
+```
+
+Das startet zusätzlich den `poller`-Service (`python -m app.telegram.polling`).
+Webhook und Polling schließen sich aus — der Poller ruft beim Start
+`deleteWebhook` auf. Long-Poll-Fenster über `TELEGRAM_POLLING_TIMEOUT`
+(Default 25 s) konfigurierbar.
+
+Lokal ohne Docker:
+
+```bash
+python -m app.telegram.polling
+```
+
 ---
 
 ## 7. Erste Nachricht testen

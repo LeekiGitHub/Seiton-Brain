@@ -59,8 +59,9 @@ app/
 ├── main.py                  FastAPI-App, /health, registriert Webhook-Router
 ├── config.py                Settings-Klasse (pydantic-settings), zentrale Env-Konfig
 ├── telegram/
-│   ├── webhook.py           POST /webhook, Secret-Check, enqueue
-│   ├── client.py            sendMessage, downloadFile
+│   ├── webhook.py           POST /webhook (Transport) + process_update (transport-agnostisch)
+│   ├── polling.py           Long-Polling-Poller (getUpdates) als Webhook-Alternative (E1-5)
+│   ├── client.py            sendMessage, downloadFile, getUpdates, deleteWebhook
 │   └── admin_notify.py      Admin-DM bei dauerhaften Worker-Fehlern (E10-3)
 ├── worker/
 │   ├── celery_app.py        Celery-Config
@@ -103,6 +104,8 @@ Externe Artefakte:
 1. Telegram POSTed Update an `/webhook` mit Header `X-Telegram-Bot-Api-Secret-Token`
 2. `webhook.py` validiert Secret → Allowlist-Check → **Idempotenz-Check**: indexed Lookup auf `entries.telegram_update_id`; bei Duplikat sofort `200 OK` ohne Bot-Reply (Telegram-Retry-Schutz)
 3. Sonst: enqueued `process_text_message_task(text, chat_id, update_id, message_id)` → antwortet `200 OK` + sendet „Wird verarbeitet…" zurück
+
+> **Webhook vs. Long-Polling (E1-5):** Schritte 2–3 stecken in `process_update(update)` und sind transport-agnostisch. Der Webhook (`/webhook`) ruft es nach Secret-/Body-Check auf; alternativ pollt `app.telegram.polling` Telegram per `getUpdates` (kein öffentlicher URL-Zwang) und ruft pro Update dasselbe `process_update`. Beides schließt sich gegenseitig aus — der Poller ruft beim Start `deleteWebhook`. Ab Schritt 4 ist der Fluss identisch.
 4. Celery-Worker greift Task ab → öffnet **neue** Async-Engine (`worker_session()`) → übergibt an `services.process_message.process_text_message`
 5. Service:
    - Pre-Check `telegram_update_id` (Race-Schutz)
@@ -290,7 +293,7 @@ flowchart LR
 | Adapter | Heute | Geplant (Epic) |
 |---------|-------|----------------|
 | UI / Dashboard (Hauptsurface) | — | **E19** (Wizard, Dashboard, `/ask`, Verwalten) |
-| Telegram (optional, Long-Polling) | ✅ Webhook | E1-5 Long-Polling |
+| Telegram (optional, Long-Polling) | ✅ Webhook + Long-Polling (E1-5) | — |
 | HTTP REST | ✅ | E13 REST API |
 | Setup | — | E19-1 UI-Wizard (CLI/`doctor` für Server-Edition, E16) |
 | Filesystem Vault | ✅ | E15 `VaultBackend`-Interface |

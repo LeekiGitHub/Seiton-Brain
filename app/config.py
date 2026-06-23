@@ -102,6 +102,10 @@ class Settings(BaseSettings):
     # Updates sind typischerweise <10 KB; 1 MB ist grosszuegig und schuetzt
     # vor Resource-Exhaustion durch fehlgeleitete oder boesartige Requests.
     telegram_webhook_max_body_bytes: int = 1_048_576
+    # Long-Poll-Fenster in Sekunden fuer den Polling-Modus (app.telegram.polling).
+    # Hoehere Werte = weniger Requests, laengere Hangs pro Aufruf. Telegram
+    # erlaubt bis 50; 25 ist ein guter Default.
+    telegram_polling_timeout: int = 25
 
     # LLM
     llm_provider: str = "openai"

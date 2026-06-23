@@ -42,24 +42,38 @@ Produkts ist Distribution & Einrichtung, nicht der Funktionsumfang.**
 1. **Produkt = self-hosted Consumer-App.** Verkauf als einmal kaufbare Lizenz,
    BYO-Key, Daten bleiben beim Kunden.
 
-2. **UI wird die Hauptoberfläche.** Setup-Wizard, Dashboard, Verwalten, Suche
-   und `/ask`-Retrieval laufen über eine grafische Oberfläche. **Telegram wird
-   vom Default-Eingang zum optionalen Power-Feature** (mobiles Erfassen). Damit
-   wird die ADR-0003-Annahme „Telegram = Default-Adapter" bewusst revidiert.
+2. **UI wird die Hauptoberfläche — als lokal ausgelieferte Web-UI.** Setup-Wizard,
+   Dashboard, Verwalten, Suche und `/ask`-Retrieval laufen im Browser, **serviert
+   vom Always-on-Host des Kunden** (nicht von uns). Begründung: Web-UI ist
+   plattformunabhängig (jedes Gerät hat einen Browser → Mac/Win/Linux/Handy) und
+   passt zur Always-on-Realität, während eine native Desktop-App auf einem
+   nicht-24/7-Laptop dem Anspruch widerspricht. **Datenschutz:** an localhost/LAN
+   gebunden, Fernzugriff über privates Netz (Tailscale o. Ä.) — Daten verlassen
+   die Box nie, kein Cloud-Dienst. Eine native Desktop-App ist damit **kein
+   Nahziel** (evtl. ganz unnötig). **Telegram wird vom Default-Eingang zum
+   optionalen Power-Feature** (mobiles Erfassen) — die ADR-0003-Annahme „Telegram
+   = Default-Adapter" wird bewusst revidiert.
 
 3. **Telegram per Long-Polling statt Webhook** für lokales/Consumer-Hosting —
    entfernt die Anforderung einer öffentlichen HTTPS-URL (kein ngrok/Tunnel
    nötig). Webhook bleibt für Server-/VPS-Betrieb optional.
 
-4. **Multi-Plattform-Self-Hosting.** Der Mac-Mini-Spezialfall wird verallgemeinert:
-   unterstützte Hosting-Wege sind **Mac, Windows, Linux** (lokal) sowie **VPS**
-   (z. B. IONOS) für Dauerbetrieb. Der User bekommt mehrere Wege, es selbst
-   laufen zu lassen.
+4. **Always-on-Box beim Kunden ist das Leitbild.** Ein „zweites Gehirn", das von
+   unterwegs (per Telegram) erreichbar sein soll, braucht eine 24/7-Komponente.
+   Primärziel: **Heimserver / Mini-PC / Mac Mini** beim datenschutz-affinen
+   Privatkunden (passt zum Privacy-Verkaufsargument). **VPS** (z. B. IONOS) ist
+   eine **spätere** Alternative, kein Nahziel. Vorbilder dieses Genres: Home
+   Assistant (+ Nabu Casa/Green-Hardware), Plex/Jellyfin (Relay), Umbrel/Start9
+   (Personal-Server-OS), Synology (QuickConnect).
 
-5. **Auslieferung gestaffelt.** Zuerst eine **reduzierte Version** (vereinfachtes
-   Setup / gebündelter Installer), eine **vollwertige Desktop-App** ist Ziel zum
-   **offiziellen Release**, nicht für den ersten Wurf. Updates (inkl.
-   Auto-Update) sind Teil des Produktversprechens.
+   **Fernzugriff ohne Router-Konfiguration** (der sonst schwerste Teil): Telegram
+   per **Long-Polling** (Box ruft ausgehend an Telegram → kein offener Port, keine
+   öffentliche IP); UI von unterwegs über **Tailscale** o. Ä. (laien-tauglich).
+
+5. **Auslieferung gestaffelt.** Zuerst eine **reduzierte Version** (stark
+   vereinfachtes Setup / gebündelter Installer für die Heim-Box). Eine native
+   Desktop-App ist **bewusst kein Nahziel** (Web-UI deckt den Bedarf ab; siehe
+   Festlegung 2). Updates (inkl. Auto-Update) sind Teil des Produktversprechens.
 
 6. **Lizenzierung offline-fähig.** Buy-once-Lizenzschlüssel muss **ohne unseren
    Server** validierbar sein (wir wollen ja gerade nichts betreiben).
@@ -99,18 +113,27 @@ Produkts ist Distribution & Einrichtung, nicht der Funktionsumfang.**
   (Marketing). „Passiv" nur, wenn die Installation **wirklich** reibungslos ist.
 - Consumer-Distribution (Installer/Desktop-App, Auto-Update, Code-Signing pro OS)
   ist erheblicher Neu-Aufwand gegenüber „docker compose up".
-- Möglicher Bedarf an **zwei Editionen** (Consumer-Desktop vs. Developer/
-  Server-self-host) — bewusst entscheiden, nicht aus Versehen.
+- „Editionen" sind voraussichtlich **ein Stack an verschiedenen Hosting-Orten**
+  (Heim-Box vs. VPS), **keine** zwei Codebasen. Eine echte Zwei-Produkt-Trennung
+  ist unwahrscheinlich und wird aufgeschoben, bis es einen konkreten Grund gibt.
+
+## Entschieden (2026-06-22)
+
+- **Deployment-Leitbild:** Always-on-Box beim Kunden (Heimserver/Mini-PC/Mac
+  Mini). VPS = spätere Alternative, kein Nahziel.
+- **UI-Form:** lokal ausgelieferte **Web-UI** (kein natives Desktop-App-Nahziel).
+- **Fernzugriff:** Telegram Long-Polling + Tailscale o. Ä. statt Router-Konfig.
+- **Fokus jetzt:** Produkt selbst (Web-UI E19 + Retrieval E17, Telegram
+  Long-Polling E1-5). Verkaufsspezifisches (E21) ist geparkt.
 
 ## Offene Detailentscheidungen
 
-- **Eine Edition oder zwei?** Nur Consumer-App, oder Server-Pfad parallel als
-  „Developer/VPS-Edition" behalten?
-- **Wie weit Stack-Vereinfachung?** SQLite/in-process für Consumer ja/nein.
+- **Wie weit Stack-Vereinfachung?** SQLite/in-process für die Heim-Box ja/nein
+  (E9-5, Eval). „Editionen" voraussichtlich ein Stack, verschiedene Hosting-Orte.
+- **UI-Tech-Stack** (welches Framework für die lokale Web-UI).
 - **Distributionsform der reduzierten Version:** gebündelter Installer um den
   bestehenden Stack vs. nur radikal vereinfachtes Setup.
-- **Lizenz-Mechanik & Verkaufskanal** (Schlüssel-Format, Offline-Validierung,
-  Update-Auslieferung, Store/Eigenshop).
+- **Lizenz-Mechanik & Verkaufskanal** — geparkt, bis Produkt steht.
 
 ## Alternativen, die wir nicht gewählt haben
 
