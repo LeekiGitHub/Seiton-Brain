@@ -42,16 +42,30 @@ n8n-„Search Notes"-Node.
 
 **Stories:** `E17-1`, `E1-3` (Telegram), `E13-1` (API).
 
-### Stufe 2 — Semantische Suche (Phase E/F)
+### Stufe 2 — Semantische Suche (Phase E/F) 🟢
 
-Pgvector-Embeddings pro Notiz, kNN-Lookup. Setzt `E5-3` voraus
-(Embeddings werden beim Schreiben/Append berechnet — gleiche Pipeline,
+Pgvector-Embeddings pro Notiz, kNN-Lookup. Umgesetzt zusammen mit `E5-3`
+(Embeddings werden beim Schreiben/Append/Sync berechnet — gleiche Pipeline,
 nicht doppelt). Query bekommt ein Embedding, Treffer werden nach
-Cosine-Similarity sortiert.
+Cosine-Distanz sortiert (`semantic_search_vault_notes`).
 
-API-Erweiterung: `GET /v1/notes/search?q=...&semantic=true`.
+Bausteine:
+- `app/llm/embeddings.py` — `EmbeddingProvider` (ABC) + `OpenAIEmbeddingProvider`,
+  Factory `get_embedding_provider()`.
+- `vault_note_index.embedding` — `Vector(1536)`-Spalte (pgvector); Migration
+  legt die `vector`-Extension an. Postgres-Image: `pgvector/pgvector:pg16`.
+- Opt-in via `EMBEDDINGS_ENABLED` (Default aus). Nach dem Aktivieren einmal
+  einen Vault-Sync laufen lassen, um Bestandsnotizen zu embedden (Backfill).
+  Embeddings sind best-effort — schlägt ein Call fehl, bleibt die Keyword-
+  Suche voll funktionsfähig.
 
-**Story:** `E17-2`.
+Bewusst **kein** ANN-Index (ivfflat/hnsw): bei persönlicher Vault-Größe ist
+exakter kNN-Scan schnell genug; ANN ist eine spätere Skalierungs-Optimierung.
+
+Offen (Konsumenten): `GET /v1/notes/search?q=...&semantic=true` (`E17-5`),
+`/find`-Semantik-Schalter (`E1-3`), RAG-Nutzung (`E17-3`).
+
+**Story:** `E17-2` 🟢.
 
 ### Stufe 3 — RAG-Antwort / `/ask` (Phase F)
 

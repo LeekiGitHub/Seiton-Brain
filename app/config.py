@@ -112,6 +112,14 @@ class Settings(BaseSettings):
     openai_api_key: str
     openai_model: str = "gpt-4o-mini"
 
+    # Semantische Suche / Embeddings (E17-2, pgvector). Standardmaessig aus —
+    # erzeugt zusaetzliche Embedding-API-Calls (Kosten). Wenn aktiviert, werden
+    # Notizen beim Schreiben/Append/Sync embedded und `semantic_search` nutzbar.
+    # Das Embedding-Modell muss zur Vektor-Dimension der DB-Spalte passen
+    # (EMBEDDING_DIM im Model + Migration); Default-Modell = 1536 Dimensionen.
+    embeddings_enabled: bool = False
+    embedding_model: str = "text-embedding-3-small"
+
     # Vault
     obsidian_vault_path: str
 

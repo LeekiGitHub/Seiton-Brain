@@ -8,6 +8,7 @@ from app.vault.index import (
     SearchHit,
     parse_note_file,
     search_vault_notes,
+    semantic_search_vault_notes,
     sync_vault_index_from_disk,
     upsert_vault_note_index,
 )
@@ -128,3 +129,116 @@ async def test_search_empty_query_returns_empty(mock_ensure):
     hits = await search_vault_notes(db, "   ", limit=5)
     assert hits == []
     db.execute.assert_not_awaited()
+
+
+# ─── E17-2: Semantische Suche + Embedding-Pipeline ────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_semantic_search_disabled_returns_empty(monkeypatch):
+    monkeypatch.setattr(settings, "embeddings_enabled", False)
+    db = AsyncMock()
+    hits = await semantic_search_vault_notes(db, "fitness", limit=5)
+    assert hits == []
+    db.execute.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_semantic_search_empty_query_returns_empty(monkeypatch):
+    monkeypatch.setattr(settings, "embeddings_enabled", True)
+    db = AsyncMock()
+    hits = await semantic_search_vault_notes(db, "   ", limit=5)
+    assert hits == []
+    db.execute.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@patch("app.vault.index.ensure_vault_index", new_callable=AsyncMock)
+@patch("app.vault.index.get_embedding_provider")
+async def test_semantic_search_returns_hits(mock_provider, mock_ensure, monkeypatch):
+    monkeypatch.setattr(settings, "embeddings_enabled", True)
+    provider = MagicMock()
+    provider.embed = AsyncMock(return_value=[0.1] * 1536)
+    mock_provider.return_value = provider
+
+    row = VaultNoteIndex(
+        id=1,
+        vault_path="Ideas/A.md",
+        title="Fitness App",
+        category="idea",
+        folder="Ideas",
+        body_snippet="track workouts and nutrition",
+        mtime=MagicMock(),
+    )
+    db = AsyncMock()
+    db.execute = AsyncMock(
+        return_value=MagicMock(
+            scalars=MagicMock(return_value=MagicMock(all=MagicMock(return_value=[row])))
+        )
+    )
+
+    hits = await semantic_search_vault_notes(db, "exercise tracking", limit=5)
+
+    assert len(hits) == 1
+    assert hits[0].title == "Fitness App"
+    assert isinstance(hits[0], SearchHit)
+    provider.embed.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@patch("app.vault.index.get_embedding_provider")
+async def test_upsert_sets_embedding_when_enabled(
+    mock_provider, tmp_path, monkeypatch
+):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    monkeypatch.setattr(settings, "embeddings_enabled", True)
+    provider = MagicMock()
+    provider.embed = AsyncMock(return_value=[0.5] * 1536)
+    mock_provider.return_value = provider
+
+    notes = tmp_path / "Notes"
+    notes.mkdir()
+    (notes / "Hello.md").write_text(
+        "---\ntitle: Hello\n---\n\nBody.", encoding="utf-8"
+    )
+
+    added: list = []
+    db = AsyncMock()
+    db.add = MagicMock(side_effect=added.append)
+    db.commit = AsyncMock()
+    db.execute = AsyncMock(
+        return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None))
+    )
+
+    await upsert_vault_note_index(db, "Notes/Hello.md")
+
+    assert added and added[0].embedding == [0.5] * 1536
+    provider.embed.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@patch("app.vault.index.get_embedding_provider")
+async def test_upsert_skips_embedding_when_disabled(
+    mock_provider, tmp_path, monkeypatch
+):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    monkeypatch.setattr(settings, "embeddings_enabled", False)
+
+    notes = tmp_path / "Notes"
+    notes.mkdir()
+    (notes / "Hello.md").write_text(
+        "---\ntitle: Hello\n---\n\nBody.", encoding="utf-8"
+    )
+
+    added: list = []
+    db = AsyncMock()
+    db.add = MagicMock(side_effect=added.append)
+    db.commit = AsyncMock()
+    db.execute = AsyncMock(
+        return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None))
+    )
+
+    await upsert_vault_note_index(db, "Notes/Hello.md")
+
+    assert added and added[0].embedding is None
+    mock_provider.assert_not_called()

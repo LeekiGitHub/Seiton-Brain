@@ -9,6 +9,17 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E17-2 / E5-3: Semantische Suche via pgvector.** Neuer Embedding-Provider
+  `app/llm/embeddings.py` (`EmbeddingProvider`-Interface + `OpenAIEmbeddingProvider`,
+  analog zu `LLMProvider`). Der Vault-Index bekommt eine nullable
+  `embedding`-Spalte (pgvector `Vector(1536)`, Alembic-Migration + `CREATE
+  EXTENSION vector`); Notizen werden beim Schreiben/Append/Sync embedded.
+  Neue Engine-Funktion `semantic_search_vault_notes` (kNN per Cosine-Distanz).
+  Opt-in über `EMBEDDINGS_ENABLED` (Default aus → keine Embedding-Kosten);
+  Embeddings sind best-effort (Fehler brechen das Indexieren nicht ab, Keyword-
+  Suche bleibt). Postgres-Image auf `pgvector/pgvector:pg16`. Neue Dependency
+  `pgvector`. 11 neue Tests. Konsumenten (`/find semantic`, `/v1/notes/search`,
+  RAG) folgen in E17-3/E17-5.
 - **E1-5: Telegram Long-Polling als Webhook-Alternative.** Neuer Poller
   `app/telegram/polling.py` (`python -m app.telegram.polling` bzw. Compose-Profil
   `polling`) holt Updates aktiv per `getUpdates` — keine öffentliche HTTPS-URL,
