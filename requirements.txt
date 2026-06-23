@@ -9,6 +9,7 @@ openai
 celery
 redis
 pydantic-settings
+pgvector
 pypdf
 python-docx
 python-pptx

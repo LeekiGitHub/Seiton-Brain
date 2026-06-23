@@ -230,6 +230,27 @@ Kalender, Mail. Details: [`docs/integrations/n8n.md`](./integrations/n8n.md).
 
 ---
 
+## Semantische Suche aktivieren (E17-2, optional)
+
+Standardmäßig läuft nur die Keyword-Suche. Für semantische Suche (pgvector):
+
+1. In `.env` setzen:
+
+```bash
+EMBEDDINGS_ENABLED=true
+EMBEDDING_MODEL=text-embedding-3-small   # 1536 Dimensionen (muss zur DB-Spalte passen)
+```
+
+2. Das `db`-Image ist bereits `pgvector/pgvector:pg16`; die Migration legt die
+   `vector`-Extension automatisch an (`docker compose run --rm api alembic upgrade head`).
+3. Neu erfasste Notizen werden ab sofort embedded. **Bestandsnotizen** einmalig
+   nachrüsten (Backfill) per Vault-Sync.
+
+> Embeddings verursachen zusätzliche Embedding-API-Calls (Kosten über deinen
+> eigenen OpenAI-Key). Schlägt ein Call fehl, bleibt die Keyword-Suche aktiv.
+
+---
+
 ## Saubere Neuinstallation
 
 ```bash

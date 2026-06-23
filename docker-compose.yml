@@ -1,6 +1,9 @@
 services:
   db:
-    image: postgres:16
+    # pgvector-Variante des offiziellen Postgres-Images — bringt die
+    # ``vector``-Extension fuer semantische Suche mit (E17-2). API-kompatibel
+    # zu postgres:16, gleiche Daten/Volumes.
+    image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass

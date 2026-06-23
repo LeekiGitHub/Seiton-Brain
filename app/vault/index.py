@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.db.session import SessionLocal
+from app.llm.embeddings import get_embedding_provider
 from app.models.vault_note_index import VaultNoteIndex
 from app.vault.extractors import get_extractor
 from app.vault.reader import VaultNote, _body_snippet, _parse_frontmatter
@@ -80,6 +81,28 @@ def _ilike_pattern(query: str) -> str:
     return f"%{escaped}%"
 
 
+def _embedding_text(title: str, body_snippet: str) -> str:
+    """Eingabetext fuer das Embedding: Titel traegt am meisten Signal, dann Body."""
+    return f"{title}\n\n{body_snippet}".strip()
+
+
+async def _embed_row(row: VaultNoteIndex | None) -> list[float] | None:
+    """Embedding fuer eine Indexzeile — ``None`` wenn deaktiviert oder fehlgeschlagen.
+
+    Best-effort: ein Embedding-Fehler (kein Key, API-Ausfall) darf das
+    Indexieren nicht sprengen — die Keyword-Suche funktioniert weiter.
+    """
+    if not settings.embeddings_enabled or row is None:
+        return None
+    try:
+        return await get_embedding_provider().embed(
+            _embedding_text(row.title, row.body_snippet)
+        )
+    except Exception as exc:  # noqa: BLE001 — Embedding ist optional, nie fatal
+        logger.warning("Embedding failed for %s: %s", row.vault_path, exc)
+        return None
+
+
 async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) -> None:
     """Indexiert eine Datei (relativ zum Vault-Root). Ignoriert fehlende Pfade."""
     filepath = _vault_root() / vault_relative_path
@@ -90,6 +113,7 @@ async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) ->
     row = _file_to_index_row(filepath)
     if row is None:
         return  # nicht unterstuetzter Dateityp — nicht indexieren
+    embedding = await _embed_row(row)
     existing = (
         await db.execute(
             select(VaultNoteIndex).where(
@@ -99,6 +123,7 @@ async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) ->
     ).scalar_one_or_none()
 
     if existing is None:
+        row.embedding = embedding
         db.add(row)
     else:
         existing.title = row.title
@@ -107,6 +132,11 @@ async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) ->
         existing.doc_type = row.doc_type
         existing.body_snippet = row.body_snippet
         existing.mtime = row.mtime
+        # Embedding nur ueberschreiben, wenn es neu berechnet wurde — sonst
+        # bleibt ein evtl. vorhandener Vektor erhalten (kein Datenverlust bei
+        # deaktivierten Embeddings oder transientem API-Fehler).
+        if embedding is not None:
+            existing.embedding = embedding
         existing.indexed_at = datetime.now(UTC)
 
     await db.commit()
@@ -141,6 +171,7 @@ async def sync_vault_index_from_disk(db: AsyncSession) -> int:
             if row is None:
                 continue
             found_paths.add(rel)
+            embedding = await _embed_row(row)
             existing = (
                 await db.execute(
                     select(VaultNoteIndex).where(
@@ -149,6 +180,7 @@ async def sync_vault_index_from_disk(db: AsyncSession) -> int:
                 )
             ).scalar_one_or_none()
             if existing is None:
+                row.embedding = embedding
                 db.add(row)
             else:
                 existing.title = row.title
@@ -157,6 +189,8 @@ async def sync_vault_index_from_disk(db: AsyncSession) -> int:
                 existing.doc_type = row.doc_type
                 existing.body_snippet = row.body_snippet
                 existing.mtime = row.mtime
+                if embedding is not None:
+                    existing.embedding = embedding
             count += 1
         except OSError as exc:
             logger.warning("Skipping unreadable vault file %s: %s", file, exc)
@@ -226,6 +260,47 @@ async def search_vault_notes(
             case((title_match, 0), else_=1),
             VaultNoteIndex.mtime.desc(),
         )
+        .limit(limit)
+    )
+    rows = (await db.execute(stmt)).scalars().all()
+    return [
+        SearchHit(
+            title=row.title,
+            vault_path=row.vault_path,
+            snippet=_body_snippet(row.body_snippet, limit=120),
+            category=row.category,
+            folder=row.folder,
+        )
+        for row in rows
+    ]
+
+
+async def semantic_search_vault_notes(
+    db: AsyncSession, query: str, limit: int = 10
+) -> list[SearchHit]:
+    """Semantische Suche via pgvector-kNN (E17-2).
+
+    Berechnet ein Query-Embedding und sortiert Notizen nach Cosine-Distanz.
+    Liefert ``[]``, wenn Embeddings deaktiviert sind, die Query leer ist oder
+    noch keine Notiz ein Embedding hat (z. B. vor dem ersten Backfill-Sync).
+    """
+    if not settings.embeddings_enabled:
+        return []
+    term = query.strip()
+    if not term:
+        return []
+
+    await ensure_vault_index(db)
+    try:
+        query_embedding = await get_embedding_provider().embed(term)
+    except Exception as exc:  # noqa: BLE001 — Suche soll nicht hart fehlschlagen
+        logger.warning("Query embedding failed for %r: %s", term, exc)
+        return []
+
+    stmt = (
+        select(VaultNoteIndex)
+        .where(VaultNoteIndex.embedding.is_not(None))
+        .order_by(VaultNoteIndex.embedding.cosine_distance(query_embedding))
         .limit(limit)
     )
     rows = (await db.execute(stmt)).scalars().all()
