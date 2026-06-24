@@ -6,8 +6,14 @@ from openai import AsyncOpenAI
 from pydantic import ValidationError
 
 from app.config import settings
-from app.llm.parser import MAX_PARSE_ATTEMPTS, ClassificationParseError, parse_classification_json
-from app.llm.schemas import ClassificationResult
+from app.llm.parser import (
+    MAX_PARSE_ATTEMPTS,
+    AnswerParseError,
+    ClassificationParseError,
+    parse_answer_json,
+    parse_classification_json,
+)
+from app.llm.schemas import ClassificationResult, LLMAnswer
 from app.llm.tags import normalize_tags
 from app.vault.index import list_existing_notes
 from app.vault.reader import format_notes_for_prompt, known_titles
@@ -15,6 +21,7 @@ from app.vault.reader import format_notes_for_prompt, known_titles
 logger = logging.getLogger(__name__)
 
 PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "classify.txt"
+ANSWER_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "answer.txt"
 MAX_RELATED = 3
 MAX_TAGS = 5
 
@@ -24,6 +31,7 @@ class OpenAIProvider:
         self.client = AsyncOpenAI(api_key=settings.openai_api_key)
         self.model = settings.openai_model
         self.prompt_template = PROMPT_PATH.read_text()
+        self.answer_template = ANSWER_PROMPT_PATH.read_text()
 
     async def classify(self, text: str) -> ClassificationResult:
         existing = await list_existing_notes()
@@ -113,3 +121,39 @@ class OpenAIProvider:
     def _sanitize_tags(self, result: ClassificationResult) -> ClassificationResult:
         result.tags = normalize_tags(result.tags, max_tags=MAX_TAGS)
         return result
+
+    async def answer(self, question: str, context: str) -> LLMAnswer:
+        """RAG-Antwort (E17-3): Frage + Kontext-Snippets -> JSON-Antwort.
+
+        Gleiches Retry-Muster wie ``classify`` (JSON-Mode, bis zu
+        ``MAX_PARSE_ATTEMPTS`` Versuche). Quellen-Aufloesung auf echte Notizen
+        passiert im aufrufenden Service, nicht hier.
+        """
+        prompt = self.answer_template.replace("{question}", question).replace(
+            "{context}", context
+        )
+
+        last_error: json.JSONDecodeError | ValidationError | None = None
+        for attempt in range(1, MAX_PARSE_ATTEMPTS + 1):
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
+            )
+            content = response.choices[0].message.content or ""
+            try:
+                return parse_answer_json(content)
+            except (json.JSONDecodeError, ValidationError) as exc:
+                last_error = exc
+                logger.warning(
+                    "RAG answer parse failed (attempt %d/%d): %s",
+                    attempt,
+                    MAX_PARSE_ATTEMPTS,
+                    exc,
+                )
+                continue
+
+        assert last_error is not None
+        raise AnswerParseError(
+            f"LLM returned invalid answer JSON after {MAX_PARSE_ATTEMPTS} attempts"
+        ) from last_error

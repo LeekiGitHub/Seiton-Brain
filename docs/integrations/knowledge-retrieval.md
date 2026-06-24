@@ -75,13 +75,24 @@ Answer-Prompt → LLM antwortet mit **Quellenangabe**. Eigenes Pydantic-Schema
 werden als `[[Wiki-Links]]` ausgespielt — in Telegram klickbar zur
 Vault-Notiz, in REST/MCP als strukturierte `sources`.
 
-| Konsument | Aufruf | Antwort |
-|-----------|--------|---------|
-| Telegram | `/ask Was weiß ich über X?` | Antworttext + `[[Quellen]]` |
-| REST | `POST /v1/ask { "question": "..." }` | `AnswerResult` JSON |
-| MCP | Tool `ask_brain(question)` | `AnswerResult` |
+Der **Service** (`E17-3`) ist umgesetzt 🟢 — `app/services/answer.py`:
 
-**Stories:** `E17-3` (Service), `E17-4` (Telegram), `E17-5` (REST).
+- `answer_question(question, db, *, limit, semantic)` — bevorzugt semantische
+  Suche (wenn `EMBEDDINGS_ENABLED`), sonst Keyword-Fallback.
+- Prompt `prompts/answer.txt`; LLM antwortet als JSON, geparst zu `LLMAnswer`.
+- Quellen werden auf **real existierende** Treffer aufgelöst (Halluzinationen
+  verworfen), `confidence` auf 0–1 geklemmt.
+- Ohne Treffer: ehrliche „nichts gefunden"-Antwort **ohne** LLM-Call.
+- `format_answer_for_chat()` rendert `[[Wiki-Links]]` für Chat-Surfaces.
+
+| Konsument | Aufruf | Antwort | Status |
+|-----------|--------|---------|--------|
+| (Engine) | `answer_question(...)` | `AnswerResult` | 🟢 `E17-3` |
+| Telegram | `/ask Was weiß ich über X?` | Antworttext + `[[Quellen]]` | ⚪ `E17-4` |
+| REST | `POST /v1/ask { "question": "..." }` | `AnswerResult` JSON | ⚪ `E17-5` |
+| MCP | Tool `ask_brain(question)` | `AnswerResult` | ⚪ `E17-6` |
+
+**Stories:** `E17-3` 🟢 (Service), `E17-4` (Telegram), `E17-5` (REST).
 
 ---
 

@@ -67,12 +67,14 @@ app/
 │   ├── celery_app.py        Celery-Config
 │   └── tasks.py             process_text_message_task, process_voice_message_task
 ├── services/
-│   └── process_message.py   Orchestrierung: LLM → DB → Vault
+│   ├── process_message.py   Orchestrierung Capture: LLM → DB → Vault
+│   └── answer.py            RAG-Antwort-Service: Retrieval → LLM → AnswerResult (E17-3)
 ├── llm/
-│   ├── provider.py          LLMProvider (ABC) + get_llm_provider()
+│   ├── provider.py          LLMProvider (ABC: classify, answer) + get_llm_provider()
 │   ├── openai_provider.py   OpenAI-Implementierung (Chat-Completions, JSON-Mode)
 │   ├── embeddings.py        EmbeddingProvider (ABC) + OpenAI + get_embedding_provider() (E17-2)
-│   └── schemas.py           ClassificationResult (Pydantic)
+│   ├── parser.py            JSON→Pydantic (classify + answer), Retry-Konstanten
+│   └── schemas.py           ClassificationResult, AnswerResult/NoteRef/LLMAnswer (Pydantic)
 ├── vault/
 │   ├── reader.py            VaultNote-Parsing, format_notes_for_prompt
 │   ├── extractors.py        DocumentExtractor (ABC) + md/txt/pdf/docx/pptx-Adapter (E18-1/2/3)
@@ -90,7 +92,8 @@ app/
 ```
 
 Externe Artefakte:
-- `prompts/classify.txt` — versionierter LLM-Prompt
+- `prompts/classify.txt` — versionierter LLM-Prompt (Capture/Klassifikation)
+- `prompts/answer.txt` — versionierter RAG-Prompt (E17-3)
 - `alembic/versions/*.py` — DB-Migrationen
 - `vault.example/` — Vault-Template für neue Selfhoster
 - `/vault/` (Bind Mount, gitignored) — der echte persönliche Vault

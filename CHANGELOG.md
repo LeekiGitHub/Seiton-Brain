@@ -9,6 +9,19 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E17-3: RAG-Antwort-Service.** Neuer Service `app/services/answer.py`
+  (`answer_question`) verbindet Retrieval (Keyword E17-1 / semantisch E17-2) mit
+  LLM-Generierung: Frage → relevanteste Vault-Notizen als Kontext → geerdete
+  Antwort mit **Quellen**. Neue Pydantic-Schemas `AnswerResult`
+  (`answer`, `sources: list[NoteRef]`, `confidence`), `NoteRef` und interne
+  `LLMAnswer`; neuer Prompt `prompts/answer.txt`; `LLMProvider.answer()` +
+  OpenAI-Implementierung (JSON-Mode, gleiches Retry-Muster wie `classify`).
+  Quellen werden auf real existierende Treffer aufgelöst (Halluzinationen
+  verworfen), `confidence` auf 0–1 geklemmt. Ohne Treffer: ehrliche
+  „nichts gefunden"-Antwort **ohne** LLM-Call (spart Kosten). Semantik wird
+  bevorzugt, wenn `EMBEDDINGS_ENABLED`, sonst Keyword-Fallback. Chat-Formatter
+  `format_answer_for_chat` rendert `[[Wiki-Links]]`. 15 neue Tests. Konsumenten
+  `/ask` (E17-4) und `POST /v1/ask` (E17-5) folgen.
 - **E17-2 / E5-3: Semantische Suche via pgvector.** Neuer Embedding-Provider
   `app/llm/embeddings.py` (`EmbeddingProvider`-Interface + `OpenAIEmbeddingProvider`,
   analog zu `LLMProvider`). Der Vault-Index bekommt eine nullable
