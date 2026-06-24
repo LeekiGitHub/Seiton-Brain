@@ -37,3 +37,36 @@ class ClassificationResult(BaseModel):
             "to action='create' in the sanitizer."
         ),
     )
+
+
+class LLMAnswer(BaseModel):
+    """Rohe RAG-Antwort des LLM (E17-3), bevor Quellen aufgeloest werden.
+
+    ``sources`` sind **Titel** aus dem mitgelieferten Kontext — der Service
+    mappt sie auf echte Notizen (``NoteRef``) und verwirft Halluzinationen.
+    """
+
+    answer: str = Field(description="Answer based strictly on the provided notes")
+    sources: list[str] = Field(
+        default_factory=list,
+        description="Titles of context notes actually used (subset of context)",
+    )
+    confidence: float = Field(
+        default=0.0,
+        description="0.0-1.0 how well the notes support the answer",
+    )
+
+
+class NoteRef(BaseModel):
+    """Aufgeloeste Quelle: Titel plus (falls bekannt) Vault-Pfad fuer Links."""
+
+    title: str
+    vault_path: str | None = None
+
+
+class AnswerResult(BaseModel):
+    """Finales RAG-Ergebnis (E17-3) fuer Konsumenten (Telegram, REST, MCP)."""
+
+    answer: str
+    sources: list[NoteRef] = Field(default_factory=list)
+    confidence: float = 0.0
