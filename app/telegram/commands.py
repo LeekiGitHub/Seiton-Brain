@@ -25,6 +25,7 @@ HELP_TEXT = (
     "/help — diese Hilfe\n"
     "/recent [n] — letzte N Notizen (max 20, Default 5)\n"
     "/find <begriff> — sucht Notizen nach Titel und Inhalt\n"
+    "/ask <frage> — beantwortet Fragen aus deinem Vault (mit Quellen)\n"
     "/undo — zeigt deine letzte Notiz; /undo confirm löscht sie\n"
     "\n"
     "Sonst: Text- oder Sprachnachricht senden — wird klassifiziert und in "

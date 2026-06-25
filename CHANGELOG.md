@@ -9,6 +9,13 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E17-4: Telegram-Command `/ask <frage>`.** Macht den RAG-Service (E17-3) im
+  Chat nutzbar: `/ask` wird — anders als die schnellen Slash-Commands — in den
+  **Worker** eingereiht (LLM-Call), mit Sofort-Ack „Ich durchsuche dein Brain…"
+  und asynchroner Antwort inkl. anklickbarer `[[Quellen]]`. Leeres `/ask` zeigt
+  einen Nutzungshinweis; `/ask@BotName` wird unterstützt. Neuer Celery-Task
+  `process_ask_message_task` (gleiches Retry-/Fehler-Muster wie Capture,
+  `kind="qa"`). `/ask` in `/help` ergänzt. 7 neue Tests.
 - **E17-3: RAG-Antwort-Service.** Neuer Service `app/services/answer.py`
   (`answer_question`) verbindet Retrieval (Keyword E17-1 / semantisch E17-2) mit
   LLM-Generierung: Frage → relevanteste Vault-Notizen als Kontext → geerdete

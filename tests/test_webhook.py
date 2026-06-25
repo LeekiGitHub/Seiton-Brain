@@ -216,6 +216,73 @@ def test_webhook_dispatches_slash_command_without_enqueue(
 
 @patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
 @patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+@patch("app.telegram.webhook.handle_command", new_callable=AsyncMock)
+@patch("app.telegram.webhook.process_ask_message_task")
+def test_webhook_ask_command_enqueues_rag(mock_ask, mock_handle, mock_send, mock_dup):
+    """`/ask` geht in den Worker (LLM-Call), NICHT synchron durch handle_command."""
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 6001,
+            "message": {
+                "message_id": 1,
+                "text": "/ask Was weiß ich über Japan?",
+                "chat": {"id": 42},
+            },
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+
+    assert response.status_code == 200
+    mock_ask.delay.assert_called_once_with("Was weiß ich über Japan?", 42)
+    mock_handle.assert_not_awaited()
+    mock_send.assert_called_once()
+    assert "durchsuche" in mock_send.call_args[0][1].lower()
+
+
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+@patch("app.telegram.webhook.process_ask_message_task")
+def test_webhook_ask_without_question_shows_usage(mock_ask, mock_send, mock_dup):
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 6002,
+            "message": {"message_id": 1, "text": "/ask", "chat": {"id": 42}},
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+
+    assert response.status_code == 200
+    mock_ask.delay.assert_not_called()
+    mock_send.assert_called_once()
+    assert "nutzung" in mock_send.call_args[0][1].lower()
+
+
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+@patch("app.telegram.webhook.process_ask_message_task")
+def test_webhook_ask_strips_bot_suffix(mock_ask, mock_send, mock_dup):
+    """`/ask@BotName frage` -> Bot-Suffix wird ignoriert, Frage bleibt."""
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 6003,
+            "message": {
+                "message_id": 1,
+                "text": "/ask@SeitonBot wo war ich im Mai?",
+                "chat": {"id": 42},
+            },
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+
+    assert response.status_code == 200
+    mock_ask.delay.assert_called_once_with("wo war ich im Mai?", 42)
+
+
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
 @patch("app.telegram.webhook.process_text_message_task")
 @patch("app.telegram.webhook.handle_command", new_callable=AsyncMock)
 def test_webhook_normal_text_still_goes_to_worker(

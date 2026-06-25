@@ -12,6 +12,7 @@ from openai import (
 
 from app.db.session import worker_session
 from app.logging_config import bind_log_context
+from app.services.answer import answer_question, format_answer_for_chat
 from app.services.process_message import process_text_message
 from app.telegram.admin_notify import notify_admin_error
 from app.telegram.client import download_file, send_message
@@ -109,6 +110,12 @@ async def _process_voice(
     )
 
 
+async def _process_ask(question: str, chat_id: int) -> None:
+    async with worker_session() as db:
+        result = await answer_question(question, db)
+    await send_message(chat_id, format_answer_for_chat(result))
+
+
 async def _send_error(chat_id: int) -> None:
     await send_message(chat_id, "Etwas ist schiefgelaufen — bitte später nochmal versuchen.")
 
@@ -185,6 +192,31 @@ def process_text_message_task(
                 telegram_update_id=telegram_update_id,
                 kind="text",
                 raw_input=text,
+            )
+        )
+        raise
+
+
+@celery_app.task(name="process_ask_message", bind=True, **RETRY_KWARGS)
+def process_ask_message_task(self, question: str, chat_id: int) -> None:
+    bind_log_context(task_id=self.request.id)
+    logger.info("process_ask_message started chat_id=%s", chat_id)
+    try:
+        _run(_process_ask(question, chat_id))
+        logger.info("process_ask_message done chat_id=%s", chat_id)
+    except Retry:
+        raise
+    except Exception as exc:
+        logger.exception("process_ask_message failed permanently chat_id=%s", chat_id)
+        _run(
+            _handle_permanent_failure(
+                chat_id,
+                exc,
+                task_name="process_ask_message",
+                task_id=self.request.id,
+                telegram_update_id=None,
+                kind="qa",
+                raw_input=question,
             )
         )
         raise

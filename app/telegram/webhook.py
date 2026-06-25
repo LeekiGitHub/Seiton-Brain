@@ -10,7 +10,11 @@ from app.db.session import SessionLocal
 from app.models.entry import Entry
 from app.telegram.client import send_message
 from app.telegram.commands import handle_command
-from app.worker.tasks import process_text_message_task, process_voice_message_task
+from app.worker.tasks import (
+    process_ask_message_task,
+    process_text_message_task,
+    process_voice_message_task,
+)
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -142,11 +146,27 @@ async def process_update(update: dict) -> None:
 
     try:
         if text and text.startswith("/"):
-            # Slash-Commands synchron — keine Worker-Queue, kein LLM-Call.
-            async with SessionLocal() as db:
-                reply = await handle_command(text, chat_id, db)
-            if reply is not None:
-                await send_message(chat_id, reply)
+            parts = text.strip().split(maxsplit=1)
+            cmd = parts[0].split("@", 1)[0].lower()
+            args = parts[1].strip() if len(parts) > 1 else ""
+            if cmd == "/ask":
+                # RAG ist ein LLM-Call -> in den Worker, nicht synchron im
+                # Request (sonst blockiert er Webhook/Poller mehrere Sekunden).
+                if not args:
+                    await send_message(
+                        chat_id,
+                        "Nutzung: /ask <frage> — ich durchsuche dein Brain "
+                        "und antworte mit Quellen.",
+                    )
+                else:
+                    process_ask_message_task.delay(args, chat_id)
+                    await send_message(chat_id, "Ich durchsuche dein Brain…")
+            else:
+                # Andere Slash-Commands synchron — schnelle DB-Lookups, kein LLM.
+                async with SessionLocal() as db:
+                    reply = await handle_command(text, chat_id, db)
+                if reply is not None:
+                    await send_message(chat_id, reply)
         elif text:
             process_text_message_task.delay(text, chat_id, update_id, message_id)
             await send_message(chat_id, "Wird verarbeitet…")
