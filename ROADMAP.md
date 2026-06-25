@@ -322,7 +322,7 @@ Retrieval-Service.
 | E17-1 | Keyword-Suche über Vault-Index (DB-gespiegelt aus E5-1): Titel/Body-Match, Top-N Resultate mit `vault_path` + Snippet. Fundament für `/find` und `/v1/notes/search`. | 4 | 2 | 1 | 3 | 4 | 🟢 | C |
 | E17-2 | Semantische Suche via pgvector (setzt E5-3 voraus): Embedding pro Notiz beim Schreiben/Append, Query-Embedding, kNN-Retrieval. | 5 | 4 | 3 | 5 | 3 | 🟢 | E/F |
 | E17-3 | RAG-Antwort-Service: Retrieval (E17-1/2) → Prompt mit Kontext-Snippets + Quellen → LLM-Antwort mit `[[Wiki-Links]]` zu Source-Notes. Eigener Pydantic-Schema (`AnswerResult`: `answer`, `sources[]`, `confidence`). | 5 | 4 | 3 | 5 | 4 | 🟢 | F |
-| E17-4 | Telegram-Command `/ask <frage>`: nutzt E17-3, Antwort im Chat mit anklickbaren Source-Links zur Vault-Notiz. | 5 | 2 | 2 | 4 | 4 | ⚪ | F |
+| E17-4 | Telegram-Command `/ask <frage>`: nutzt E17-3, Antwort im Chat mit anklickbaren Source-Links zur Vault-Notiz. | 5 | 2 | 2 | 4 | 4 | 🟢 | F |
 | E17-5 | Retrieval-API: `POST /v1/ask` (RAG-Antwort), `GET /v1/notes/search?q=...&semantic=true` (Treffer-Liste). Gleiche API-Key-Auth wie E13-2. | 5 | 3 | 2 | 4 | 4 | ⚪ | F |
 | E17-6 | MCP-Server `seiton-brain-mcp` (separates Repo, analog zu E14-2): exponiert `search_notes`, `ask_brain`, `get_note` als MCP-Tools, damit Claude Desktop / Cursor / beliebige LLM-Agenten den Vault als Wissensquelle nutzen können. Authentifiziert per `SEITON_API_KEY`. | 5 | 4 | 3 | 5 | 3 | ⚪ | F |
 | E17-7 | Outbound-Event `note.indexed` (für n8n-Trigger nach Embedding-Berechnung) + Doku „Brain als Knowledge-Backend in n8n-/Agent-Workflows". | 3 | 2 | 2 | 3 | 2 | ⚪ | F |

@@ -10,7 +10,7 @@ Celery-Workers selbst), sondern pruefen:
 4. dass nicht-retryable Exceptions zur Fehlermeldung fuehren
 """
 
-from unittest.mock import patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import pytest
@@ -22,9 +22,12 @@ from openai import (
     RateLimitError,
 )
 
+from app.llm.schemas import AnswerResult, NoteRef
 from app.worker.tasks import (
     RETRY_KWARGS,
     RETRYABLE_EXCEPTIONS,
+    _process_ask,
+    process_ask_message_task,
     process_text_message_task,
     process_voice_message_task,
 )
@@ -129,3 +132,76 @@ def test_voice_task_does_not_send_error_on_retry(mock_run, mock_handle_failure):
         process_voice_message_task.run("voice123", 42)
 
     mock_handle_failure.assert_not_called()
+
+
+# ─── E17-4: /ask RAG-Task ────────────────────────────────────────────────
+
+
+def test_ask_task_is_registered_with_retry_config():
+    task = process_ask_message_task
+    assert task.max_retries == 3
+    assert task.retry_backoff is True
+    assert RateLimitError in task.autoretry_for
+
+
+@patch("app.worker.tasks._handle_permanent_failure")
+@patch("app.worker.tasks._run")
+def test_ask_task_does_not_send_error_on_retry(mock_run, mock_handle_failure):
+    mock_run.side_effect = _close_coro_and_raise(Retry())
+
+    with pytest.raises(Retry):
+        process_ask_message_task.run("Was weiß ich über X?", 42)
+
+    mock_handle_failure.assert_not_called()
+
+
+@patch("app.worker.tasks._handle_permanent_failure")
+@patch("app.worker.tasks._run")
+def test_ask_task_sends_error_on_permanent_failure(mock_run, mock_handle_failure):
+    call_count = {"n": 0}
+
+    def side_effect(coro):
+        if hasattr(coro, "close"):
+            coro.close()
+        call_count["n"] += 1
+        if call_count["n"] == 1:
+            raise ValueError("boom — no retry")
+
+    mock_run.side_effect = side_effect
+
+    with pytest.raises(ValueError):
+        process_ask_message_task.run("frage", 42)
+
+    assert call_count["n"] == 2
+    mock_handle_failure.assert_called_once()
+    kwargs = mock_handle_failure.call_args.kwargs
+    assert mock_handle_failure.call_args.args[0] == 42
+    assert kwargs["task_name"] == "process_ask_message"
+    assert kwargs["kind"] == "qa"
+
+
+@pytest.mark.asyncio
+@patch("app.worker.tasks.send_message", new_callable=AsyncMock)
+@patch("app.worker.tasks.answer_question", new_callable=AsyncMock)
+@patch("app.worker.tasks.worker_session")
+async def test_process_ask_sends_formatted_answer(
+    mock_session, mock_answer, mock_send
+):
+    db = AsyncMock()
+    cm = MagicMock()
+    cm.__aenter__ = AsyncMock(return_value=db)
+    cm.__aexit__ = AsyncMock(return_value=False)
+    mock_session.return_value = cm
+    mock_answer.return_value = AnswerResult(
+        answer="Du warst in Tokio.",
+        sources=[NoteRef(title="Japan Reiseroute", vault_path="Travel/Japan.md")],
+        confidence=0.9,
+    )
+
+    await _process_ask("Wo war ich?", 42)
+
+    mock_answer.assert_awaited_once_with("Wo war ich?", db)
+    mock_send.assert_awaited_once()
+    sent_text = mock_send.call_args[0][1]
+    assert "Du warst in Tokio." in sent_text
+    assert "[[Japan Reiseroute]]" in sent_text

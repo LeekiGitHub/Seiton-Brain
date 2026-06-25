@@ -88,11 +88,14 @@ Der **Service** (`E17-3`) ist umgesetzt 🟢 — `app/services/answer.py`:
 | Konsument | Aufruf | Antwort | Status |
 |-----------|--------|---------|--------|
 | (Engine) | `answer_question(...)` | `AnswerResult` | 🟢 `E17-3` |
-| Telegram | `/ask Was weiß ich über X?` | Antworttext + `[[Quellen]]` | ⚪ `E17-4` |
+| Telegram | `/ask Was weiß ich über X?` | Antworttext + `[[Quellen]]` | 🟢 `E17-4` |
 | REST | `POST /v1/ask { "question": "..." }` | `AnswerResult` JSON | ⚪ `E17-5` |
 | MCP | Tool `ask_brain(question)` | `AnswerResult` | ⚪ `E17-6` |
 
-**Stories:** `E17-3` 🟢 (Service), `E17-4` (Telegram), `E17-5` (REST).
+`/ask` läuft asynchron über den Worker (LLM-Call): Sofort-Ack im Chat, Antwort
+folgt mit aufgelösten `[[Quellen]]`. Andere Slash-Commands bleiben synchron.
+
+**Stories:** `E17-3` 🟢 (Service), `E17-4` 🟢 (Telegram), `E17-5` (REST).
 
 ---
 
