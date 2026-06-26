@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.schemas import (
+    AskRequest,
     CaptureRequest,
     CaptureResponse,
     ClassifyRequest,
@@ -15,10 +16,11 @@ from app.api.v1.schemas import (
 )
 from app.db.session import get_db
 from app.llm.provider import get_llm_provider
-from app.llm.schemas import ClassificationResult
+from app.llm.schemas import AnswerResult, ClassificationResult
 from app.models.entry import Entry
+from app.services.answer import answer_question
 from app.services.process_message import process_text_message
-from app.vault.index import search_vault_notes
+from app.vault.index import retrieve_vault_notes
 from app.webhooks.outbound import emit_capture_event
 
 router = APIRouter(
@@ -84,10 +86,11 @@ async def list_entries(
 async def search_notes(
     q: str = Query(min_length=1, max_length=200),
     limit: int = Query(default=10, ge=1, le=50),
+    semantic: bool = Query(default=False),
     db: AsyncSession = Depends(get_db),
 ):
-    """Keyword-Suche über den Vault-Index (Titel + Inhalt)."""
-    hits = await search_vault_notes(db, q, limit=limit)
+    """Vault-Suche: Keyword (Default) oder semantisch mit ``semantic=true``."""
+    hits = await retrieve_vault_notes(db, q, limit=limit, semantic=semantic)
     items = [
         NoteSearchHit(
             title=hit.title,
@@ -98,4 +101,10 @@ async def search_notes(
         )
         for hit in hits
     ]
-    return NoteSearchResponse(query=q, items=items, limit=limit)
+    return NoteSearchResponse(query=q, items=items, limit=limit, semantic=semantic)
+
+
+@router.post("/ask", response_model=AnswerResult)
+async def ask_brain(body: AskRequest, db: AsyncSession = Depends(get_db)):
+    """RAG-Antwort auf Basis des Vaults (E17-3) — gleiche Pipeline wie ``/ask``."""
+    return await answer_question(body.question, db)

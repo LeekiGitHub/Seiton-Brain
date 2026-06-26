@@ -314,3 +314,23 @@ async def semantic_search_vault_notes(
         )
         for row in rows
     ]
+
+
+async def retrieve_vault_notes(
+    db: AsyncSession,
+    query: str,
+    limit: int = 10,
+    *,
+    semantic: bool = False,
+) -> list[SearchHit]:
+    """Keyword- oder semantische Suche mit Fallback (E17-1/2/5).
+
+    ``semantic=True``: versucht Embedding-kNN, wenn ``EMBEDDINGS_ENABLED``;
+    bei 0 Treffern oder deaktivierten Embeddings Fallback auf Keyword.
+    ``semantic=False``: nur Keyword (Default fuer ``/find`` und Legacy-API).
+    """
+    if semantic and settings.embeddings_enabled:
+        hits = await semantic_search_vault_notes(db, query, limit)
+        if hits:
+            return hits
+    return await search_vault_notes(db, query, limit)

@@ -6,7 +6,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from pydantic import ValidationError
 
-from app.config import settings
 from app.llm.openai_provider import OpenAIProvider
 from app.llm.parser import AnswerParseError, parse_answer_json
 from app.llm.schemas import AnswerResult, LLMAnswer, NoteRef
@@ -132,14 +131,10 @@ async def test_answer_question_empty_question_skips_llm():
 
 
 @pytest.mark.asyncio
-@patch("app.services.answer.semantic_search_vault_notes", new_callable=AsyncMock)
-@patch("app.services.answer.search_vault_notes", new_callable=AsyncMock)
+@patch("app.services.answer.retrieve_vault_notes", new_callable=AsyncMock)
 @patch("app.services.answer.get_llm_provider")
-async def test_answer_question_no_hits_skips_llm(
-    mock_provider, mock_keyword, mock_semantic, monkeypatch
-):
-    monkeypatch.setattr(settings, "embeddings_enabled", False)
-    mock_keyword.return_value = []
+async def test_answer_question_no_hits_skips_llm(mock_provider, mock_retrieve):
+    mock_retrieve.return_value = []
     db = AsyncMock()
 
     result = await answer_question("Was weiß ich über X?", db)
@@ -150,13 +145,12 @@ async def test_answer_question_no_hits_skips_llm(
 
 
 @pytest.mark.asyncio
-@patch("app.services.answer.search_vault_notes", new_callable=AsyncMock)
+@patch("app.services.answer.retrieve_vault_notes", new_callable=AsyncMock)
 @patch("app.services.answer.get_llm_provider")
 async def test_answer_question_with_hits_resolves_sources(
-    mock_provider, mock_keyword, monkeypatch
+    mock_provider, mock_retrieve,
 ):
-    monkeypatch.setattr(settings, "embeddings_enabled", False)
-    mock_keyword.return_value = [
+    mock_retrieve.return_value = [
         _hit("Japan Reiseroute", "Travel/Japan Reiseroute.md"),
         _hit("Tokio Cafés", "Travel/Tokio Cafés.md"),
     ]
@@ -180,52 +174,6 @@ async def test_answer_question_with_hits_resolves_sources(
     assert result.sources[0].vault_path == "Travel/Japan Reiseroute.md"
     assert result.confidence == 1.0  # geklemmt
     llm.answer.assert_awaited_once()
-
-
-@pytest.mark.asyncio
-@patch("app.services.answer.semantic_search_vault_notes", new_callable=AsyncMock)
-@patch("app.services.answer.search_vault_notes", new_callable=AsyncMock)
-@patch("app.services.answer.get_llm_provider")
-async def test_answer_question_prefers_semantic_when_enabled(
-    mock_provider, mock_keyword, mock_semantic, monkeypatch
-):
-    monkeypatch.setattr(settings, "embeddings_enabled", True)
-    mock_semantic.return_value = [_hit("Semantic Hit", "Notes/Semantic Hit.md")]
-    llm = MagicMock()
-    llm.answer = AsyncMock(
-        return_value=LLMAnswer(answer="a", sources=[], confidence=0.3)
-    )
-    mock_provider.return_value = llm
-    db = AsyncMock()
-
-    await answer_question("frage", db)
-
-    mock_semantic.assert_awaited_once()
-    mock_keyword.assert_not_awaited()  # semantische Treffer -> kein Fallback
-
-
-@pytest.mark.asyncio
-@patch("app.services.answer.semantic_search_vault_notes", new_callable=AsyncMock)
-@patch("app.services.answer.search_vault_notes", new_callable=AsyncMock)
-@patch("app.services.answer.get_llm_provider")
-async def test_answer_question_falls_back_to_keyword(
-    mock_provider, mock_keyword, mock_semantic, monkeypatch
-):
-    monkeypatch.setattr(settings, "embeddings_enabled", True)
-    mock_semantic.return_value = []  # keine semantischen Treffer
-    mock_keyword.return_value = [_hit("Keyword Hit", "Notes/Keyword Hit.md")]
-    llm = MagicMock()
-    llm.answer = AsyncMock(
-        return_value=LLMAnswer(answer="a", sources=["Keyword Hit"], confidence=0.6)
-    )
-    mock_provider.return_value = llm
-    db = AsyncMock()
-
-    result = await answer_question("frage", db)
-
-    mock_semantic.assert_awaited_once()
-    mock_keyword.assert_awaited_once()
-    assert [s.title for s in result.sources] == ["Keyword Hit"]
 
 
 # ─── Chat-Formatter ─────────────────────────────────────────────────────────

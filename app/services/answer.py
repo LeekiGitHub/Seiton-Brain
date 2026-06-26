@@ -12,10 +12,9 @@ import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import settings
 from app.llm.provider import get_llm_provider
 from app.llm.schemas import AnswerResult, NoteRef
-from app.vault.index import SearchHit, search_vault_notes, semantic_search_vault_notes
+from app.vault.index import SearchHit, retrieve_vault_notes
 
 logger = logging.getLogger(__name__)
 
@@ -57,17 +56,6 @@ def _resolve_sources(
     return resolved
 
 
-async def _retrieve(
-    db: AsyncSession, question: str, limit: int, semantic: bool
-) -> list[SearchHit]:
-    """Semantisch suchen wenn moeglich, sonst (oder bei 0 Treffern) Keyword."""
-    if semantic and settings.embeddings_enabled:
-        hits = await semantic_search_vault_notes(db, question, limit)
-        if hits:
-            return hits
-    return await search_vault_notes(db, question, limit)
-
-
 async def answer_question(
     question: str,
     db: AsyncSession,
@@ -85,7 +73,7 @@ async def answer_question(
     if not q:
         return AnswerResult(answer=NO_CONTEXT_ANSWER, sources=[], confidence=0.0)
 
-    hits = await _retrieve(db, q, limit, semantic)
+    hits = await retrieve_vault_notes(db, q, limit, semantic=semantic)
     if not hits:
         return AnswerResult(answer=NO_CONTEXT_ANSWER, sources=[], confidence=0.0)
 

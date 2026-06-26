@@ -9,6 +9,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E17-5: Retrieval-API.** `POST /v1/ask` liefert `AnswerResult` (RAG über
+  E17-3, gleiche API-Key-Auth wie `/v1/capture`). `GET /v1/notes/search` um
+  Query-Parameter `semantic=true` erweitert (semantische Suche mit Keyword-
+  Fallback, analog zur RAG-Pipeline). Gemeinsame Retrieval-Funktion
+  `retrieve_vault_notes` in `app/vault/index.py` (von API und RAG-Service
+  geteilt). Response enthält `semantic`-Flag. 7 neue Tests.
 - **E17-4: Telegram-Command `/ask <frage>`.** Macht den RAG-Service (E17-3) im
   Chat nutzbar: `/ask` wird — anders als die schnellen Slash-Commands — in den
   **Worker** eingereiht (LLM-Call), mit Sofort-Ack „Ich durchsuche dein Brain…"

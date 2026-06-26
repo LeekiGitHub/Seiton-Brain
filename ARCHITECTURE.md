@@ -78,7 +78,7 @@ app/
 ├── vault/
 │   ├── reader.py            VaultNote-Parsing, format_notes_for_prompt
 │   ├── extractors.py        DocumentExtractor (ABC) + md/txt/pdf/docx/pptx-Adapter (E18-1/2/3)
-│   ├── index.py             Vault-Index (Postgres) + Keyword- (E17-1) & semantische Suche (E17-2)
+│   ├── index.py             Vault-Index + Keyword-/semantische Suche + retrieve_vault_notes (E17-1/2/5)
 │   └── writer.py            write_note, CATEGORY_FOLDERS
 ├── transcription/
 │   └── whisper.py           OpenAI Whisper API
