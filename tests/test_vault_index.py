@@ -7,6 +7,7 @@ from app.models.vault_note_index import VaultNoteIndex
 from app.vault.index import (
     SearchHit,
     parse_note_file,
+    retrieve_vault_notes,
     search_vault_notes,
     semantic_search_vault_notes,
     sync_vault_index_from_disk,
@@ -242,3 +243,63 @@ async def test_upsert_skips_embedding_when_disabled(
 
     assert added and added[0].embedding is None
     mock_provider.assert_not_called()
+
+
+# ─── E17-5: retrieve_vault_notes (Keyword + semantisch) ───────────────────
+
+
+@pytest.mark.asyncio
+@patch("app.vault.index.semantic_search_vault_notes", new_callable=AsyncMock)
+@patch("app.vault.index.search_vault_notes", new_callable=AsyncMock)
+async def test_retrieve_prefers_semantic_when_enabled(
+    mock_keyword, mock_semantic, monkeypatch
+):
+    monkeypatch.setattr(settings, "embeddings_enabled", True)
+    sem_hit = SearchHit(
+        title="Semantic", vault_path="Notes/S.md", snippet="s",
+        category="note", folder="Notes",
+    )
+    mock_semantic.return_value = [sem_hit]
+    db = AsyncMock()
+
+    hits = await retrieve_vault_notes(db, "frage", 5, semantic=True)
+
+    assert hits == [sem_hit]
+    mock_semantic.assert_awaited_once()
+    mock_keyword.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@patch("app.vault.index.semantic_search_vault_notes", new_callable=AsyncMock)
+@patch("app.vault.index.search_vault_notes", new_callable=AsyncMock)
+async def test_retrieve_falls_back_to_keyword(mock_keyword, mock_semantic, monkeypatch):
+    monkeypatch.setattr(settings, "embeddings_enabled", True)
+    mock_semantic.return_value = []
+    kw_hit = SearchHit(
+        title="Keyword", vault_path="Notes/K.md", snippet="k",
+        category="note", folder="Notes",
+    )
+    mock_keyword.return_value = [kw_hit]
+    db = AsyncMock()
+
+    hits = await retrieve_vault_notes(db, "frage", 5, semantic=True)
+
+    assert hits == [kw_hit]
+    mock_semantic.assert_awaited_once()
+    mock_keyword.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+@patch("app.vault.index.semantic_search_vault_notes", new_callable=AsyncMock)
+@patch("app.vault.index.search_vault_notes", new_callable=AsyncMock)
+async def test_retrieve_keyword_only_when_semantic_false(
+    mock_keyword, mock_semantic, monkeypatch
+):
+    monkeypatch.setattr(settings, "embeddings_enabled", True)
+    mock_keyword.return_value = []
+    db = AsyncMock()
+
+    await retrieve_vault_notes(db, "frage", 5, semantic=False)
+
+    mock_semantic.assert_not_awaited()
+    mock_keyword.assert_awaited_once()

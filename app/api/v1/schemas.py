@@ -49,3 +49,8 @@ class NoteSearchResponse(BaseModel):
     query: str
     items: list[NoteSearchHit]
     limit: int
+    semantic: bool = False
+
+
+class AskRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=2000)

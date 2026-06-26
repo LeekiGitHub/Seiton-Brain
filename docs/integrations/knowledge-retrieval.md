@@ -62,8 +62,7 @@ Bausteine:
 Bewusst **kein** ANN-Index (ivfflat/hnsw): bei persönlicher Vault-Größe ist
 exakter kNN-Scan schnell genug; ANN ist eine spätere Skalierungs-Optimierung.
 
-Offen (Konsumenten): `GET /v1/notes/search?q=...&semantic=true` (`E17-5`),
-`/find`-Semantik-Schalter (`E1-3`), RAG-Nutzung (`E17-3`).
+Offen (Konsumenten): MCP `ask_brain` / `search_notes` (E17-6).
 
 **Story:** `E17-2` 🟢.
 
@@ -89,13 +88,14 @@ Der **Service** (`E17-3`) ist umgesetzt 🟢 — `app/services/answer.py`:
 |-----------|--------|---------|--------|
 | (Engine) | `answer_question(...)` | `AnswerResult` | 🟢 `E17-3` |
 | Telegram | `/ask Was weiß ich über X?` | Antworttext + `[[Quellen]]` | 🟢 `E17-4` |
-| REST | `POST /v1/ask { "question": "..." }` | `AnswerResult` JSON | ⚪ `E17-5` |
+| REST | `GET /v1/notes/search?q=...&semantic=true` | Treffer-Liste | 🟢 `E17-5` |
+| REST | `POST /v1/ask { "question": "..." }` | `AnswerResult` JSON | 🟢 `E17-5` |
 | MCP | Tool `ask_brain(question)` | `AnswerResult` | ⚪ `E17-6` |
 
 `/ask` läuft asynchron über den Worker (LLM-Call): Sofort-Ack im Chat, Antwort
 folgt mit aufgelösten `[[Quellen]]`. Andere Slash-Commands bleiben synchron.
 
-**Stories:** `E17-3` 🟢 (Service), `E17-4` 🟢 (Telegram), `E17-5` (REST).
+**Stories:** `E17-3` 🟢 (Service), `E17-4` 🟢 (Telegram), `E17-5` 🟢 (REST).
 
 ---
 

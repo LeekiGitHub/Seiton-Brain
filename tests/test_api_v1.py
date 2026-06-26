@@ -148,11 +148,11 @@ def test_list_entries_returns_summaries():
     assert data["items"][0]["title"] == "Note A"
 
 
-@patch("app.api.v1.routes.search_vault_notes", new_callable=AsyncMock)
-def test_search_notes_returns_hits(mock_search):
+@patch("app.api.v1.routes.retrieve_vault_notes", new_callable=AsyncMock)
+def test_search_notes_returns_hits(mock_retrieve):
     from app.vault.index import SearchHit
 
-    mock_search.return_value = [
+    mock_retrieve.return_value = [
         SearchHit(
             title="Fitness App",
             vault_path="Ideas/Fitness App.md",
@@ -171,9 +171,71 @@ def test_search_notes_returns_hits(mock_search):
     data = response.json()
     assert data["query"] == "fitness"
     assert data["limit"] == 5
+    assert data["semantic"] is False
     assert len(data["items"]) == 1
     assert data["items"][0]["title"] == "Fitness App"
-    mock_search.assert_awaited_once()
+    mock_retrieve.assert_awaited_once()
+    assert mock_retrieve.await_args.kwargs["semantic"] is False
+
+
+@patch("app.api.v1.routes.retrieve_vault_notes", new_callable=AsyncMock)
+def test_search_notes_semantic_flag(mock_retrieve):
+    from app.vault.index import SearchHit
+
+    mock_retrieve.return_value = [
+        SearchHit(
+            title="Japan Trip",
+            vault_path="Travel/Japan.md",
+            snippet="Tokyo plans",
+            category="travel",
+            folder="Travel",
+        )
+    ]
+
+    response = client.get(
+        "/v1/notes/search?q=japan&semantic=true",
+        headers=API_HEADERS,
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["semantic"] is True
+    assert data["items"][0]["title"] == "Japan Trip"
+    assert mock_retrieve.await_args.kwargs["semantic"] is True
+
+
+@patch("app.api.v1.routes.answer_question", new_callable=AsyncMock)
+def test_ask_returns_answer_result(mock_answer):
+    from app.llm.schemas import AnswerResult, NoteRef
+
+    mock_answer.return_value = AnswerResult(
+        answer="Du hattest Ideen zu Japan.",
+        sources=[NoteRef(title="Japan Reiseroute", vault_path="Travel/Japan.md")],
+        confidence=0.85,
+    )
+
+    response = client.post(
+        "/v1/ask",
+        json={"question": "Was weiß ich über Japan?"},
+        headers=API_HEADERS,
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["answer"] == "Du hattest Ideen zu Japan."
+    assert data["confidence"] == 0.85
+    assert len(data["sources"]) == 1
+    assert data["sources"][0]["title"] == "Japan Reiseroute"
+    mock_answer.assert_awaited_once()
+
+
+def test_ask_rejects_empty_question():
+    response = client.post(
+        "/v1/ask",
+        json={"question": ""},
+        headers=API_HEADERS,
+    )
+    assert response.status_code == 422
 
 
 def test_capture_rejects_empty_text():
