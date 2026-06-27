@@ -301,7 +301,7 @@ flowchart LR
 | Setup | — | E19-1 UI-Wizard (CLI/`doctor` für Server-Edition, E16) |
 | Filesystem Vault | ✅ | E15 `VaultBackend`-Interface |
 | Retrieval / Q&A | teilw. (E17-1) | E17 (Keyword → semantisch → RAG) |
-| MCP-Server (Brain als Tool für LLM-Agents) | — | E17-6 (separates Repo) |
+| MCP-Server (Brain als Tool für LLM-Agents) | ✅ `examples/mcp/` | — |
 | ~~n8n~~ | — | ❌ gestrichen (ADR 0004); via REST durch Power-User möglich |
 
 Integrations-Details: [`docs/integrations/`](./docs/integrations/).

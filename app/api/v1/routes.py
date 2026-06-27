@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from pathlib import Path
 
-from app.api.auth import verify_api_key
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.auth import verify_api_key
 from app.api.v1.schemas import (
     AskRequest,
     CaptureRequest,
@@ -11,16 +12,18 @@ from app.api.v1.schemas import (
     ClassifyRequest,
     EntryListResponse,
     EntrySummary,
+    NoteContentResponse,
     NoteSearchHit,
     NoteSearchResponse,
 )
+from app.config import settings
 from app.db.session import get_db
 from app.llm.provider import get_llm_provider
 from app.llm.schemas import AnswerResult, ClassificationResult
 from app.models.entry import Entry
 from app.services.answer import answer_question
 from app.services.process_message import process_text_message
-from app.vault.index import retrieve_vault_notes
+from app.vault.index import parse_note_file, retrieve_vault_notes
 from app.webhooks.outbound import emit_capture_event
 
 router = APIRouter(
@@ -28,6 +31,28 @@ router = APIRouter(
     tags=["v1"],
     dependencies=[Depends(verify_api_key)],
 )
+
+
+def _resolve_vault_file(vault_relative_path: str) -> Path:
+    """Sicherer Pfad unterhalb des Vault-Roots — kein Path-Traversal."""
+    vault_root = Path(settings.obsidian_vault_path).resolve()
+    candidate = (vault_root / vault_relative_path).resolve()
+    if not str(candidate).startswith(str(vault_root)):
+        raise HTTPException(status_code=400, detail="Invalid vault path")
+    return candidate
+
+
+def _entry_to_summary(row: Entry) -> EntrySummary:
+    return EntrySummary(
+        id=row.id,
+        title=row.title,
+        category=row.category,
+        summary=row.summary,
+        vault_path=row.vault_path,
+        status=row.status,
+        kind=row.kind,
+        created_at=row.created_at,
+    )
 
 
 @router.post("/capture", response_model=CaptureResponse)
@@ -67,19 +92,40 @@ async def list_entries(
     )
     rows = (await db.execute(stmt)).scalars().all()
     items = [
-        EntrySummary(
-            id=row.id,
-            title=row.title,
-            category=row.category,
-            summary=row.summary,
-            vault_path=row.vault_path,
-            status=row.status,
-            kind=row.kind,
-            created_at=row.created_at,
-        )
+        _entry_to_summary(row)
         for row in rows
     ]
     return EntryListResponse(items=items, limit=limit, offset=offset)
+
+
+@router.get("/entries/{entry_id}", response_model=EntrySummary)
+async def get_entry(entry_id: int, db: AsyncSession = Depends(get_db)):
+    """Einzelnen Entry aus der DB (fuer MCP ``get_note`` per ID)."""
+    row = await db.get(Entry, entry_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    return _entry_to_summary(row)
+
+
+@router.get("/notes/content", response_model=NoteContentResponse)
+async def get_note_content(
+    vault_path: str = Query(min_length=1, max_length=500),
+):
+    """Vault-Datei lesen (read-only) — fuer MCP ``get_note`` per Pfad."""
+    filepath = _resolve_vault_file(vault_path)
+    if not filepath.is_file():
+        raise HTTPException(status_code=404, detail="Note not found")
+    try:
+        content = filepath.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise HTTPException(status_code=500, detail="Could not read note") from exc
+    title: str | None = None
+    if filepath.suffix.lower() in {".md", ".markdown"}:
+        try:
+            title = parse_note_file(filepath).title
+        except OSError:
+            pass
+    return NoteContentResponse(vault_path=vault_path, content=content, title=title)
 
 
 @router.get("/notes/search", response_model=NoteSearchResponse)

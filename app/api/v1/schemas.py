@@ -54,3 +54,9 @@ class NoteSearchResponse(BaseModel):
 
 class AskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
+
+
+class NoteContentResponse(BaseModel):
+    vault_path: str
+    content: str
+    title: str | None = None
