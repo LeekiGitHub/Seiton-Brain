@@ -62,7 +62,7 @@ Bausteine:
 Bewusst **kein** ANN-Index (ivfflat/hnsw): bei persönlicher Vault-Größe ist
 exakter kNN-Scan schnell genug; ANN ist eine spätere Skalierungs-Optimierung.
 
-Offen (Konsumenten): MCP `ask_brain` / `search_notes` (E17-6).
+Offen (Konsumenten): `/find`-Semantik-Schalter (E1-3, optional).
 
 **Story:** `E17-2` 🟢.
 
@@ -90,39 +90,31 @@ Der **Service** (`E17-3`) ist umgesetzt 🟢 — `app/services/answer.py`:
 | Telegram | `/ask Was weiß ich über X?` | Antworttext + `[[Quellen]]` | 🟢 `E17-4` |
 | REST | `GET /v1/notes/search?q=...&semantic=true` | Treffer-Liste | 🟢 `E17-5` |
 | REST | `POST /v1/ask { "question": "..." }` | `AnswerResult` JSON | 🟢 `E17-5` |
-| MCP | Tool `ask_brain(question)` | `AnswerResult` | ⚪ `E17-6` |
+| MCP | Tool `ask_brain(question)` | `AnswerResult` | 🟢 `E17-6` |
 
 `/ask` läuft asynchron über den Worker (LLM-Call): Sofort-Ack im Chat, Antwort
 folgt mit aufgelösten `[[Quellen]]`. Andere Slash-Commands bleiben synchron.
 
-**Stories:** `E17-3` 🟢 (Service), `E17-4` 🟢 (Telegram), `E17-5` 🟢 (REST).
+**Stories:** `E17-3` 🟢 (Service), `E17-4` 🟢 (Telegram), `E17-5` 🟢 (REST), `E17-6` 🟢 (MCP).
 
 ---
 
-## Brain als Tool für Fremdagents — MCP-Server (Phase F)
+## Brain als Tool für Fremdagents — MCP-Server (Phase F) 🟢
 
-Analog zum Custom-n8n-Node (`E14-2`) ein **separates Repo**
-`seiton-brain-mcp`, das die Retrieval-API als Model-Context-Protocol-Server
-wrappt. Damit kann jeder MCP-fähige Client meinen Vault als Wissensquelle
-nutzen — Stand 2026 u. a.:
-
-- **Claude Desktop** und **Claude Code CLI**
-- **Cursor** (eingebauter MCP-Support)
-- **VS Code Continue**, **Open-WebUI** und andere Open-Source-LLM-Clients
-- **LangGraph / CrewAI / n8n LangChain-Nodes** für eigene Agent-Workflows
-
-Verfügbare Tools:
+Unter [`examples/mcp/seiton-brain-mcp/`](../../examples/mcp/seiton-brain-mcp/README.md)
+im Hauptrepo (dünner REST-Wrapper; separates Repo optional später). stdio-MCP
+für Cursor, Claude Desktop und andere MCP-Clients — wrappt die Retrieval-API
+(E17-5), keine Embedding-/RAG-Logik im MCP-Prozess.
 
 | MCP-Tool | Wrappt | Anwendungsfall |
 |----------|--------|----------------|
 | `search_notes(query, semantic?)` | `GET /v1/notes/search` | Agent prüft, ob ich schon etwas weiß |
 | `ask_brain(question)` | `POST /v1/ask` | Agent stellt mir Fragen an mein Wissen |
-| `get_note(path\|id)` | `GET /v1/entries/{id}` | Volle Notiz nachladen |
+| `get_note(entry_id \| vault_path)` | `GET /v1/entries/{id}` / `GET /v1/notes/content` | Volle Notiz nachladen |
 
-Auth: `SEITON_API_KEY` — identisch zu E13-2. **Keine** anonymen Endpunkte;
-Retrieval ist genauso sensibel wie Capture.
+Auth: `SEITON_API_KEY` im MCP-Server-Env (identisch zu E13-2).
 
-**Story:** `E17-6`.
+**Story:** `E17-6` 🟢.
 
 ---
 
@@ -194,4 +186,3 @@ Duplikat-Erkennung als reines Titel-Matching. (Synergie E5-3 ↔ E17-2.)
   `sources:`. Macht das Brain selbst-referentiell — Q&A-Antworten werden
   beim nächsten Retrieval wieder mitgefunden.
 - Rate-Limiting/Cost-Cap für Q&A (LLM-Kosten pro Frage > Capture)?
-- MCP-Server: eigenes Repo (analog `E14-2`) oder `examples/mcp/` im Hauptrepo?

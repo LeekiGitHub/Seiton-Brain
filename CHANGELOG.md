@@ -9,6 +9,13 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E17-6: MCP-Server (`examples/mcp/seiton-brain-mcp`).** stdio-MCP-Server
+  für Cursor / Claude Desktop mit drei Tools: `search_notes`, `ask_brain`,
+  `get_note` — dünner httpx-Wrapper um die REST-API (E17-5), keine Engine-
+  Logik im MCP-Prozess. Auth via `SEITON_API_KEY` im Server-Env. Ergänzende
+  API-Endpunkte: `GET /v1/entries/{id}`, `GET /v1/notes/content?vault_path=`
+  (read-only, Path-Traversal-Schutz). Setup-Doku in `examples/mcp/`. CI-Step
+  für MCP-Client-Tests. 9 neue Tests (230 gesamt).
 - **E17-5: Retrieval-API.** `POST /v1/ask` liefert `AnswerResult` (RAG über
   E17-3, gleiche API-Key-Auth wie `/v1/capture`). `GET /v1/notes/search` um
   Query-Parameter `semantic=true` erweitert (semantische Suche mit Keyword-

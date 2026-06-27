@@ -26,3 +26,8 @@ jobs:
 
       - name: Pytest
         run: pytest
+
+      - name: MCP client tests
+        run: |
+          pip install -r examples/mcp/seiton-brain-mcp/requirements.txt
+          pytest examples/mcp/seiton-brain-mcp/tests

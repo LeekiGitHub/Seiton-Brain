@@ -238,6 +238,80 @@ def test_ask_rejects_empty_question():
     assert response.status_code == 422
 
 
+def test_get_entry_returns_summary():
+    entry = MagicMock()
+    entry.id = 99
+    entry.title = "Note A"
+    entry.category = "note"
+    entry.summary = "Summary"
+    entry.vault_path = "Notes/Note A.md"
+    entry.status = "processed"
+    entry.kind = "text"
+    entry.created_at = datetime(2026, 6, 7, tzinfo=timezone.utc)
+
+    db = MagicMock()
+    db.get = AsyncMock(return_value=entry)
+
+    async def fake_get_db():
+        yield db
+
+    app.dependency_overrides[get_db] = fake_get_db
+    try:
+        response = client.get("/v1/entries/99", headers=API_HEADERS)
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    assert response.json()["id"] == 99
+    assert response.json()["title"] == "Note A"
+
+
+def test_get_entry_not_found():
+    db = MagicMock()
+    db.get = AsyncMock(return_value=None)
+
+    async def fake_get_db():
+        yield db
+
+    app.dependency_overrides[get_db] = fake_get_db
+    try:
+        response = client.get("/v1/entries/404", headers=API_HEADERS)
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 404
+
+
+def test_get_note_content_reads_vault_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    notes = tmp_path / "Notes"
+    notes.mkdir()
+    note = notes / "Hello.md"
+    note.write_text("---\ntitle: Hello\n---\n\n# Body", encoding="utf-8")
+
+    response = client.get(
+        "/v1/notes/content?vault_path=Notes/Hello.md",
+        headers=API_HEADERS,
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["vault_path"] == "Notes/Hello.md"
+    assert "Body" in data["content"]
+    assert data["title"] == "Hello"
+
+
+def test_get_note_content_rejects_path_traversal(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+
+    response = client.get(
+        "/v1/notes/content?vault_path=../../../etc/passwd",
+        headers=API_HEADERS,
+    )
+
+    assert response.status_code == 400
+
+
 def test_capture_rejects_empty_text():
     response = client.post(
         "/v1/capture",
