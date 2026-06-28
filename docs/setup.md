@@ -241,6 +241,7 @@ SEITON_WEBHOOK_URL=https://n8n.example/webhook/seiton-events
 |-------|------|
 | `note.created` | Neue Notiz im Vault angelegt |
 | `note.appended` | Bestehende Notiz ergänzt |
+| `note.indexed` | Embedding berechnet — semantische Suche/RAG bereit (`EMBEDDINGS_ENABLED`) |
 | `entry.failed` | Worker-Task endgültig fehlgeschlagen (nach allen Retries) |
 
 Der Event-Typ steht im JSON-Feld `event` und im Header `X-Seiton-Event`.

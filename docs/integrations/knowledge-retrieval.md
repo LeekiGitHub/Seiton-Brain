@@ -118,6 +118,55 @@ Auth: `SEITON_API_KEY` im MCP-Server-Env (identisch zu E13-2).
 
 ---
 
+## Brain als Knowledge-Backend in n8n- & Agent-Workflows (E17-7) 🟢
+
+Capture-Events (`note.created`, `note.appended`) feuern **sofort** nach dem
+Speichern — die semantische Suche ist zu dem Zeitpunkt evtl. noch nicht bereit
+(Embedding-Berechnung läuft im selben Index-Schritt, Webhook-Reihenfolge:
+`note.indexed` kurz vor `note.created`).
+
+Für Workflows, die **Retrieval** brauchen (semantische Suche, RAG, MCP), ist
+das Event **`note.indexed`** der richtige Trigger:
+
+| Event | Wann | Payload (Auszug) | Typische n8n-Aktion |
+|-------|------|------------------|---------------------|
+| `note.indexed` | Embedding erfolgreich berechnet (`EMBEDDINGS_ENABLED`) | `vault_path`, `title`, `category`, `folder`, `doc_type` | `GET /v1/notes/search?semantic=true`, `POST /v1/ask`, Slack „Wissen aktualisiert" |
+| `note.created` | Neue Notiz gespeichert | + `entry_id`, `classification` | Benachrichtigung ohne Retrieval |
+| `note.appended` | Notiz ergänzt | wie oben | Review-Workflow |
+
+Konfiguration: dieselbe `SEITON_WEBHOOK_URL` wie E13-3; Event im JSON-Feld
+`event` oder Header `X-Seiton-Event`.
+
+**Hinweis:** Bulk-Vault-Sync (`sync_vault_index_from_disk`) sendet **keine**
+`note.indexed`-Events (Backfill würde sonst hunderte Webhooks auslösen).
+Events kommen bei inkrementellem Indexieren über `upsert_vault_note_index`
+(Capture, Append, Undo-Delete-Reindex).
+
+### Beispiel-Flow (n8n)
+
+```
+Telegram → Seiton Capture
+         → note.indexed Webhook
+         → HTTP GET /v1/notes/search?q={{ $json.body.title }}&semantic=true
+         → optional POST /v1/ask { "question": "Was steht in der neuen Notiz?" }
+         → Slack / Mail
+```
+
+Importierbare Workflows: [`examples/n8n/`](../../examples/n8n/README.md) —
+Workflow **02** (Event-Router inkl. `note.indexed`), **04** (Retrieval-API
+nach indexiertem Wissen).
+
+### Agent-Workflows (Cursor, Claude Desktop)
+
+Externe LLM-Agenten nutzen den **MCP-Server** (E17-6) statt Webhooks —
+gleiche REST-API, synchrones Tool-Use. n8n eignet sich für **asynchrone**
+Ketten (Cron, Benachrichtigungen, Multi-Tool-Orchestrierung); MCP für
+**interaktives** Coding/Chat mit direktem Vault-Zugriff.
+
+**Story:** `E17-7` 🟢.
+
+---
+
 ## Was Retrieval **nicht** sein soll
 
 | Bereich | Bleibt aus | Grund |

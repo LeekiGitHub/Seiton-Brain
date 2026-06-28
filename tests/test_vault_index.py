@@ -187,9 +187,10 @@ async def test_semantic_search_returns_hits(mock_provider, mock_ensure, monkeypa
 
 
 @pytest.mark.asyncio
+@patch("app.webhooks.outbound.emit_note_indexed_event", new_callable=AsyncMock)
 @patch("app.vault.index.get_embedding_provider")
 async def test_upsert_sets_embedding_when_enabled(
-    mock_provider, tmp_path, monkeypatch
+    mock_provider, mock_emit, tmp_path, monkeypatch
 ):
     monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
     monkeypatch.setattr(settings, "embeddings_enabled", True)
@@ -215,12 +216,20 @@ async def test_upsert_sets_embedding_when_enabled(
 
     assert added and added[0].embedding == [0.5] * 1536
     provider.embed.assert_awaited_once()
+    mock_emit.assert_awaited_once_with(
+        vault_path="Notes/Hello.md",
+        title="Hello",
+        category="",
+        folder="Notes",
+        doc_type="markdown",
+    )
 
 
 @pytest.mark.asyncio
+@patch("app.webhooks.outbound.emit_note_indexed_event", new_callable=AsyncMock)
 @patch("app.vault.index.get_embedding_provider")
 async def test_upsert_skips_embedding_when_disabled(
-    mock_provider, tmp_path, monkeypatch
+    mock_provider, mock_emit, tmp_path, monkeypatch
 ):
     monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
     monkeypatch.setattr(settings, "embeddings_enabled", False)
@@ -243,6 +252,7 @@ async def test_upsert_skips_embedding_when_disabled(
 
     assert added and added[0].embedding is None
     mock_provider.assert_not_called()
+    mock_emit.assert_not_awaited()
 
 
 # ─── E17-5: retrieve_vault_notes (Keyword + semantisch) ───────────────────

@@ -9,6 +9,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E17-7: Outbound-Event `note.indexed` + Knowledge-Backend-Doku.** Neues
+  Webhook-Event nach erfolgreicher Embedding-Berechnung in
+  `upsert_vault_note_index` (nur bei `EMBEDDINGS_ENABLED`, kein Event beim
+  Bulk-Sync). Payload: `vault_path`, `title`, `category`, `folder`, `doc_type`.
+  n8n-Workflow **02** um `note.indexed`-Zweig erweitert; neuer Beispiel-Workflow
+  **04** (semantische Suche nach indexiertem Wissen). Doku in
+  `knowledge-retrieval.md`, `setup.md`, `examples/n8n/README.md`. 3 neue Tests
+  (233 gesamt).
 - **E17-6: MCP-Server (`examples/mcp/seiton-brain-mcp`).** stdio-MCP-Server
   für Cursor / Claude Desktop mit drei Tools: `search_notes`, `ask_brain`,
   `get_note` — dünner httpx-Wrapper um die REST-API (E17-5), keine Engine-

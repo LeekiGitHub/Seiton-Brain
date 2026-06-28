@@ -6,6 +6,7 @@ WORKFLOW_FILES = (
     "01-capture-via-api.json",
     "02-seiton-webhook-events.json",
     "03-todoist-to-capture.json",
+    "04-knowledge-backend-on-indexed.json",
 )
 
 
@@ -33,3 +34,13 @@ def test_n8n_webhook_workflow_has_webhook_and_switch():
     types = {n["type"] for n in data["nodes"]}
     assert "n8n-nodes-base.webhook" in types
     assert "n8n-nodes-base.switch" in types
+
+
+def test_n8n_knowledge_workflow_searches_semantically():
+    data = json.loads(
+        (EXAMPLES_DIR / "04-knowledge-backend-on-indexed.json").read_text(encoding="utf-8")
+    )
+    http_nodes = [n for n in data["nodes"] if n["type"] == "n8n-nodes-base.httpRequest"]
+    assert len(http_nodes) == 1
+    assert "/v1/notes/search" in http_nodes[0]["parameters"]["url"]
+    assert "semantic=true" in http_nodes[0]["parameters"]["url"]

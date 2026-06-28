@@ -59,13 +59,35 @@ Seiton sendet Events an n8n (Stufe 2 der Integration).
 4. Seiton-Stack neu starten (`docker compose up -d`)
 
 ```
-[Seiton Webhook] → [Event Router] → note.created / note.appended / entry.failed
+[Seiton Webhook] → [Event Router] → note.created / note.appended / entry.failed / note.indexed
 ```
 
 Jeder Ausgang landet in einem **Set**-Node mit einer Kurzinfo — dort Slack, E-Mail
 oder Kalender anschließen.
 
 **Test:** Telegram-Nachricht an den Bot → n8n Execution sollte `note.created` zeigen.
+Mit `EMBEDDINGS_ENABLED=true` folgt kurz danach `note.indexed` (semantische
+Suche bereit).
+
+---
+
+## 04 — Knowledge Backend (nach `note.indexed`)
+
+**Datei:** `04-knowledge-backend-on-indexed.json`
+
+Simuliert ein `note.indexed`-Event und ruft `GET /v1/notes/search?semantic=true`
+auf — Muster für „Brain als Wissensquelle" in n8n.
+
+```
+[Manual Trigger] → [Simuliert note.indexed] → [Semantische Suche] → [Ergebnis]
+```
+
+**Live-Anbindung:** Ausgang **Indexed — Retrieval hier** in Workflow **02** an
+diesen HTTP-Request (oder `POST /v1/ask`) anschließen. Details:
+[`docs/integrations/knowledge-retrieval.md`](../../docs/integrations/knowledge-retrieval.md)
+(Abschnitt „Brain als Knowledge-Backend").
+
+**Voraussetzung:** `EMBEDDINGS_ENABLED=true`, Vault-Sync/Backfill gelaufen.
 
 ---
 

@@ -125,6 +125,7 @@ async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) ->
     if existing is None:
         row.embedding = embedding
         db.add(row)
+        indexed_row = row
     else:
         existing.title = row.title
         existing.category = row.category
@@ -138,8 +139,20 @@ async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) ->
         if embedding is not None:
             existing.embedding = embedding
         existing.indexed_at = datetime.now(UTC)
+        indexed_row = existing
 
     await db.commit()
+
+    if embedding is not None:
+        from app.webhooks.outbound import emit_note_indexed_event
+
+        await emit_note_indexed_event(
+            vault_path=vault_relative_path,
+            title=indexed_row.title,
+            category=indexed_row.category,
+            folder=indexed_row.folder,
+            doc_type=indexed_row.doc_type,
+        )
 
 
 async def remove_vault_note_index(db: AsyncSession, vault_relative_path: str) -> None:
