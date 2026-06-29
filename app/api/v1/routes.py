@@ -10,6 +10,7 @@ from app.api.v1.schemas import (
     CaptureRequest,
     CaptureResponse,
     ClassifyRequest,
+    DigestRequest,
     EntryListResponse,
     EntrySummary,
     NoteContentResponse,
@@ -19,9 +20,10 @@ from app.api.v1.schemas import (
 from app.config import settings
 from app.db.session import get_db
 from app.llm.provider import get_llm_provider
-from app.llm.schemas import AnswerResult, ClassificationResult
+from app.llm.schemas import AnswerResult, ClassificationResult, DigestResult
 from app.models.entry import Entry
 from app.services.answer import answer_question
+from app.services.digest import build_digest
 from app.services.process_message import process_text_message
 from app.vault.index import parse_note_file, retrieve_vault_notes
 from app.webhooks.outbound import emit_capture_event
@@ -154,3 +156,14 @@ async def search_notes(
 async def ask_brain(body: AskRequest, db: AsyncSession = Depends(get_db)):
     """RAG-Antwort auf Basis des Vaults (E17-3) — gleiche Pipeline wie ``/ask``."""
     return await answer_question(body.question, db)
+
+
+@router.post("/digest", response_model=DigestResult)
+async def digest_topic(body: DigestRequest, db: AsyncSession = Depends(get_db)):
+    """Themen-Digest: Synthese verwandter Notizen (E17-8)."""
+    return await build_digest(
+        body.topic,
+        db,
+        days=body.days,
+        limit=body.limit,
+    )

@@ -7,7 +7,7 @@ statt json.loads + Pydantic inline zu duplizieren.
 import json
 import logging
 
-from app.llm.schemas import ClassificationResult, LLMAnswer
+from app.llm.schemas import ClassificationResult, LLMAnswer, LLMDigest
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +21,10 @@ class ClassificationParseError(Exception):
 
 class AnswerParseError(Exception):
     """RAG-LLM lieferte nach ``MAX_PARSE_ATTEMPTS`` Versuchen kein gueltiges JSON."""
+
+
+class DigestParseError(Exception):
+    """Digest-LLM lieferte nach ``MAX_PARSE_ATTEMPTS`` Versuchen kein gueltiges JSON."""
 
 
 def parse_classification_json(content: str) -> ClassificationResult:
@@ -43,3 +47,9 @@ def parse_answer_json(content: str) -> LLMAnswer:
     """
     data = json.loads(content)
     return LLMAnswer.model_validate(data)
+
+
+def parse_digest_json(content: str) -> LLMDigest:
+    """Parst rohe Digest-LLM-Antwort in ``LLMDigest`` (E17-8)."""
+    data = json.loads(content)
+    return LLMDigest.model_validate(data)

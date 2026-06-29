@@ -56,6 +56,12 @@ class AskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
 
 
+class DigestRequest(BaseModel):
+    topic: str = Field(min_length=1, max_length=200)
+    days: int | None = Field(default=7, ge=1, le=365)
+    limit: int = Field(default=15, ge=1, le=30)
+
+
 class NoteContentResponse(BaseModel):
     vault_path: str
     content: str

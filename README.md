@@ -1,5 +1,10 @@
 # Seiton Brain
 
+> **Status:** Öffentliche Entwicklung / Portfolio-Projekt (MIT). Geplante
+> **kommerzielle Consumer-Edition** (self-hosted, buy-once, BYO-Key) — siehe
+> [ADR 0004](docs/adr/0004-commercial-consumer-product.md) und
+> [ADR 0005](docs/adr/0005-repo-and-license-strategy.md).
+
 Ziel:
 
 Ich schreibe dem Bot eine Nachricht — eine halbe Idee, ein Gedanke unterwegs, irgendwas das sonst in einer Notiz-App vergessen würde. Das LLM sortiert es ein, legt eine Markdown-Datei in meinem Obsidian-Vault ab und schickt mir eine kurze Bestätigung zurück. Fertig.
@@ -12,29 +17,26 @@ Der Name kommt von **Seiton** (整頓) — alles an seinen Platz legen, damit ma
 
 Ich verliere ständig Ideen, weil ich sie irgendwo hinmurmle und nie wieder draufschaue. Obsidian nutze ich schon — aber der Schritt von „roher Input" zu „ordentliche Notiz" ist mir zu oft zu viel Aufwand.
 
-Seiton Brain soll diesen Schritt wegnehmen. Gleichzeitig ist es für mich kein Tutorial-Projekt, das nach zwei Wochen in der Ecke liegt. Ich baue etwas, das ich wirklich nutzen will.
+Seiton Brain soll diesen Schritt wegnehmen. Gleichzeitig ist es ein **Showcase-Projekt** für Backend-, AI- und Systemdesign — mit echtem Nutzen im Alltag und einer klaren Produktvision (Web-UI, Self-Hosting, Lizenzierung).
 
 ---
 
 ## Was schon läuft
 
-Stand jetzt (v0.2.0):
+Stand jetzt (v0.2.x, Phase C–F):
 
-- Telegram-Bot: Text **und** Sprachnachrichten über Webhook
-- Sofortige Antwort, Verarbeitung async via Celery + Redis (mit Retries bei transienten OpenAI-Fehlern)
+- Telegram-Bot: Text **und** Sprachnachrichten (Webhook oder Long-Polling)
+- Sofortige Antwort, Verarbeitung async via Celery + Redis (Retries bei transienten OpenAI-Fehlern)
 - OpenAI klassifiziert (Kategorie, Titel, Summary, Tags) — Prompt in `/prompts`
-- **Append vs. Create:** LLM entscheidet, ob eine neue Notiz angelegt oder eine bestehende ergänzt wird
-- Strukturierte Tags im YAML-Frontmatter; `updated:` + Tag-Merge beim Append
-- Slash-Commands: `/recent`, `/find`, `/undo` (mit Bestätigung)
-- Allowlist, Update-Idempotenz, Filename-Kollisionsschutz, atomares Vault-Schreiben
-- OpenAI Whisper transkribiert Voice
-- PostgreSQL + Alembic, Obsidian-Vault mit `[[links]]` zu bestehenden Notizen
-- Zentrale Settings-Klasse (`pydantic-settings`), Docker Compose, pytest + GitHub CI (117 Tests)
+- **Append vs. Create**, strukturierte Tags, Slash-Commands (`/recent`, `/find`, `/undo`, `/ask`, `/digest`)
+- **Knowledge Retrieval:** Keyword- + semantische Suche (pgvector), RAG `/ask`, Digest-Synthese
+- REST-API v1 (`/v1/capture`, `/v1/ask`, `/v1/digest`, …) + Outbound-Webhooks
+- MCP-Server für Cursor/Claude (`examples/mcp/`)
+- PostgreSQL + Alembic, Obsidian-Vault mit `[[links]]`, Docker Compose, pytest + GitHub CI (230+ Tests)
 
 Vollständige Historie: [`CHANGELOG.md`](./CHANGELOG.md).
 Was als nächstes kommt: [`ROADMAP.md`](./ROADMAP.md).
-Langfristige Integrations-Ideen (n8n, REST-API, Setup-CLI): [`docs/integrations/`](./docs/integrations/).
-n8n-Beispiel-Workflows (importierbar): [`examples/n8n/`](./examples/n8n/README.md).
+Integrations (REST, MCP, n8n-Beispiele): [`docs/integrations/`](./docs/integrations/).
 Wie es gebaut ist: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 Wie selbst betreiben: [`docs/setup.md`](./docs/setup.md).
 
@@ -55,12 +57,12 @@ Ich wollte ein System bauen, das sich wie ein kleines echtes Backend anfühlt �
 
 ---
 
-## Was noch fehlt (v2)
+## Was noch fehlt (Produkt)
 
+- Web-UI / Dashboard (Epic E19) — Hauptoberfläche für Consumer
+- Packaging & Installer (E20), Lizenzierung (E21)
 - Ollama als lokale LLM-Alternative
-- Semantic Search über den Vault (RAG + pgvector)
-- Web-UI zum Durchsuchen
-- Weekly Digest per Telegram
+- Multi-Format-Ingestion (PDF, … — Epic E18)
 
 ---
 
@@ -72,7 +74,20 @@ Setup-Details: [`docs/setup.md`](./docs/setup.md).
 
 ---
 
+## Lizenz
+
+Aktuell [MIT](./LICENSE) — öffentliche Entwicklung und Portfolio-Nutzung.
+Eine spätere **kommerzielle Edition** wird separat lizenziert; siehe
+[ADR 0005](docs/adr/0005-repo-and-license-strategy.md).
+
+---
+
 # English
+
+> **Status:** Public development / portfolio project (MIT). A future **commercial
+> consumer edition** (self-hosted, buy-once, BYO-key) is planned — see
+> [ADR 0004](docs/adr/0004-commercial-consumer-product.md) and
+> [ADR 0005](docs/adr/0005-repo-and-license-strategy.md).
 
 Goal:
 
@@ -86,28 +101,25 @@ The name comes from **Seiton** (整頓) — putting everything in its place so y
 
 I keep losing ideas because I mumble them somewhere and never look at them again. I already use Obsidian — but going from raw input to a proper note is often too much effort for me.
 
-Seiton Brain is meant to remove that step. At the same time, this isn't a tutorial project that sits in a corner after two weeks. I'm building something I actually want to use.
+Seiton Brain is meant to remove that step. It's also a **showcase project** for backend, AI, and system design — with real daily utility and a clear product vision (web UI, self-hosting, licensing).
 
 ---
 
 ## What works already
 
-v0.2.0:
+v0.2.x (phases C–F):
 
-- Telegram bot: text **and** voice via webhook
-- Immediate reply, async processing via Celery + Redis (with retries on transient OpenAI errors)
+- Telegram bot: text **and** voice (webhook or long-polling)
+- Immediate reply, async processing via Celery + Redis (retries on transient OpenAI errors)
 - OpenAI classification (category, title, summary, tags) — prompt in `/prompts`
-- **Append vs. create:** LLM decides whether to create a new note or append to an existing one
-- Structured tags in YAML frontmatter; `updated:` + tag merge on append
-- Slash commands: `/recent`, `/find`, `/undo` (with confirmation)
-- Allowlist, update idempotency, filename collision handling, atomic vault writes
-- OpenAI Whisper for voice transcription
-- PostgreSQL + Alembic, Obsidian vault with `[[links]]` to related notes
-- Central settings class (`pydantic-settings`), Docker Compose, pytest + GitHub CI (117 tests)
+- **Append vs. create**, structured tags, slash commands (`/recent`, `/find`, `/undo`, `/ask`, `/digest`)
+- **Knowledge retrieval:** keyword + semantic search (pgvector), RAG `/ask`, digest synthesis
+- REST API v1 + outbound webhooks; MCP server for Cursor/Claude (`examples/mcp/`)
+- PostgreSQL + Alembic, Obsidian vault with `[[links]]`, Docker Compose, pytest + GitHub CI (230+ tests)
 
 Full history: [`CHANGELOG.md`](./CHANGELOG.md).
 What's next: [`ROADMAP.md`](./ROADMAP.md).
-Long-term integrations (n8n, REST API, setup CLI): [`docs/integrations/`](./docs/integrations/).
+Integrations: [`docs/integrations/`](./docs/integrations/).
 How it's built: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 How to self-host: [`docs/setup.md`](./docs/setup.md).
 
@@ -128,12 +140,12 @@ I wanted to build something that feels like a small real backend — not five lo
 
 ---
 
-## What's still missing (v2)
+## What's still missing (product)
 
+- Web UI / dashboard (epic E19) — main surface for consumers
+- Packaging & installer (E20), licensing (E21)
 - Ollama as a local LLM alternative
-- Semantic search over the vault (RAG + pgvector)
-- Web UI for browsing
-- Weekly digest via Telegram
+- Multi-format ingestion (PDF, … — epic E18)
 
 ---
 
@@ -147,4 +159,6 @@ Setup details: [`docs/setup.md`](./docs/setup.md).
 
 ## License
 
-[MIT](./LICENSE) — du darfst es nutzen, forken und selbst hosten. Wenn du etwas Cooles damit baust, lass es mich gerne wissen.
+Currently [MIT](./LICENSE) — public development and portfolio use.
+A future **commercial edition** will be licensed separately; see
+[ADR 0005](docs/adr/0005-repo-and-license-strategy.md).

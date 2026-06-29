@@ -5,61 +5,64 @@ alwaysApply: true
 
 # Seiton Brain
 
-Personal AI assistant: Telegram input (text/voice) → structured Obsidian vault notes.
-Learning project + real utility. Name from **Seiton** (整頓) — put everything in its place.
+Personal AI second brain: capture (Telegram/API) → classify → Obsidian vault;
+retrieve (search, RAG `/ask`, digest `/digest`, REST, MCP).
+
+**Produkt:** Öffentliche Entwicklung (MIT, Portfolio). Geplante kommerzielle
+Consumer-Edition — [ADR 0004](docs/adr/0004-commercial-consumer-product.md),
+[ADR 0005](docs/adr/0005-repo-and-license-strategy.md). Name from **Seiton** (整頓).
 
 ## Flow
 
 ```
-Telegram → POST /webhook (X-Telegram-Bot-Api-Secret-Token)
-         → immediate 200 + "Wird verarbeitet…"
-         → Celery worker: [Whisper if voice] → OpenAI classify → Postgres → .md in vault
-         → Telegram: "Gespeichert als [[Title]] unter Folder"
+Telegram / API → Worker: [Whisper if voice] → classify → Postgres → .md in vault
+              → optional: /ask, /digest (RAG), webhooks, MCP via REST
 ```
 
 ## Stack
 
-FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI (LLM + Whisper) · Docker Compose · Obsidian vault (local mount)
+FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI (LLM + Whisper + Embeddings) · pgvector · Docker Compose · Obsidian vault
 
 ## Structure
 
-- `app/telegram/` — webhook, send_message, download_file
-- `app/worker/` — Celery tasks (`process_text_message`, `process_voice_message`)
-- `app/llm/` — provider interface, OpenAI, `ClassificationResult` (category, title, summary, related)
-- `app/vault/` — reader (existing notes for context), writer (Markdown + `[[links]]`)
-- `app/transcription/` — Whisper API
-- `app/models/` — `Entry` table
-- `prompts/classify.txt` — versioned LLM prompt (not inline in code)
+- `app/telegram/` — webhook, polling, slash commands
+- `app/worker/` — Celery tasks (capture, voice, ask, digest)
+- `app/llm/` — provider, embeddings, schemas
+- `app/services/` — process_message, answer, digest
+- `app/vault/` — reader, writer, index (keyword + semantic search)
+- `app/api/v1/` — REST API (capture, ask, digest, search, …)
+- `app/webhooks/` — outbound events (note.created, note.indexed, …)
+- `examples/mcp/` — MCP server for Cursor/Claude
+- `examples/n8n/` — Power-user workflow JSONs (no custom node)
+- `prompts/` — versioned LLM prompts
 
-Vault folders: School, Work, Private, Ideas, Travel, Notes (`vault.example/` is template; personal vault is gitignored at `/vault/`).
+## Status (v0.2.x — Phase C–F)
 
-## Status (v0.2.0 — Phase A+B done)
-
-Core pipeline works: text + voice, async workers with retries, DB persistence, append/create logic, structured tags, Telegram slash commands (`/recent`, `/find`, `/undo`), atomic vault writes, allowlist + idempotency, 117 tests + GitHub CI. Phase C next (self-hosting, REST API, logging).
+Core pipeline + REST API + retrieval (E17: search, RAG, MCP, digest, webhooks).
+230+ tests + GitHub CI. Next: Web-UI (E19), Packaging (E20), Licensing (E21).
 
 ## Roadmap & Backlog
 
-- **`ROADMAP.md`** — Vision, Phasen A–D, Epics, User Stories mit Bewertung; lebendes Dokument
-- **`ARCHITECTURE.md`** — Diagramm, Modul-Map, Datenfluss, Conventions
+- **`ROADMAP.md`** — Epics, Stories, Phasen
+- **`ARCHITECTURE.md`** — Diagramm, Modul-Map
 - **`CHANGELOG.md`** — Keep-a-Changelog
-- **`docs/setup.md`** — Setup-Anleitung
-- **`docs/adr/`** — Architecture Decision Records (z.B. ADR 0001: worker_session)
-- **GitHub Issues/Projects** — operatives Tracking (Labels `epic:*`, `phase:*`, `priority:*`)
+- **`docs/adr/`** — ADRs (0001–0005)
+- **`docs/integrations/`** — n8n (REST-only), MCP, knowledge-retrieval
 
 Bei neuen Features: zuerst ROADMAP-Eintrag und/oder Issue, dann Code.
 
 ## Conventions
 
 - Secrets in `.env` only; see `.env.example`
-- `.gitignore`: use `/vault/` and `/models/` (root only) — never ignore `app/vault/` or `app/models/` (siehe ADR 0002)
-- Celery tasks use `worker_session()` for DB (fresh engine per task — siehe ADR 0001)
-- Alembic migrations must exist in repo under `alembic/versions/`
-- Local Telegram dev: siehe `docs/setup.md`
-- User prefers German for communication; README is DE+EN; Roadmap/ADRs auf Deutsch
-- Code-Änderungen klein und fokussiert; eine Story → eine PR; CHANGELOG-Eintrag unter `[Unreleased]` pflegen
+- `.gitignore`: `/vault/` and `/models/` (root only) — never `app/vault/` or `app/models/` (ADR 0002)
+- Celery tasks use `worker_session()` (ADR 0001)
+- Alembic migrations under `alembic/versions/`
+- User prefers German; README DE+EN; Roadmap/ADRs auf Deutsch
+- Eine Story → eine PR; CHANGELOG unter `[Unreleased]`
+- **Kein Custom-n8n-Node** (ADR 0004); REST + `examples/n8n/` für Power-User
 
 ## Key files
 
-- `docker-compose.yml` — services: api, worker, db, redis
-- `app/main.py` — health + (noch) dev `/entries` endpoints (Story E2-3 entfernt sie)
-- `app/db/session.py` — `get_db()` (API), `worker_session()` (Celery)
+- `docker-compose.yml` — api, worker, db, redis
+- `app/main.py` — health, API mount
+- `app/db/session.py` — `get_db()`, `worker_session()`

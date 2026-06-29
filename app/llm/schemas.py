@@ -70,3 +70,28 @@ class AnswerResult(BaseModel):
     answer: str
     sources: list[NoteRef] = Field(default_factory=list)
     confidence: float = 0.0
+
+
+class LLMDigest(BaseModel):
+    """Rohe Digest-Synthese des LLM (E17-8), bevor Quellen aufgeloest werden."""
+
+    digest: str = Field(description="Synthesized overview of the provided notes")
+    sources: list[str] = Field(
+        default_factory=list,
+        description="Titles of context notes actually used (subset of context)",
+    )
+    highlights: list[str] = Field(
+        default_factory=list,
+        description="Short takeaway bullets",
+    )
+
+
+class DigestResult(BaseModel):
+    """Finales Digest-Ergebnis (E17-8) fuer Telegram, REST, n8n."""
+
+    topic: str
+    digest: str
+    sources: list[NoteRef] = Field(default_factory=list)
+    highlights: list[str] = Field(default_factory=list)
+    note_count: int = 0
+    days: int | None = None
