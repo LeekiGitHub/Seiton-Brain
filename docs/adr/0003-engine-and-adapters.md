@@ -1,6 +1,6 @@
 # ADR 0003: Engine + Adapter statt monolithischem Telegram/Obsidian-Bot
 
-- **Status:** Accepted
+- **Status:** Accepted (teilweise überholt durch [ADR 0004](./0004-commercial-consumer-product.md) und [ADR 0005](./0005-repo-and-license-strategy.md))
 - **Datum:** 2026-06-02
 - **Entscheider:** Yannik
 - **Phase / Epic:** Phase E · epic:api · epic:n8n · epic:vault

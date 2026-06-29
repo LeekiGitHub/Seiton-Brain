@@ -13,6 +13,7 @@ from openai import (
 from app.db.session import worker_session
 from app.logging_config import bind_log_context
 from app.services.answer import answer_question, format_answer_for_chat
+from app.services.digest import build_digest, format_digest_for_chat
 from app.services.process_message import process_text_message
 from app.telegram.admin_notify import notify_admin_error
 from app.telegram.client import download_file, send_message
@@ -116,6 +117,12 @@ async def _process_ask(question: str, chat_id: int) -> None:
     await send_message(chat_id, format_answer_for_chat(result))
 
 
+async def _process_digest(topic: str, chat_id: int) -> None:
+    async with worker_session() as db:
+        result = await build_digest(topic, db)
+    await send_message(chat_id, format_digest_for_chat(result))
+
+
 async def _send_error(chat_id: int) -> None:
     await send_message(chat_id, "Etwas ist schiefgelaufen — bitte später nochmal versuchen.")
 
@@ -217,6 +224,31 @@ def process_ask_message_task(self, question: str, chat_id: int) -> None:
                 telegram_update_id=None,
                 kind="qa",
                 raw_input=question,
+            )
+        )
+        raise
+
+
+@celery_app.task(name="process_digest_message", bind=True, **RETRY_KWARGS)
+def process_digest_message_task(self, topic: str, chat_id: int) -> None:
+    bind_log_context(task_id=self.request.id)
+    logger.info("process_digest_message started chat_id=%s", chat_id)
+    try:
+        _run(_process_digest(topic, chat_id))
+        logger.info("process_digest_message done chat_id=%s", chat_id)
+    except Retry:
+        raise
+    except Exception as exc:
+        logger.exception("process_digest_message failed permanently chat_id=%s", chat_id)
+        _run(
+            _handle_permanent_failure(
+                chat_id,
+                exc,
+                task_name="process_digest_message",
+                task_id=self.request.id,
+                telegram_update_id=None,
+                kind="digest",
+                raw_input=topic,
             )
         )
         raise

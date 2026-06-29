@@ -10,10 +10,12 @@ from app.llm.parser import (
     MAX_PARSE_ATTEMPTS,
     AnswerParseError,
     ClassificationParseError,
+    DigestParseError,
     parse_answer_json,
     parse_classification_json,
+    parse_digest_json,
 )
-from app.llm.schemas import ClassificationResult, LLMAnswer
+from app.llm.schemas import ClassificationResult, LLMAnswer, LLMDigest
 from app.llm.tags import normalize_tags
 from app.vault.index import list_existing_notes
 from app.vault.reader import format_notes_for_prompt, known_titles
@@ -22,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "classify.txt"
 ANSWER_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "answer.txt"
+DIGEST_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "digest.txt"
 MAX_RELATED = 3
 MAX_TAGS = 5
 
@@ -32,6 +35,7 @@ class OpenAIProvider:
         self.model = settings.openai_model
         self.prompt_template = PROMPT_PATH.read_text()
         self.answer_template = ANSWER_PROMPT_PATH.read_text()
+        self.digest_template = DIGEST_PROMPT_PATH.read_text()
 
     async def classify(self, text: str) -> ClassificationResult:
         existing = await list_existing_notes()
@@ -156,4 +160,38 @@ class OpenAIProvider:
         assert last_error is not None
         raise AnswerParseError(
             f"LLM returned invalid answer JSON after {MAX_PARSE_ATTEMPTS} attempts"
+        ) from last_error
+
+    async def digest(self, topic: str, context: str, *, days: int | None) -> LLMDigest:
+        """Digest-Synthese (E17-8): Thema + Kontext-Notizen -> JSON."""
+        days_label = str(days) if days is not None else "all"
+        prompt = (
+            self.digest_template.replace("{topic}", topic)
+            .replace("{context}", context)
+            .replace("{days}", days_label)
+        )
+
+        last_error: json.JSONDecodeError | ValidationError | None = None
+        for attempt in range(1, MAX_PARSE_ATTEMPTS + 1):
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"},
+            )
+            content = response.choices[0].message.content or ""
+            try:
+                return parse_digest_json(content)
+            except (json.JSONDecodeError, ValidationError) as exc:
+                last_error = exc
+                logger.warning(
+                    "Digest parse failed (attempt %d/%d): %s",
+                    attempt,
+                    MAX_PARSE_ATTEMPTS,
+                    exc,
+                )
+                continue
+
+        assert last_error is not None
+        raise DigestParseError(
+            f"LLM returned invalid digest JSON after {MAX_PARSE_ATTEMPTS} attempts"
         ) from last_error

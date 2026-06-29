@@ -27,6 +27,7 @@ from app.worker.tasks import (
     RETRY_KWARGS,
     RETRYABLE_EXCEPTIONS,
     _process_ask,
+    _process_digest,
     process_ask_message_task,
     process_text_message_task,
     process_voice_message_task,
@@ -205,3 +206,35 @@ async def test_process_ask_sends_formatted_answer(
     sent_text = mock_send.call_args[0][1]
     assert "Du warst in Tokio." in sent_text
     assert "[[Japan Reiseroute]]" in sent_text
+
+
+@pytest.mark.asyncio
+@patch("app.worker.tasks.send_message", new_callable=AsyncMock)
+@patch("app.worker.tasks.build_digest", new_callable=AsyncMock)
+@patch("app.worker.tasks.worker_session")
+async def test_process_digest_sends_formatted_digest(
+    mock_session, mock_digest, mock_send
+):
+    from app.llm.schemas import DigestResult, NoteRef
+
+    db = AsyncMock()
+    cm = MagicMock()
+    cm.__aenter__ = AsyncMock(return_value=db)
+    cm.__aexit__ = AsyncMock(return_value=False)
+    mock_session.return_value = cm
+    mock_digest.return_value = DigestResult(
+        topic="Ideas",
+        digest="Wochenüberblick.",
+        sources=[NoteRef(title="Side Project", vault_path="Ideas/Side.md")],
+        highlights=["API"],
+        note_count=2,
+        days=7,
+    )
+
+    await _process_digest("Ideas", 42)
+
+    mock_digest.assert_awaited_once_with("Ideas", db)
+    mock_send.assert_awaited_once()
+    sent_text = mock_send.call_args[0][1]
+    assert "Digest: Ideas" in sent_text
+    assert "[[Side Project]]" in sent_text

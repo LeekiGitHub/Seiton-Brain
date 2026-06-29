@@ -65,7 +65,7 @@ app/
 │   └── admin_notify.py      Admin-DM bei dauerhaften Worker-Fehlern (E10-3)
 ├── worker/
 │   ├── celery_app.py        Celery-Config
-│   └── tasks.py             process_text/voice_message_task + process_ask_message_task (E17-4)
+│   └── tasks.py             process_text/voice/ask/digest tasks (E17-4/8)
 ├── services/
 │   ├── process_message.py   Orchestrierung Capture: LLM → DB → Vault
 │   └── answer.py            RAG-Antwort-Service: Retrieval → LLM → AnswerResult (E17-3)

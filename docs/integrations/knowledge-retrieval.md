@@ -88,8 +88,10 @@ Der **Service** (`E17-3`) ist umgesetzt 🟢 — `app/services/answer.py`:
 |-----------|--------|---------|--------|
 | (Engine) | `answer_question(...)` | `AnswerResult` | 🟢 `E17-3` |
 | Telegram | `/ask Was weiß ich über X?` | Antworttext + `[[Quellen]]` | 🟢 `E17-4` |
+| Telegram | `/digest Ideas` | Themen-Synthese + `[[Quellen]]` | 🟢 `E17-8` |
 | REST | `GET /v1/notes/search?q=...&semantic=true` | Treffer-Liste | 🟢 `E17-5` |
 | REST | `POST /v1/ask { "question": "..." }` | `AnswerResult` JSON | 🟢 `E17-5` |
+| REST | `POST /v1/digest { "topic": "...", "days": 7 }` | `DigestResult` JSON | 🟢 `E17-8` |
 | MCP | Tool `ask_brain(question)` | `AnswerResult` | 🟢 `E17-6` |
 
 `/ask` läuft asynchron über den Worker (LLM-Call): Sofort-Ack im Chat, Antwort
@@ -203,7 +205,7 @@ Cron (Sonntag) → POST /v1/digest { topic: "Ideas" }
               → Mail an mich + neue Notiz „Wochenrückblick KW XX"
 ```
 
-(Story `E17-8`.)
+(Story `E17-8` 🟢.)
 
 ### D — Bot-Self-Reference beim Capture
 
@@ -219,7 +221,7 @@ Duplikat-Erkennung als reines Titel-Matching. (Synergie E5-3 ↔ E17-2.)
 2. Phase C: REST-API + Auth (`E13-1`, `E13-2`), `E17-1` Keyword-Suche
 3. Phase E: `E5-3` Embeddings, `E17-2` semantische Suche
 4. Phase F: `E17-3..6` RAG, `/ask`, Retrieval-API, MCP-Server
-5. Phase F-Bonus: `E17-8` Digest
+5. Phase F-Bonus: `E17-8` Digest 🟢
 
 ---
 

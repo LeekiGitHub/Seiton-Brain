@@ -9,6 +9,15 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **ADR 0005 + Doku-Konsistenz (Portfolio jetzt, Produkt später).** Repo bleibt
+  vorerst public (MIT); README, Integrations-Docs und Cursor-Rules kommunizieren
+  die geplante kommerzielle Edition (ADR 0004). n8n-Doku bereinigt (kein Custom
+  Node; Beispiel-Workflows bleiben). ROADMAP E14 reframed.
+- **E17-8: Digest-Synthese.** Service `build_digest` sammelt Notizen zu einem
+  Thema (Ordner/Kategorie/Keyword, optional letzte N Tage) und erzeugt eine
+  LLM-Zusammenfassung mit Quellen und Highlights. Telegram `/digest <thema>`
+  (async Worker), `POST /v1/digest`. Prompt `prompts/digest.txt`. 11 neue Tests
+  (244 gesamt).
 - **E17-7: Outbound-Event `note.indexed` + Knowledge-Backend-Doku.** Neues
   Webhook-Event nach erfolgreicher Embedding-Berechnung in
   `upsert_vault_note_index` (nur bei `EMBEDDINGS_ENABLED`, kein Event beim

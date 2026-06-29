@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from sqlalchemy import case, delete, func, or_, select
@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 # Fuer ILIKE-Suche; Anzeige im LLM-Prompt bleibt bei 120 Zeichen (reader).
 BODY_INDEX_CHARS = 2000
 LLM_NOTE_LIMIT = 80
+DEFAULT_DIGEST_DAYS = 7
+DEFAULT_DIGEST_LIMIT = 15
 
 
 @dataclass(frozen=True)
@@ -327,6 +329,82 @@ async def semantic_search_vault_notes(
         )
         for row in rows
     ]
+
+
+def _rows_to_search_hits(rows: list[VaultNoteIndex]) -> list[SearchHit]:
+    return [
+        SearchHit(
+            title=row.title,
+            vault_path=row.vault_path,
+            snippet=_body_snippet(row.body_snippet, limit=120),
+            category=row.category,
+            folder=row.folder,
+        )
+        for row in rows
+    ]
+
+
+async def collect_digest_notes(
+    db: AsyncSession,
+    topic: str,
+    *,
+    days: int | None = DEFAULT_DIGEST_DAYS,
+    limit: int = DEFAULT_DIGEST_LIMIT,
+) -> list[SearchHit]:
+    """Notizen fuer einen Themen-Digest sammeln (E17-8).
+
+  Matcht Ordner, Kategorie, Titel/Body (ILIKE). Optional ``days`` filtert
+  nach ``mtime``. Bei wenigen Treffern: semantische Ergaenzung (wenn aktiv).
+    """
+    await ensure_vault_index(db)
+    term = topic.strip()
+    if not term:
+        return []
+
+    term_lower = term.lower()
+    pattern = _ilike_pattern(term)
+    cutoff: datetime | None = None
+    if days is not None and days > 0:
+        cutoff = datetime.now(UTC) - timedelta(days=days)
+
+    conditions = or_(
+        func.lower(VaultNoteIndex.folder) == term_lower,
+        func.lower(VaultNoteIndex.category) == term_lower,
+        VaultNoteIndex.title.ilike(pattern),
+        VaultNoteIndex.body_snippet.ilike(pattern),
+    )
+    stmt = (
+        select(VaultNoteIndex)
+        .where(conditions)
+        .order_by(VaultNoteIndex.mtime.desc())
+        .limit(limit)
+    )
+    if cutoff is not None:
+        stmt = stmt.where(VaultNoteIndex.mtime >= cutoff)
+
+    rows = list((await db.execute(stmt)).scalars().all())
+    seen = {row.vault_path for row in rows}
+
+    if len(rows) < limit and settings.embeddings_enabled:
+        semantic_hits = await semantic_search_vault_notes(db, term, limit)
+        extra_paths = [h.vault_path for h in semantic_hits if h.vault_path not in seen]
+        if extra_paths:
+            extra_stmt = (
+                select(VaultNoteIndex)
+                .where(VaultNoteIndex.vault_path.in_(extra_paths))
+                .order_by(VaultNoteIndex.mtime.desc())
+            )
+            if cutoff is not None:
+                extra_stmt = extra_stmt.where(VaultNoteIndex.mtime >= cutoff)
+            for row in (await db.execute(extra_stmt)).scalars().all():
+                if row.vault_path not in seen:
+                    rows.append(row)
+                    seen.add(row.vault_path)
+                    if len(rows) >= limit:
+                        break
+
+    rows.sort(key=lambda r: r.mtime, reverse=True)
+    return _rows_to_search_hits(rows[:limit])
 
 
 async def retrieve_vault_notes(

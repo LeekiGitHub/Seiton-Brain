@@ -12,6 +12,7 @@ from app.telegram.client import send_message
 from app.telegram.commands import handle_command
 from app.worker.tasks import (
     process_ask_message_task,
+    process_digest_message_task,
     process_text_message_task,
     process_voice_message_task,
 )
@@ -161,6 +162,16 @@ async def process_update(update: dict) -> None:
                 else:
                     process_ask_message_task.delay(args, chat_id)
                     await send_message(chat_id, "Ich durchsuche dein Brain…")
+            elif cmd == "/digest":
+                if not args:
+                    await send_message(
+                        chat_id,
+                        "Nutzung: /digest <thema> — z. B. Ideas, Work oder "
+                        "ein Stichwort. Ich fasse passende Notizen zusammen.",
+                    )
+                else:
+                    process_digest_message_task.delay(args, chat_id)
+                    await send_message(chat_id, "Ich erstelle deinen Digest…")
             else:
                 # Andere Slash-Commands synchron — schnelle DB-Lookups, kein LLM.
                 async with SessionLocal() as db:

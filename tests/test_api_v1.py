@@ -238,6 +238,42 @@ def test_ask_rejects_empty_question():
     assert response.status_code == 422
 
 
+@patch("app.api.v1.routes.build_digest", new_callable=AsyncMock)
+def test_digest_returns_digest_result(mock_digest):
+    from app.llm.schemas import DigestResult, NoteRef
+
+    mock_digest.return_value = DigestResult(
+        topic="Ideas",
+        digest="Drei Ideen diese Woche.",
+        sources=[NoteRef(title="Side Project", vault_path="Ideas/Side.md")],
+        highlights=["Fokus auf API"],
+        note_count=3,
+        days=7,
+    )
+
+    response = client.post(
+        "/v1/digest",
+        json={"topic": "Ideas", "days": 7},
+        headers=API_HEADERS,
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["topic"] == "Ideas"
+    assert data["note_count"] == 3
+    assert data["highlights"] == ["Fokus auf API"]
+    mock_digest.assert_awaited_once()
+
+
+def test_digest_rejects_empty_topic():
+    response = client.post(
+        "/v1/digest",
+        json={"topic": ""},
+        headers=API_HEADERS,
+    )
+    assert response.status_code == 422
+
+
 def test_get_entry_returns_summary():
     entry = MagicMock()
     entry.id = 99

@@ -62,6 +62,7 @@ Server-Stack ein konsumierbares Produkt machen"**:
 
 Architektur-Entscheidung: [ADR 0004 — Kommerzielles Produkt](./docs/adr/0004-commercial-consumer-product.md)
 (ergänzt/überschreibt Teile von [ADR 0003 — Engine + Adapter](./docs/adr/0003-engine-and-adapters.md)).
+**Repo & Lizenz (Portfolio jetzt, Verkauf später):** [ADR 0005](./docs/adr/0005-repo-and-license-strategy.md).
 Integrations-Details: [`docs/integrations/`](./docs/integrations/).
 
 ---
@@ -254,11 +255,11 @@ Details: [`docs/integrations/n8n.md`](./docs/integrations/n8n.md)
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E14-1 | ~~`examples/n8n/`: exportierte Workflow-JSONs~~ | — | — | — | — | — | ❌ | — |
+| E14-1 | `examples/n8n/`: Workflow-JSONs für Power-User (kein Produktversprechen) | — | — | — | — | — | 🟢 | E |
 | E14-2 | ~~Community-Node `n8n-nodes-seiton-brain`~~ | — | — | — | — | — | ❌ | — |
-| E14-3 | ~~Doku „Seiton + n8n"~~ | — | — | — | — | — | ❌ | — |
+| E14-3 | Doku „Seiton + n8n" (REST-first, kein Custom Node) | — | — | — | — | — | 🟢 | E |
 
-Historischer Kontext: [`docs/integrations/n8n.md`](./docs/integrations/n8n.md) (als „zurückgestellt" markiert).
+**Repo-Strategie:** Public Portfolio jetzt, kommerzielle Edition später — [ADR 0005](./docs/adr/0005-repo-and-license-strategy.md).
 
 ---
 
@@ -326,7 +327,7 @@ Retrieval-Service.
 | E17-5 | Retrieval-API: `POST /v1/ask` (RAG-Antwort), `GET /v1/notes/search?q=...&semantic=true` (Treffer-Liste). Gleiche API-Key-Auth wie E13-2. | 5 | 3 | 2 | 4 | 4 | 🟢 | F |
 | E17-6 | MCP-Server `seiton-brain-mcp` (`examples/mcp/`): exponiert `search_notes`, `ask_brain`, `get_note` als MCP-Tools für Claude Desktop / Cursor / LLM-Agenten. Authentifiziert per `SEITON_API_KEY` gegen die REST-API. | 5 | 4 | 3 | 5 | 3 | 🟢 | F |
 | E17-7 | Outbound-Event `note.indexed` (für n8n-Trigger nach Embedding-Berechnung) + Doku „Brain als Knowledge-Backend in n8n-/Agent-Workflows". | 3 | 2 | 2 | 3 | 2 | 🟢 | F |
-| E17-8 | (Optional) Aggregierte Sichten: `/digest <thema>` / `POST /v1/digest` — LLM-Synthese mehrerer verwandter Notizen (Wochenrückblick, Themen-Brief). | 4 | 3 | 2 | 4 | 2 | ⚪ | F-Bonus |
+| E17-8 | (Optional) Aggregierte Sichten: `/digest <thema>` / `POST /v1/digest` — LLM-Synthese mehrerer verwandter Notizen (Wochenrückblick, Themen-Brief). | 4 | 3 | 2 | 4 | 2 | 🟢 | F-Bonus |
 
 Bewusst **nicht** in E17: eigene Such-UI (Obsidian-Suche bleibt für Browsing
 zuständig); Re-Implementierung von Embedding-Berechnung außerhalb des Engine-

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from app.config import settings
 from app.llm.openai_provider import OpenAIProvider
-from app.llm.schemas import ClassificationResult, LLMAnswer
+from app.llm.schemas import ClassificationResult, LLMAnswer, LLMDigest
 
 
 class LLMProvider(ABC):
@@ -13,6 +13,10 @@ class LLMProvider(ABC):
     @abstractmethod
     async def answer(self, question: str, context: str) -> LLMAnswer:
         """RAG-Antwort auf ``question``, gestuetzt auf den ``context``-Block (E17-3)."""
+
+    @abstractmethod
+    async def digest(self, topic: str, context: str, *, days: int | None) -> LLMDigest:
+        """Digest-Synthese (E17-8) mehrerer Notizen zu einem Thema."""
 
 
 def get_llm_provider() -> LLMProvider:
