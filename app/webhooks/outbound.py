@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 EVENT_NOTE_CREATED = "note.created"
 EVENT_NOTE_APPENDED = "note.appended"
+EVENT_NOTE_INDEXED = "note.indexed"
 EVENT_ENTRY_FAILED = "entry.failed"
 
 _RAW_INPUT_PREVIEW_CHARS = 200
@@ -118,6 +119,44 @@ async def emit_capture_event(
         kind=kind,
         telegram_chat_id=telegram_chat_id,
         telegram_update_id=telegram_update_id,
+    )
+    await emit_webhook(payload)
+
+
+def build_note_indexed_payload(
+    *,
+    vault_path: str,
+    title: str,
+    category: str = "",
+    folder: str = "",
+    doc_type: str = "markdown",
+) -> dict[str, Any]:
+    """Payload nach erfolgreicher Embedding-Berechnung (E17-7)."""
+    return {
+        "event": EVENT_NOTE_INDEXED,
+        "timestamp": datetime.now(UTC).isoformat(),
+        "vault_path": vault_path,
+        "title": title,
+        "category": category,
+        "folder": folder,
+        "doc_type": doc_type,
+    }
+
+
+async def emit_note_indexed_event(
+    *,
+    vault_path: str,
+    title: str,
+    category: str = "",
+    folder: str = "",
+    doc_type: str = "markdown",
+) -> None:
+    payload = build_note_indexed_payload(
+        vault_path=vault_path,
+        title=title,
+        category=category,
+        folder=folder,
+        doc_type=doc_type,
     )
     await emit_webhook(payload)
 

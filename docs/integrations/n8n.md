@@ -46,6 +46,7 @@ Seiton sendet nach erfolgreichem Speichern Events an `SEITON_WEBHOOK_URL`:
 |-------|------|-------------|
 | `note.created` | Neue `.md` angelegt | Slack, Mail, Kalender, … |
 | `note.appended` | Bestehende Notiz ergänzt | Review-Workflows |
+| `note.indexed` | Embedding berechnet (E17-7) | Retrieval-API, RAG, Knowledge-Backend |
 | `entry.failed` | Verarbeitung endgültig fehlgeschlagen | Alert an Admin |
 
 n8n-Workflow startet per **Webhook**-Trigger-Node; Event per `$json.event`

@@ -83,7 +83,7 @@ app/
 ├── transcription/
 │   └── whisper.py           OpenAI Whisper API
 ├── webhooks/
-│   └── outbound.py          Outbound Events (note.created, entry.failed, …)
+│   └── outbound.py          Outbound Events (note.created, note.indexed, …)
 ├── models/
 │   ├── base.py              SQLAlchemy DeclarativeBase
 │   └── entry.py             Entry-ORM

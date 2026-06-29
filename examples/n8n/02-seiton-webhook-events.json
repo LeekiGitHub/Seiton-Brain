@@ -87,6 +87,29 @@
               },
               "renameOutput": true,
               "outputKey": "entry.failed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "cond-note-indexed",
+                    "leftValue": "={{ $json.body.event }}",
+                    "rightValue": "note.indexed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "note.indexed"
             }
           ]
         },
@@ -166,6 +189,28 @@
     },
     {
       "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "set-indexed-msg",
+              "name": "message",
+              "value": "=Semantisch indexiert: [[{{ $json.body.title }}]] ({{ $json.body.vault_path }}) — Retrieval-API bereit",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f7a8b9c0-6666-4000-8000-000000000017",
+      "name": "Indexed — Retrieval hier",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [760, 620]
+    },
+    {
+      "parameters": {
         "content": "## Webhook Setup\n\n1. Workflow aktivieren\n2. Production-URL → `SEITON_WEBHOOK_URL` in Seiton `.env`\n3. Seiton neu starten\n\nFalls `$json.body.event` leer: auf `$json.event` umstellen (n8n-Version).",
         "height": 200,
         "width": 340
@@ -208,6 +253,13 @@
         [
           {
             "node": "Failed — Alert hier",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Indexed — Retrieval hier",
             "type": "main",
             "index": 0
           }

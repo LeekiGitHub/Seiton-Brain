@@ -9,10 +9,13 @@ from app.webhooks.outbound import (
     EVENT_ENTRY_FAILED,
     EVENT_NOTE_APPENDED,
     EVENT_NOTE_CREATED,
+    EVENT_NOTE_INDEXED,
     build_entry_failed_payload,
     build_note_event_payload,
+    build_note_indexed_payload,
     emit_capture_event,
     emit_entry_failed_event,
+    emit_note_indexed_event,
     emit_webhook,
     event_for_capture_status,
 )
@@ -64,6 +67,20 @@ def test_build_entry_failed_payload_truncates_raw_input():
     )
     assert payload["event"] == EVENT_ENTRY_FAILED
     assert len(payload["raw_input_preview"]) <= 200
+
+
+def test_build_note_indexed_payload():
+    payload = build_note_indexed_payload(
+        vault_path="Ideas/Test.md",
+        title="Test",
+        category="idea",
+        folder="Ideas",
+        doc_type="markdown",
+    )
+    assert payload["event"] == EVENT_NOTE_INDEXED
+    assert payload["vault_path"] == "Ideas/Test.md"
+    assert payload["title"] == "Test"
+    assert payload["category"] == "idea"
 
 
 @pytest.mark.asyncio
@@ -133,3 +150,18 @@ async def test_emit_entry_failed_event_delegates(mock_emit):
     )
     mock_emit.assert_awaited_once()
     assert mock_emit.await_args.args[0]["event"] == EVENT_ENTRY_FAILED
+
+
+@pytest.mark.asyncio
+@patch("app.webhooks.outbound.emit_webhook", new_callable=AsyncMock)
+async def test_emit_note_indexed_event_delegates(mock_emit):
+    await emit_note_indexed_event(
+        vault_path="Work/Async DB.md",
+        title="Async DB",
+        category="work",
+        folder="Work",
+    )
+    mock_emit.assert_awaited_once()
+    payload = mock_emit.await_args.args[0]
+    assert payload["event"] == EVENT_NOTE_INDEXED
+    assert payload["vault_path"] == "Work/Async DB.md"
