@@ -296,6 +296,9 @@ Nur von **localhost** erreichbar. Der Wizard hilft bei Vault-Pfad, OpenAI-Key un
 optional Telegram; Keys landen ausschließlich in deiner lokalen `.env`. Nach dem
 Speichern Container neu starten: `docker compose up -d`.
 
+**Dashboard:** http://localhost:8000/dashboard — letzte Entries, Vault-Aktivität,
+Statistik (E19-2).
+
 ---
 
 ## Geplantes Setup (CLI — Phase D, Server-Edition)

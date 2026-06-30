@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Seiton Brain{% endblock %}</title>
+  <link rel="stylesheet" href="/ui/static/app.css" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <div class="wrap{% block wrap_class %}{% endblock %}">
+    <nav class="topnav">
+      <a class="brand" href="/dashboard">Seiton Brain</a>
+      <a href="/dashboard" class="{% if active == 'dashboard' %}active{% endif %}">Dashboard</a>
+      <a href="/setup" class="{% if active == 'setup' %}active{% endif %}">Setup</a>
+    </nav>
+    {% block content %}{% endblock %}
+  </div>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

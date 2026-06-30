@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E19-2: Dashboard (Web-UI).** Neue Seite `/dashboard` (localhost-only) mit
+  Statistik (Entries, Status, Vault-Index), Tabelle letzter Captures und zuletzt
+  geänderter Vault-Notizen. API `GET /api/ui/dashboard`. Gemeinsames Layout
+  (`base.html`, `app.css`) mit Setup-Navigation. `/` leitet nach Setup bzw.
+  Dashboard weiter. 3 neue Tests (255 gesamt).
 - **E19-1: Setup-Wizard (Web-UI).** Neuer Assistent unter `/setup` (nur
   localhost): Vault-Pfad, OpenAI-Key, optional Telegram, Verbindungstests,
   sicheres Schreiben in `.env`. Module `app/setup/`, `app/ui/`. Telegram-
