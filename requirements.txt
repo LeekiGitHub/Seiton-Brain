@@ -10,6 +10,7 @@ celery
 redis
 pydantic-settings
 pgvector
+jinja2
 pypdf
 python-docx
 python-pptx

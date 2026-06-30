@@ -6,6 +6,7 @@ from fastapi import APIRouter, Header, HTTPException, Request
 from sqlalchemy import select
 
 from app.config import settings
+from app.setup.status import is_telegram_configured
 from app.db.session import SessionLocal
 from app.models.entry import Entry
 from app.telegram.client import send_message
@@ -200,6 +201,9 @@ async def telegram_webhook(
     request: Request,
     x_telegram_bot_api_secret_token: str | None = Header(default=None),
 ):
+    if not is_telegram_configured():
+        raise HTTPException(status_code=503, detail="Telegram not configured")
+
     if x_telegram_bot_api_secret_token != _get_secret():
         raise HTTPException(status_code=401, detail="Unauthorized")
 

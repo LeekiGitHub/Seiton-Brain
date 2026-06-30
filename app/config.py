@@ -88,9 +88,9 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # Telegram
-    telegram_bot_token: str
-    telegram_webhook_secret: str
+    # Telegram (optional — mobiles Erfassen; leer = deaktiviert, ADR 0004)
+    telegram_bot_token: str = ""
+    telegram_webhook_secret: str = ""
     # Kommaseparierte Liste numerischer User-IDs.
     # Leer (Default) bedeutet: Allowlist deaktiviert -> alle erlaubt.
     # Geparst wird im Webhook (dort sitzt auch der Logger).
@@ -135,6 +135,9 @@ class Settings(BaseSettings):
     # REST API (/v1/*). Leer = API deaktiviert (503). Gesetzt = Header X-Seiton-Api-Key
     # muss exakt uebereinstimmen (timing-safe Vergleich).
     seiton_api_key: str = ""
+
+    # Pfad zur lokalen .env fuer den Setup-Wizard (E19-1).
+    seiton_env_file: str = ".env"
 
     # Outbound Webhooks (E13-3). Leer = deaktiviert. Eine URL fuer alle Events;
     # Event-Typ steht im JSON-Feld ``event`` und Header ``X-Seiton-Event``.
