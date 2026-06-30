@@ -295,7 +295,7 @@ flowchart LR
 
 | Adapter | Heute | Geplant (Epic) |
 |---------|-------|----------------|
-| UI / Dashboard (Hauptsurface) | `/setup` Wizard 🟢 | **E19-2+** Dashboard, Suche, Verwalten |
+| UI / Dashboard (Hauptsurface) | `/dashboard` 🟢, `/setup` Wizard 🟢 | **E19-3+** Suche, Verwalten |
 | Telegram (optional, Long-Polling) | ✅ Webhook + Long-Polling (E1-5) | — |
 | HTTP REST | ✅ | E13 REST API |
 | Setup | — | E19-1 UI-Wizard (CLI/`doctor` für Server-Edition, E16) |

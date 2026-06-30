@@ -10,7 +10,7 @@ from app.health import run_health_checks
 from app.logging_config import bind_log_context, clear_log_context, configure_logging
 from app.setup.routes import router as setup_api_router
 from app.telegram.webhook import router as telegram_router
-from app.ui.router import mount_ui_static, router as ui_router
+from app.ui.router import mount_ui_static, router as ui_router, ui_api_router
 
 configure_logging()
 _logger = logging.getLogger(__name__)
@@ -24,6 +24,7 @@ else:
 app = FastAPI()
 mount_ui_static(app)
 app.include_router(ui_router)
+app.include_router(ui_api_router)
 app.include_router(setup_api_router)
 app.include_router(telegram_router)
 app.include_router(api_v1_router)

@@ -1,132 +1,129 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{ title }}</title>
-  <link rel="stylesheet" href="/ui/static/setup.css" />
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <h1>Seiton Brain</h1>
-      <p>Einrichtungs-Assistent — deine Keys bleiben lokal in der <code>.env</code>.</p>
-      {% if complete %}
-      <span class="status-pill ok">Konfiguration wirkt vollständig</span>
-      {% else %}
-      <span class="status-pill warn">Erstkonfiguration empfohlen</span>
-      {% endif %}
-    </header>
+{% extends "base.html" %}
 
-    <div class="steps" id="steps-bar">
-      <div class="step-dot active" data-step="0"></div>
-      <div class="step-dot" data-step="1"></div>
-      <div class="step-dot" data-step="2"></div>
-      <div class="step-dot" data-step="3"></div>
-      <div class="step-dot" data-step="4"></div>
-    </div>
+{% block title %}{{ title }}{% endblock %}
+{% block wrap_class %} narrow{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="/ui/static/setup.css" />{% endblock %}
 
-    <section class="card step-panel" data-step="0">
-      <h2>Willkommen</h2>
-      <p class="hint">
-        Dieser Wizard hilft dir, Vault-Pfad, OpenAI-Key und optional Telegram
-        einzurichten. Nach dem Speichern musst du die Container neu starten.
-      </p>
-      <div id="status-summary" class="hint"></div>
-      <div class="actions">
-        <button type="button" class="primary" id="btn-start">Los geht's</button>
-      </div>
-    </section>
+{% block content %}
+<header class="page-header">
+  <h1>Setup</h1>
+  <p>Einrichtungs-Assistent — deine Keys bleiben lokal in der <code>.env</code>.</p>
+  {% if complete %}
+  <span class="status-pill ok">Konfiguration wirkt vollständig</span>
+  {% else %}
+  <span class="status-pill warn">Erstkonfiguration empfohlen</span>
+  {% endif %}
+</header>
 
-    <section class="card step-panel hidden" data-step="1">
-      <h2>Vault-Ordner</h2>
-      <p class="hint">
-        Pfad auf deinem Rechner, in dem Notizen landen (wird in Docker nach
-        <code>/vault</code> gemountet). Jeder Markdown-Ordner reicht — Obsidian optional.
-      </p>
-      <label>
-        <span>OBSIDIAN_VAULT_HOST_PATH</span>
-        <input type="text" id="vault-path" placeholder="/Users/du/Obsidian/Seiton" autocomplete="off" />
-      </label>
-      <div class="actions">
-        <button type="button" class="secondary btn-back">Zurück</button>
-        <button type="button" class="secondary" id="btn-test-vault">Verbindung testen</button>
-        <button type="button" class="primary btn-next">Weiter</button>
-      </div>
-      <div id="result-vault" class="result hidden"></div>
-    </section>
+<div class="steps" id="steps-bar">
+  <div class="step-dot active" data-step="0"></div>
+  <div class="step-dot" data-step="1"></div>
+  <div class="step-dot" data-step="2"></div>
+  <div class="step-dot" data-step="3"></div>
+  <div class="step-dot" data-step="4"></div>
+</div>
 
-    <section class="card step-panel hidden" data-step="2">
-      <h2>OpenAI</h2>
-      <p class="hint">Bring-your-own-Key — Kosten laufen über dein OpenAI-Konto.</p>
-      <label>
-        <span>OPENAI_API_KEY</span>
-        <input type="password" id="openai-key" placeholder="sk-…" autocomplete="off" />
-      </label>
-      <label class="checkbox">
-        <input type="checkbox" id="embeddings-enabled" />
-        <span>Semantische Suche aktivieren (EMBEDDINGS_ENABLED — mehr API-Kosten)</span>
-      </label>
-      <div class="actions">
-        <button type="button" class="secondary btn-back">Zurück</button>
-        <button type="button" class="secondary" id="btn-test-openai">Key testen</button>
-        <button type="button" class="primary btn-next">Weiter</button>
-      </div>
-      <div id="result-openai" class="result hidden"></div>
-    </section>
-
-    <section class="card step-panel hidden" data-step="3">
-      <h2>Telegram (optional)</h2>
-      <p class="hint">
-        Für mobiles Erfassen unterwegs. Kannst du überspringen und später in der
-        <code>.env</code> nachziehen.
-      </p>
-      <label class="checkbox">
-        <input type="checkbox" id="telegram-enable" />
-        <span>Telegram jetzt einrichten</span>
-      </label>
-      <div id="telegram-fields" class="hidden">
-        <label>
-          <span>TELEGRAM_BOT_TOKEN</span>
-          <input type="password" id="telegram-token" placeholder="von @BotFather" autocomplete="off" />
-        </label>
-        <label>
-          <span>TELEGRAM_WEBHOOK_SECRET (leer = wird generiert)</span>
-          <input type="text" id="telegram-secret" autocomplete="off" />
-        </label>
-        <label>
-          <span>TELEGRAM_ALLOWED_USER_IDS (kommagetrennt, empfohlen)</span>
-          <input type="text" id="telegram-allowlist" placeholder="12345678" autocomplete="off" />
-        </label>
-        <div class="actions" style="margin-top:0">
-          <button type="button" class="secondary" id="btn-test-telegram">Bot testen</button>
-        </div>
-        <div id="result-telegram" class="result hidden"></div>
-      </div>
-      <div class="actions">
-        <button type="button" class="secondary btn-back">Zurück</button>
-        <button type="button" class="primary btn-next">Weiter</button>
-      </div>
-    </section>
-
-    <section class="card step-panel hidden" data-step="4">
-      <h2>Speichern</h2>
-      <p class="hint">Prüft Infrastruktur (DB, Redis) und schreibt die <code>.env</code>.</p>
-      <div id="summary" class="hint"></div>
-      <div class="actions">
-        <button type="button" class="secondary btn-back">Zurück</button>
-        <button type="button" class="secondary" id="btn-test-all">Alles testen</button>
-        <button type="button" class="primary" id="btn-save">Speichern</button>
-      </div>
-      <div id="result-save" class="result hidden"></div>
-    </section>
-
-    <p class="trust">
-      <strong>Deine Secrets bleiben bei dir.</strong> Seiton Brain ist 100&nbsp;% self-hosted.
-      Keys werden nur in deiner lokalen <code>.env</code> gespeichert — kein Upload an uns.
-    </p>
+<section class="card step-panel" data-step="0">
+  <h2>Willkommen</h2>
+  <p class="hint">
+    Dieser Wizard hilft dir, Vault-Pfad, OpenAI-Key und optional Telegram
+    einzurichten. Nach dem Speichern musst du die Container neu starten.
+  </p>
+  <div id="status-summary" class="hint"></div>
+  <div class="actions">
+    <button type="button" class="primary" id="btn-start">Los geht's</button>
   </div>
+</section>
 
-  <script src="/ui/static/setup.js"></script>
-</body>
-</html>
+<section class="card step-panel hidden" data-step="1">
+  <h2>Vault-Ordner</h2>
+  <p class="hint">
+    Pfad auf deinem Rechner, in dem Notizen landen (wird in Docker nach
+    <code>/vault</code> gemountet). Jeder Markdown-Ordner reicht — Obsidian optional.
+  </p>
+  <label>
+    <span>OBSIDIAN_VAULT_HOST_PATH</span>
+    <input type="text" id="vault-path" placeholder="/Users/du/Obsidian/Seiton" autocomplete="off" />
+  </label>
+  <div class="actions">
+    <button type="button" class="secondary btn-back">Zurück</button>
+    <button type="button" class="secondary" id="btn-test-vault">Verbindung testen</button>
+    <button type="button" class="primary btn-next">Weiter</button>
+  </div>
+  <div id="result-vault" class="result hidden"></div>
+</section>
+
+<section class="card step-panel hidden" data-step="2">
+  <h2>OpenAI</h2>
+  <p class="hint">Bring-your-own-Key — Kosten laufen über dein OpenAI-Konto.</p>
+  <label>
+    <span>OPENAI_API_KEY</span>
+    <input type="password" id="openai-key" placeholder="sk-…" autocomplete="off" />
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" id="embeddings-enabled" />
+    <span>Semantische Suche aktivieren (EMBEDDINGS_ENABLED — mehr API-Kosten)</span>
+  </label>
+  <div class="actions">
+    <button type="button" class="secondary btn-back">Zurück</button>
+    <button type="button" class="secondary" id="btn-test-openai">Key testen</button>
+    <button type="button" class="primary btn-next">Weiter</button>
+  </div>
+  <div id="result-openai" class="result hidden"></div>
+</section>
+
+<section class="card step-panel hidden" data-step="3">
+  <h2>Telegram (optional)</h2>
+  <p class="hint">
+    Für mobiles Erfassen unterwegs. Kannst du überspringen und später in der
+    <code>.env</code> nachziehen.
+  </p>
+  <label class="checkbox">
+    <input type="checkbox" id="telegram-enable" />
+    <span>Telegram jetzt einrichten</span>
+  </label>
+  <div id="telegram-fields" class="hidden">
+    <label>
+      <span>TELEGRAM_BOT_TOKEN</span>
+      <input type="password" id="telegram-token" placeholder="von @BotFather" autocomplete="off" />
+    </label>
+    <label>
+      <span>TELEGRAM_WEBHOOK_SECRET (leer = wird generiert)</span>
+      <input type="text" id="telegram-secret" autocomplete="off" />
+    </label>
+    <label>
+      <span>TELEGRAM_ALLOWED_USER_IDS (kommagetrennt, empfohlen)</span>
+      <input type="text" id="telegram-allowlist" placeholder="12345678" autocomplete="off" />
+    </label>
+    <div class="actions" style="margin-top:0">
+      <button type="button" class="secondary" id="btn-test-telegram">Bot testen</button>
+    </div>
+    <div id="result-telegram" class="result hidden"></div>
+  </div>
+  <div class="actions">
+    <button type="button" class="secondary btn-back">Zurück</button>
+    <button type="button" class="primary btn-next">Weiter</button>
+  </div>
+</section>
+
+<section class="card step-panel hidden" data-step="4">
+  <h2>Speichern</h2>
+  <p class="hint">Prüft Infrastruktur (DB, Redis) und schreibt die <code>.env</code>.</p>
+  <div id="summary" class="hint"></div>
+  <div class="actions">
+    <button type="button" class="secondary btn-back">Zurück</button>
+    <button type="button" class="secondary" id="btn-test-all">Alles testen</button>
+    <button type="button" class="primary" id="btn-save">Speichern</button>
+  </div>
+  <div id="result-save" class="result hidden"></div>
+</section>
+
+<p class="trust">
+  <strong>Deine Secrets bleiben bei dir.</strong> Seiton Brain ist 100&nbsp;% self-hosted.
+  Keys werden nur in deiner lokalen <code>.env</code> gespeichert — kein Upload an uns.
+</p>
+{% endblock %}
+
+{% block scripts %}
+<script src="/ui/static/setup.js"></script>
+{% endblock %}
