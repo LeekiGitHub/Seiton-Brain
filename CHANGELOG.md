@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E19-1: Setup-Wizard (Web-UI).** Neuer Assistent unter `/setup` (nur
+  localhost): Vault-Pfad, OpenAI-Key, optional Telegram, Verbindungstests,
+  sicheres Schreiben in `.env`. Module `app/setup/`, `app/ui/`. Telegram-
+  Felder in der Config optional (leer = deaktiviert). 8 neue Tests (252 gesamt).
 - **ADR 0005 + Doku-Konsistenz (Portfolio jetzt, Produkt später).** Repo bleibt
   vorerst public (MIT); README, Integrations-Docs und Cursor-Rules kommunizieren
   die geplante kommerzielle Edition (ADR 0004). n8n-Doku bereinigt (kein Custom

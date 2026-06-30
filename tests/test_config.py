@@ -32,8 +32,6 @@ def test_settings_accept_extra_env_vars():
     sollen die Settings-Instantiation nicht crashen lassen."""
     s = Settings(  # type: ignore[call-arg]
         _env_file=None,  # bypass .env discovery; nur explizit gesetzte Werte
-        telegram_bot_token="x",
-        telegram_webhook_secret="y",
         openai_api_key="z",
         obsidian_vault_path="/tmp/v",
         database_url="postgresql+asyncpg://u:p@h/d",
@@ -44,8 +42,6 @@ def test_settings_accept_extra_env_vars():
 
 def test_format_settings_validation_error_lists_env_names(monkeypatch):
     for key in (
-        "TELEGRAM_BOT_TOKEN",
-        "TELEGRAM_WEBHOOK_SECRET",
         "OPENAI_API_KEY",
         "OBSIDIAN_VAULT_PATH",
         "DATABASE_URL",
@@ -57,8 +53,8 @@ def test_format_settings_validation_error_lists_env_names(monkeypatch):
         Settings(_env_file=None)  # type: ignore[call-arg]
 
     message = format_settings_validation_error(exc_info.value)
-    assert "TELEGRAM_BOT_TOKEN" in message
     assert "OPENAI_API_KEY" in message
+    assert "TELEGRAM_BOT_TOKEN" not in message
     assert ".env.example" in message
     assert "docs/setup.md" in message
 

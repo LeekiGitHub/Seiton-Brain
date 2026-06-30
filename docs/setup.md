@@ -284,7 +284,21 @@ docker compose up --build
 
 ---
 
-## Geplantes Setup (Phase D — noch nicht implementiert)
+## Setup-Wizard (E19-1)
+
+Nach `docker compose up -d` im Browser öffnen:
+
+```
+http://localhost:8000/setup
+```
+
+Nur von **localhost** erreichbar. Der Wizard hilft bei Vault-Pfad, OpenAI-Key und
+optional Telegram; Keys landen ausschließlich in deiner lokalen `.env`. Nach dem
+Speichern Container neu starten: `docker compose up -d`.
+
+---
+
+## Geplantes Setup (CLI — Phase D, Server-Edition)
 
 Für Public Self-Hosting sind geplant: `scripts/init.sh`, `seiton doctor` und
 optional `seiton init` (TUI). **API-Keys werden dabei nur lokal in `.env`
