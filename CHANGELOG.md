@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E19-3: Suche & Ask (Web-UI).** Neue Seite `/ask` (localhost-only) mit
+  Vault-Suche (Keyword/semantisch) und RAG-Chat — gleiche Pipeline wie Telegram
+  `/find` und `/ask`. API `GET /api/ui/search`, `POST /api/ui/ask`. Navigation
+  erweitert. 3 neue Tests (258 gesamt).
 - **E19-2: Dashboard (Web-UI).** Neue Seite `/dashboard` (localhost-only) mit
   Statistik (Entries, Status, Vault-Index), Tabelle letzter Captures und zuletzt
   geänderter Vault-Notizen. API `GET /api/ui/dashboard`. Gemeinsames Layout

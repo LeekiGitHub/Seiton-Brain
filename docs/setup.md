@@ -299,6 +299,9 @@ Speichern Container neu starten: `docker compose up -d`.
 **Dashboard:** http://localhost:8000/dashboard — letzte Entries, Vault-Aktivität,
 Statistik (E19-2).
 
+**Suchen & Fragen:** http://localhost:8000/ask — Vault-Suche und RAG-Chat
+(E19-3).
+
 ---
 
 ## Geplantes Setup (CLI — Phase D, Server-Edition)

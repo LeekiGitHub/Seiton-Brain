@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Suchen &amp; Fragen — Seiton Brain{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <h1>Suchen &amp; Fragen</h1>
+  <p>Vault durchsuchen oder dein Brain mit einer Frage befragen — gleiche Pipeline wie Telegram <code>/find</code> und <code>/ask</code>.</p>
+</header>
+
+<section class="card" id="search-card">
+  <h2>Vault-Suche</h2>
+  <form id="search-form" class="inline-form">
+    <input type="search" id="search-query" placeholder="Stichwort …" required maxlength="200" autocomplete="off" />
+    {% if embeddings_enabled %}
+    <label class="checkbox-inline">
+      <input type="checkbox" id="search-semantic" checked />
+      Semantisch
+    </label>
+    {% endif %}
+    <button type="submit" class="primary">Suchen</button>
+  </form>
+  <div id="search-results" class="result-list">
+    <p class="empty">Gib einen Suchbegriff ein.</p>
+  </div>
+</section>
+
+<section class="card" id="ask-card">
+  <h2>Brain fragen</h2>
+  <div id="chat-log" class="chat-log" aria-live="polite"></div>
+  <form id="ask-form" class="ask-form">
+    <textarea id="ask-question" rows="2" placeholder="Was weiß ich schon über …?" required maxlength="2000"></textarea>
+    <button type="submit" class="primary" id="ask-submit">Fragen</button>
+  </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/ui/static/ask.js"></script>
+{% endblock %}
