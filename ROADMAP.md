@@ -387,7 +387,7 @@ ab und nimmt den Setup-Wizard aus E16 auf.
 |----|-------|---|---|---|---|---|--------|-------|
 | E19-1 | Setup-Wizard in der UI: Vault-Ordner wählen, LLM-Key + (optional) Telegram eintragen, Verbindung testen. Ersetzt CLI/TUI-Onboarding für Consumer. | 5 | 3 | 2 | 4 | 5 | 🟢 | G |
 | E19-2 | Dashboard: Entries/Notizen ansehen, Status, letzte Aktivität. | 5 | 3 | 2 | 4 | 5 | 🟢 | G |
-| E19-3 | Suche + `/ask`-Chat in der UI (Konsument von E17 Retrieval/RAG). | 5 | 3 | 2 | 4 | 4 | ⚪ | G |
+| E19-3 | Suche + `/ask`-Chat in der UI (Konsument von E17 Retrieval/RAG). | 5 | 3 | 2 | 4 | 4 | 🟢 | G |
 | E19-4 | Verwalten: Notiz öffnen/bearbeiten/löschen, Tags/Kategorien, Vault-Konfig. | 4 | 4 | 3 | 4 | 3 | ⚪ | G |
 | E19-5 | Settings-UI: Keys/Provider, Kategorien, Backup, Edition-Optionen. | 3 | 2 | 2 | 3 | 3 | ⚪ | G |
 

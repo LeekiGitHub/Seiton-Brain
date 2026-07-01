@@ -12,6 +12,7 @@
     <nav class="topnav">
       <a class="brand" href="/dashboard">Seiton Brain</a>
       <a href="/dashboard" class="{% if active == 'dashboard' %}active{% endif %}">Dashboard</a>
+      <a href="/ask" class="{% if active == 'ask' %}active{% endif %}">Suchen &amp; Fragen</a>
       <a href="/setup" class="{% if active == 'setup' %}active{% endif %}">Setup</a>
     </nav>
     {% block content %}{% endblock %}
