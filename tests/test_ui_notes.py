@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.models.vault_note_index import VaultNoteIndex
-from app.ui.notes import list_notes, load_vault_config, read_note_content, remove_note, update_note_content
+from app.ui.notes import list_notes, load_vault_config, remove_note, update_note_content
 
 client = TestClient(app)
 

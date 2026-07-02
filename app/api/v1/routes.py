@@ -17,7 +17,6 @@ from app.api.v1.schemas import (
     NoteSearchHit,
     NoteSearchResponse,
 )
-from app.config import settings
 from app.db.session import get_db
 from app.llm.provider import get_llm_provider
 from app.llm.schemas import AnswerResult, ClassificationResult, DigestResult
