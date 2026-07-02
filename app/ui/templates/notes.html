@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Notizen — Seiton Brain{% endblock %}
+{% block wrap_class %} wide{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <h1>Notizen verwalten</h1>
+  <p>Vault-Notizen öffnen, bearbeiten und löschen — Tags und Kategorie im Frontmatter der Datei.</p>
+</header>
+
+<section class="card notes-filters">
+  <form id="filter-form" class="inline-form">
+    <input type="search" id="filter-q" placeholder="Filtern …" maxlength="200" autocomplete="off" />
+    <select id="filter-folder">
+      <option value="">Alle Ordner</option>
+    </select>
+    <button type="submit" class="secondary">Anwenden</button>
+  </form>
+</section>
+
+<div class="notes-layout">
+  <section class="card notes-list-card">
+    <h2>Index</h2>
+    <div id="notes-list" class="notes-list">
+      <p class="empty">Lade …</p>
+    </div>
+  </section>
+
+  <section class="card notes-editor-card">
+    <h2 id="editor-title">Editor</h2>
+    <p class="empty" id="editor-path"></p>
+    <textarea id="note-content" class="notes-editor" disabled placeholder="Wähle eine Notiz aus der Liste."></textarea>
+    <div class="actions">
+      <button type="button" class="primary" id="btn-save" disabled>Speichern</button>
+      <button type="button" class="secondary" id="btn-delete" disabled>Löschen</button>
+    </div>
+  </section>
+</div>
+
+<section class="card" id="vault-config-card">
+  <h2>Vault-Konfiguration</h2>
+  <div id="vault-config">
+    <p class="empty">Lade …</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/ui/static/notes.js"></script>
+{% endblock %}

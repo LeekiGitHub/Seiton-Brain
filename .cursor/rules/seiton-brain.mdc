@@ -17,11 +17,12 @@ Consumer-Edition — [ADR 0004](docs/adr/0004-commercial-consumer-product.md),
 ```
 Telegram / API → Worker: [Whisper if voice] → classify → Postgres → .md in vault
               → optional: /ask, /digest (RAG), webhooks, MCP via REST
+Web-UI (localhost): /setup → /dashboard, /ask (Suche+RAG)
 ```
 
 ## Stack
 
-FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI (LLM + Whisper + Embeddings) · pgvector · Docker Compose · Obsidian vault
+FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI (LLM + Whisper + Embeddings) · pgvector · Jinja2 · Docker Compose · Obsidian vault
 
 ## Structure
 
@@ -31,6 +32,8 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 - `app/services/` — process_message, answer, digest
 - `app/vault/` — reader, writer, index (keyword + semantic search)
 - `app/api/v1/` — REST API (capture, ask, digest, search, …)
+- `app/setup/` — Setup-Wizard (env checks, `.env` schreiben)
+- `app/ui/` — Web-UI: templates, static, dashboard/ask API (`/api/ui/*`)
 - `app/webhooks/` — outbound events (note.created, note.indexed, …)
 - `examples/mcp/` — MCP server for Cursor/Claude
 - `examples/n8n/` — Power-user workflow JSONs (no custom node)
@@ -38,8 +41,9 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 
 ## Status (v0.2.x — Phase C–F)
 
-Core pipeline + REST API + retrieval (E17: search, RAG, MCP, digest, webhooks).
-230+ tests + GitHub CI. Next: Web-UI (E19), Packaging (E20), Licensing (E21).
+Core pipeline + REST API + retrieval (E17 komplett). Web-UI E19: Setup-Wizard 🟢,
+Dashboard 🟢, Suche & Ask 🟢, Notizen verwalten 🟢; **E19-5** (Settings-UI) als Nächstes. 272 Tests + GitHub CI.
+Packaging (E20), Licensing (E21) folgen.
 
 ## Roadmap & Backlog
 
@@ -64,5 +68,6 @@ Bei neuen Features: zuerst ROADMAP-Eintrag und/oder Issue, dann Code.
 ## Key files
 
 - `docker-compose.yml` — api, worker, db, redis
-- `app/main.py` — health, API mount
+- `app/main.py` — health, API + UI mount
 - `app/db/session.py` — `get_db()`, `worker_session()`
+- `app/ui/router.py` — `/dashboard`, `/ask`, `/setup`, `/api/ui/*`

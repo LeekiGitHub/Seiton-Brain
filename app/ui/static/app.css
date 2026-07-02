@@ -45,6 +45,10 @@ a:hover {
   max-width: 560px;
 }
 
+.wrap.wide {
+  max-width: 1100px;
+}
+
 .topnav {
   display: flex;
   align-items: center;
@@ -373,4 +377,93 @@ code {
   background: var(--surface-2);
   padding: 0.1rem 0.35rem;
   border-radius: 4px;
+}
+
+.notes-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.note-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.note-item:hover,
+.note-item.active {
+  border-color: var(--accent);
+  background: rgba(91, 159, 212, 0.08);
+}
+
+.note-item-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.note-item-meta {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+.notes-editor {
+  width: 100%;
+  min-height: 360px;
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.notes-editor:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.notes-editor:disabled {
+  opacity: 0.6;
+}
+
+.notes-filters {
+  margin-bottom: 1rem;
+}
+
+.inline-form select {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 800px) {
+  .notes-layout {
+    grid-template-columns: 1fr;
+  }
 }

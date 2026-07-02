@@ -302,6 +302,9 @@ Statistik (E19-2).
 **Suchen & Fragen:** http://localhost:8000/ask — Vault-Suche und RAG-Chat
 (E19-3).
 
+**Notizen verwalten:** http://localhost:8000/notes — öffnen, bearbeiten, löschen
+(E19-4).
+
 ---
 
 ## Geplantes Setup (CLI — Phase D, Server-Edition)
