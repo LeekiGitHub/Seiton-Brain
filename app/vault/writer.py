@@ -7,6 +7,7 @@ from pathlib import Path
 from app.config import settings
 from app.llm.schemas import ClassificationResult
 from app.llm.tags import merge_tags
+from app.vault.paths import resolve_vault_file
 
 CATEGORY_FOLDERS = {
     "school": "School",
@@ -192,6 +193,15 @@ def _render_frontmatter(data: dict[str, str | list[str]]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def save_note_content(vault_relative_path: str, content: str) -> Path:
+    """Ueberschreibt eine bestehende Vault-Datei atomar (E19-4 UI-Editor)."""
+    filepath = resolve_vault_file(vault_relative_path)
+    if not filepath.is_file():
+        raise FileNotFoundError(f"Note not found: {vault_relative_path}")
+    _atomic_write(filepath, content)
+    return filepath
+
+
 def delete_note(vault_relative_path: str) -> bool:
     """Loescht eine Vault-Datei, wenn sie existiert.
 
@@ -200,8 +210,10 @@ def delete_note(vault_relative_path: str) -> bool:
     eine fehlende Datei ein Fehler ist (zB hat der User sie schon manuell
     geloescht).
     """
-    vault_root = Path(settings.obsidian_vault_path)
-    filepath = vault_root / vault_relative_path
+    try:
+        filepath = resolve_vault_file(vault_relative_path)
+    except ValueError:
+        return False
     if not filepath.exists():
         return False
     filepath.unlink()

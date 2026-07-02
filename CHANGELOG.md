@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E19-4: Notizen verwalten (Web-UI).** Neue Seite `/notes` (localhost-only) mit
+  Index-Liste, Markdown-Editor (öffnen/speichern/löschen), Ordner-Filter und
+  Vault-Konfiguration (Kategorie→Ordner-Mapping). API `GET/PUT/DELETE /api/ui/notes`,
+  `GET /api/ui/vault-config`. `save_note_content()` im Vault-Writer; gemeinsamer
+  Pfad-Helper `app/vault/paths.py`. 14 neue Tests (272 gesamt).
 - **E19-3: Suche & Ask (Web-UI).** Neue Seite `/ask` (localhost-only) mit
   Vault-Suche (Keyword/semantisch) und RAG-Chat — gleiche Pipeline wie Telegram
   `/find` und `/ask`. API `GET /api/ui/search`, `POST /api/ui/ask`. Navigation

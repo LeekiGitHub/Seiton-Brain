@@ -14,6 +14,7 @@ from app.vault.writer import (
     _tags_frontmatter_line,
     append_to_note,
     delete_note,
+    save_note_content,
     write_note,
 )
 
@@ -421,6 +422,26 @@ def test_delete_note_removes_existing_file(tmp_path, monkeypatch):
 def test_delete_note_returns_false_for_missing_file(tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
     assert delete_note("Notes/does-not-exist.md") is False
+
+
+def test_delete_note_rejects_path_traversal(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    assert delete_note("../../../etc/passwd") is False
+
+
+def test_save_note_content_overwrites_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    (tmp_path / "Notes").mkdir()
+    target = tmp_path / "Notes" / "Edit.md"
+    target.write_text("old")
+    save_note_content("Notes/Edit.md", "new body")
+    assert target.read_text(encoding="utf-8") == "new body"
+
+
+def test_save_note_content_raises_for_missing(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    with pytest.raises(FileNotFoundError):
+        save_note_content("Notes/missing.md", "x")
 
 
 def test_append_to_note_raises_if_file_missing(tmp_path, monkeypatch):

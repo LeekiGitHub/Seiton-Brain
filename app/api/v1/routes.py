@@ -17,7 +17,6 @@ from app.api.v1.schemas import (
     NoteSearchHit,
     NoteSearchResponse,
 )
-from app.config import settings
 from app.db.session import get_db
 from app.llm.provider import get_llm_provider
 from app.llm.schemas import AnswerResult, ClassificationResult, DigestResult
@@ -26,6 +25,7 @@ from app.services.answer import answer_question
 from app.services.digest import build_digest
 from app.services.process_message import process_text_message
 from app.vault.index import parse_note_file, retrieve_vault_notes
+from app.vault.paths import resolve_vault_file
 from app.webhooks.outbound import emit_capture_event
 
 router = APIRouter(
@@ -37,11 +37,10 @@ router = APIRouter(
 
 def _resolve_vault_file(vault_relative_path: str) -> Path:
     """Sicherer Pfad unterhalb des Vault-Roots — kein Path-Traversal."""
-    vault_root = Path(settings.obsidian_vault_path).resolve()
-    candidate = (vault_root / vault_relative_path).resolve()
-    if not str(candidate).startswith(str(vault_root)):
-        raise HTTPException(status_code=400, detail="Invalid vault path")
-    return candidate
+    try:
+        return resolve_vault_file(vault_relative_path)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid vault path") from exc
 
 
 def _entry_to_summary(row: Entry) -> EntrySummary:
