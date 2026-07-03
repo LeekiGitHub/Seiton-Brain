@@ -28,9 +28,13 @@ from app.ui.schemas import (
     NoteListResponse,
     NoteSaveRequest,
     NoteSaveResponse,
+    SettingsSaveRequest,
+    SettingsViewResponse,
     VaultConfigResponse,
 )
+from app.setup.schemas import SetupSaveResponse, SetupTestRequest, SetupTestResponse
 from app.ui.service import load_dashboard
+from app.ui.settings import load_settings_view, save_settings
 from app.vault.index import retrieve_vault_notes
 
 UI_DIR = Path(__file__).resolve().parent
@@ -87,6 +91,18 @@ async def notes_page(
         request,
         "notes.html",
         {"active": "notes"},
+    )
+
+
+@router.get("/settings", response_class=HTMLResponse)
+async def settings_page(
+    request: Request,
+    _: None = Depends(_localhost_dep),
+):
+    return templates.TemplateResponse(
+        request,
+        "settings.html",
+        {"active": "settings"},
     )
 
 
@@ -213,6 +229,34 @@ async def vault_config_api(
     _: None = Depends(_localhost_dep),
 ) -> VaultConfigResponse:
     return load_vault_config()
+
+
+@ui_api_router.get("/settings", response_model=SettingsViewResponse)
+async def settings_api(
+    _: None = Depends(_localhost_dep),
+) -> SettingsViewResponse:
+    return load_settings_view()
+
+
+@ui_api_router.post("/settings", response_model=SetupSaveResponse)
+async def settings_save_api(
+    body: SettingsSaveRequest,
+    _: None = Depends(_localhost_dep),
+) -> SetupSaveResponse:
+    try:
+        return save_settings(body)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@ui_api_router.post("/settings/test", response_model=SetupTestResponse)
+async def settings_test_api(
+    body: SetupTestRequest,
+    _: None = Depends(_localhost_dep),
+) -> SetupTestResponse:
+    from app.setup.routes import setup_test
+
+    return await setup_test(body)
 
 
 def mount_ui_static(app) -> None:

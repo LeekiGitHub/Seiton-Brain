@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Einstellungen — Seiton Brain{% endblock %}
+{% block wrap_class %} wide{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <h1>Einstellungen</h1>
+  <p>Keys, Provider und Vault — Änderungen landen in der lokalen <code>.env</code>. Neustart erforderlich.</p>
+</header>
+
+<section class="card" id="status-card">
+  <h2>Status</h2>
+  <div id="status-components" class="stats-grid"></div>
+</section>
+
+<form id="settings-form">
+  <section class="card">
+    <h2>Vault &amp; Provider</h2>
+    <label>
+      <span>Vault-Pfad (Host)</span>
+      <input type="text" id="vault-path" autocomplete="off" />
+    </label>
+    <label>
+      <span>OpenAI API Key <small class="hint-inline">(leer = unverändert)</small></span>
+      <input type="password" id="openai-key" placeholder="sk-…" autocomplete="off" />
+    </label>
+    <p class="empty" id="openai-masked"></p>
+    <label>
+      <span>OpenAI Modell</span>
+      <input type="text" id="openai-model" placeholder="gpt-4o-mini" />
+    </label>
+    <label class="checkbox-inline">
+      <input type="checkbox" id="embeddings-enabled" />
+      Semantische Suche (Embeddings)
+    </label>
+    <div class="actions">
+      <button type="button" class="secondary" id="btn-test-openai">OpenAI testen</button>
+      <button type="button" class="secondary" id="btn-test-vault">Vault testen</button>
+    </div>
+    <div id="test-results" class="result hidden"></div>
+  </section>
+
+  <section class="card">
+    <h2>Telegram (optional)</h2>
+    <label>
+      <span>Bot Token <small class="hint-inline">(leer = unverändert)</small></span>
+      <input type="password" id="telegram-token" autocomplete="off" />
+    </label>
+    <label>
+      <span>Erlaubte User-IDs (kommagetrennt)</span>
+      <input type="text" id="telegram-ids" autocomplete="off" />
+    </label>
+    <div class="actions">
+      <button type="button" class="secondary" id="btn-test-telegram">Telegram testen</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>API &amp; Integrationen</h2>
+    <label>
+      <span>SEITON_API_KEY <small class="hint-inline">(leer = unverändert)</small></span>
+      <input type="password" id="seiton-api-key" autocomplete="off" />
+    </label>
+    <p class="empty" id="api-key-masked"></p>
+    <label>
+      <span>Outbound Webhook URL</span>
+      <input type="url" id="webhook-url" placeholder="https://…" autocomplete="off" />
+    </label>
+  </section>
+
+  <section class="card">
+    <h2>Kategorien → Vault-Ordner</h2>
+    <div id="categories-table"></div>
+  </section>
+
+  <section class="card">
+    <h2>Backup</h2>
+    <div id="backup-info">
+      <p class="empty">Lade …</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Edition</h2>
+    <div id="edition-info">
+      <p class="empty">Lade …</p>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button type="submit" class="primary">Speichern</button>
+  </div>
+  <div id="save-result" class="result hidden"></div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="/ui/static/settings.js"></script>
+{% endblock %}

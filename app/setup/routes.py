@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import secrets
-
 from fastapi import APIRouter, Depends, Request
 
 from app.config import settings
 from app.setup import checks, status
-from app.setup.env_file import resolve_env_path, update_env_file
+from app.setup.config_save import save_setup_config
+from app.setup.env_file import resolve_env_path
 from app.setup.schemas import (
     SetupCheckResult,
     SetupSaveRequest,
@@ -87,33 +86,4 @@ async def setup_save(
     body: SetupSaveRequest,
     _: None = Depends(_localhost_dep),
 ) -> SetupSaveResponse:
-    vault_host = body.obsidian_vault_host_path.strip()
-    updates: dict[str, str] = {
-        "OBSIDIAN_VAULT_HOST_PATH": vault_host,
-        "OBSIDIAN_VAULT_PATH": settings.obsidian_vault_path,
-        "OPENAI_API_KEY": body.openai_api_key.strip(),
-        "EMBEDDINGS_ENABLED": "true" if body.embeddings_enabled else "false",
-    }
-
-    api_key = body.seiton_api_key.strip() or secrets.token_urlsafe(32)
-    updates["SEITON_API_KEY"] = api_key
-
-    token = body.telegram_bot_token.strip()
-    if token:
-        updates["TELEGRAM_BOT_TOKEN"] = token
-        secret = body.telegram_webhook_secret.strip() or secrets.token_urlsafe(32)
-        updates["TELEGRAM_WEBHOOK_SECRET"] = secret
-        if body.telegram_allowed_user_ids.strip():
-            updates["TELEGRAM_ALLOWED_USER_IDS"] = body.telegram_allowed_user_ids.strip()
-
-    env_path = update_env_file(updates, resolve_env_path(settings.seiton_env_file))
-
-    return SetupSaveResponse(
-        saved=True,
-        env_file=str(env_path),
-        restart_required=True,
-        message=(
-            "Konfiguration gespeichert. Bitte Container neu starten: "
-            "docker compose up -d"
-        ),
-    )
+    return save_setup_config(body)
