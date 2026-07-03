@@ -17,7 +17,7 @@ Consumer-Edition — [ADR 0004](docs/adr/0004-commercial-consumer-product.md),
 ```
 Telegram / API → Worker: [Whisper if voice] → classify → Postgres → .md in vault
               → optional: /ask, /digest (RAG), webhooks, MCP via REST
-Web-UI (localhost): /setup → /dashboard, /ask (Suche+RAG)
+Web-UI (localhost): /setup → /dashboard, /ask, /notes, /settings
 ```
 
 ## Stack
@@ -41,9 +41,9 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 
 ## Status (v0.2.x — Phase C–F)
 
-Core pipeline + REST API + retrieval (E17 komplett). Web-UI E19: Setup-Wizard 🟢,
-Dashboard 🟢, Suche & Ask 🟢, Notizen verwalten 🟢; **E19-5** (Settings-UI) als Nächstes. 272 Tests + GitHub CI.
-Packaging (E20), Licensing (E21) folgen.
+Core pipeline + REST API + retrieval (E17 komplett). **Web-UI E19 komplett**
+(Setup, Dashboard, Suche & Ask, Notizen, Settings). 282 Tests + GitHub CI.
+Nächstes: Packaging (E20), Licensing (E21).
 
 ## Roadmap & Backlog
 
@@ -70,4 +70,4 @@ Bei neuen Features: zuerst ROADMAP-Eintrag und/oder Issue, dann Code.
 - `docker-compose.yml` — api, worker, db, redis
 - `app/main.py` — health, API + UI mount
 - `app/db/session.py` — `get_db()`, `worker_session()`
-- `app/ui/router.py` — `/dashboard`, `/ask`, `/setup`, `/api/ui/*`
+- `app/ui/router.py` — `/dashboard`, `/ask`, `/notes`, `/settings`, `/setup`, `/api/ui/*`

@@ -305,6 +305,9 @@ Statistik (E19-2).
 **Notizen verwalten:** http://localhost:8000/notes — öffnen, bearbeiten, löschen
 (E19-4).
 
+**Einstellungen:** http://localhost:8000/settings — Keys, Provider, Backup, Edition
+(E19-5).
+
 ---
 
 ## Geplantes Setup (CLI — Phase D, Server-Edition)

@@ -62,7 +62,7 @@ def test_setup_test_openai(mock_check):
     assert response.json()["results"]["openai"]["ok"] is True
 
 
-@patch("app.setup.routes.update_env_file")
+@patch("app.setup.config_save.update_env_file")
 def test_setup_save_writes_env(mock_update):
     mock_update.return_value = Path("/tmp/.env")
     response = client.post(

@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E19-5: Settings-UI.** Neue Seite `/settings` (localhost-only) für laufende
+  Konfiguration: Keys/Provider, Telegram, API-Key, Webhook, Kategorie-Mapping,
+  Backup-Hinweise und Edition-Info (ADR 0005). API `GET/POST /api/ui/settings`,
+  `POST /api/ui/settings/test`. Gemeinsame Speicherlogik `app/setup/config_save.py`.
+  10 neue Tests (282 gesamt). **Epic E19 abgeschlossen.**
 - **E19-4: Notizen verwalten (Web-UI).** Neue Seite `/notes` (localhost-only) mit
   Index-Liste, Markdown-Editor (öffnen/speichern/löschen), Ordner-Filter und
   Vault-Konfiguration (Kategorie→Ordner-Mapping). API `GET/PUT/DELETE /api/ui/notes`,

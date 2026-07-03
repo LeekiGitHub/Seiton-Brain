@@ -61,3 +61,47 @@ class NoteDeleteResponse(BaseModel):
 class VaultConfigResponse(BaseModel):
     vault_path: str
     categories: dict[str, str]
+
+
+class EditionInfo(BaseModel):
+    name: str
+    license: str
+    description: str
+
+
+class BackupInfo(BaseModel):
+    command: str
+    directory: str
+    recent: list[str]
+
+
+class SettingsViewResponse(BaseModel):
+    complete: bool
+    components: dict[str, bool]
+    env_file: str
+    vault_host_path: str
+    vault_container_path: str
+    llm_provider: str
+    openai_model: str
+    embeddings_enabled: bool
+    embedding_model: str
+    openai_key_masked: str
+    seiton_api_key_masked: str
+    telegram_configured: bool
+    telegram_allowed_user_ids: str
+    seiton_webhook_url: str
+    categories: dict[str, str]
+    edition: EditionInfo
+    backup: BackupInfo
+
+
+class SettingsSaveRequest(BaseModel):
+    obsidian_vault_host_path: str | None = None
+    openai_api_key: str = ""
+    embeddings_enabled: bool | None = None
+    openai_model: str = ""
+    telegram_bot_token: str = ""
+    telegram_webhook_secret: str = ""
+    telegram_allowed_user_ids: str = ""
+    seiton_api_key: str = ""
+    seiton_webhook_url: str | None = None
