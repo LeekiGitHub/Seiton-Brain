@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E20-1: Consumer-Installer.** Skripte `scripts/install.sh` (macOS/Linux) und
+  `scripts/install.ps1` (Windows) fuer vereinfachtes Heim-Box-Setup: Vault anlegen,
+  `.env` vorbereiten, Docker Compose im Consumer-Modus (`docker-compose.consumer.yml`
+  + Long-Polling), Migrationen, Browser-Setup-Wizard. Diagnose via `scripts/doctor.sh`
+  / `doctor.ps1`. Doku `docs/packaging.md`. 2 neue Shell-Syntax-Tests (282 gesamt).
 - **E19-5: Settings-UI.** Neue Seite `/settings` (localhost-only) für laufende
   Konfiguration: Keys/Provider, Telegram, API-Key, Webhook, Kategorie-Mapping,
   Backup-Hinweise und Edition-Info (ADR 0005). API `GET/POST /api/ui/settings`,

@@ -41,9 +41,9 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 
 ## Status (v0.2.x — Phase C–F)
 
-Core pipeline + REST API + retrieval (E17 komplett). **Web-UI E19 komplett**
-(Setup, Dashboard, Suche & Ask, Notizen, Settings). 282 Tests + GitHub CI.
-Nächstes: Packaging (E20), Licensing (E21).
+Core pipeline + REST API + retrieval (E17 komplett). **Web-UI E19 komplett.**
+**E20-1** Consumer-Installer 🟢. 282 Tests + GitHub CI.
+Nächstes: E20-2 VPS, E20-4 Auto-Update, E21 Lizenzierung.
 
 ## Roadmap & Backlog
 
@@ -67,7 +67,8 @@ Bei neuen Features: zuerst ROADMAP-Eintrag und/oder Issue, dann Code.
 
 ## Key files
 
-- `docker-compose.yml` — api, worker, db, redis
+- `docker-compose.yml` — api, worker, db, redis; `docker-compose.consumer.yml` (E20-1)
+- `scripts/install.sh`, `scripts/doctor.sh` — Consumer-Setup (E20-1)
 - `app/main.py` — health, API + UI mount
 - `app/db/session.py` — `get_db()`, `worker_session()`
 - `app/ui/router.py` — `/dashboard`, `/ask`, `/notes`, `/settings`, `/setup`, `/api/ui/*`

@@ -2,6 +2,8 @@
 
 Lokale Entwicklung und Self-Hosting für Seiton Brain.
 
+**Consumer / Heim-Box (einfach):** [`docs/packaging.md`](packaging.md) — `./scripts/install.sh`
+
 ---
 
 ## Voraussetzungen

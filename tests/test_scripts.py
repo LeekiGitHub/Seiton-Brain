@@ -4,6 +4,8 @@ from pathlib import Path
 SCRIPTS = (
     "scripts/backup.sh",
     "scripts/bootstrap_github.sh",
+    "scripts/install.sh",
+    "scripts/doctor.sh",
 )
 
 
