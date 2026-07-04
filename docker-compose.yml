@@ -43,6 +43,8 @@ services:
 
   # Long-Polling-Alternative zum Webhook (E1-5). Nur mit Profil aktiv:
   #   docker compose --profile polling up
+  # Consumer (E20-1): docker compose -f docker-compose.yml -f docker-compose.consumer.yml --profile polling up -d
+  # Oder: ./scripts/install.sh
   # Webhook (api) und Poller schliessen sich aus — der Poller ruft beim
   # Start deleteWebhook auf. Braucht keine oeffentliche URL.
   poller:

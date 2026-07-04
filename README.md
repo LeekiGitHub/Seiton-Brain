@@ -32,13 +32,15 @@ Stand jetzt (v0.2.x, Phase C–F):
 - **Knowledge Retrieval:** Keyword- + semantische Suche (pgvector), RAG `/ask`, Digest-Synthese
 - REST-API v1 (`/v1/capture`, `/v1/ask`, `/v1/digest`, …) + Outbound-Webhooks
 - MCP-Server für Cursor/Claude (`examples/mcp/`)
-- PostgreSQL + Alembic, Obsidian-Vault mit `[[links]]`, Docker Compose, pytest + GitHub CI (230+ Tests)
+- Web-UI (E19): Setup-Wizard, Dashboard, Suche/Ask, Notizen, Settings
+- Consumer-Installer für Heim-Box (E20-1): `./scripts/install.sh`
+- PostgreSQL + Alembic, Obsidian-Vault mit `[[links]]`, Docker Compose, pytest + GitHub CI (280+ Tests)
 
 Vollständige Historie: [`CHANGELOG.md`](./CHANGELOG.md).
 Was als nächstes kommt: [`ROADMAP.md`](./ROADMAP.md).
 Integrations (REST, MCP, n8n-Beispiele): [`docs/integrations/`](./docs/integrations/).
 Wie es gebaut ist: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
-Wie selbst betreiben: [`docs/setup.md`](./docs/setup.md).
+Wie selbst betreiben: [`docs/setup.md`](./docs/setup.md) · Consumer-Install: [`docs/packaging.md`](./docs/packaging.md).
 
 ---
 
@@ -59,8 +61,7 @@ Ich wollte ein System bauen, das sich wie ein kleines echtes Backend anfühlt �
 
 ## Was noch fehlt (Produkt)
 
-- Web-UI / Dashboard (Epic E19) — Hauptoberfläche für Consumer
-- Packaging & Installer (E20), Lizenzierung (E21)
+- Auto-Update & VPS-Deployment (E20-2/4), Lizenzierung (E21)
 - Ollama als lokale LLM-Alternative
 - Multi-Format-Ingestion (PDF, … — Epic E18)
 
@@ -70,7 +71,7 @@ Ich wollte ein System bauen, das sich wie ein kleines echtes Backend anfühlt �
 
 `vault.example/` ist nur eine Vorlage für die Ordnerstruktur. Mein echter Vault liegt lokal und ist nicht im Repo.
 
-Setup-Details: [`docs/setup.md`](./docs/setup.md).
+Setup-Details: [`docs/setup.md`](./docs/setup.md) · Schnellstart Heim-Box: [`docs/packaging.md`](./docs/packaging.md).
 
 ---
 
@@ -115,13 +116,15 @@ v0.2.x (phases C–F):
 - **Append vs. create**, structured tags, slash commands (`/recent`, `/find`, `/undo`, `/ask`, `/digest`)
 - **Knowledge retrieval:** keyword + semantic search (pgvector), RAG `/ask`, digest synthesis
 - REST API v1 + outbound webhooks; MCP server for Cursor/Claude (`examples/mcp/`)
-- PostgreSQL + Alembic, Obsidian vault with `[[links]]`, Docker Compose, pytest + GitHub CI (230+ tests)
+- Web UI (E19): setup wizard, dashboard, search/ask, notes, settings
+- Consumer installer for home box (E20-1): `./scripts/install.sh`
+- PostgreSQL + Alembic, Obsidian vault with `[[links]]`, Docker Compose, pytest + GitHub CI (280+ tests)
 
 Full history: [`CHANGELOG.md`](./CHANGELOG.md).
 What's next: [`ROADMAP.md`](./ROADMAP.md).
 Integrations: [`docs/integrations/`](./docs/integrations/).
 How it's built: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
-How to self-host: [`docs/setup.md`](./docs/setup.md).
+How to self-host: [`docs/setup.md`](./docs/setup.md) · Consumer install: [`docs/packaging.md`](./docs/packaging.md).
 
 ---
 
@@ -142,8 +145,7 @@ I wanted to build something that feels like a small real backend — not five lo
 
 ## What's still missing (product)
 
-- Web UI / dashboard (epic E19) — main surface for consumers
-- Packaging & installer (E20), licensing (E21)
+- Auto-update & VPS deployment (E20-2/4), licensing (E21)
 - Ollama as a local LLM alternative
 - Multi-format ingestion (PDF, … — epic E18)
 
@@ -153,7 +155,7 @@ I wanted to build something that feels like a small real backend — not five lo
 
 `vault.example/` is just a template for the folder structure. My actual vault lives locally and is not in the repo.
 
-Setup details: [`docs/setup.md`](./docs/setup.md).
+Setup details: [`docs/setup.md`](./docs/setup.md) · Home box quick start: [`docs/packaging.md`](./docs/packaging.md).
 
 ---
 

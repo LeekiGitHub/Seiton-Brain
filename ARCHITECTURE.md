@@ -50,6 +50,8 @@ Volumes:
 
 **Backups:** `scripts/backup.sh` — lokaler Postgres-Dump + Vault-`tar.gz` nach `backups/` (siehe `docs/setup.md`).
 
+**Consumer-Install (E20-1):** `scripts/install.sh` / `install.ps1` + `docker-compose.consumer.yml` — siehe `docs/packaging.md`.
+
 ---
 
 ## Modul-Map (`app/`)
