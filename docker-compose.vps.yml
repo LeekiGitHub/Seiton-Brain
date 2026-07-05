@@ -1,0 +1,17 @@
+# VPS-Modus (E20-2): Dauerbetrieb auf Linux-Server mit Webhook + Reverse-Proxy.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.vps.yml up -d
+# Oder: ./scripts/deploy-vps.sh
+#
+# API nur auf localhost — TLS/HTTPS via Caddy/nginx davor (siehe docs/vps-deployment.md).
+services:
+  db:
+    restart: unless-stopped
+  redis:
+    restart: unless-stopped
+  api:
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+  worker:
+    restart: unless-stopped

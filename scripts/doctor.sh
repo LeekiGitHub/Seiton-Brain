@@ -8,19 +8,58 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.consumer.yml)
-ERRORS=0
-
-ok() { printf '  [ok] %s\n' "$*"; }
-fail() { printf '  [!!] %s\n' "$*" >&2; ERRORS=$((ERRORS + 1)); }
-warn() { printf '  [??] %s\n' "$*" >&2; }
-
 read_env_var() {
   local key="$1"
   if [[ ! -f .env ]]; then
     return 1
   fi
   grep -E "^${key}=" .env | tail -1 | cut -d= -f2- | sed 's/^["'\''"]//; s/["'\''"]$//'
+}
+
+DEPLOY_MODE="${SEITON_DEPLOY_MODE:-}"
+if [[ -z "$DEPLOY_MODE" ]]; then
+  DEPLOY_MODE="$(read_env_var SEITON_DEPLOY_MODE 2>/dev/null || true)"
+fi
+DEPLOY_MODE="${DEPLOY_MODE:-consumer}"
+if [[ "$DEPLOY_MODE" == "vps" ]]; then
+  COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.vps.yml)
+else
+  COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.consumer.yml)
+fi
+ERRORS=0
+
+ok() { printf '  [ok] %s\n' "$*"; }
+fail() { printf '  [!!] %s\n' "$*" >&2; ERRORS=$((ERRORS + 1)); }
+warn() { printf '  [??] %s\n' "$*" >&2; }
+
+check_telegram_transport() {
+  local running token info
+  running="$(docker compose "${COMPOSE_FILES[@]}" ps --status running --services 2>/dev/null || true)"
+  if [[ "$DEPLOY_MODE" == "vps" ]]; then
+    if echo "$running" | grep -qx poller; then
+      warn "Poller laeuft im VPS-Modus — stoppe ihn (Webhook-Konflikt)"
+    else
+      ok "Kein Poller (VPS/Webhook-Modus)"
+    fi
+    token="$(read_env_var TELEGRAM_BOT_TOKEN || true)"
+    if [[ -n "${token:-}" && "$token" != "..." ]]; then
+      if info="$(curl -sf "https://api.telegram.org/bot${token}/getWebhookInfo" 2>/dev/null)"; then
+        if echo "$info" | grep -q '"url":"https'; then
+          ok "Telegram-Webhook registriert"
+        else
+          warn "Telegram-Webhook nicht gesetzt — ./scripts/register-telegram-webhook.sh"
+        fi
+      else
+        warn "getWebhookInfo fehlgeschlagen (Netzwerk/Token?)"
+      fi
+    fi
+    return
+  fi
+  if echo "$running" | grep -qx poller; then
+    ok "Telegram Poller laeuft (Long-Polling)"
+  else
+    warn "Telegram Poller laeuft nicht — optional: --profile polling"
+  fi
 }
 
 check_docker() {
@@ -66,11 +105,7 @@ check_compose_services() {
       fail "Service '$svc' laeuft nicht"
     fi
   done
-  if echo "$running" | grep -qx poller; then
-    ok "Telegram Poller laeuft (Long-Polling)"
-  else
-    warn "Telegram Poller laeuft nicht — optional: --profile polling"
-  fi
+  check_telegram_transport
 }
 
 check_http() {
@@ -94,7 +129,7 @@ check_http() {
 }
 
 main() {
-  printf 'Seiton Brain Doctor\n\n'
+  printf 'Seiton Brain Doctor (%s)\n\n' "$DEPLOY_MODE"
   check_docker
   check_env_file
   check_vault_path

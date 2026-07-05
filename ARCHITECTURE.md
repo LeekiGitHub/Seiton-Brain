@@ -52,6 +52,8 @@ Volumes:
 
 **Consumer-Install (E20-1):** `scripts/install.sh` / `install.ps1` + `docker-compose.consumer.yml` — siehe `docs/packaging.md`.
 
+**VPS-Deploy (E20-2):** `scripts/deploy-vps.sh` + `docker-compose.vps.yml` — siehe `docs/vps-deployment.md`.
+
 ---
 
 ## Modul-Map (`app/`)

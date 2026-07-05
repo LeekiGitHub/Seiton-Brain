@@ -6,6 +6,8 @@ SCRIPTS = (
     "scripts/bootstrap_github.sh",
     "scripts/install.sh",
     "scripts/doctor.sh",
+    "scripts/deploy-vps.sh",
+    "scripts/register-telegram-webhook.sh",
 )
 
 

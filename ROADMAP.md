@@ -404,7 +404,7 @@ offiziellen Release (ADR 0004).
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
 | E20-1 | Reduzierte Version: stark vereinfachtes Setup / gebündelter Installer für die Heim-Box (Mac/Windows/Linux). | 5 | 4 | 4 | 5 | 5 | 🟢 | G |
-| E20-2 | (Später) VPS-Deployment-Pfad (z. B. IONOS): Skript-Setup für Dauerbetrieb. | 4 | 3 | 3 | 4 | 2 | ⚪ | G+ |
+| E20-2 | (Später) VPS-Deployment-Pfad (z. B. IONOS): Skript-Setup für Dauerbetrieb. | 4 | 3 | 3 | 4 | 2 | 🟢 | G+ |
 | E20-3 | ~~Vollwertige native Desktop-App~~ — **kein Nahziel** (Web-UI E19 deckt den Bedarf ab, ADR 0004). Nur falls später echter Bedarf. | 2 | 5 | 4 | 4 | 1 | ⚪ | G+ |
 | E20-4 | Auto-Update-Mechanismus (liefert Bugfixes/Updates an Kunden aus). | 4 | 3 | 3 | 4 | 3 | ⚪ | G |
 | E20-5 | Code-Signing / Notarization (nur relevant, falls native App; sonst entbehrlich). | 2 | 3 | 3 | 3 | 1 | ⚪ | G+ |
