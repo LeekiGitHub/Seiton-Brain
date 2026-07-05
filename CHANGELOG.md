@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E20-2: VPS-Deployment.** Skript `scripts/deploy-vps.sh` fuer Linux-VPS
+  (Webhook-Modus, kein Poller), `docker-compose.vps.yml` (localhost-Bind +
+  Restart), `scripts/register-telegram-webhook.sh`, Caddy-Beispiel
+  `deploy/Caddyfile.example`, Doku `docs/vps-deployment.md`. Doctor erkennt
+  `SEITON_DEPLOY_MODE=vps`. 2 neue Shell-Syntax-Tests (282 gesamt).
 - **E20-1: Consumer-Installer.** Skripte `scripts/install.sh` (macOS/Linux) und
   `scripts/install.ps1` (Windows) fuer vereinfachtes Heim-Box-Setup: Vault anlegen,
   `.env` vorbereiten, Docker Compose im Consumer-Modus (`docker-compose.consumer.yml`

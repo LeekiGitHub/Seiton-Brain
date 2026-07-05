@@ -90,10 +90,20 @@ Siehe [`docs/setup.md`](setup.md#backups-lokal).
 
 ---
 
-## Später (E20-2+)
+## Später (E20-4+)
 
-- **E20-2:** VPS-Deployment-Skript (IONOS o. Ä.)
 - **E20-4:** Auto-Update-Mechanismus
 - **E20-3/5:** Native Desktop-App / Code-Signing — kein Nahziel (Web-UI reicht, ADR 0004)
+
+---
+
+## VPS (Dauerbetrieb)
+
+Server mit öffentlicher Domain und Telegram-Webhook: [`docs/vps-deployment.md`](vps-deployment.md) (E20-2).
+
+```bash
+./scripts/deploy-vps.sh
+PUBLIC_URL=https://deine-domain.tld ./scripts/register-telegram-webhook.sh
+```
 
 Power-User und Entwickler: vollständige Anleitung in [`docs/setup.md`](setup.md).

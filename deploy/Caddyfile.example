@@ -1,0 +1,12 @@
+# Beispiel-Caddy-Konfiguration fuer VPS (E20-2).
+#
+# 1. Domain per DNS auf die VPS-IP zeigen lassen
+# 2. Caddy installieren: https://caddyserver.com/docs/install
+# 3. Diese Datei nach /etc/caddy/Caddyfile kopieren und Domain anpassen
+# 4. sudo systemctl reload caddy
+# 5. PUBLIC_URL=https://brain.example.com ./scripts/register-telegram-webhook.sh
+
+brain.example.com {
+	encode gzip
+	reverse_proxy 127.0.0.1:8000
+}

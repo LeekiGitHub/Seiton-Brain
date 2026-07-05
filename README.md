@@ -40,7 +40,7 @@ Vollständige Historie: [`CHANGELOG.md`](./CHANGELOG.md).
 Was als nächstes kommt: [`ROADMAP.md`](./ROADMAP.md).
 Integrations (REST, MCP, n8n-Beispiele): [`docs/integrations/`](./docs/integrations/).
 Wie es gebaut ist: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
-Wie selbst betreiben: [`docs/setup.md`](./docs/setup.md) · Consumer-Install: [`docs/packaging.md`](./docs/packaging.md).
+Wie selbst betreiben: [`docs/setup.md`](./docs/setup.md) · Heim-Box: [`docs/packaging.md`](./docs/packaging.md) · VPS: [`docs/vps-deployment.md`](./docs/vps-deployment.md).
 
 ---
 
@@ -61,7 +61,7 @@ Ich wollte ein System bauen, das sich wie ein kleines echtes Backend anfühlt �
 
 ## Was noch fehlt (Produkt)
 
-- Auto-Update & VPS-Deployment (E20-2/4), Lizenzierung (E21)
+- Auto-Update (E20-4), Lizenzierung (E21)
 - Ollama als lokale LLM-Alternative
 - Multi-Format-Ingestion (PDF, … — Epic E18)
 
@@ -124,7 +124,7 @@ Full history: [`CHANGELOG.md`](./CHANGELOG.md).
 What's next: [`ROADMAP.md`](./ROADMAP.md).
 Integrations: [`docs/integrations/`](./docs/integrations/).
 How it's built: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
-How to self-host: [`docs/setup.md`](./docs/setup.md) · Consumer install: [`docs/packaging.md`](./docs/packaging.md).
+How to self-host: [`docs/setup.md`](./docs/setup.md) · Home box: [`docs/packaging.md`](./docs/packaging.md) · VPS: [`docs/vps-deployment.md`](./docs/vps-deployment.md).
 
 ---
 

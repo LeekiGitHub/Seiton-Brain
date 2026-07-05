@@ -4,6 +4,8 @@ Lokale Entwicklung und Self-Hosting für Seiton Brain.
 
 **Consumer / Heim-Box (einfach):** [`docs/packaging.md`](packaging.md) — `./scripts/install.sh`
 
+**VPS / Dauerbetrieb:** [`docs/vps-deployment.md`](vps-deployment.md) — `./scripts/deploy-vps.sh`
+
 ---
 
 ## Voraussetzungen
