@@ -90,10 +90,25 @@ Siehe [`docs/setup.md`](setup.md#backups-lokal).
 
 ---
 
-## Später (E20-4+)
+## Updates (E20-4)
 
-- **E20-4:** Auto-Update-Mechanismus
-- **E20-3/5:** Native Desktop-App / Code-Signing — kein Nahziel (Web-UI reicht, ADR 0004)
+```bash
+./scripts/update.sh --check   # verfuegbare Updates anzeigen
+./scripts/update.sh           # Backup + git pull + Rebuild + Migrationen
+```
+
+Erkennt automatisch Consumer- vs. VPS-Modus (`SEITON_DEPLOY_MODE` in `.env`).
+
+**Optional — woechentlich per systemd** (Linux):
+
+```bash
+sudo cp deploy/seiton-update.{service,timer} /etc/systemd/system/
+# Pfade/User in seiton-update.service anpassen
+sudo systemctl daemon-reload
+sudo systemctl enable --now seiton-update.timer
+```
+
+Alternativ Cron: `0 4 * * 0 cd /opt/seiton-brain && ./scripts/update.sh`
 
 ---
 

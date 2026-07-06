@@ -8,6 +8,8 @@ SCRIPTS = (
     "scripts/doctor.sh",
     "scripts/deploy-vps.sh",
     "scripts/register-telegram-webhook.sh",
+    "scripts/update.sh",
+    "scripts/lib/deploy.sh",
 )
 
 

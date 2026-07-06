@@ -127,6 +127,9 @@ Naechste Schritte:
   4) Status:
        SEITON_DEPLOY_MODE=vps ./scripts/doctor.sh
 
+  5) Updates:
+       ./scripts/update.sh
+
 Doku: docs/vps-deployment.md
 
 EOF

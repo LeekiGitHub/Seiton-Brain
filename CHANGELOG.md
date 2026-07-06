@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E20-4: Auto-Update.** `scripts/update.sh` (git pull, Rebuild, Migrationen,
+  optionales Backup, `--check`/`--no-backup`), gemeinsame Hilfen `scripts/lib/deploy.sh`,
+  systemd-Timer-Beispiel `deploy/seiton-update.{service,timer}`. Doctor nutzt
+  deploy-Lib. 1 neuer Shell-Syntax-Test (282 gesamt).
 - **E20-2: VPS-Deployment.** Skript `scripts/deploy-vps.sh` fuer Linux-VPS
   (Webhook-Modus, kein Poller), `docker-compose.vps.yml` (localhost-Bind +
   Restart), `scripts/register-telegram-webhook.sh`, Caddy-Beispiel

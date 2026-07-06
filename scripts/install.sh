@@ -124,6 +124,7 @@ Seiton Brain laeuft.
   Setup-Wizard:  $SETUP_URL
   Dashboard:     http://localhost:8000/dashboard
   Status pruefen: ./scripts/doctor.sh
+  Updates:       ./scripts/update.sh
   Stoppen:       docker compose ${COMPOSE_FILES[*]} ${COMPOSE_PROFILE[*]} down
   Logs:          docker compose ${COMPOSE_FILES[*]} logs -f api worker
 

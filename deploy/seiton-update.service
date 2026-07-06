@@ -1,0 +1,14 @@
+[Unit]
+Description=Seiton Brain Auto-Update (E20-4)
+Documentation=file:///opt/seiton-brain/docs/packaging.md
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/seiton-brain
+ExecStart=/opt/seiton-brain/scripts/update.sh
+# User anpassen — muss Docker nutzen duerfen:
+User=seiton
+Group=docker
+
+[Install]
+WantedBy=multi-user.target
