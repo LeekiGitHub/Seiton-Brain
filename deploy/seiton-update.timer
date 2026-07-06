@@ -1,0 +1,12 @@
+[Unit]
+Description=Woechentliches Seiton-Brain-Update
+Documentation=file:///opt/seiton-brain/docs/packaging.md
+
+[Timer]
+# Sonntag 04:00 — anpassen nach Bedarf
+OnCalendar=Sun *-*-* 04:00:00
+Persistent=true
+RandomizedDelaySec=30m
+
+[Install]
+WantedBy=timers.target

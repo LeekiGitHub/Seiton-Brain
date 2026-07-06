@@ -54,6 +54,8 @@ Volumes:
 
 **VPS-Deploy (E20-2):** `scripts/deploy-vps.sh` + `docker-compose.vps.yml` — siehe `docs/vps-deployment.md`.
 
+**Auto-Update (E20-4):** `scripts/update.sh` — siehe `docs/packaging.md`.
+
 ---
 
 ## Modul-Map (`app/`)

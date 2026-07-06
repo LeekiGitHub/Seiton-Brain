@@ -61,7 +61,7 @@ Ich wollte ein System bauen, das sich wie ein kleines echtes Backend anfühlt �
 
 ## Was noch fehlt (Produkt)
 
-- Auto-Update (E20-4), Lizenzierung (E21)
+- Lizenzierung (E21)
 - Ollama als lokale LLM-Alternative
 - Multi-Format-Ingestion (PDF, … — Epic E18)
 
@@ -145,7 +145,7 @@ I wanted to build something that feels like a small real backend — not five lo
 
 ## What's still missing (product)
 
-- Auto-update & VPS deployment (E20-2/4), licensing (E21)
+- Licensing (E21)
 - Ollama as a local LLM alternative
 - Multi-format ingestion (PDF, … — epic E18)
 

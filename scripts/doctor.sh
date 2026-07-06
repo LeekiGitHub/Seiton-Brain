@@ -8,24 +8,11 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-read_env_var() {
-  local key="$1"
-  if [[ ! -f .env ]]; then
-    return 1
-  fi
-  grep -E "^${key}=" .env | tail -1 | cut -d= -f2- | sed 's/^["'\''"]//; s/["'\''"]$//'
-}
+# shellcheck source=scripts/lib/deploy.sh
+source "$ROOT/scripts/lib/deploy.sh"
 
-DEPLOY_MODE="${SEITON_DEPLOY_MODE:-}"
-if [[ -z "$DEPLOY_MODE" ]]; then
-  DEPLOY_MODE="$(read_env_var SEITON_DEPLOY_MODE 2>/dev/null || true)"
-fi
-DEPLOY_MODE="${DEPLOY_MODE:-consumer}"
-if [[ "$DEPLOY_MODE" == "vps" ]]; then
-  COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.vps.yml)
-else
-  COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.consumer.yml)
-fi
+DEPLOY_MODE="$(resolve_deploy_mode)"
+load_compose_config "$DEPLOY_MODE"
 ERRORS=0
 
 ok() { printf '  [ok] %s\n' "$*"; }
@@ -34,7 +21,7 @@ warn() { printf '  [??] %s\n' "$*" >&2; }
 
 check_telegram_transport() {
   local running token info
-  running="$(docker compose "${COMPOSE_FILES[@]}" ps --status running --services 2>/dev/null || true)"
+  running="$(compose_cmd ps --status running --services 2>/dev/null || true)"
   if [[ "$DEPLOY_MODE" == "vps" ]]; then
     if echo "$running" | grep -qx poller; then
       warn "Poller laeuft im VPS-Modus — stoppe ihn (Webhook-Konflikt)"
@@ -97,7 +84,7 @@ check_compose_services() {
     return
   fi
   local running
-  running="$(docker compose "${COMPOSE_FILES[@]}" ps --status running --services 2>/dev/null || true)"
+  running="$(compose_cmd ps --status running --services 2>/dev/null || true)"
   for svc in api worker db redis; do
     if echo "$running" | grep -qx "$svc"; then
       ok "Service '$svc' laeuft"

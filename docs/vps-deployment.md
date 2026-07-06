@@ -124,17 +124,18 @@ Testnachricht an den Bot senden → „Wird verarbeitet…".
 ```bash
 ./scripts/doctor.sh              # erkennt VPS-Modus via SEITON_DEPLOY_MODE
 ./scripts/backup.sh              # Postgres + Vault
+./scripts/update.sh              # Auto-Update (E20-4)
 docker compose -f docker-compose.yml -f docker-compose.vps.yml logs -f api worker
 ```
 
-Updates (manuell, bis E20-4 Auto-Update):
+### Updates (E20-4)
 
 ```bash
-cd /opt/seiton-brain
-git pull
-docker compose -f docker-compose.yml -f docker-compose.vps.yml up -d --build
-docker compose -f docker-compose.yml -f docker-compose.vps.yml run --rm api alembic upgrade head
+./scripts/update.sh --check
+./scripts/update.sh
 ```
+
+Optional systemd-Timer: `deploy/seiton-update.{service,timer}` — siehe [`docs/packaging.md`](packaging.md).
 
 ---
 
