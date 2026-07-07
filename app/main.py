@@ -7,11 +7,13 @@ from fastapi.responses import JSONResponse
 from app.api.v1.routes import router as api_v1_router
 from app.config import settings
 from app.health import run_health_checks
+from app.licensing.startup import enforce_license_if_required
 from app.logging_config import bind_log_context, clear_log_context, configure_logging
 from app.setup.routes import router as setup_api_router
 from app.telegram.webhook import router as telegram_router
 from app.ui.router import mount_ui_static, router as ui_router, ui_api_router
 
+enforce_license_if_required()
 configure_logging()
 _logger = logging.getLogger(__name__)
 if settings.seiton_api_key:

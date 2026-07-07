@@ -56,6 +56,9 @@ Volumes:
 
 **Auto-Update (E20-4):** `scripts/update.sh` — siehe `docs/packaging.md`.
 
+**Lizenzierung (E21-1):** `app/licensing/` + `docs/licensing.md` — offline Ed25519-Keys,
+`SEITON_LICENSE_REQUIRED` für kommerzielle Distribution; Issuer `scripts/issue-license.py`.
+
 ---
 
 ## Modul-Map (`app/`)
@@ -64,6 +67,7 @@ Volumes:
 app/
 ├── main.py                  FastAPI-App, /health, registriert Webhook-Router
 ├── config.py                Settings-Klasse (pydantic-settings), zentrale Env-Konfig
+├── licensing/               Offline-Lizenzprüfung Ed25519 (E21-1): validate, startup
 ├── telegram/
 │   ├── webhook.py           POST /webhook (Transport) + process_update (transport-agnostisch)
 │   ├── polling.py           Long-Polling-Poller (getUpdates) als Webhook-Alternative (E1-5)

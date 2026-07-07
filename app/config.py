@@ -143,6 +143,12 @@ class Settings(BaseSettings):
     # Event-Typ steht im JSON-Feld ``event`` und Header ``X-Seiton-Event``.
     seiton_webhook_url: str = ""
 
+    # Kommerzielle Lizenz (E21-1). Leer = keine Lizenz hinterlegt.
+    # Format: SEITON1.<payload>.<signature> — siehe docs/licensing.md
+    seiton_license_key: str = ""
+    # false = MIT/Portfolio (Default). true = Prozess startet nur mit gueltiger Lizenz.
+    seiton_license_required: bool = False
+
 
 def load_settings() -> Settings:
     try:

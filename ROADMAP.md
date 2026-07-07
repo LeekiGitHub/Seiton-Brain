@@ -417,9 +417,9 @@ Verkaufsmechanik für **buy-once**, ohne dass wir Server betreiben (ADR 0004).
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E21-1 | Lizenz-Key: Format + **offline-validierbare** Prüfung (kein Server-Zwang). | 5 | 4 | 3 | 4 | 4 | ⚪ | G |
+| E21-1 | Lizenz-Key: Format + **offline-validierbare** Prüfung (kein Server-Zwang). | 5 | 4 | 3 | 4 | 4 | 🟢 | G |
 | E21-2 | Verkaufskanal (Eigenshop/Store) + Lizenz-Ausgabe an Käufer. | 4 | 3 | 2 | 3 | 3 | ⚪ | G+ |
-| E21-3 | Klare Lizenz-/Edition-Kommunikation (was ist im Kauf enthalten, Update-Politik). | 3 | 1 | 1 | 2 | 3 | ⚪ | G+ |
+| E21-3 | Klare Lizenz-/Edition-Kommunikation (was ist im Kauf enthalten, Update-Politik). | 3 | 1 | 1 | 2 | 3 | 🟢 | G+ |
 
 Offen: genaue Lizenz-Mechanik, Update-Auslieferung, evtl. Edition-Stufen (ADR 0004).
 

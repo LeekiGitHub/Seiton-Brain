@@ -2,7 +2,10 @@ from celery import Celery
 from celery.signals import setup_logging, task_postrun, task_prerun
 
 from app.config import settings
+from app.licensing.startup import enforce_license_if_required
 from app.logging_config import bind_log_context, clear_log_context, configure_logging
+
+enforce_license_if_required()
 
 celery_app = Celery("seiton_brain", include=["app.worker.tasks"])
 celery_app.conf.broker_url = settings.redis_url

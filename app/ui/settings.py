@@ -7,6 +7,7 @@ from pathlib import Path
 from app.config import settings
 from app.setup.env_file import read_env_values, resolve_env_path
 from app.setup.status import component_status, is_placeholder, is_setup_complete
+from app.licensing.startup import check_current_license
 from app.ui.schemas import BackupInfo, EditionInfo, SettingsSaveRequest, SettingsViewResponse
 from app.vault.writer import CATEGORY_FOLDERS
 
@@ -18,6 +19,20 @@ EDITION_INFO = EditionInfo(
         "Consumer-Edition bei verkaufsfertigem Produkt (ADR 0004/0005)."
     ),
 )
+
+
+def resolve_edition_info() -> EditionInfo:
+    info = check_current_license()
+    key = settings.seiton_license_key.strip()
+    if key and info.valid:
+        label = (info.edition or "consumer").replace("_", " ").title()
+        features = ", ".join(info.features) if info.features else "—"
+        return EditionInfo(
+            name=f"Seiton Brain ({label})",
+            license="Kommerzielle Lizenz",
+            description=f"Lizenziert für {info.licensee}. Enthalten: {features}.",
+        )
+    return EDITION_INFO
 
 
 def mask_secret(value: str) -> str:
@@ -68,7 +83,7 @@ def load_settings_view() -> SettingsViewResponse:
             "SEITON_WEBHOOK_URL", settings.seiton_webhook_url
         ),
         categories=dict(CATEGORY_FOLDERS),
-        edition=EDITION_INFO,
+        edition=resolve_edition_info(),
         backup=BackupInfo(
             command="./scripts/backup.sh",
             directory=str(_backups_dir()),

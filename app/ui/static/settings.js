@@ -53,6 +53,32 @@
       <p class="empty">${escapeHtml(edition.description)}</p>`;
   }
 
+  function renderLicense(license) {
+    const badge = license.valid
+      ? '<span class="badge ok">gültig</span>'
+      : license.key_masked
+        ? '<span class="badge err">ungültig</span>'
+        : '<span class="badge">keine</span>';
+    const expires = license.expires ? ` · gültig bis ${license.expires}` : "";
+    document.getElementById("license-status").innerHTML = `
+      <p>${badge} ${escapeHtml(license.message || "")}${escapeHtml(expires)}</p>
+      ${license.licensee ? `<p class="hit-path">Lizenznehmer: ${escapeHtml(license.licensee)}</p>` : ""}`;
+    document.getElementById("license-masked").textContent = license.key_masked
+      ? `Aktuell: ${license.key_masked}`
+      : "";
+    if (license.required && !license.valid) {
+      document.getElementById("license-status").innerHTML +=
+        '<p class="empty">SEITON_LICENSE_REQUIRED=true — Prozess startet nur mit gültiger Lizenz.</p>';
+    }
+  }
+
+  async function loadLicense() {
+    const res = await fetch("/api/ui/license");
+    if (!res.ok) throw new Error("Lizenzstatus konnte nicht geladen werden");
+    const data = await res.json();
+    renderLicense(data);
+  }
+
   async function load() {
     const res = await fetch("/api/ui/settings");
     if (!res.ok) throw new Error("Einstellungen konnten nicht geladen werden");
@@ -73,6 +99,7 @@
     renderCategories(data.categories);
     renderBackup(data.backup);
     renderEdition(data.edition);
+    await loadLicense();
   }
 
   async function runTest(check, extra = {}) {
@@ -108,6 +135,29 @@
   });
   document.getElementById("btn-test-telegram").addEventListener("click", () => {
     runTest("telegram").catch((err) => alert(err.message));
+  });
+
+  document.getElementById("btn-save-license").addEventListener("click", async () => {
+    const resultEl = document.getElementById("license-result");
+    const key = document.getElementById("license-key").value.trim();
+    if (!key) {
+      showResult(resultEl, false, "Bitte Lizenzschlüssel eingeben");
+      return;
+    }
+    try {
+      const res = await fetch("/api/ui/license", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ license_key: key }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Speichern fehlgeschlagen");
+      showResult(resultEl, true, data.message);
+      document.getElementById("license-key").value = "";
+      await load();
+    } catch (err) {
+      showResult(resultEl, false, err.message);
+    }
   });
 
   document.getElementById("settings-form").addEventListener("submit", async (e) => {
