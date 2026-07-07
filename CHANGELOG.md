@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E21-1: Offline-Lizenzierung.** Ed25519-signierte Lizenzschlüssel (`SEITON1.…`),
+  Modul `app/licensing/`, Startup-Enforcement via `SEITON_LICENSE_REQUIRED`,
+  Issuer `scripts/issue-license.py`, Settings-UI (Lizenzstatus + Speichern),
+  Doku `docs/licensing.md` (E21-3). Dependency `cryptography`. 12 neue Tests (294 gesamt).
 - **E20-4: Auto-Update.** `scripts/update.sh` (git pull, Rebuild, Migrationen,
   optionales Backup, `--check`/`--no-backup`), gemeinsame Hilfen `scripts/lib/deploy.sh`,
   systemd-Timer-Beispiel `deploy/seiton-update.{service,timer}`. Doctor nutzt

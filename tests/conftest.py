@@ -16,3 +16,5 @@ os.environ["DATABASE_URL"] = "postgresql+asyncpg://user:pass@localhost:5432/test
 os.environ["REDIS_URL"] = "redis://localhost:6379/0"
 os.environ["OBSIDIAN_VAULT_PATH"] = "/tmp/seiton-test-vault"
 os.environ["SEITON_API_KEY"] = "test-seiton-api-key"
+os.environ["SEITON_LICENSE_KEY"] = ""
+os.environ["SEITON_LICENSE_REQUIRED"] = "false"

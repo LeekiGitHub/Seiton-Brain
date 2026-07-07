@@ -24,6 +24,8 @@ from app.ui.notes import (
 )
 from app.ui.schemas import (
     DashboardResponse,
+    LicenseSaveRequest,
+    LicenseStatusResponse,
     NoteDeleteResponse,
     NoteListResponse,
     NoteSaveRequest,
@@ -34,6 +36,7 @@ from app.ui.schemas import (
 )
 from app.setup.schemas import SetupSaveResponse, SetupTestRequest, SetupTestResponse
 from app.ui.service import load_dashboard
+from app.ui.license import license_status, save_license
 from app.ui.settings import load_settings_view, save_settings
 from app.vault.index import retrieve_vault_notes
 
@@ -257,6 +260,24 @@ async def settings_test_api(
     from app.setup.routes import setup_test
 
     return await setup_test(body)
+
+
+@ui_api_router.get("/license", response_model=LicenseStatusResponse)
+async def license_api(
+    _: None = Depends(_localhost_dep),
+) -> LicenseStatusResponse:
+    return license_status()
+
+
+@ui_api_router.post("/license", response_model=SetupSaveResponse)
+async def license_save_api(
+    body: LicenseSaveRequest,
+    _: None = Depends(_localhost_dep),
+) -> SetupSaveResponse:
+    try:
+        return save_license(body)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 def mount_ui_static(app) -> None:

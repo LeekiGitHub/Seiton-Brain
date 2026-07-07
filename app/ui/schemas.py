@@ -1,6 +1,6 @@
 """Pydantic-Schemas fuer die Web-UI (E19)."""
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, Field
 
@@ -67,6 +67,22 @@ class EditionInfo(BaseModel):
     name: str
     license: str
     description: str
+
+
+class LicenseStatusResponse(BaseModel):
+    required: bool
+    valid: bool
+    edition: str | None = None
+    licensee: str | None = None
+    issued: date | None = None
+    expires: date | None = None
+    features: list[str] = Field(default_factory=list)
+    message: str = ""
+    key_masked: str = ""
+
+
+class LicenseSaveRequest(BaseModel):
+    license_key: str = Field(min_length=10, max_length=5000)
 
 
 class BackupInfo(BaseModel):

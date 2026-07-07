@@ -33,6 +33,7 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 - `app/vault/` — reader, writer, index (keyword + semantic search)
 - `app/api/v1/` — REST API (capture, ask, digest, search, …)
 - `app/setup/` — Setup-Wizard (env checks, `.env` schreiben)
+- `app/licensing/` — Offline-Lizenz Ed25519 (E21-1), `docs/licensing.md`
 - `app/ui/` — Web-UI: templates, static, dashboard/ask API (`/api/ui/*`)
 - `app/webhooks/` — outbound events (note.created, note.indexed, …)
 - `examples/mcp/` — MCP server for Cursor/Claude
@@ -42,8 +43,8 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 ## Status (v0.2.x — Phase C–F)
 
 Core pipeline + REST API + retrieval (E17 komplett). **Web-UI E19 komplett.**
-**E20-1** Consumer-Installer 🟢, **E20-2** VPS 🟢, **E20-4** Auto-Update 🟢. 282 Tests.
-Nächstes: E21 Lizenzierung.
+**E20** Packaging (Installer, VPS, Auto-Update) 🟢. **E21-1/E21-3** Lizenzierung 🟢.
+294 Tests. E21-2 Verkaufskanal später.
 
 ## Roadmap & Backlog
 
