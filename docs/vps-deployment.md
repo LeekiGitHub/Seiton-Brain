@@ -1,5 +1,7 @@
 # VPS-Deployment (E20-2)
 
+> **Überblick aller Plattformen:** [`self-hosting.md`](self-hosting.md) (E9-2)
+
 Dauerbetrieb auf einem **Linux-VPS** (IONOS, Hetzner, DigitalOcean, …) mit
 **Telegram-Webhook** und **HTTPS** — ohne Long-Polling.
 

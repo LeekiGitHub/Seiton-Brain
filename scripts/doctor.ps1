@@ -70,6 +70,8 @@ try {
 Write-Host ""
 if ($Errors -gt 0) {
     Write-Host "$Errors harte(r) Fehler — siehe Hinweise oben."
+    Write-Host "Hilfe: docs/self-hosting.md"
     exit 1
 }
 Write-Host "Alles ok."
+Write-Host "Doku: docs/self-hosting.md"

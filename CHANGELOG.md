@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E9-2: Multi-Plattform-Self-Hosting.** Zentraler Einstieg `docs/self-hosting.md`
+  (Entscheidungstabelle Mac/Windows/Linux/VPS, Compose-Profile, Plattform-Tipps,
+  Troubleshooting). Verlinkt aus README, `packaging.md`, `vps-deployment.md`.
+  Doctor-Skripte verweisen auf die Doku. 2 neue Doc-Tests (296 gesamt).
 - **E21-1: Offline-Lizenzierung.** Ed25519-signierte Lizenzschlüssel (`SEITON1.…`),
   Modul `app/licensing/`, Startup-Enforcement via `SEITON_LICENSE_REQUIRED`,
   Issuer `scripts/issue-license.py`, Settings-UI (Lizenzstatus + Speichern),

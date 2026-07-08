@@ -44,7 +44,7 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 
 Core pipeline + REST API + retrieval (E17 komplett). **Web-UI E19 komplett.**
 **E20** Packaging (Installer, VPS, Auto-Update) 🟢. **E21-1/E21-3** Lizenzierung 🟢.
-294 Tests. E21-2 Verkaufskanal später.
+**E9-2** Self-Hosting-Hub 🟢. 296 Tests. E21-2 Verkaufskanal / E9-3 Remote später.
 
 ## Roadmap & Backlog
 

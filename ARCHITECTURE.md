@@ -59,6 +59,9 @@ Volumes:
 **Lizenzierung (E21-1):** `app/licensing/` + `docs/licensing.md` — offline Ed25519-Keys,
 `SEITON_LICENSE_REQUIRED` für kommerzielle Distribution; Issuer `scripts/issue-license.py`.
 
+**Self-Hosting (E9-2):** `docs/self-hosting.md` — Plattform-Überblick, Compose-Modi
+(consumer/vps/dev), Verweise auf E20-Installer und VPS-Doku.
+
 ---
 
 ## Modul-Map (`app/`)
