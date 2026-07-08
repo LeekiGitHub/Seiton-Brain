@@ -125,9 +125,11 @@ main() {
   printf '\n'
   if [[ "$ERRORS" -gt 0 ]]; then
     printf '%d harte(r) Fehler — siehe Hinweise oben.\n' "$ERRORS"
+    printf 'Hilfe: docs/self-hosting.md\n'
     exit 1
   fi
   printf 'Alles ok.\n'
+  printf 'Doku: docs/self-hosting.md\n'
 }
 
 main "$@"

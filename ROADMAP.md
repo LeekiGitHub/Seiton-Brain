@@ -189,7 +189,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
 | E9-1 | Dockerfile härten: non-root user, multi-stage, `HEALTHCHECK`. | 3 | 2 | 2 | 4 | 3 | 🟢 | C |
-| E9-2 | Multi-Plattform-Self-Hosting: Anleitungen + Compose-Profile für Mac/Windows/Linux **und** VPS (z. B. IONOS). Verallgemeinert den früheren „Mac Mini 24/7"-Plan. | 4 | 2 | 2 | 4 | 4 | ⚪ | G |
+| E9-2 | Multi-Plattform-Self-Hosting: Anleitungen + Compose-Profile für Mac/Windows/Linux **und** VPS (z. B. IONOS). Verallgemeinert den früheren „Mac Mini 24/7"-Plan. | 4 | 2 | 2 | 4 | 4 | 🟢 | G |
 | E9-3 | Optionaler Remote-Zugang für VPS-Betrieb (Reverse-Proxy/Tunnel, TLS). Für lokales Consumer-Hosting **nicht** nötig (Long-Polling, E1-5). | 3 | 2 | 2 | 3 | 3 | ⚪ | G |
 | E9-4 | Backups: Postgres-Dump + Vault-Snapshot (lokal). | 3 | 2 | 2 | 3 | 3 | 🟢 | C |
 | E9-5 | (Eval) Vereinfachter Stack für Consumer-Edition: SQLite statt Postgres, in-process Worker statt Redis/Celery — weniger bewegliche Teile beim Endnutzer. Server-/VPS-Edition behält vollen Stack. Offen: eine vs. zwei Editionen (ADR 0004). | 4 | 4 | 4 | 5 | 3 | ⚪ | G |
@@ -447,7 +447,7 @@ Offen: genaue Lizenz-Mechanik, Update-Auslieferung, evtl. Edition-Stufen (ADR 00
 
 **Phase A (MVP) und Phase B (Product) sind komplett — Release v0.2.0.**
 **Phase C** läuft: E10-4, E10-1, E8-2, E13-1, E13-2, E7-1, E9-1, E10-3, E9-4, E13-3, E14-1, E5-1, E17-1 🟢.
-Mac-Mini-Stories (E9-2/E9-3) zurückgestellt bis Hardware da ist.
+Mac-Mini-spezifisch (E9-3 Remote-Zugang) optional; **E9-2** Self-Hosting-Hub 🟢.
 
 ## Spätere Phasen (Kurzüberblick)
 

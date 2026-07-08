@@ -1,4 +1,6 @@
-# Packaging & Consumer-Installation (E20)
+# Packaging & Consumer-Installation (E20-1)
+
+> **Überblick aller Plattformen:** [`self-hosting.md`](self-hosting.md) (E9-2)
 
 Vereinfachtes Setup für die **Heim-Box** (Mac Mini, Mini-PC, Always-on-Rechner)
 — ohne ngrok, ohne Webhook-Tunnel. Telegram läuft per **Long-Polling**; Keys
