@@ -35,6 +35,9 @@ Sobald **REST-API v1** existiert (`E13-1`), reicht der Standard-**HTTP Request**
 Auth: API-Key im Header (`X-Seiton-Api-Key`), konfiguriert in `.env`
 (`SEITON_API_KEY`).
 
+**OpenAPI:** Wenn `SEITON_API_KEY` gesetzt (oder `SEITON_DEBUG=true`), lokal unter
+http://localhost:8000/docs — nur von localhost erreichbar (E13-4).
+
 **Deliverable:** [`examples/n8n/`](../../examples/n8n/README.md) — importierbare
 Workflow-JSONs (E14-1).
 
