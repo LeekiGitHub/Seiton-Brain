@@ -149,6 +149,9 @@ class Settings(BaseSettings):
     # false = MIT/Portfolio (Default). true = Prozess startet nur mit gueltiger Lizenz.
     seiton_license_required: bool = False
 
+    # Debug-Modus: u. a. OpenAPI unter /docs auch ohne SEITON_API_KEY (E13-4).
+    seiton_debug: bool = False
+
 
 def load_settings() -> Settings:
     try:

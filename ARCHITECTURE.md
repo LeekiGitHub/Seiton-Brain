@@ -62,6 +62,9 @@ Volumes:
 **Self-Hosting (E9-2):** `docs/self-hosting.md` — Plattform-Überblick, Compose-Modi
 (consumer/vps/dev), Verweise auf E20-Installer und VPS-Doku.
 
+**OpenAPI (E13-4):** `/docs` + `/openapi.json` bei gesetztem `SEITON_API_KEY` oder
+`SEITON_DEBUG=true` (localhost-only); Modul `app/api/openapi.py`.
+
 ---
 
 ## Modul-Map (`app/`)

@@ -4,12 +4,14 @@ import uuid
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.api.openapi import attach_openapi_schema, fastapi_openapi_kwargs, is_openapi_enabled
 from app.api.v1.routes import router as api_v1_router
 from app.config import settings
 from app.health import run_health_checks
 from app.licensing.startup import enforce_license_if_required
 from app.logging_config import bind_log_context, clear_log_context, configure_logging
 from app.setup.routes import router as setup_api_router
+from app.setup.security import is_localhost_host
 from app.telegram.webhook import router as telegram_router
 from app.ui.router import mount_ui_static, router as ui_router, ui_api_router
 
@@ -23,13 +25,31 @@ else:
         "REST API v1 disabled — set SEITON_API_KEY in .env to enable /v1 endpoints"
     )
 
-app = FastAPI()
+app = FastAPI(**fastapi_openapi_kwargs())
+if is_openapi_enabled():
+    attach_openapi_schema(app)
 mount_ui_static(app)
 app.include_router(ui_router)
 app.include_router(ui_api_router)
 app.include_router(setup_api_router)
 app.include_router(telegram_router)
 app.include_router(api_v1_router)
+
+_OPENAPI_PATHS = frozenset({"/docs", "/redoc", "/openapi.json"})
+
+
+@app.middleware("http")
+async def openapi_localhost_guard(request: Request, call_next):
+    if request.url.path in _OPENAPI_PATHS:
+        if not is_openapi_enabled():
+            return JSONResponse(status_code=404, content={"detail": "Not found"})
+        host = request.client.host if request.client else ""
+        if not is_localhost_host(host):
+            return JSONResponse(
+                status_code=403,
+                content={"detail": "OpenAPI-Dokumentation nur von localhost erreichbar."},
+            )
+    return await call_next(request)
 
 
 @app.middleware("http")
