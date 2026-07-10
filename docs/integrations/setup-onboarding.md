@@ -136,7 +136,7 @@ Im README prominent:
 > und Bot-Tokens werden nur in deiner lokalen `.env` gespeichert. Es gibt keinen
 > Telemetrie- oder Cloud-Setup-Dienst.
 
-Ergänzend: `SECURITY.md` (`E11-2`) — wo Schwachstellen melden, Threat-Model in
+Ergänzend: [`SECURITY.md`](../../SECURITY.md) (`E11-2` 🟢) — wo Schwachstellen melden, Threat-Model in
 Kürze (Bot privat halten, Allowlist, Vault-Rechte).
 
 ---
