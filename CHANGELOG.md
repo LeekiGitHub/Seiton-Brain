@@ -9,6 +9,8 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E11-2: SECURITY.md.** Meldeweg (GitHub Security Advisory), Threat Model,
+  Betreiber-Empfehlungen; Verlinkung aus README. 2 neue Doc-Tests (304 gesamt).
 - **E13-4: OpenAPI/Swagger.** `/docs`, `/redoc`, `/openapi.json` wenn
   `SEITON_API_KEY` gesetzt oder `SEITON_DEBUG=true` — nur localhost erreichbar.
   API-Key-Schema fuer `/v1/*`. Config `SEITON_DEBUG`. 6 neue Tests (302 gesamt).
