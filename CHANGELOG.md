@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E11-3: Contributing.** `CONTRIBUTING.md` (Dev-Setup, PR-Checkliste, Konventionen),
+  GitHub Issue-Templates (Bug, Feature) + PR-Template. Verlinkung aus README.
+  4 neue Doc-Tests (308 gesamt).
 - **E11-2: SECURITY.md.** Meldeweg (GitHub Security Advisory), Threat Model,
   Betreiber-Empfehlungen; Verlinkung aus README. 2 neue Doc-Tests (304 gesamt).
 - **E13-4: OpenAPI/Swagger.** `/docs`, `/redoc`, `/openapi.json` wenn

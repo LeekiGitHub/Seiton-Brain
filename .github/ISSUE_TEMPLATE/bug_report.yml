@@ -1,0 +1,74 @@
+name: Bug
+description: Etwas funktioniert nicht wie erwartet
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Bitte keine **Secrets** (API-Keys, Bot-Token, `.env`-Inhalte) posten.
+        Sicherheitslücken: [`SECURITY.md`](../../SECURITY.md) — nicht hier melden.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Was ist passiert?
+      description: Kurz beschreiben, was schiefging.
+      placeholder: "Nach dem Senden einer Sprachnachricht bleibt der Worker hängen …"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Was hast du erwartet?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Schritte zur Reproduktion
+      placeholder: |
+        1. docker compose up
+        2. Telegram-Nachricht senden
+        3. …
+    validations:
+      required: true
+
+  - type: dropdown
+    id: deploy_mode
+    attributes:
+      label: Betriebsmodus
+      options:
+        - Entwicklung (docker compose)
+        - Consumer / Heim-Box (install.sh)
+        - VPS (deploy-vps.sh)
+        - Unbekannt / lokal ohne Docker
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Commit / Tag / Branch
+      placeholder: "main @ abc1234 oder v0.2.0"
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevante Logs
+      description: z. B. `docker compose logs worker --tail 50`
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: docs
+    attributes:
+      label: Checkliste
+      options:
+        - label: Ich habe docs/setup.md und docs/self-hosting.md gelesen
+          required: false
