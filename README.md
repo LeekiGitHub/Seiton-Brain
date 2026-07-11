@@ -40,7 +40,7 @@ Vollständige Historie: [`CHANGELOG.md`](./CHANGELOG.md).
 Was als nächstes kommt: [`ROADMAP.md`](./ROADMAP.md).
 Integrations (REST, MCP, n8n-Beispiele): [`docs/integrations/`](./docs/integrations/).
 Wie es gebaut ist: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
-Wie selbst betreiben: [`docs/self-hosting.md`](./docs/self-hosting.md) · Entwickler: [`docs/setup.md`](./docs/setup.md) · Sicherheit: [`SECURITY.md`](./SECURITY.md)
+Wie selbst betreiben: [`docs/self-hosting.md`](./docs/self-hosting.md) · Entwickler: [`docs/setup.md`](./docs/setup.md) · Mitwirken: [`CONTRIBUTING.md`](./CONTRIBUTING.md) · Sicherheit: [`SECURITY.md`](./SECURITY.md)
 
 ---
 
@@ -124,7 +124,7 @@ Full history: [`CHANGELOG.md`](./CHANGELOG.md).
 What's next: [`ROADMAP.md`](./ROADMAP.md).
 Integrations: [`docs/integrations/`](./docs/integrations/).
 How it's built: [`ARCHITECTURE.md`](./ARCHITECTURE.md).
-How to self-host: [`docs/self-hosting.md`](./docs/self-hosting.md) · Developers: [`docs/setup.md`](./docs/setup.md) · Security: [`SECURITY.md`](./SECURITY.md)
+How to self-host: [`docs/self-hosting.md`](./docs/self-hosting.md) · Developers: [`docs/setup.md`](./docs/setup.md) · Contributing: [`CONTRIBUTING.md`](./CONTRIBUTING.md) · Security: [`SECURITY.md`](./SECURITY.md)
 
 ---
 

@@ -1,0 +1,8 @@
+blank_issues: false
+contact_links:
+  - name: Self-Hosting & Setup
+    url: https://github.com/LeekiGitHub/Seiton-Brain/blob/main/docs/self-hosting.md
+    about: Installations- und Betriebsfragen — zuerst Doku lesen
+  - name: Security Advisory
+    url: https://github.com/LeekiGitHub/Seiton-Brain/security/advisories/new
+    about: Sicherheitslücken vertraulich melden (nicht als öffentliches Issue)
