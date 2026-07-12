@@ -184,16 +184,23 @@ Tests laufen offline — keine echten API-/DB-Calls.
 
 ## Troubleshooting
 
+Ausführliche Anleitung: **[`docs/troubleshooting.md`](troubleshooting.md)** (E12-3).
+
+Schnellreferenz:
+
 | Problem | Lösung |
 |---------|--------|
-| Bot antwortet nicht | `getWebhookInfo` checken: `curl https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo` |
+| Erste Diagnose | `./scripts/doctor.sh` (Mac/Linux) bzw. `.\scripts\doctor.ps1` (Windows) |
+| Bot antwortet nicht (Webhook) | `getWebhookInfo` checken: `curl https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo` |
+| Bot antwortet nicht (Consumer) | Poller läuft? `docker compose ps` → Service `poller` |
 | `401 Unauthorized` im Webhook | `secret_token` in `setWebhook` und `.env` stimmen nicht überein |
-| `api` startet nicht | `docker compose logs api` — meist fehlt eine Env-Variable |
-| Migrationen schlagen fehl | `docker compose down -v` (löscht DB-Volume!) und neu starten |
+| `api` startet nicht | `docker compose logs api` — meist fehlende Env-Variable |
+| Migrationen schlagen fehl | `docker compose run --rm api alembic upgrade head`; bei kaputter DB: `docker compose down -v` (löscht Daten!) |
+| ngrok-URL nach Neustart tot | Webhook neu setzen (neue URL) — siehe [`troubleshooting.md`](troubleshooting.md#telegram) |
 | Datei landet nicht im Vault | `OBSIDIAN_VAULT_HOST_PATH` prüfen, muss absoluter Host-Pfad sein |
-| `Permission denied` beim Vault-Schreiben | Container läuft als UID 1000 — Vault-Ordner auf dem Host muss für diesen User beschreibbar sein |
+| `Permission denied` beim Vault-Schreiben | Container läuft als UID 1000 — Vault-Ordner auf dem Host beschreibbar |
 | ngrok-URL wechselt ständig | Cloudflare Tunnel verwenden (Variante B) |
-| `worker` hängt bei OpenAI | Outage/Quota → `docker compose logs worker` zeigt Stacktrace |
+| `worker` hängt bei OpenAI | Outage/Quota → `docker compose logs worker` |
 | Fehler nur im Log, keine Admin-DM | `TELEGRAM_ADMIN_CHAT_ID` in `.env` setzen (eigene ID via @userinfobot) |
 
 ---
@@ -314,11 +321,13 @@ Statistik (E19-2).
 
 ---
 
-## Geplantes Setup (CLI — Phase D, Server-Edition)
+## Geplantes Setup (CLI — Phase D)
 
-Für Public Self-Hosting sind geplant: `scripts/init.sh`, `seiton doctor` und
-optional `seiton init` (TUI). **API-Keys werden dabei nur lokal in `.env`
-geschrieben** — nie an externe Server gesendet.
+Vorhanden: **`./scripts/doctor.sh`** / **`doctor.ps1`** (Diagnose, E16-2-Richtung),
+**Setup-Wizard** `/setup` (E19-1, ersetzt E16-4 für Consumer).
+
+Geplant: `scripts/init.sh` ohne Secrets, optional `seiton init` (TUI, E16-3).
+API-Keys werden **nur lokal** in `.env` geschrieben — nie an externe Server gesendet.
 
 Details: [`docs/integrations/setup-onboarding.md`](./integrations/setup-onboarding.md)
 
