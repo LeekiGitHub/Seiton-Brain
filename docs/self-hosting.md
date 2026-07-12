@@ -113,7 +113,7 @@ SSH-Tunnel `ssh -L 8000:127.0.0.1:8000 user@vps` für `/setup` und `/settings`.
 | `/health` nicht erreichbar | `docker compose … ps`, Logs `docker compose … logs api` |
 | Setup unvollständig | http://localhost:8000/setup — OpenAI-Key + Vault |
 
-Mehr: [`setup.md` — Troubleshooting](setup.md#troubleshooting) und `doctor`-Ausgabe.
+Mehr: [`troubleshooting.md`](troubleshooting.md) und `./scripts/doctor.sh`.
 
 ---
 

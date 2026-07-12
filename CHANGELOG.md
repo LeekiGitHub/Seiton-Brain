@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E12-3: Troubleshooting.** Ausführliche Doku `docs/troubleshooting.md`
+  (Docker, Telegram Webhook/Polling, ngrok, Migrationen, Vault, API, UI).
+  Kurzreferenz in `docs/setup.md`; Verlinkung aus `self-hosting.md`. 2 neue
+  Doc-Tests (310 gesamt). ROADMAP: E16-2 (doctor) und E16-4 (Setup-Wizard) 🟢.
 - **E11-3: Contributing.** `CONTRIBUTING.md` (Dev-Setup, PR-Checkliste, Konventionen),
   GitHub Issue-Templates (Bug, Feature) + PR-Template. Verlinkung aus README.
   4 neue Doc-Tests (308 gesamt).
