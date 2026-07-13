@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E15-2: Vault-Doku (Obsidian optional).** `docs/vault.md` — Markdown-Ordner
+  ohne Obsidian, `vault.example/`, Kategorien, Editoren, Web-UI `/notes`.
+  Verlinkt aus README, setup, packaging, vault-backends. 2 neue Doc-Tests
+  (312 gesamt).
 - **E12-3: Troubleshooting.** Ausführliche Doku `docs/troubleshooting.md`
   (Docker, Telegram Webhook/Polling, ngrok, Migrationen, Vault, API, UI).
   Kurzreferenz in `docs/setup.md`; Verlinkung aus `self-hosting.md`. 2 neue
