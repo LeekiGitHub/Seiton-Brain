@@ -20,6 +20,7 @@ trägst du im **Setup-Wizard** ein (`http://localhost:8000/setup`).
 | Linux | [Docker Engine + Compose](https://docs.docker.com/engine/install/) |
 
 Obsidian ist **optional** — jeder Markdown-Ordner reicht als Vault.
+Siehe [`vault.md`](vault.md) (E15-2).
 
 ---
 

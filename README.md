@@ -69,6 +69,9 @@ Ich wollte ein System bauen, das sich wie ein kleines echtes Backend anfühlt �
 
 ## Hinweis
 
+**Obsidian ist optional** — jeder Markdown-Ordner reicht. Details:
+[`docs/vault.md`](./docs/vault.md).
+
 `vault.example/` ist nur eine Vorlage für die Ordnerstruktur. Mein echter Vault liegt lokal und ist nicht im Repo.
 
 Setup-Details: [`docs/setup.md`](./docs/setup.md) · Schnellstart Heim-Box: [`docs/packaging.md`](./docs/packaging.md).
@@ -152,6 +155,8 @@ I wanted to build something that feels like a small real backend — not five lo
 ---
 
 ## Note
+
+**Obsidian is optional.** Any markdown folder works. See [`docs/vault.md`](./docs/vault.md).
 
 `vault.example/` is just a template for the folder structure. My actual vault lives locally and is not in the repo.
 

@@ -57,7 +57,7 @@ OBSIDIAN_VAULT_HOST_PATH=/Users/<du>/Obsidian/SeitonBrain
 OBSIDIAN_VAULT_PATH=/vault
 ```
 
-> Wenn du noch keinen Vault hast: ein leeres Verzeichnis reicht. Optional `vault.example/` als Vorlage rüberkopieren.
+> Wenn du noch keinen Vault hast: ein leeres Verzeichnis reicht. Optional `vault.example/` als Vorlage — siehe [`vault.md`](vault.md).
 
 ---
 

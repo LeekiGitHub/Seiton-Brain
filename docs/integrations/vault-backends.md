@@ -36,7 +36,7 @@ direkt mit `Path`/`os`.
 | Backend | Beschreibung | Aufwand | Phase | Story |
 |---------|--------------|---------|-------|-------|
 | **Filesystem Markdown** | Heutiges Verhalten; Obsidian, Logseq, VS Code, jeder Editor | ✅ existiert | — | — |
-| **Plain folder + Doku** | README: „Obsidian optional“ | Minimal | D | `E15-2` |
+| **Plain folder + Doku** | User-Doku „Obsidian optional“ | Minimal | D | `E15-2` 🟢 → [`vault.md`](../vault.md) |
 | **Atomares Schreiben** | Tempfile + `os.replace` (Obsidian-Sync-sicher) | Gering | B | `E3-4` |
 | **Git-backed vault** | Commit pro Note/Push (Backup + History) | Mittel | E | `E15-3` |
 | **S3 / Object Storage** | Vault in Bucket (Cloud-Self-Hoster) | Mittel | E | Backlog |
@@ -49,6 +49,8 @@ direkt mit `Path`/`os`.
 ---
 
 ## Was „Obsidian optional“ für User bedeutet
+
+Ausführlich: **[`docs/vault.md`](../vault.md)** (E15-2).
 
 1. Vault = beliebiger Ordner mit Unterordnern (`School`, `Work`, `Ideas`, …)
 2. Notizen = `.md` mit YAML-Frontmatter + optional `[[Wiki-Links]]`

@@ -271,7 +271,7 @@ Notiz-App als Obsidian-Ersatz.
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
 | E15-1 | `VaultBackend`-Protocol; Filesystem-Implementierung extrahiert aus reader/writer. | 4 | 3 | 2 | 5 | 3 | ⚪ | D |
-| E15-2 | Doku: „Obsidian optional“ — jeder Markdown-Ordner reicht (`vault.example/`). | 3 | 1 | 1 | 2 | 3 | ⚪ | D |
+| E15-2 | Doku: „Obsidian optional“ — jeder Markdown-Ordner reicht (`vault.example/`). | 3 | 1 | 1 | 2 | 3 | 🟢 | D |
 | E15-3 | (Optional) Git-backed Vault: Commit pro Note / konfigurierbarer Push. | 3 | 3 | 3 | 4 | 2 | ⚪ | E |
 | E15-4 | ~~(Optional) Read-only Web-UI für Vault-Browse~~ → **aufgegangen in Epic E19 (UI/Dashboard)**. | — | — | — | — | — | ➡️ E19 | G |
 
