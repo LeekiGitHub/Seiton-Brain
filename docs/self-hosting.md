@@ -37,6 +37,7 @@ Skripte setzen Modus und Compose automatisch:
 
 | Skript | Modus | Plattform |
 |--------|-------|-----------|
+| `./scripts/init.sh` / `make init` | Vorbereitung | `.env` + Vault, keine Secrets (E16-1) |
 | `./scripts/install.sh` | consumer | macOS, Linux |
 | `.\scripts\install.ps1` | consumer | Windows |
 | `./scripts/deploy-vps.sh` | vps | Linux-VPS |

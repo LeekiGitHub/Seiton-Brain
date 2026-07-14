@@ -4,12 +4,14 @@ from pathlib import Path
 SCRIPTS = (
     "scripts/backup.sh",
     "scripts/bootstrap_github.sh",
+    "scripts/init.sh",
     "scripts/install.sh",
     "scripts/doctor.sh",
     "scripts/deploy-vps.sh",
     "scripts/register-telegram-webhook.sh",
     "scripts/update.sh",
     "scripts/lib/deploy.sh",
+    "scripts/lib/init.sh",
 )
 
 

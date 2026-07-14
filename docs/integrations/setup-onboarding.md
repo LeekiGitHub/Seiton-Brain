@@ -49,7 +49,7 @@ echo "Bearbeite jetzt .env und starte mit: docker compose up -d"
 
 Optional: Prüfung ob Docker läuft.
 
-**Story:** `E16-1`
+**Story:** `E16-1` 🟢 — [`scripts/init.sh`](../../scripts/init.sh), `make init`
 
 ### Stufe 3 — `seiton doctor` (Phase D)
 

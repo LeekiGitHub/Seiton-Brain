@@ -31,7 +31,8 @@ Siehe [`vault.md`](vault.md) (E15-2).
 ```bash
 git clone https://github.com/LeekiGitHub/Seiton-Brain.git
 cd Seiton-Brain
-chmod +x scripts/install.sh scripts/doctor.sh
+chmod +x scripts/install.sh scripts/doctor.sh scripts/init.sh
+./scripts/init.sh    # optional: .env + Vault vorbereiten
 ./scripts/install.sh
 ```
 

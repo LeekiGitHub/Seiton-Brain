@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E16-1: Init-Skript.** `scripts/init.sh` und `make init` — idempotent `.env`
+  + Vault aus `vault.example/`, Docker-Hinweise, keine Secrets. Gemeinsame Lib
+  `scripts/lib/init.sh` (auch `install.sh`). 1 neuer Funktionstest (313 gesamt).
 - **E15-2: Vault-Doku (Obsidian optional).** `docs/vault.md` — Markdown-Ordner
   ohne Obsidian, `vault.example/`, Kategorien, Editoren, Web-UI `/notes`.
   Verlinkt aus README, setup, packaging, vault-backends. 2 neue Doc-Tests
