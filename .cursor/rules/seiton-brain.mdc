@@ -44,7 +44,7 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 
 Core pipeline + REST API + retrieval (E17 komplett). **Web-UI E19 komplett.**
 **E20** Packaging (Installer, VPS, Auto-Update) 🟢. **E21-1/E21-3** Lizenzierung 🟢.
-**E9-2** Self-Hosting-Hub 🟢. **E13-4** OpenAPI/Swagger 🟢. **E11-2** SECURITY.md 🟢. **E11-3** CONTRIBUTING + Templates 🟢. **E12-3** Troubleshooting 🟢. **E15-2** Vault/Obsidian optional 🟢. 312 Tests. E11-4 / E16-1 später.
+**E9-2** Self-Hosting-Hub 🟢. **E13-4** OpenAPI/Swagger 🟢. **E11-2** SECURITY.md 🟢. **E11-3** CONTRIBUTING + Templates 🟢. **E12-3** Troubleshooting 🟢. **E15-2** Vault/Obsidian optional 🟢. **E16-1** init.sh + make init 🟢. 313 Tests. E11-4 später.
 
 ## Roadmap & Backlog
 
@@ -69,7 +69,7 @@ Bei neuen Features: zuerst ROADMAP-Eintrag und/oder Issue, dann Code.
 ## Key files
 
 - `docker-compose.yml` — api, worker, db, redis; `docker-compose.consumer.yml` (E20-1), `.vps.yml` (E20-2)
-- `scripts/install.sh`, `scripts/deploy-vps.sh`, `scripts/update.sh`, `scripts/doctor.sh`
+- `scripts/install.sh`, `scripts/init.sh`, `scripts/deploy-vps.sh`, `scripts/update.sh`, `scripts/doctor.sh`
 - `app/main.py` — health, API + UI mount
 - `app/db/session.py` — `get_db()`, `worker_session()`
 - `app/ui/router.py` — `/dashboard`, `/ask`, `/notes`, `/settings`, `/setup`, `/api/ui/*`

@@ -15,8 +15,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+# shellcheck source=scripts/lib/init.sh
+source "$ROOT/scripts/lib/init.sh"
+
 VAULT_DIR="${VAULT_DIR:-$ROOT/vault}"
-COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.consumer.yml)
 COMPOSE_PROFILE=(--profile polling)
 SETUP_URL="http://localhost:8000/setup"
 
@@ -44,42 +46,26 @@ check_docker() {
   fi
 }
 
-set_env_var() {
-  local key="$1"
-  local value="$2"
-  local tmp
-  tmp="$(mktemp)"
-  if [[ -f .env ]] && grep -q "^${key}=" .env; then
-    awk -v k="$key" -v v="$value" '
-      BEGIN { done = 0 }
-      $0 ~ "^" k "=" { print k "=" v; done = 1; next }
-      { print }
-      END { if (!done) print k "=" v }
-    ' .env >"$tmp"
-    mv "$tmp" .env
-  else
-    printf '%s=%s\n' "$key" "$value" >>.env
-  fi
-}
-
 ensure_env() {
   if [[ ! -f .env ]]; then
     info "Erstelle .env aus .env.example"
-    cp .env.example .env
+    ensure_env_from_example
   fi
-  local abs_vault
-  abs_vault="$(cd "$VAULT_DIR" && pwd)"
-  set_env_var "OBSIDIAN_VAULT_HOST_PATH" "$abs_vault"
-  set_env_var "OBSIDIAN_VAULT_PATH" "/vault"
+  configure_vault_env "$VAULT_DIR"
 }
 
 ensure_vault() {
-  mkdir -p "$VAULT_DIR"
-  if [[ -d vault.example ]] && [[ -z "$(ls -A "$VAULT_DIR" 2>/dev/null || true)" ]]; then
+  if [[ -d "$VAULT_DIR" ]] && [[ -n "$(ls -A "$VAULT_DIR" 2>/dev/null || true)" ]]; then
+    return 0
+  fi
+  info "Vault anlegen: $VAULT_DIR"
+  ensure_vault_dir "$VAULT_DIR"
+  if [[ -d vault.example ]]; then
     info "Initialisiere Vault aus vault.example/"
-    cp -R vault.example/. "$VAULT_DIR/"
   fi
 }
+
+COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.consumer.yml)
 
 compose() {
   docker compose "${COMPOSE_FILES[@]}" "${COMPOSE_PROFILE[@]}" "$@"

@@ -23,6 +23,8 @@ Lokale Entwicklung und Self-Hosting für Seiton Brain.
 ```bash
 git clone https://github.com/LeekiGitHub/Seiton-Brain.git
 cd Seiton-Brain
+chmod +x scripts/*.sh
+./scripts/init.sh    # oder: make init — .env + Vault, keine Secrets
 ```
 
 ---
@@ -39,6 +41,8 @@ cd Seiton-Brain
 ---
 
 ## 3. `.env` anlegen
+
+Falls noch nicht durch `./scripts/init.sh` / `make init`:
 
 ```bash
 cp .env.example .env
@@ -323,10 +327,8 @@ Statistik (E19-2).
 
 ## Geplantes Setup (CLI — Phase D)
 
-Vorhanden: **`./scripts/doctor.sh`** / **`doctor.ps1`** (Diagnose, E16-2-Richtung),
-**Setup-Wizard** `/setup` (E19-1, ersetzt E16-4 für Consumer).
-
-Geplant: `scripts/init.sh` ohne Secrets, optional `seiton init` (TUI, E16-3).
+Vorhanden: **`./scripts/init.sh`** / **`make init`** (E16-1), **`./scripts/doctor.sh`** (E16-2),
+**Setup-Wizard** `/setup` (E19-1 / E16-4).
 API-Keys werden **nur lokal** in `.env` geschrieben — nie an externe Server gesendet.
 
 Details: [`docs/integrations/setup-onboarding.md`](./integrations/setup-onboarding.md)

@@ -291,7 +291,7 @@ Easy Setup für Selfhoster. **Keys nur lokal** — nie Remote-Install mit Key-Up
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E16-1 | `scripts/init.sh` / `make init`: `.env` aus Example, Vault-Ordner, Docker-Hinweise — ohne Secrets abfragen. | 4 | 1 | 1 | 2 | 4 | ⚪ | D |
+| E16-1 | `scripts/init.sh` / `make init`: `.env` aus Example, Vault-Ordner, Docker-Hinweise — ohne Secrets abfragen. | 4 | 1 | 1 | 2 | 4 | 🟢 | D |
 | E16-2 | `seiton doctor`: prüft `.env`, DB, Redis, Vault-Pfad, optional OpenAI/Telegram. | 4 | 2 | 1 | 3 | 4 | 🟢 | D |
 | E16-3 | `seiton init` TUI: interaktiv `.env` schreiben (lokal, kein Netzwerk-Upload). | 4 | 2 | 1 | 3 | 3 | ⚪ | D/E |
 | E16-4 | (Optional) Browser-Setup `localhost:8000/setup` — einmalig, nur localhost. | 2 | 3 | 2 | 3 | 1 | 🟢 | E |
