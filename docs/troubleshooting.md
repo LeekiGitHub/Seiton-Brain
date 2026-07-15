@@ -105,6 +105,7 @@ docker compose logs -f poller    # Consumer-Modus
 | Worker hängt / Timeout | OpenAI-Status, Quota, Key gültig — `docker compose logs worker` |
 | Klassifikation schlägt fehl | JSON-Parsing — Retry in Logs; Prompt in `prompts/classify.txt` |
 | Whisper-Fehler (Voice) | Dateigröße, API-Key, Netzwerk aus Container |
+| Transkript oft falschsprachig | `WHISPER_LANGUAGE=de` (oder `en`) in `.env` setzen (E6-3) |
 | Embeddings teuer / Fehler | `EMBEDDINGS_ENABLED=false` deaktiviert semantische Suche; Keyword bleibt |
 | Celery-Task „failed“ endgültig | Nach Retries — ggf. `entry.failed`-Webhook; Admin-DM wenn konfiguriert |
 
