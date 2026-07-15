@@ -28,6 +28,7 @@ def test_settings_defaults_are_applied():
     assert settings.seiton_license_key == ""
     assert settings.seiton_license_required is False
     assert settings.seiton_debug is False
+    assert settings.whisper_language == ""
 
 
 def test_settings_accept_extra_env_vars():

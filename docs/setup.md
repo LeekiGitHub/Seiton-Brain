@@ -171,6 +171,9 @@ Erwartung:
 
 Bei Voice: Sprachnachricht senden → „Sprachnachricht wird verarbeitet…" → Bestätigung.
 
+Optional in `.env`: `WHISPER_LANGUAGE=de` (ISO-639-1) für schnellere/stabilere
+Transkription auf Deutsch — leer lassen = Auto-Detect (E6-3).
+
 ---
 
 ## Tests lokal ausführen

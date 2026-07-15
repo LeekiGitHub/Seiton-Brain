@@ -112,6 +112,10 @@ class Settings(BaseSettings):
     openai_api_key: str
     openai_model: str = "gpt-4o-mini"
 
+    # Whisper language-Hint (E6-3), ISO-639-1 z. B. "de" / "en".
+    # Leer = Automatische Spracherkennung (OpenAI-Default).
+    whisper_language: str = ""
+
     # Semantische Suche / Embeddings (E17-2, pgvector). Standardmaessig aus —
     # erzeugt zusaetzliche Embedding-API-Calls (Kosten). Wenn aktiviert, werden
     # Notizen beim Schreiben/Append/Sync embedded und `semantic_search` nutzbar.
