@@ -18,6 +18,11 @@ from app.services.process_message import process_text_message
 from app.telegram.admin_notify import notify_admin_error
 from app.telegram.client import download_file, send_message
 from app.webhooks.outbound import emit_capture_event, emit_entry_failed_event
+from app.transcription.voice_limits import (
+    VoiceTooLargeError,
+    assert_voice_within_limit,
+    format_voice_too_large_message,
+)
 from app.transcription.whisper import transcribe_audio
 from app.vault.writer import CATEGORY_FOLDERS
 from app.worker.celery_app import celery_app
@@ -99,8 +104,19 @@ async def _process_voice(
     telegram_update_id: int | None = None,
     telegram_message_id: int | None = None,
 ) -> None:
-    audio_bytes = await download_file(file_id)
-    text = await transcribe_audio(audio_bytes)
+    try:
+        audio_bytes = await download_file(file_id)
+        assert_voice_within_limit(len(audio_bytes))
+        text = await transcribe_audio(audio_bytes)
+    except VoiceTooLargeError as exc:
+        logger.info(
+            "Voice too large chat_id=%s size=%s limit=%s",
+            chat_id,
+            exc.size_bytes,
+            exc.max_bytes,
+        )
+        await send_message(chat_id, format_voice_too_large_message(exc.max_bytes))
+        return
     logger.info("Transcribed voice message for chat_id=%s: %s", chat_id, text[:80])
     await _process_text(
         text,
