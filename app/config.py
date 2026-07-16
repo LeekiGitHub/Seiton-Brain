@@ -102,6 +102,10 @@ class Settings(BaseSettings):
     # Updates sind typischerweise <10 KB; 1 MB ist grosszuegig und schuetzt
     # vor Resource-Exhaustion durch fehlgeleitete oder boesartige Requests.
     telegram_webhook_max_body_bytes: int = 1_048_576
+    # Maximale Groesse einer Telegram-Sprachnachricht in Bytes (E6-1).
+    # Telegram/OpenAI erlauben mehr — dieses Limit schuetzt vor teuren Downloads
+    # und Whisper-Calls. Default 10 MB.
+    telegram_voice_max_bytes: int = 10_485_760
     # Long-Poll-Fenster in Sekunden fuer den Polling-Modus (app.telegram.polling).
     # Hoehere Werte = weniger Requests, laengere Hangs pro Aufruf. Telegram
     # erlaubt bis 50; 25 ist ein guter Default.

@@ -11,6 +11,7 @@ from app.db.session import SessionLocal
 from app.models.entry import Entry
 from app.telegram.client import send_message
 from app.telegram.commands import handle_command
+from app.transcription.voice_limits import format_voice_too_large_message
 from app.worker.tasks import (
     process_ask_message_task,
     process_digest_message_task,
@@ -183,10 +184,20 @@ async def process_update(update: dict) -> None:
             process_text_message_task.delay(text, chat_id, update_id, message_id)
             await send_message(chat_id, "Wird verarbeitet…")
         elif voice:
-            process_voice_message_task.delay(
-                voice["file_id"], chat_id, update_id, message_id
-            )
-            await send_message(chat_id, "Sprachnachricht wird verarbeitet…")
+            file_size = voice.get("file_size")
+            if (
+                file_size is not None
+                and file_size > settings.telegram_voice_max_bytes
+            ):
+                await send_message(
+                    chat_id,
+                    format_voice_too_large_message(settings.telegram_voice_max_bytes),
+                )
+            else:
+                process_voice_message_task.delay(
+                    voice["file_id"], chat_id, update_id, message_id
+                )
+                await send_message(chat_id, "Sprachnachricht wird verarbeitet…")
         else:
             await send_message(
                 chat_id,

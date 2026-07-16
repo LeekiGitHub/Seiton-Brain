@@ -83,6 +83,30 @@ def test_webhook_enqueues_voice_message(mock_task, mock_send, mock_dup):
 
 @patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
 @patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
+@patch("app.telegram.webhook.process_voice_message_task")
+def test_webhook_rejects_oversized_voice(mock_task, mock_send, mock_dup, monkeypatch):
+    monkeypatch.setattr(settings, "telegram_voice_max_bytes", 100)
+    response = client.post(
+        "/webhook",
+        json={
+            "update_id": 1003,
+            "message": {
+                "message_id": 9,
+                "voice": {"file_id": "voice-big", "file_size": 500},
+                "chat": {"id": 42},
+            },
+        },
+        headers={"X-Telegram-Bot-Api-Secret-Token": SECRET},
+    )
+
+    assert response.status_code == 200
+    mock_task.delay.assert_not_called()
+    mock_send.assert_called_once()
+    assert "zu groß" in mock_send.call_args[0][1]
+
+
+@patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
+@patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
 @patch("app.telegram.webhook.process_text_message_task")
 def test_webhook_allows_user_in_allowlist(mock_task, mock_send, mock_dup, monkeypatch):
     monkeypatch.setattr(settings, "telegram_allowed_user_ids", "42,99")
