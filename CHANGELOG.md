@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E6-2: Voice-Cache.** Audio wird unter `TELEGRAM_VOICE_CACHE_DIR` (Default
+  `temp/voice`) bis zur erfolgreichen Verarbeitung gehalten — Celery-Retry ohne
+  erneuten Telegram-Download. Docker-Volume `seiton-voice-cache` am Worker.
+  4 neue Tests (334 gesamt).
 - **E6-1: Voice-Dateigroesse.** Env `TELEGRAM_VOICE_MAX_BYTES` (Default 10 MB);
   fruehe Ablehnung im Webhook (wenn `file_size` bekannt) und nach Download im
   Worker; freundliche Telegram-Antwort ohne Admin-Alarm. 6 neue Tests (330 gesamt).

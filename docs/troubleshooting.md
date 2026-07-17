@@ -106,6 +106,7 @@ docker compose logs -f poller    # Consumer-Modus
 | Klassifikation schlägt fehl | JSON-Parsing — Retry in Logs; Prompt in `prompts/classify.txt` |
 | Whisper-Fehler (Voice) | Dateigröße, API-Key, Netzwerk aus Container |
 | Sprachnachricht zu groß | `TELEGRAM_VOICE_MAX_BYTES` (Default 10 MB, E6-1) — kürzer aufnehmen |
+| Voice-Retry lädt erneut von Telegram | Cache prüfen: `TELEGRAM_VOICE_CACHE_DIR` / Docker-Volume `seiton-voice-cache` (E6-2) |
 | Transkript oft falschsprachig | `WHISPER_LANGUAGE=de` (oder `en`) in `.env` setzen (E6-3) |
 | Embeddings teuer / Fehler | `EMBEDDINGS_ENABLED=false` deaktiviert semantische Suche; Keyword bleibt |
 | Celery-Task „failed“ endgültig | Nach Retries — ggf. `entry.failed`-Webhook; Admin-DM wenn konfiguriert |

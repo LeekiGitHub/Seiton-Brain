@@ -30,6 +30,7 @@ def test_settings_defaults_are_applied():
     assert settings.seiton_debug is False
     assert settings.whisper_language == ""
     assert settings.telegram_voice_max_bytes == 10_485_760
+    assert settings.telegram_voice_cache_dir == "temp/voice"
 
 
 def test_settings_accept_extra_env_vars():

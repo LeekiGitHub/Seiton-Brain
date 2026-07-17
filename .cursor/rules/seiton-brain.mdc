@@ -45,7 +45,7 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 Core pipeline + REST API + retrieval (E17 komplett). **Web-UI E19 komplett.**
 **E20** Packaging (Installer, VPS, Auto-Update) 🟢. **E21-1/E21-3** Lizenzierung 🟢.
 **E9-2** Self-Hosting-Hub 🟢. **E13-4** OpenAPI/Swagger 🟢. **E11-2** SECURITY.md 🟢. **E11-3** CONTRIBUTING + Templates 🟢. **E12-3** Troubleshooting 🟢. **E15-2** Vault/Obsidian optional 🟢. **E16-1** init.sh + make init 🟢.
-**E6-3** Whisper language-Hint 🟢. **E6-1** Voice size limit 🟢. 330 Tests. E6-2 / E11-4 später.
+**E6-1** Voice size limit 🟢. **E6-2** Voice-Cache 🟢. 334 Tests. E11-4 / E6-4 später.
 
 ## Roadmap & Backlog
 
