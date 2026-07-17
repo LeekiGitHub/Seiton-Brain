@@ -18,6 +18,11 @@ from app.services.process_message import process_text_message
 from app.telegram.admin_notify import notify_admin_error
 from app.telegram.client import download_file, send_message
 from app.webhooks.outbound import emit_capture_event, emit_entry_failed_event
+from app.transcription.voice_cache import (
+    delete_voice_cache,
+    load_voice_cache,
+    save_voice_cache,
+)
 from app.transcription.voice_limits import (
     VoiceTooLargeError,
     assert_voice_within_limit,
@@ -105,10 +110,16 @@ async def _process_voice(
     telegram_message_id: int | None = None,
 ) -> None:
     try:
-        audio_bytes = await download_file(file_id)
-        assert_voice_within_limit(len(audio_bytes))
+        audio_bytes = load_voice_cache(file_id)
+        if audio_bytes is None:
+            audio_bytes = await download_file(file_id)
+            assert_voice_within_limit(len(audio_bytes))
+            save_voice_cache(file_id, audio_bytes)
+        else:
+            assert_voice_within_limit(len(audio_bytes))
         text = await transcribe_audio(audio_bytes)
     except VoiceTooLargeError as exc:
+        delete_voice_cache(file_id)
         logger.info(
             "Voice too large chat_id=%s size=%s limit=%s",
             chat_id,
@@ -125,6 +136,7 @@ async def _process_voice(
         telegram_message_id=telegram_message_id,
         kind="voice",
     )
+    delete_voice_cache(file_id)
 
 
 async def _process_ask(question: str, chat_id: int) -> None:

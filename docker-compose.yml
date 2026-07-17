@@ -77,8 +77,11 @@ services:
     environment:
       OBSIDIAN_VAULT_PATH: /vault
       REDIS_URL: redis://redis:6379/0
+      # Persistenter Voice-Cache fuer Celery-Retry nach Crash (E6-2)
+      TELEGRAM_VOICE_CACHE_DIR: /data/voice-cache
     volumes:
       - "${OBSIDIAN_VAULT_HOST_PATH}:/vault"
+      - seiton-voice-cache:/data/voice-cache
     depends_on:
       db:
         condition: service_healthy
@@ -87,3 +90,4 @@ services:
 
 volumes:
   postgres-data:
+  seiton-voice-cache:
