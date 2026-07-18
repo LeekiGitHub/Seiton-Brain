@@ -1,0 +1,18 @@
+# Seiton Brain — Kategorie → Vault-Ordner (E4-3)
+#
+# Ablage: in dein Vault-Root als `vault_config.yaml`
+#   oder Pfad in .env: SEITON_VAULT_CONFIG=/pfad/zur/datei.yaml
+#
+# Ohne diese Datei gelten die Defaults unten.
+# Nach Änderungen: Worker/API neu starten (Cache).
+
+categories:
+  school: School
+  work: Work
+  private: Private
+  idea: Ideas
+  travel: Travel
+  note: Notes
+
+# Fallback-Ordner für unbekannte Kategorien (wenn kein Key "note")
+default_folder: Notes

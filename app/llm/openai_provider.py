@@ -17,6 +17,10 @@ from app.llm.parser import (
 )
 from app.llm.schemas import ClassificationResult, LLMAnswer, LLMDigest
 from app.llm.tags import normalize_tags
+from app.vault.categories import (
+    format_category_guide_for_prompt,
+    format_category_list_for_prompt,
+)
 from app.vault.index import list_existing_notes
 from app.vault.reader import format_notes_for_prompt, known_titles
 
@@ -42,6 +46,8 @@ class OpenAIProvider:
         prompt = (
             self.prompt_template.replace("{input}", text)
             .replace("{existing_notes}", format_notes_for_prompt(existing))
+            .replace("{category_list}", format_category_list_for_prompt())
+            .replace("{category_guide}", format_category_guide_for_prompt())
         )
 
         last_error: json.JSONDecodeError | ValidationError | None = None

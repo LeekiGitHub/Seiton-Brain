@@ -15,7 +15,7 @@ def test_vault_doc_obsidian_optional():
         "Obsidian optional",
         "vault.example",
         "OBSIDIAN_VAULT_HOST_PATH",
-        "CATEGORY_FOLDERS",
+        "vault_config",
         "Markdown",
         "/notes",
     ):

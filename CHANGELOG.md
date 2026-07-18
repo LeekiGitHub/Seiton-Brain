@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E4-3: Konfigurierbare Kategorien.** `vault_config.yaml` (Vault-Root oder
+  `SEITON_VAULT_CONFIG`) mappt Kategorie→Ordner; Classify-Prompt nutzt die
+  aktive Liste. Vorlage `vault_config.example.yaml`. Modul
+  `app/vault/categories.py`. 5 neue Tests (339 gesamt).
 - **E6-2: Voice-Cache.** Audio wird unter `TELEGRAM_VOICE_CACHE_DIR` (Default
   `temp/voice`) bis zur erfolgreichen Verarbeitung gehalten — Celery-Retry ohne
   erneuten Telegram-Download. Docker-Volume `seiton-voice-cache` am Worker.

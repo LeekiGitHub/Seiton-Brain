@@ -29,7 +29,7 @@ from app.transcription.voice_limits import (
     format_voice_too_large_message,
 )
 from app.transcription.whisper import transcribe_audio
-from app.vault.writer import CATEGORY_FOLDERS
+from app.vault.categories import folder_for_category
 from app.worker.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
@@ -91,7 +91,7 @@ async def _process_text(
         if classification.action == "append" and classification.target_title:
             message = f"Ergänzt: [[{classification.target_title}]]"
         else:
-            folder = CATEGORY_FOLDERS.get(classification.category.lower(), "Notes")
+            folder = folder_for_category(classification.category)
             message = f"Gespeichert als [[{classification.title}]] unter {folder}"
         await send_message(chat_id, message)
         await emit_capture_event(

@@ -15,7 +15,8 @@ from app.ui.schemas import (
 )
 from app.vault.index import parse_note_file, remove_vault_note_index, upsert_vault_note_index
 from app.vault.paths import resolve_vault_file
-from app.vault.writer import CATEGORY_FOLDERS, delete_note, save_note_content
+from app.vault.categories import get_category_folders
+from app.vault.writer import delete_note, save_note_content
 
 DEFAULT_NOTE_LIMIT = 50
 
@@ -98,5 +99,5 @@ async def remove_note(db: AsyncSession, vault_path: str) -> NoteDeleteResponse:
 def load_vault_config() -> VaultConfigResponse:
     return VaultConfigResponse(
         vault_path=settings.obsidian_vault_path,
-        categories=dict(CATEGORY_FOLDERS),
+        categories=dict(get_category_folders()),
     )
