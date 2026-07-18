@@ -19,3 +19,17 @@ os.environ["SEITON_API_KEY"] = "test-seiton-api-key"
 os.environ["SEITON_LICENSE_KEY"] = ""
 os.environ["SEITON_LICENSE_REQUIRED"] = "false"
 os.environ["SEITON_DEBUG"] = "false"
+
+
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def _clear_vault_category_cache():
+    """E4-3: Kategorie-Cache darf Tests nicht gegenseitig vergiften."""
+    from app.vault.categories import clear_category_cache
+
+    clear_category_cache()
+    yield
+    clear_category_cache()
+

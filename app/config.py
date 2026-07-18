@@ -109,6 +109,8 @@ class Settings(BaseSettings):
     # Verzeichnis fuer temporaere Voice-Dateien bis Verarbeitung erfolgreich
     # (E6-2 Replay bei Crash/Retry). Leer = temp/voice relativ zum CWD.
     telegram_voice_cache_dir: str = "temp/voice"
+    # Optionaler Pfad zu vault_config.yaml (E4-3). Leer = <Vault>/vault_config.yaml
+    seiton_vault_config: str = ""
     # Long-Poll-Fenster in Sekunden fuer den Polling-Modus (app.telegram.polling).
     # Hoehere Werte = weniger Requests, laengere Hangs pro Aufruf. Telegram
     # erlaubt bis 50; 25 ist ein guter Default.

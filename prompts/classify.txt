@@ -1,7 +1,7 @@
 You classify raw user input into structured note metadata for an Obsidian vault.
 
 Return ONLY valid JSON with these fields:
-- category: exactly one of school, work, private, idea, travel, note
+- category: exactly one of {category_list}
 - title: short note title (max 80 chars, no special markdown)
 - summary: 1-3 sentences capturing the key content
 - related: array of 0-3 titles from the existing notes list below (exact title match only; empty array if none fit)
@@ -25,12 +25,7 @@ Rules for append:
 - "target_title" MUST be copied exactly from the existing notes list
 
 Category guide:
-- school: lectures, exams, study
-- work: projects, meetings, professional tasks
-- private: personal life, goals, health
-- idea: concepts, startup ideas, creative thoughts
-- travel: trips, destinations, planning
-- note: anything that does not fit above
+{category_guide}
 
 Existing notes in the vault:
 {existing_notes}

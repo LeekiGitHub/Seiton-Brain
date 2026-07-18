@@ -58,7 +58,7 @@ cp -r vault.example ~/SeitonBrain/vault
 
 ## Ordnerstruktur
 
-Seiton legt neue Notizen nach **Kategorie** in feste Unterordner:
+Seiton legt neue Notizen nach **Kategorie** in Unterordner. Defaults:
 
 | Kategorie (LLM) | Ordner | Beispiel |
 |-----------------|--------|----------|
@@ -69,10 +69,11 @@ Seiton legt neue Notizen nach **Kategorie** in feste Unterordner:
 | `travel` | `Travel/` | Reiseplanung |
 | `note` (Default) | `Notes/` | Alles andere |
 
-Mapping im Code: `app/vault/writer.py` → `CATEGORY_FOLDERS`. In der
-Settings-UI siehst du die Zuordnung.
+**Anpassen (E4-3):** Datei `vault_config.yaml` ins Vault-Root legen (Vorlage:
+[`vault_config.example.yaml`](../vault_config.example.yaml)) oder
+`SEITON_VAULT_CONFIG` in `.env` setzen. Danach Container neu starten.
 
-Beispielnotizen: [`vault.example/`](../vault.example/).
+In der Settings-UI siehst du die aktive Zuordnung.
 
 ---
 

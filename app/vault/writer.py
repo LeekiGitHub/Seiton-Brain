@@ -7,16 +7,17 @@ from pathlib import Path
 from app.config import settings
 from app.llm.schemas import ClassificationResult
 from app.llm.tags import merge_tags
+from app.vault.categories import CATEGORY_FOLDERS, folder_for_category, get_category_folders
 from app.vault.paths import resolve_vault_file
 
-CATEGORY_FOLDERS = {
-    "school": "School",
-    "work": "Work",
-    "private": "Private",
-    "idea": "Ideas",
-    "travel": "Travel",
-    "note": "Notes",
-}
+__all__ = [
+    "CATEGORY_FOLDERS",
+    "get_category_folders",
+    "write_note",
+    "append_to_note",
+    "save_note_content",
+    "delete_note",
+]
 
 FRONTMATTER_KEY_ORDER = ("title", "category", "created", "updated", "tags")
 
@@ -94,7 +95,7 @@ def _next_available_path(target_dir: Path, base_name: str) -> Path:
 
 def write_note(result: ClassificationResult) -> Path:
     vault_path = Path(settings.obsidian_vault_path)
-    folder = CATEGORY_FOLDERS.get(result.category.lower(), "Notes")
+    folder = folder_for_category(result.category)
     target_dir = vault_path / folder
     target_dir.mkdir(parents=True, exist_ok=True)
 
