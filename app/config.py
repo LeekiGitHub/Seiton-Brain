@@ -125,6 +125,9 @@ class Settings(BaseSettings):
     # Leer = Automatische Spracherkennung (OpenAI-Default).
     whisper_language: str = ""
 
+    # Max. Notizen im Classify-Prompt nach Token-Prefilter (E5-2).
+    seiton_llm_note_limit: int = 30
+
     # Semantische Suche / Embeddings (E17-2, pgvector). Standardmaessig aus —
     # erzeugt zusaetzliche Embedding-API-Calls (Kosten). Wenn aktiviert, werden
     # Notizen beim Schreiben/Append/Sync embedded und `semantic_search` nutzbar.

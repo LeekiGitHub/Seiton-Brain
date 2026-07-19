@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 # Fuer ILIKE-Suche; Anzeige im LLM-Prompt bleibt bei 120 Zeichen (reader).
 BODY_INDEX_CHARS = 2000
 LLM_NOTE_LIMIT = 80
+# Kandidaten-Pool vor Heuristik-Prefilter (E5-2); danach max. ~30 im Prompt.
+LLM_CANDIDATE_POOL = 200
 DEFAULT_DIGEST_DAYS = 7
 DEFAULT_DIGEST_LIMIT = 15
 
@@ -250,8 +252,12 @@ async def list_indexed_notes(db: AsyncSession, limit: int = LLM_NOTE_LIMIT) -> l
     ]
 
 
-async def list_existing_notes(limit: int = LLM_NOTE_LIMIT) -> list[VaultNote]:
-    """LLM-Kontext: liest aus dem Vault-Index (E5-1), nicht mehr ``rglob``."""
+async def list_existing_notes(limit: int = LLM_CANDIDATE_POOL) -> list[VaultNote]:
+    """LLM-Kontext: liest aus dem Vault-Index (E5-1), nicht mehr ``rglob``.
+
+    Liefert einen groesseren Kandidaten-Pool; ``prefilter_notes_for_llm`` (E5-2)
+    reduziert spaeter auf die Prompt-Obergrenze.
+    """
     async with SessionLocal() as db:
         return await list_indexed_notes(db, limit=limit)
 

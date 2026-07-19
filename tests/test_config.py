@@ -29,6 +29,7 @@ def test_settings_defaults_are_applied():
     assert settings.seiton_license_required is False
     assert settings.seiton_debug is False
     assert settings.whisper_language == ""
+    assert settings.seiton_llm_note_limit == 30
     assert settings.telegram_voice_max_bytes == 10_485_760
     assert settings.telegram_voice_cache_dir == "temp/voice"
 
