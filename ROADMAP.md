@@ -143,7 +143,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
 | E5-1 | Vault-Index in Postgres spiegeln (Titel, Pfad, mtime); statt jedes Mal `rglob`. Voraussetzung für E17-1 (Keyword-Suche). | 3 | 3 | 3 | 4 | 3 | 🟢 | C |
-| E5-2 | Heuristisches Pre-Filtering vor LLM (Token-Match, max. 30 Notizen). | 3 | 2 | 1 | 3 | 3 | ⚪ | C |
+| E5-2 | Heuristisches Pre-Filtering vor LLM (Token-Match, max. 30 Notizen). | 3 | 2 | 1 | 3 | 3 | 🟢 | C |
 | E5-3 | (Optional v2) pgvector-Embeddings für semantische Ähnlichkeit. Geliefert zusammen mit E17-2 (Embedding-Provider + `embedding`-Spalte + pgvector). | 4 | 4 | 3 | 5 | 2 | 🟢 | E/F |
 
 ---

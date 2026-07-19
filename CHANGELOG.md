@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E5-2: Vault-Prefilter vor LLM.** Token-Overlap (Titel/Snippet) wählt max.
+  `SEITON_LLM_NOTE_LIMIT` (Default 30) Notizen für den Classify-Prompt aus einem
+  größeren Index-Pool. Modul `app/vault/prefilter.py`. 7 neue Tests (346 gesamt).
 - **E4-3: Konfigurierbare Kategorien.** `vault_config.yaml` (Vault-Root oder
   `SEITON_VAULT_CONFIG`) mappt Kategorie→Ordner; Classify-Prompt nutzt die
   aktive Liste. Vorlage `vault_config.example.yaml`. Modul

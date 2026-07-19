@@ -22,6 +22,7 @@ from app.vault.categories import (
     format_category_list_for_prompt,
 )
 from app.vault.index import list_existing_notes
+from app.vault.prefilter import prefilter_notes_for_llm
 from app.vault.reader import format_notes_for_prompt, known_titles
 
 logger = logging.getLogger(__name__)
@@ -42,7 +43,12 @@ class OpenAIProvider:
         self.digest_template = DIGEST_PROMPT_PATH.read_text()
 
     async def classify(self, text: str) -> ClassificationResult:
-        existing = await list_existing_notes()
+        candidates = await list_existing_notes()
+        existing = prefilter_notes_for_llm(
+            candidates,
+            text,
+            max_notes=settings.seiton_llm_note_limit,
+        )
         prompt = (
             self.prompt_template.replace("{input}", text)
             .replace("{existing_notes}", format_notes_for_prompt(existing))

@@ -95,6 +95,7 @@ app/
 │   ├── reader.py            VaultNote-Parsing, format_notes_for_prompt
 │   ├── extractors.py        DocumentExtractor (ABC) + md/txt/pdf/docx/pptx-Adapter (E18-1/2/3)
 │   ├── index.py             Vault-Index + Keyword-/semantische Suche + retrieve_vault_notes (E17-1/2/5)
+│   ├── prefilter.py         Token-Prefilter fuer Classify-Kontext (E5-2)
 │   └── writer.py            write_note, CATEGORY_FOLDERS
 ├── transcription/
 │   └── whisper.py           OpenAI Whisper API
