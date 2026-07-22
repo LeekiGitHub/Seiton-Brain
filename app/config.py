@@ -128,6 +128,10 @@ class Settings(BaseSettings):
     # Max. Notizen im Classify-Prompt nach Token-Prefilter (E5-2).
     seiton_llm_note_limit: int = 30
 
+    # Classify-Prompt-Version (E4-4): laedt prompts/classify.{version}.txt
+    # (Default v1). Wird in entries.prompt_version gespeichert.
+    seiton_prompt_version: str = "v1"
+
     # Semantische Suche / Embeddings (E17-2, pgvector). Standardmaessig aus —
     # erzeugt zusaetzliche Embedding-API-Calls (Kosten). Wenn aktiviert, werden
     # Notizen beim Schreiben/Append/Sync embedded und `semantic_search` nutzbar.

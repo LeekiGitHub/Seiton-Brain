@@ -40,6 +40,8 @@ class Entry(Base):
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, server_default="processed"
     )
+    # Classify-Prompt-Version (E4-4), z. B. "v1" — fuer Audit/Replays.
+    prompt_version: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

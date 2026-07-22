@@ -203,6 +203,7 @@ async def test_classify_retries_on_invalid_json_then_succeeds():
     provider.client = MagicMock()
     provider.model = "gpt-4o-mini"
     provider.prompt_template = "{input} {existing_notes}"
+    provider.prompt_version = "v1"
 
     bad = MagicMock()
     bad.choices[0].message.content = "<<<not json>>>"
@@ -229,6 +230,7 @@ async def test_classify_raises_after_max_parse_attempts():
     provider.client = MagicMock()
     provider.model = "gpt-4o-mini"
     provider.prompt_template = "{input} {existing_notes}"
+    provider.prompt_version = "v1"
 
     bad = MagicMock()
     bad.choices[0].message.content = "still not json"
