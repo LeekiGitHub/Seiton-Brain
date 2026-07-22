@@ -134,6 +134,7 @@ async def process_text_message(
         telegram_chat_id=telegram_chat_id,
         kind=kind,
         status=entry_status,
+        prompt_version=getattr(llm, "prompt_version", None) or settings.seiton_prompt_version,
     )
     db.add(entry)
     try:

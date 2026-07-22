@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E4-4: Prompt-Versionierung.** `prompts/classify.v1.txt` + Config
+  `SEITON_PROMPT_VERSION` (Default `v1`); Version landet in `entries.prompt_version`
+  (Alembic-Migration). Loader `app/llm/prompts.py`. 7 neue Tests (353 gesamt).
 - **E5-2: Vault-Prefilter vor LLM.** Token-Overlap (Titel/Snippet) wählt max.
   `SEITON_LLM_NOTE_LIMIT` (Default 30) Notizen für den Classify-Prompt aus einem
   größeren Index-Pool. Modul `app/vault/prefilter.py`. 7 neue Tests (346 gesamt).

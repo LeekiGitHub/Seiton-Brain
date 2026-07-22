@@ -26,6 +26,7 @@ def test_entry_can_be_constructed_with_extended_fields():
         telegram_update_id=890,
         kind="text",
         status="processed",
+        prompt_version="v1",
     )
 
     assert entry.raw_input == "Original telegram text"
@@ -35,6 +36,7 @@ def test_entry_can_be_constructed_with_extended_fields():
     assert entry.telegram_update_id == 890
     assert entry.kind == "text"
     assert entry.status == "processed"
+    assert entry.prompt_version == "v1"
 
 
 def test_value_sets_are_documented():

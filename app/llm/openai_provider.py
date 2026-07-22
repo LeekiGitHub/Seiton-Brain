@@ -15,6 +15,7 @@ from app.llm.parser import (
     parse_classification_json,
     parse_digest_json,
 )
+from app.llm.prompts import load_prompt
 from app.llm.schemas import ClassificationResult, LLMAnswer, LLMDigest
 from app.llm.tags import normalize_tags
 from app.vault.categories import (
@@ -27,7 +28,6 @@ from app.vault.reader import format_notes_for_prompt, known_titles
 
 logger = logging.getLogger(__name__)
 
-PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "classify.txt"
 ANSWER_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "answer.txt"
 DIGEST_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "digest.txt"
 MAX_RELATED = 3
@@ -38,7 +38,7 @@ class OpenAIProvider:
     def __init__(self) -> None:
         self.client = AsyncOpenAI(api_key=settings.openai_api_key)
         self.model = settings.openai_model
-        self.prompt_template = PROMPT_PATH.read_text()
+        self.prompt_template, self.prompt_version = load_prompt("classify")
         self.answer_template = ANSWER_PROMPT_PATH.read_text()
         self.digest_template = DIGEST_PROMPT_PATH.read_text()
 
