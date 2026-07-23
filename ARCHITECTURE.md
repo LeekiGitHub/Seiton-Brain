@@ -86,8 +86,9 @@ app/
 │   ├── process_message.py   Orchestrierung Capture: LLM → DB → Vault
 │   └── answer.py            RAG-Antwort-Service: Retrieval → LLM → AnswerResult (E17-3)
 ├── llm/
-│   ├── provider.py          LLMProvider (ABC: classify, answer) + get_llm_provider()
+│   ├── provider.py          LLMProvider (ABC: classify, answer, digest) + get_llm_provider()
 │   ├── openai_provider.py   OpenAI-Implementierung (Chat-Completions, JSON-Mode)
+│   ├── ollama_provider.py   Ollama via OpenAI-kompatiblem /v1 (E7-2)
 │   ├── embeddings.py        EmbeddingProvider (ABC) + OpenAI + get_embedding_provider() (E17-2)
 │   ├── parser.py            JSON→Pydantic (classify + answer), Retry-Konstanten
 │   └── schemas.py           ClassificationResult, AnswerResult/NoteRef/LLMAnswer (Pydantic)

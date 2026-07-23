@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from app.config import settings
+from app.llm.ollama_provider import OllamaProvider
 from app.llm.openai_provider import OpenAIProvider
 from app.llm.schemas import ClassificationResult, LLMAnswer, LLMDigest
 
@@ -20,7 +21,9 @@ class LLMProvider(ABC):
 
 
 def get_llm_provider() -> LLMProvider:
-    provider = settings.llm_provider
+    provider = settings.llm_provider.strip().lower()
     if provider == "openai":
         return OpenAIProvider()
+    if provider == "ollama":
+        return OllamaProvider()
     raise ValueError(f"Unsupported LLM_PROVIDER: {provider}")

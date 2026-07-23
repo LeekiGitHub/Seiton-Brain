@@ -13,6 +13,8 @@ Lokale Entwicklung und Self-Hosting für Seiton Brain.
 - Docker + Docker Compose
 - Telegram-Account
 - OpenAI-API-Key ([platform.openai.com](https://platform.openai.com))
+  — oder lokal [Ollama](https://ollama.com) (`LLM_PROVIDER=ollama`, siehe
+  [`docs/llm-providers.md`](llm-providers.md))
 - Obsidian-Vault auf dem Host (oder leeres Verzeichnis als Start)
 - Für lokales Telegram-Testing: [ngrok](https://ngrok.com) (kostenlos) oder [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) (stabile URL)
 

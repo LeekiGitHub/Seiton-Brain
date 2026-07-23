@@ -120,6 +120,10 @@ class Settings(BaseSettings):
     llm_provider: str = "openai"
     openai_api_key: str
     openai_model: str = "gpt-4o-mini"
+    # Ollama (E7-2), wenn LLM_PROVIDER=ollama. Whisper/Embeddings bleiben OpenAI,
+    # solange kein lokaler Adapter existiert — OPENAI_API_KEY dann ggf. trotzdem noetig.
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "llama3.2"
 
     # Whisper language-Hint (E6-3), ISO-639-1 z. B. "de" / "en".
     # Leer = Automatische Spracherkennung (OpenAI-Default).
