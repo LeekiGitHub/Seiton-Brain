@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E7-2: Ollama-Provider.** `LLM_PROVIDER=ollama` mit `OLLAMA_BASE_URL` /
+  `OLLAMA_MODEL`; OpenAI-kompatibles `/v1`, gleiches Classify-/Answer-/Digest-
+  Schema. Doku `docs/llm-providers.md`. 7 neue Tests (360 gesamt).
 - **E4-4: Prompt-Versionierung.** `prompts/classify.v1.txt` + Config
   `SEITON_PROMPT_VERSION` (Default `v1`); Version landet in `entries.prompt_version`
   (Alembic-Migration). Loader `app/llm/prompts.py`. 7 neue Tests (353 gesamt).

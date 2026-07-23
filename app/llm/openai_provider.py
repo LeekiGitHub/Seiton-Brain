@@ -35,9 +35,14 @@ MAX_TAGS = 5
 
 
 class OpenAIProvider:
-    def __init__(self) -> None:
-        self.client = AsyncOpenAI(api_key=settings.openai_api_key)
-        self.model = settings.openai_model
+    def __init__(
+        self,
+        *,
+        client: AsyncOpenAI | None = None,
+        model: str | None = None,
+    ) -> None:
+        self.client = client or AsyncOpenAI(api_key=settings.openai_api_key)
+        self.model = model or settings.openai_model
         self.prompt_template, self.prompt_version = load_prompt("classify")
         self.answer_template = ANSWER_PROMPT_PATH.read_text()
         self.digest_template = DIGEST_PROMPT_PATH.read_text()

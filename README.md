@@ -27,14 +27,14 @@ Stand jetzt (v0.2.x, Phase C–F):
 
 - Telegram-Bot: Text **und** Sprachnachrichten (Webhook oder Long-Polling)
 - Sofortige Antwort, Verarbeitung async via Celery + Redis (Retries bei transienten OpenAI-Fehlern)
-- OpenAI klassifiziert (Kategorie, Titel, Summary, Tags) — Prompt in `/prompts`
+- OpenAI klassifiziert (Kategorie, Titel, Summary, Tags) — Prompt in `/prompts`; optional **Ollama** lokal (`LLM_PROVIDER=ollama`, [`docs/llm-providers.md`](./docs/llm-providers.md))
 - **Append vs. Create**, strukturierte Tags, Slash-Commands (`/recent`, `/find`, `/undo`, `/ask`, `/digest`)
 - **Knowledge Retrieval:** Keyword- + semantische Suche (pgvector), RAG `/ask`, Digest-Synthese
 - REST-API v1 (`/v1/capture`, `/v1/ask`, `/v1/digest`, …) + Outbound-Webhooks
 - MCP-Server für Cursor/Claude (`examples/mcp/`)
 - Web-UI (E19): Setup-Wizard, Dashboard, Suche/Ask, Notizen, Settings
 - Consumer-Installer für Heim-Box (E20-1): `./scripts/install.sh`
-- PostgreSQL + Alembic, Obsidian-Vault mit `[[links]]`, Docker Compose, pytest + GitHub CI (280+ Tests)
+- PostgreSQL + Alembic, Obsidian-Vault mit `[[links]]`, Docker Compose, pytest + GitHub CI (360 Tests)
 
 Vollständige Historie: [`CHANGELOG.md`](./CHANGELOG.md).
 Was als nächstes kommt: [`ROADMAP.md`](./ROADMAP.md).
@@ -115,13 +115,13 @@ v0.2.x (phases C–F):
 
 - Telegram bot: text **and** voice (webhook or long-polling)
 - Immediate reply, async processing via Celery + Redis (retries on transient OpenAI errors)
-- OpenAI classification (category, title, summary, tags) — prompt in `/prompts`
+- OpenAI classification (category, title, summary, tags) — prompt in `/prompts`; optional local **Ollama** (`LLM_PROVIDER=ollama`, [`docs/llm-providers.md`](./docs/llm-providers.md))
 - **Append vs. create**, structured tags, slash commands (`/recent`, `/find`, `/undo`, `/ask`, `/digest`)
 - **Knowledge retrieval:** keyword + semantic search (pgvector), RAG `/ask`, digest synthesis
 - REST API v1 + outbound webhooks; MCP server for Cursor/Claude (`examples/mcp/`)
 - Web UI (E19): setup wizard, dashboard, search/ask, notes, settings
 - Consumer installer for home box (E20-1): `./scripts/install.sh`
-- PostgreSQL + Alembic, Obsidian vault with `[[links]]`, Docker Compose, pytest + GitHub CI (280+ tests)
+- PostgreSQL + Alembic, Obsidian vault with `[[links]]`, Docker Compose, pytest + GitHub CI (360 tests)
 
 Full history: [`CHANGELOG.md`](./CHANGELOG.md).
 What's next: [`ROADMAP.md`](./ROADMAP.md).
