@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E11-4: README-Visuals & Repo-Topics.** Flow-GIF + Dashboard-/Ask-Screenshots
+  unter `docs/assets/`, Generator `scripts/generate-readme-assets.py`, GitHub-
+  Topics/Description. 2 neue Doc-Tests (362 gesamt).
 - **E7-2: Ollama-Provider.** `LLM_PROVIDER=ollama` mit `OLLAMA_BASE_URL` /
   `OLLAMA_MODEL`; OpenAI-kompatibles `/v1`, gleiches Classify-/Answer-/Digest-
   Schema. Doku `docs/llm-providers.md`. 7 neue Tests (360 gesamt).

@@ -1,3 +1,4 @@
 pytest
 pytest-asyncio
 ruff
+pillow  # optional: scripts/generate-readme-assets.py (E11-4)
