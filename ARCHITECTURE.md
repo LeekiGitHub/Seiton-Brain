@@ -97,7 +97,9 @@ app/
 │   ├── extractors.py        DocumentExtractor (ABC) + md/txt/pdf/docx/pptx-Adapter (E18-1/2/3)
 │   ├── index.py             Vault-Index + Keyword-/semantische Suche + retrieve_vault_notes (E17-1/2/5)
 │   ├── prefilter.py         Token-Prefilter fuer Classify-Kontext (E5-2)
-│   └── writer.py            write_note, CATEGORY_FOLDERS
+│   ├── backend.py           VaultBackend Protocol + get_vault_backend() (E15-1)
+│   ├── filesystem.py        FilesystemVaultBackend (Markdown unter Vault-Pfad)
+│   ├── writer.py            Kompatibilitäts-Wrapper (write_note, …)
 ├── transcription/
 │   └── whisper.py           OpenAI Whisper API
 ├── webhooks/
@@ -251,7 +253,7 @@ Datei an statt eine neue anzulegen:
 Frontmatter wird in E3-2 noch **nicht** mit-aktualisiert (`updated:`-Datum,
 Tag-Merge) — das ist Story E3-3.
 
-Mapping Category → Folder in `app/vault/writer.py:CATEGORY_FOLDERS`:
+Mapping Category → Folder in `app/vault/categories.py` (via `vault_config.yaml` / Defaults):
 
 | Category | Folder |
 |----------|--------|
@@ -317,7 +319,7 @@ flowchart LR
 | Telegram (optional, Long-Polling) | ✅ Webhook + Long-Polling (E1-5) | — |
 | HTTP REST | ✅ | E13 REST API |
 | Setup | — | E19-1 UI-Wizard (CLI/`doctor` für Server-Edition, E16) |
-| Filesystem Vault | ✅ | E15 `VaultBackend`-Interface |
+| Filesystem Vault | ✅ `FilesystemVaultBackend` | E15-1 Protocol 🟢; weitere Backends (Git/S3) später |
 | Retrieval / Q&A | teilw. (E17-1) | E17 (Keyword → semantisch → RAG) |
 | MCP-Server (Brain als Tool für LLM-Agents) | ✅ `examples/mcp/` | — |
 | ~~n8n~~ | — | ❌ gestrichen (ADR 0004); via REST durch Power-User möglich |

@@ -146,6 +146,8 @@ class Settings(BaseSettings):
 
     # Vault
     obsidian_vault_path: str
+    # Vault-Backend (E15-1). Default filesystem = Markdown unter OBSIDIAN_VAULT_PATH.
+    vault_backend: str = "filesystem"
 
     # Persistenz
     database_url: str

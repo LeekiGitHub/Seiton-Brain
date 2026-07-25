@@ -30,7 +30,7 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 - `app/worker/` — Celery tasks (capture, voice, ask, digest)
 - `app/llm/` — provider, embeddings, schemas
 - `app/services/` — process_message, answer, digest
-- `app/vault/` — reader, writer, index (keyword + semantic search)
+- `app/vault/` — backend (Protocol), filesystem, reader, writer, index (keyword + semantic search)
 - `app/api/v1/` — REST API (capture, ask, digest, search, …)
 - `app/setup/` — Setup-Wizard (env checks, `.env` schreiben)
 - `app/licensing/` — Offline-Lizenz Ed25519 (E21-1), `docs/licensing.md`
@@ -45,7 +45,7 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 Core pipeline + REST API + retrieval (E17 komplett). **Web-UI E19 komplett.**
 **E20** Packaging (Installer, VPS, Auto-Update) 🟢. **E21-1/E21-3** Lizenzierung 🟢.
 **E9-2** Self-Hosting-Hub 🟢. **E13-4** OpenAPI/Swagger 🟢. **E11-2** SECURITY.md 🟢. **E11-3** CONTRIBUTING + Templates 🟢. **E12-3** Troubleshooting 🟢. **E15-2** Vault/Obsidian optional 🟢. **E16-1** init.sh + make init 🟢.
-**E5-2** LLM-Prefilter 🟢. **E4-4** Prompt-Versionierung 🟢. **E7-2** Ollama-Provider 🟢. **E11-4** README-Visuals 🟢. 362 Tests.
+**E5-2** LLM-Prefilter 🟢. **E4-4** Prompt-Versionierung 🟢. **E7-2** Ollama-Provider 🟢. **E11-4** README-Visuals 🟢. **E15-1** VaultBackend 🟢. 367 Tests.
 
 ## Roadmap & Backlog
 
