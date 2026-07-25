@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Suchen &amp; Fragen — Seiton Brain</title>
+  <link rel="stylesheet" href="app.css" />
+  <style>
+    .result-item {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-item:last-child { border-bottom: none; }
+    .result-item .title { font-weight: 600; margin-bottom: 0.2rem; }
+    .result-item .snippet { color: var(--muted); font-size: 0.9rem; }
+    .chat-bubble {
+      background: var(--surface-2);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .chat-bubble.q { border-left: 3px solid var(--accent); }
+    .chat-bubble.a { border-left: 3px solid var(--ok); }
+    .chat-meta { font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; }
+    .inline-form, .ask-form {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+    .inline-form input[type="search"],
+    .ask-form textarea {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 0.6rem 0.75rem;
+      font: inherit;
+    }
+    button.primary {
+      background: var(--accent);
+      color: #0a1219;
+      border: none;
+      border-radius: 8px;
+      padding: 0.55rem 1rem;
+      font-weight: 600;
+      cursor: default;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="topnav">
+      <a class="brand" href="#">Seiton Brain</a>
+      <a href="#">Dashboard</a>
+      <a href="#" class="active">Suchen &amp; Fragen</a>
+      <a href="#">Notizen</a>
+      <a href="#">Einstellungen</a>
+      <a href="#">Setup</a>
+    </nav>
+
+    <header class="page-header">
+      <h1>Suchen &amp; Fragen</h1>
+      <p>Vault durchsuchen oder dein Brain mit einer Frage befragen — gleiche Pipeline wie Telegram <code>/find</code> und <code>/ask</code>.</p>
+    </header>
+
+    <section class="card">
+      <h2>Vault-Suche</h2>
+      <form class="inline-form" onsubmit="return false;">
+        <input type="search" value="Mac Mini Hosting" readonly />
+        <button type="button" class="primary">Suchen</button>
+      </form>
+      <div class="result-list">
+        <div class="result-item">
+          <div class="title">Ideen für Mac-Mini Hosting</div>
+          <div class="snippet">Always-on Box, Long-Polling, Privacy als Verkaufsargument …</div>
+        </div>
+        <div class="result-item">
+          <div class="title">Docker Compose Consumer-Edition</div>
+          <div class="snippet">install.sh, Volumes für Vault und Voice-Cache …</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Brain fragen</h2>
+      <div class="chat-log">
+        <div class="chat-bubble q">
+          Was weiß ich schon über Self-Hosting auf dem Mac Mini?
+        </div>
+        <div class="chat-bubble a">
+          Du planst eine Always-on-Box mit Long-Polling (kein öffentlicher Tunnel),
+          Docker Compose für Consumer-Edition und Privacy als zentrales Argument.
+          Relevante Notizen: <em>Ideen für Mac-Mini Hosting</em>,
+          <em>Docker Compose Consumer-Edition</em>.
+          <div class="chat-meta">Konfidenz 0.82 · 2 Quellen</div>
+        </div>
+      </div>
+      <form class="ask-form" onsubmit="return false;">
+        <textarea rows="2" readonly>Was weiß ich schon über …?</textarea>
+        <button type="button" class="primary">Fragen</button>
+      </form>
+    </section>
+  </div>
+</body>
+</html>

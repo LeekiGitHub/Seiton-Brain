@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard — Seiton Brain</title>
+  <link rel="stylesheet" href="app.css" />
+  <style>
+    /* Demo-only: filled state for README screenshots */
+    .path { font-family: ui-monospace, monospace; font-size: 0.8rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="topnav">
+      <a class="brand" href="#">Seiton Brain</a>
+      <a href="#" class="active">Dashboard</a>
+      <a href="#">Suchen &amp; Fragen</a>
+      <a href="#">Notizen</a>
+      <a href="#">Einstellungen</a>
+      <a href="#">Setup</a>
+    </nav>
+
+    <header class="page-header">
+      <h1>Dashboard</h1>
+      <p>Letzte Captures und Vault-Aktivität — lokal auf deiner Maschine.</p>
+    </header>
+
+    <section class="card">
+      <h2>Überblick</h2>
+      <div class="stats-grid">
+        <div class="stat"><div class="label">Entries gesamt</div><div class="value">128</div></div>
+        <div class="stat"><div class="label">Vault-Notizen</div><div class="value">94</div></div>
+        <div class="stat"><div class="label">Text / Voice</div><div class="value">101 / 27</div></div>
+        <div class="stat"><div class="label">Semantische Suche</div><div class="value">an</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Letzte Entries</h2>
+      <table class="data">
+        <thead>
+          <tr><th>Zeit</th><th>Status</th><th>Titel</th><th>Art</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>heute 09:14</td>
+            <td><span class="badge ok">done</span></td>
+            <td>Ideen für Mac-Mini Hosting</td>
+            <td>text</td>
+          </tr>
+          <tr>
+            <td>heute 08:02</td>
+            <td><span class="badge ok">done</span></td>
+            <td>Reiseplanung Tokio</td>
+            <td>voice</td>
+          </tr>
+          <tr>
+            <td>gestern 22:41</td>
+            <td><span class="badge ok">done</span></td>
+            <td>Meeting-Notizen Product Pivot</td>
+            <td>text</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Zuletzt im Vault</h2>
+      <table class="data">
+        <thead>
+          <tr><th>Titel</th><th>Pfad</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Ideen für Mac-Mini Hosting</td>
+            <td class="path">work/Ideen für Mac-Mini Hosting.md</td>
+          </tr>
+          <tr>
+            <td>Reiseplanung Tokio</td>
+            <td class="path">travel/Reiseplanung Tokio.md</td>
+          </tr>
+          <tr>
+            <td>Meeting-Notizen Product Pivot</td>
+            <td class="path">work/Meeting-Notizen Product Pivot.md</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</body>
+</html>

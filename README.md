@@ -11,6 +11,16 @@ Ich schreibe dem Bot eine Nachricht — eine halbe Idee, ein Gedanke unterwegs, 
 
 Der Name kommt von **Seiton** (整頓) — alles an seinen Platz legen, damit man es wiederfindet. Genau das soll das Projekt für meine Gedanken machen.
 
+<p align="center">
+  <img src="docs/assets/flow.gif" alt="Seiton Brain Flow: Capture → Classify → Vault" width="720" />
+</p>
+
+<p align="center">
+  <img src="docs/assets/dashboard.png" alt="Seiton Brain Web-UI Dashboard" width="48%" />
+  &nbsp;
+  <img src="docs/assets/ask.png" alt="Seiton Brain Suchen und Fragen" width="48%" />
+</p>
+
 ---
 
 ## Warum das existiert
@@ -34,6 +44,7 @@ Stand jetzt (v0.2.x, Phase C–F):
 - MCP-Server für Cursor/Claude (`examples/mcp/`)
 - Web-UI (E19): Setup-Wizard, Dashboard, Suche/Ask, Notizen, Settings
 - Consumer-Installer für Heim-Box (E20-1): `./scripts/install.sh`
+- Offline-Lizenz Ed25519 (E21-1), Self-Hosting-Hub
 - PostgreSQL + Alembic, Obsidian-Vault mit `[[links]]`, Docker Compose, pytest + GitHub CI (360 Tests)
 
 Vollständige Historie: [`CHANGELOG.md`](./CHANGELOG.md).
@@ -61,9 +72,9 @@ Ich wollte ein System bauen, das sich wie ein kleines echtes Backend anfühlt �
 
 ## Was noch fehlt (Produkt)
 
-- Lizenzierung (E21)
-- Ollama als lokale LLM-Alternative
-- Multi-Format-Ingestion (PDF, … — Epic E18)
+- Verkaufskanal / Lizenz-Ausgabe (E21-2)
+- Multi-Format-Ingestion vertiefen (OCR/Vision — Epic E18)
+- Optionale Consumer-Stack-Vereinfachung (SQLite / in-process Worker — E9-5)
 
 ---
 
@@ -99,6 +110,16 @@ I send the bot a message — half an idea, a thought on the go, something that w
 
 The name comes from **Seiton** (整頓) — putting everything in its place so you can actually find it again. That's what this project is supposed to do for my thoughts.
 
+<p align="center">
+  <img src="docs/assets/flow.gif" alt="Seiton Brain flow: Capture → Classify → Vault" width="720" />
+</p>
+
+<p align="center">
+  <img src="docs/assets/dashboard.png" alt="Seiton Brain web UI dashboard" width="48%" />
+  &nbsp;
+  <img src="docs/assets/ask.png" alt="Seiton Brain search and ask" width="48%" />
+</p>
+
 ---
 
 ## Why this exists
@@ -121,6 +142,7 @@ v0.2.x (phases C–F):
 - REST API v1 + outbound webhooks; MCP server for Cursor/Claude (`examples/mcp/`)
 - Web UI (E19): setup wizard, dashboard, search/ask, notes, settings
 - Consumer installer for home box (E20-1): `./scripts/install.sh`
+- Offline Ed25519 license (E21-1), self-hosting hub
 - PostgreSQL + Alembic, Obsidian vault with `[[links]]`, Docker Compose, pytest + GitHub CI (360 tests)
 
 Full history: [`CHANGELOG.md`](./CHANGELOG.md).
@@ -148,9 +170,9 @@ I wanted to build something that feels like a small real backend — not five lo
 
 ## What's still missing (product)
 
-- Licensing (E21)
-- Ollama as a local LLM alternative
-- Multi-format ingestion (PDF, … — epic E18)
+- Sales channel / license issuance (E21-2)
+- Deeper multi-format ingestion (OCR/Vision — epic E18)
+- Optional consumer stack simplification (SQLite / in-process worker — E9-5)
 
 ---
 
