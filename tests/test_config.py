@@ -35,6 +35,7 @@ def test_settings_defaults_are_applied():
     assert settings.telegram_voice_cache_dir == "temp/voice"
     assert settings.ollama_base_url == "http://localhost:11434"
     assert settings.ollama_model == "llama3.2"
+    assert settings.vault_backend == "filesystem"
 
 
 def test_settings_accept_extra_env_vars():

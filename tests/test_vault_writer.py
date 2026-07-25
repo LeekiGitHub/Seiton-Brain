@@ -343,12 +343,12 @@ def test_atomic_write_preserves_original_on_replace_failure(
     target = tmp_path / "note.md"
     target.write_text("ORIGINAL CONTENT")
 
-    import app.vault.writer as writer_mod
+    import app.vault.filesystem as fs_mod
 
     def boom(*_a, **_kw):
         raise OSError("simulated disk full at replace")
 
-    monkeypatch.setattr(writer_mod.os, "replace", boom)
+    monkeypatch.setattr(fs_mod.os, "replace", boom)
 
     with pytest.raises(OSError, match="simulated disk full"):
         _atomic_write(target, "NEW CONTENT")
@@ -368,8 +368,8 @@ def test_atomic_write_cleans_up_tempfile_on_write_failure(tmp_path, monkeypatch)
     darf kein halber Tempfile zurueckbleiben und das Ziel nicht entstehen."""
     target = tmp_path / "note.md"
 
-    import app.vault.writer as writer_mod
-    original_fdopen = writer_mod.os.fdopen
+    import app.vault.filesystem as fs_mod
+    original_fdopen = fs_mod.os.fdopen
 
     def evil_fdopen(*args, **kwargs):
         fh = original_fdopen(*args, **kwargs)
@@ -380,7 +380,7 @@ def test_atomic_write_cleans_up_tempfile_on_write_failure(tmp_path, monkeypatch)
         fh.write = broken_write  # type: ignore[method-assign]
         return fh
 
-    monkeypatch.setattr(writer_mod.os, "fdopen", evil_fdopen)
+    monkeypatch.setattr(fs_mod.os, "fdopen", evil_fdopen)
 
     with pytest.raises(OSError, match="mid-write"):
         _atomic_write(target, "anything")
@@ -395,12 +395,12 @@ def test_write_note_is_atomic_under_replace_failure(tmp_path, monkeypatch):
     am Ziel hinterlassen."""
     monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
 
-    import app.vault.writer as writer_mod
+    import app.vault.filesystem as fs_mod
 
     def boom(*_a, **_kw):
         raise OSError("disk full")
 
-    monkeypatch.setattr(writer_mod.os, "replace", boom)
+    monkeypatch.setattr(fs_mod.os, "replace", boom)
 
     result = ClassificationResult(category="note", title="Crashy", summary="x")
     with pytest.raises(OSError):

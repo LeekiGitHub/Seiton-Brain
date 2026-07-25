@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E15-1: VaultBackend-Protocol.** `get_vault_backend()` +
+  `FilesystemVaultBackend` (Markdown unter `OBSIDIAN_VAULT_PATH`);
+  `process_message` spricht das Protocol; `writer.py` bleibt
+  Kompatibilitäts-Wrapper. Config `VAULT_BACKEND`. 5 neue Tests (367 gesamt).
 - **E11-4: README-Visuals & Repo-Topics.** Flow-GIF + Dashboard-/Ask-Screenshots
   unter `docs/assets/`, Generator `scripts/generate-readme-assets.py`, GitHub-
   Topics/Description. 2 neue Doc-Tests (362 gesamt).

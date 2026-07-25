@@ -159,8 +159,8 @@ Sichert Postgres **und** den Vault-Ordner nach `backups/`. Details:
 
 ## Für Entwickler
 
-Langfristig: `VaultBackend`-Interface und weitere Backends (Git, S3) —
-[`docs/integrations/vault-backends.md`](integrations/vault-backends.md) (E15-1).
+`VaultBackend` (E15-1) ist implementiert (`FilesystemVaultBackend`); weitere
+Backends (Git, S3): [`docs/integrations/vault-backends.md`](integrations/vault-backends.md).
 
 ---
 

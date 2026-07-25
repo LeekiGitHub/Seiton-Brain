@@ -3,31 +3,33 @@
 Obsidian ist für Seiton Brain im Kern **ein Markdown-Ordner mit Wiki-Links**.
 Eine „Obsidian-Alternative“ bedeutet nicht zwingend eine eigene Notiz-App.
 
-> **Heute:** Filesystem-Markdown unter `OBSIDIAN_VAULT_PATH` (`app/vault/reader.py`,
-> `app/vault/writer.py`).  
-> **Langfristig:** `VaultBackend`-Interface, Obsidian-kompatibles FS als erste
-> Implementierung.
+> **Heute (E15-1):** `VaultBackend`-Protocol + `FilesystemVaultBackend`
+> (`app/vault/backend.py`, `app/vault/filesystem.py`). Aufrufer über
+> `get_vault_backend()` bzw. Kompatibilitäts-Wrapper in `writer.py`.
 
 Siehe [ADR 0003](../adr/0003-engine-and-adapters.md).
 
 ---
 
-## Geplantes Interface (Entwurf)
+## Interface
 
 ```python
-# Konzept — noch nicht implementiert
+from typing import Protocol
+from app.llm.schemas import ClassificationResult
+
 class VaultBackend(Protocol):
-    async def list_notes(self, limit: int = 80) -> list[VaultNote]: ...
-    async def write_note(self, result: ClassificationResult) -> str:
-        """Returns vault-relative path, e.g. Ideas/My Note.md"""
-    async def append_to_note(self, vault_path: str, content: str) -> None: ...
-    async def note_exists(self, vault_path: str) -> bool: ...
+    def write_note(self, result: ClassificationResult) -> str:
+        """Vault-relativer Pfad, z. B. Ideas/My Note.md"""
+    def append_to_note(self, vault_path: str, result: ClassificationResult) -> str: ...
+    def save_note_content(self, vault_path: str, content: str) -> str: ...
+    def delete_note(self, vault_path: str) -> bool: ...
+    def note_exists(self, vault_path: str) -> bool: ...
 ```
 
-Service-Layer (`process_message.py`) spricht nur noch mit `VaultBackend`, nicht
-direkt mit `Path`/`os`.
+Config: `VAULT_BACKEND=filesystem` (Default; Aliase `fs`, `obsidian`).
 
-**Story:** `E15-1` — Interface extrahieren + Filesystem-Backend.
+Service-Layer (`process_message.py`) spricht `get_vault_backend()`, nicht
+direkt `Path`/`os`.
 
 ---
 
@@ -35,7 +37,7 @@ direkt mit `Path`/`os`.
 
 | Backend | Beschreibung | Aufwand | Phase | Story |
 |---------|--------------|---------|-------|-------|
-| **Filesystem Markdown** | Heutiges Verhalten; Obsidian, Logseq, VS Code, jeder Editor | ✅ existiert | — | — |
+| **Filesystem Markdown** | Obsidian, Logseq, VS Code, jeder Editor | ✅ `FilesystemVaultBackend` | D | `E15-1` 🟢 |
 | **Plain folder + Doku** | User-Doku „Obsidian optional“ | Minimal | D | `E15-2` 🟢 → [`vault.md`](../vault.md) |
 | **Atomares Schreiben** | Tempfile + `os.replace` (Obsidian-Sync-sicher) | Gering | B | `E3-4` |
 | **Git-backed vault** | Commit pro Note/Push (Backup + History) | Mittel | E | `E15-3` |
@@ -63,10 +65,9 @@ Ausführlich: **[`docs/vault.md`](../vault.md)** (E15-2).
 
 ## Abhängigkeiten
 
-- **E3-2 Append** braucht `append_to_note(vault_path)` — guter Zeitpunkt für
-  Interface-Extraktion (`E15-1` parallel oder direkt danach)
-- **E5-1 Vault-Index** kann backend-agnostisch in Postgres spiegeln
-- REST-API `/v1/notes/*` nutzt dasselbe Backend wie Telegram-Pipeline
+- **E3-2 Append** nutzt `append_to_note(vault_path)` am Backend
+- **E5-1 Vault-Index** spiegelt Relativpfade backend-agnostisch in Postgres
+- REST-API `/v1/notes/*` und UI nutzen dieselben Writer-Wrapper / dasselbe Backend
 
 ---
 
@@ -74,4 +75,3 @@ Ausführlich: **[`docs/vault.md`](../vault.md)** (E15-2).
 
 - Sync-Konflikte: Was passiert, wenn User manuell editiert während Append läuft?
 - Git-Backend: ein Commit pro Capture vs. batch?
-- Web-UI: nur Read oder auch Edit (Scope explodiert)?

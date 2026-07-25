@@ -10,8 +10,8 @@ from app.config import settings
 from app.llm.provider import get_llm_provider
 from app.llm.schemas import ClassificationResult
 from app.models.entry import Entry
+from app.vault.backend import get_vault_backend
 from app.vault.index import upsert_vault_note_index
-from app.vault.writer import append_to_note, write_note
 
 logger = logging.getLogger(__name__)
 
@@ -24,17 +24,6 @@ class ProcessMessageResult:
     entry_id: int
     vault_path: str
     status: str
-
-
-def _to_vault_relative(note_path: Path) -> str:
-    """Macht den Vault-Pfad relativ zum Vault-Root fuer die DB-Spalte."""
-    vault_root = Path(settings.obsidian_vault_path)
-    try:
-        return str(note_path.relative_to(vault_root))
-    except ValueError:
-        # Sollte nie passieren — Writer schreibt immer unterhalb des Vault-Roots.
-        # Fallback: absoluten Pfad speichern, statt den Insert zu sprengen.
-        return str(note_path)
 
 
 async def _resolve_append_target(
@@ -98,6 +87,7 @@ async def process_text_message(
 
     llm = get_llm_provider()
     result = await llm.classify(text)
+    vault = get_vault_backend()
 
     # Append vs. Create. Bei action=append versuchen wir, die Ziel-Notiz ueber
     # ihren Titel in der DB zu finden (juengster Entry). Klappt das nicht
@@ -106,9 +96,8 @@ async def process_text_message(
     entry_status = "processed"
     if result.action == "append" and result.target_title:
         target_relative = await _resolve_append_target(db, result.target_title)
-        if target_relative is not None:
-            note_path = append_to_note(target_relative, result)
-            vault_relative = target_relative
+        if target_relative is not None and vault.note_exists(target_relative):
+            vault_relative = vault.append_to_note(target_relative, result)
             entry_status = "appended"
         else:
             logger.info(
@@ -117,11 +106,9 @@ async def process_text_message(
             )
             result.action = "create"
             result.target_title = None
-            note_path = write_note(result)
-            vault_relative = _to_vault_relative(note_path)
+            vault_relative = vault.write_note(result)
     else:
-        note_path = write_note(result)
-        vault_relative = _to_vault_relative(note_path)
+        vault_relative = vault.write_note(result)
 
     entry = Entry(
         title=result.title,
@@ -152,7 +139,7 @@ async def process_text_message(
             "Race on telegram_update_id=%s after IntegrityError; "
             "orphan vault file may exist at %s",
             telegram_update_id,
-            note_path,
+            vault_relative,
         )
         return None
 
