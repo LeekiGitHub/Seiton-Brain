@@ -1,4 +1,4 @@
 pytest
 pytest-asyncio
-ruff
+ruff==0.15.18  # pin: 0.16+ enables many new rules and breaks CI (unpinned pip)
 pillow  # optional: scripts/generate-readme-assets.py (E11-4)
