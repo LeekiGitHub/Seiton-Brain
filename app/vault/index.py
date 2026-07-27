@@ -1,4 +1,4 @@
-"""Vault-Index in Postgres (E5-1) und Keyword-Suche (E17-1)."""
+"""Vault-Index in Postgres (E5-1), Keyword-Suche (E17-1), Chunks (E18-4)."""
 
 from __future__ import annotations
 
@@ -9,18 +9,24 @@ from pathlib import Path
 
 from sqlalchemy import case, delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.config import settings
 from app.db.session import SessionLocal
 from app.llm.embeddings import get_embedding_provider
+from app.models.vault_chunk import VaultChunk
 from app.models.vault_note_index import VaultNoteIndex
+from app.vault.chunking import chunk_text
 from app.vault.extractors import get_extractor
 from app.vault.reader import VaultNote, _body_snippet, _parse_frontmatter
 
 logger = logging.getLogger(__name__)
 
-# Fuer ILIKE-Suche; Anzeige im LLM-Prompt bleibt bei 120 Zeichen (reader).
+# Fuer UI-/Listen-Preview; Retrieval laeuft ueber Chunks (E18-4).
 BODY_INDEX_CHARS = 2000
+# Snippet in SearchHit / RAG-Kontext — etwas laenger als frueher, weil Chunks
+# den relevanten Abschnitt liefern.
+HIT_SNIPPET_CHARS = 400
 LLM_NOTE_LIMIT = 80
 # Kandidaten-Pool vor Heuristik-Prefilter (E5-2); danach max. ~30 im Prompt.
 LLM_CANDIDATE_POOL = 200
@@ -63,13 +69,15 @@ def parse_note_file(path: Path) -> VaultNote:
     return VaultNote(title=title, category=category, folder=folder, snippet=snippet)
 
 
-def _file_to_index_row(path: Path) -> VaultNoteIndex | None:
-    """Indexzeile fuer eine Datei — ``None`` bei nicht unterstuetztem Typ."""
+def _file_to_index_payload(
+    path: Path,
+) -> tuple[VaultNoteIndex, str] | None:
+    """Indexzeile + voller Extrakt-Text — ``None`` bei nicht unterstuetztem Typ."""
     extractor = get_extractor(path)
     if extractor is None:
         return None
     doc = extractor.extract(path)
-    return VaultNoteIndex(
+    row = VaultNoteIndex(
         vault_path=_relative_vault_path(path),
         title=doc.title,
         category=doc.category,
@@ -78,6 +86,13 @@ def _file_to_index_row(path: Path) -> VaultNoteIndex | None:
         body_snippet=_index_body_snippet(doc.text),
         mtime=_file_mtime(path),
     )
+    return row, doc.text or ""
+
+
+def _file_to_index_row(path: Path) -> VaultNoteIndex | None:
+    """Kompatibilitaets-Helfer fuer bestehende Tests."""
+    payload = _file_to_index_payload(path)
+    return payload[0] if payload else None
 
 
 def _ilike_pattern(query: str) -> str:
@@ -85,26 +100,52 @@ def _ilike_pattern(query: str) -> str:
     return f"%{escaped}%"
 
 
-def _embedding_text(title: str, body_snippet: str) -> str:
+def _embedding_text(title: str, body: str) -> str:
     """Eingabetext fuer das Embedding: Titel traegt am meisten Signal, dann Body."""
-    return f"{title}\n\n{body_snippet}".strip()
+    return f"{title}\n\n{body}".strip()
 
 
-async def _embed_row(row: VaultNoteIndex | None) -> list[float] | None:
-    """Embedding fuer eine Indexzeile — ``None`` wenn deaktiviert oder fehlgeschlagen.
-
-    Best-effort: ein Embedding-Fehler (kein Key, API-Ausfall) darf das
-    Indexieren nicht sprengen — die Keyword-Suche funktioniert weiter.
-    """
-    if not settings.embeddings_enabled or row is None:
+async def _embed_text(title: str, body: str, *, label: str) -> list[float] | None:
+    if not settings.embeddings_enabled:
         return None
     try:
-        return await get_embedding_provider().embed(
-            _embedding_text(row.title, row.body_snippet)
-        )
+        return await get_embedding_provider().embed(_embedding_text(title, body))
     except Exception as exc:  # noqa: BLE001 — Embedding ist optional, nie fatal
-        logger.warning("Embedding failed for %s: %s", row.vault_path, exc)
+        logger.warning("Embedding failed for %s: %s", label, exc)
         return None
+
+
+async def _replace_chunks(
+    db: AsyncSession,
+    note: VaultNoteIndex,
+    full_text: str,
+) -> tuple[int, bool]:
+    """Ersetzt alle Chunks einer Notiz. Liefert (Anzahl, hatte_embedding)."""
+    await db.execute(delete(VaultChunk).where(VaultChunk.note_id == note.id))
+    pieces = chunk_text(
+        full_text,
+        chunk_size=settings.seiton_chunk_size,
+        overlap=settings.seiton_chunk_overlap,
+    )
+    if not pieces and note.body_snippet.strip():
+        pieces = [note.body_snippet]
+
+    embedded_any = False
+    for idx, piece in enumerate(pieces):
+        embedding = await _embed_text(
+            note.title, piece, label=f"{note.vault_path}#{idx}"
+        )
+        if embedding is not None:
+            embedded_any = True
+        db.add(
+            VaultChunk(
+                note_id=note.id,
+                chunk_index=idx,
+                content=piece,
+                embedding=embedding,
+            )
+        )
+    return len(pieces), embedded_any
 
 
 async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) -> None:
@@ -114,10 +155,10 @@ async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) ->
         await remove_vault_note_index(db, vault_relative_path)
         return
 
-    row = _file_to_index_row(filepath)
-    if row is None:
+    payload = _file_to_index_payload(filepath)
+    if payload is None:
         return  # nicht unterstuetzter Dateityp — nicht indexieren
-    embedding = await _embed_row(row)
+    row, full_text = payload
     existing = (
         await db.execute(
             select(VaultNoteIndex).where(
@@ -127,8 +168,8 @@ async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) ->
     ).scalar_one_or_none()
 
     if existing is None:
-        row.embedding = embedding
         db.add(row)
+        await db.flush()
         indexed_row = row
     else:
         existing.title = row.title
@@ -137,17 +178,13 @@ async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) ->
         existing.doc_type = row.doc_type
         existing.body_snippet = row.body_snippet
         existing.mtime = row.mtime
-        # Embedding nur ueberschreiben, wenn es neu berechnet wurde — sonst
-        # bleibt ein evtl. vorhandener Vektor erhalten (kein Datenverlust bei
-        # deaktivierten Embeddings oder transientem API-Fehler).
-        if embedding is not None:
-            existing.embedding = embedding
         existing.indexed_at = datetime.now(UTC)
         indexed_row = existing
 
+    _, embedded_any = await _replace_chunks(db, indexed_row, full_text)
     await db.commit()
 
-    if embedding is not None:
+    if embedded_any:
         from app.webhooks.outbound import emit_note_indexed_event
 
         await emit_note_indexed_event(
@@ -184,21 +221,20 @@ async def sync_vault_index_from_disk(db: AsyncSession) -> int:
             continue  # nicht unterstuetzter Dateityp
         try:
             rel = _relative_vault_path(file)
-            row = _file_to_index_row(file)
-            if row is None:
+            payload = _file_to_index_payload(file)
+            if payload is None:
                 continue
+            row, full_text = payload
             found_paths.add(rel)
-            embedding = await _embed_row(row)
             existing = (
                 await db.execute(
-                    select(VaultNoteIndex).where(
-                        VaultNoteIndex.vault_path == rel
-                    )
+                    select(VaultNoteIndex).where(VaultNoteIndex.vault_path == rel)
                 )
             ).scalar_one_or_none()
             if existing is None:
-                row.embedding = embedding
                 db.add(row)
+                await db.flush()
+                note = row
             else:
                 existing.title = row.title
                 existing.category = row.category
@@ -206,8 +242,8 @@ async def sync_vault_index_from_disk(db: AsyncSession) -> int:
                 existing.doc_type = row.doc_type
                 existing.body_snippet = row.body_snippet
                 existing.mtime = row.mtime
-                if embedding is not None:
-                    existing.embedding = embedding
+                note = existing
+            await _replace_chunks(db, note, full_text)
             count += 1
         except OSError as exc:
             logger.warning("Skipping unreadable vault file %s: %s", file, exc)
@@ -262,6 +298,16 @@ async def list_existing_notes(limit: int = LLM_CANDIDATE_POOL) -> list[VaultNote
         return await list_indexed_notes(db, limit=limit)
 
 
+def _hit_from_note(note: VaultNoteIndex, snippet_source: str) -> SearchHit:
+    return SearchHit(
+        title=note.title,
+        vault_path=note.vault_path,
+        snippet=_body_snippet(snippet_source, limit=HIT_SNIPPET_CHARS),
+        category=note.category,
+        folder=note.folder,
+    )
+
+
 async def search_vault_notes(
     db: AsyncSession, query: str, limit: int = 10
 ) -> list[SearchHit]:
@@ -273,37 +319,59 @@ async def search_vault_notes(
     pattern = _ilike_pattern(term)
     title_match = VaultNoteIndex.title.ilike(pattern)
     body_match = VaultNoteIndex.body_snippet.ilike(pattern)
+    chunk_match = VaultChunk.content.ilike(pattern)
 
-    stmt = (
-        select(VaultNoteIndex)
-        .where(or_(title_match, body_match))
-        .order_by(
-            case((title_match, 0), else_=1),
-            VaultNoteIndex.mtime.desc(),
+    # Titel-Treffer zuerst (ohne Chunk-Join), dann Body/Chunk.
+    title_rows = (
+        await db.execute(
+            select(VaultNoteIndex)
+            .where(title_match)
+            .order_by(VaultNoteIndex.mtime.desc())
+            .limit(limit)
         )
-        .limit(limit)
-    )
-    rows = (await db.execute(stmt)).scalars().all()
-    return [
-        SearchHit(
-            title=row.title,
-            vault_path=row.vault_path,
-            snippet=_body_snippet(row.body_snippet, limit=120),
-            category=row.category,
-            folder=row.folder,
-        )
-        for row in rows
+    ).scalars().all()
+
+    hits: list[SearchHit] = [
+        _hit_from_note(row, row.body_snippet) for row in title_rows
     ]
+    seen = {h.vault_path for h in hits}
+    if len(hits) >= limit:
+        return hits[:limit]
+
+    remaining = limit - len(hits)
+    # Chunk-Treffer mit Parent laden; Fallback Body-Match ohne Chunk.
+    chunk_rows = (
+        await db.execute(
+            select(VaultChunk, VaultNoteIndex)
+            .join(VaultNoteIndex, VaultChunk.note_id == VaultNoteIndex.id)
+            .where(or_(chunk_match, body_match))
+            .order_by(
+                case((chunk_match, 0), else_=1),
+                VaultNoteIndex.mtime.desc(),
+            )
+            .limit(remaining * 3)
+        )
+    ).all()
+
+    for chunk, note in chunk_rows:
+        if note.vault_path in seen:
+            continue
+        snippet_src = chunk.content if chunk.content else note.body_snippet
+        hits.append(_hit_from_note(note, snippet_src))
+        seen.add(note.vault_path)
+        if len(hits) >= limit:
+            break
+
+    return hits[:limit]
 
 
 async def semantic_search_vault_notes(
     db: AsyncSession, query: str, limit: int = 10
 ) -> list[SearchHit]:
-    """Semantische Suche via pgvector-kNN (E17-2).
+    """Semantische Suche via pgvector-kNN auf Chunks (E17-2 + E18-4).
 
-    Berechnet ein Query-Embedding und sortiert Notizen nach Cosine-Distanz.
     Liefert ``[]``, wenn Embeddings deaktiviert sind, die Query leer ist oder
-    noch keine Notiz ein Embedding hat (z. B. vor dem ersten Backfill-Sync).
+    noch kein Chunk ein Embedding hat.
     """
     if not settings.embeddings_enabled:
         return []
@@ -318,23 +386,26 @@ async def semantic_search_vault_notes(
         logger.warning("Query embedding failed for %r: %s", term, exc)
         return []
 
+    # Mehr Chunks holen, dann nach Dokument deduplizieren (bester Chunk gewinnt).
     stmt = (
-        select(VaultNoteIndex)
-        .where(VaultNoteIndex.embedding.is_not(None))
-        .order_by(VaultNoteIndex.embedding.cosine_distance(query_embedding))
-        .limit(limit)
+        select(VaultChunk)
+        .options(selectinload(VaultChunk.note))
+        .where(VaultChunk.embedding.is_not(None))
+        .order_by(VaultChunk.embedding.cosine_distance(query_embedding))
+        .limit(max(limit * 4, limit))
     )
-    rows = (await db.execute(stmt)).scalars().all()
-    return [
-        SearchHit(
-            title=row.title,
-            vault_path=row.vault_path,
-            snippet=_body_snippet(row.body_snippet, limit=120),
-            category=row.category,
-            folder=row.folder,
-        )
-        for row in rows
-    ]
+    chunks = (await db.execute(stmt)).scalars().all()
+    hits: list[SearchHit] = []
+    seen: set[str] = set()
+    for chunk in chunks:
+        note = chunk.note
+        if note is None or note.vault_path in seen:
+            continue
+        hits.append(_hit_from_note(note, chunk.content))
+        seen.add(note.vault_path)
+        if len(hits) >= limit:
+            break
+    return hits
 
 
 def _rows_to_search_hits(rows: list[VaultNoteIndex]) -> list[SearchHit]:
@@ -342,7 +413,7 @@ def _rows_to_search_hits(rows: list[VaultNoteIndex]) -> list[SearchHit]:
         SearchHit(
             title=row.title,
             vault_path=row.vault_path,
-            snippet=_body_snippet(row.body_snippet, limit=120),
+            snippet=_body_snippet(row.body_snippet, limit=HIT_SNIPPET_CHARS),
             category=row.category,
             folder=row.folder,
         )
@@ -378,6 +449,9 @@ async def collect_digest_notes(
         func.lower(VaultNoteIndex.category) == term_lower,
         VaultNoteIndex.title.ilike(pattern),
         VaultNoteIndex.body_snippet.ilike(pattern),
+        VaultNoteIndex.id.in_(
+            select(VaultChunk.note_id).where(VaultChunk.content.ilike(pattern))
+        ),
     )
     stmt = (
         select(VaultNoteIndex)
