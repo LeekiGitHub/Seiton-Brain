@@ -95,7 +95,8 @@ app/
 ├── vault/
 │   ├── reader.py            VaultNote-Parsing, format_notes_for_prompt
 │   ├── extractors.py        DocumentExtractor (ABC) + md/txt/pdf/docx/pptx-Adapter (E18-1/2/3)
-│   ├── index.py             Vault-Index + Keyword-/semantische Suche + retrieve_vault_notes (E17-1/2/5)
+│   ├── index.py             Vault-Index + Chunks (E18-4) + Keyword-/semantische Suche
+│   ├── chunking.py          Text → überlappende Abschnitte (E18-4)
 │   ├── prefilter.py         Token-Prefilter fuer Classify-Kontext (E5-2)
 │   ├── backend.py           VaultBackend Protocol + get_vault_backend() (E15-1)
 │   ├── filesystem.py        FilesystemVaultBackend (Markdown unter Vault-Pfad)

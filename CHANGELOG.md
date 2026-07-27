@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E18-4: Dokument-Chunking.** Tabelle `vault_chunk` (N Chunks/Dokument);
+  Keyword- und semantische Suche laufen über Chunks; Config
+  `SEITON_CHUNK_SIZE` / `SEITON_CHUNK_OVERLAP`. Parent bleibt
+  `vault_note_index`. 4 neue Tests (371 gesamt).
 - **E15-1: VaultBackend-Protocol.** `get_vault_backend()` +
   `FilesystemVaultBackend` (Markdown unter `OBSIDIAN_VAULT_PATH`);
   `process_message` spricht das Protocol; `writer.py` bleibt

@@ -144,6 +144,11 @@ class Settings(BaseSettings):
     embeddings_enabled: bool = False
     embedding_model: str = "text-embedding-3-small"
 
+    # Chunking fuer Retrieval (E18-4). Lange Dokumente werden in Abschnitte
+    # zerlegt; Embeddings und Keyword-Treffer laufen ueber vault_chunk.
+    seiton_chunk_size: int = 1500
+    seiton_chunk_overlap: int = 200
+
     # Vault
     obsidian_vault_path: str
     # Vault-Backend (E15-1). Default filesystem = Markdown unter OBSIDIAN_VAULT_PATH.

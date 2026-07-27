@@ -3,7 +3,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from app.config import settings
+from app.models.vault_chunk import VaultChunk
 from app.models.vault_note_index import VaultNoteIndex
+from app.vault.chunking import chunk_text
 from app.vault.index import (
     SearchHit,
     parse_note_file,
@@ -38,6 +40,21 @@ Track workouts and nutrition.
     assert "workouts" in parsed.snippet.lower()
 
 
+def test_chunk_text_short_stays_one():
+    assert chunk_text("hello world", chunk_size=100, overlap=10) == ["hello world"]
+
+
+def test_chunk_text_splits_with_overlap():
+    text = ("alpha " * 40) + ("beta " * 40)  # ~400 chars of words
+    chunks = chunk_text(text, chunk_size=120, overlap=20)
+    assert len(chunks) >= 2
+    assert all(chunks)
+
+
+def test_chunk_text_empty():
+    assert chunk_text("   ") == []
+
+
 @pytest.mark.asyncio
 async def test_sync_vault_index_from_disk(tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
@@ -50,6 +67,7 @@ async def test_sync_vault_index_from_disk(tmp_path, monkeypatch):
     db = AsyncMock()
     db.add = MagicMock()
     db.commit = AsyncMock()
+    db.flush = AsyncMock()
     db.execute = AsyncMock(return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None)))
 
     count = await sync_vault_index_from_disk(db)
@@ -75,6 +93,7 @@ async def test_sync_indexes_multiple_formats_skips_unsupported(tmp_path, monkeyp
     db = AsyncMock()
     db.add = MagicMock(side_effect=added_rows.append)
     db.commit = AsyncMock()
+    db.flush = AsyncMock()
     db.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None))
     )
@@ -82,8 +101,9 @@ async def test_sync_indexes_multiple_formats_skips_unsupported(tmp_path, monkeyp
     count = await sync_vault_index_from_disk(db)
 
     assert count == 2  # .md + .txt; .jpg und .obsidian/* ignoriert
-    doc_types = {row.doc_type for row in added_rows}
+    doc_types = {row.doc_type for row in added_rows if isinstance(row, VaultNoteIndex)}
     assert doc_types == {"markdown", "text"}
+    assert any(isinstance(row, VaultChunk) for row in added_rows)
 
 
 @pytest.mark.asyncio
@@ -132,7 +152,7 @@ async def test_search_empty_query_returns_empty(mock_ensure):
     db.execute.assert_not_awaited()
 
 
-# ─── E17-2: Semantische Suche + Embedding-Pipeline ────────────────────────
+# ─── E17-2 / E18-4: Semantische Suche + Chunk-Embeddings ───────────────────
 
 
 @pytest.mark.asyncio
@@ -162,7 +182,7 @@ async def test_semantic_search_returns_hits(mock_provider, mock_ensure, monkeypa
     provider.embed = AsyncMock(return_value=[0.1] * 1536)
     mock_provider.return_value = provider
 
-    row = VaultNoteIndex(
+    note = VaultNoteIndex(
         id=1,
         vault_path="Ideas/A.md",
         title="Fitness App",
@@ -171,10 +191,18 @@ async def test_semantic_search_returns_hits(mock_provider, mock_ensure, monkeypa
         body_snippet="track workouts and nutrition",
         mtime=MagicMock(),
     )
+    chunk = VaultChunk(
+        id=10,
+        note_id=1,
+        chunk_index=0,
+        content="track workouts and nutrition deeply",
+        embedding=[0.1] * 1536,
+    )
+    chunk.note = note
     db = AsyncMock()
     db.execute = AsyncMock(
         return_value=MagicMock(
-            scalars=MagicMock(return_value=MagicMock(all=MagicMock(return_value=[row])))
+            scalars=MagicMock(return_value=MagicMock(all=MagicMock(return_value=[chunk])))
         )
     )
 
@@ -182,6 +210,7 @@ async def test_semantic_search_returns_hits(mock_provider, mock_ensure, monkeypa
 
     assert len(hits) == 1
     assert hits[0].title == "Fitness App"
+    assert "workouts" in hits[0].snippet
     assert isinstance(hits[0], SearchHit)
     provider.embed.assert_awaited_once()
 
@@ -189,7 +218,7 @@ async def test_semantic_search_returns_hits(mock_provider, mock_ensure, monkeypa
 @pytest.mark.asyncio
 @patch("app.webhooks.outbound.emit_note_indexed_event", new_callable=AsyncMock)
 @patch("app.vault.index.get_embedding_provider")
-async def test_upsert_sets_embedding_when_enabled(
+async def test_upsert_sets_chunk_embedding_when_enabled(
     mock_provider, mock_emit, tmp_path, monkeypatch
 ):
     monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
@@ -208,13 +237,18 @@ async def test_upsert_sets_embedding_when_enabled(
     db = AsyncMock()
     db.add = MagicMock(side_effect=added.append)
     db.commit = AsyncMock()
+    db.flush = AsyncMock()
     db.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None))
     )
 
     await upsert_vault_note_index(db, "Notes/Hello.md")
 
-    assert added and added[0].embedding == [0.5] * 1536
+    notes_added = [r for r in added if isinstance(r, VaultNoteIndex)]
+    chunks_added = [r for r in added if isinstance(r, VaultChunk)]
+    assert notes_added
+    assert chunks_added
+    assert chunks_added[0].embedding == [0.5] * 1536
     provider.embed.assert_awaited_once()
     mock_emit.assert_awaited_once_with(
         vault_path="Notes/Hello.md",
@@ -244,15 +278,52 @@ async def test_upsert_skips_embedding_when_disabled(
     db = AsyncMock()
     db.add = MagicMock(side_effect=added.append)
     db.commit = AsyncMock()
+    db.flush = AsyncMock()
     db.execute = AsyncMock(
         return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None))
     )
 
     await upsert_vault_note_index(db, "Notes/Hello.md")
 
-    assert added and added[0].embedding is None
+    chunks_added = [r for r in added if isinstance(r, VaultChunk)]
+    assert chunks_added
+    assert chunks_added[0].embedding is None
     mock_provider.assert_not_called()
     mock_emit.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+@patch("app.webhooks.outbound.emit_note_indexed_event", new_callable=AsyncMock)
+@patch("app.vault.index.get_embedding_provider")
+async def test_upsert_creates_multiple_chunks_for_long_doc(
+    mock_provider, mock_emit, tmp_path, monkeypatch
+):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    monkeypatch.setattr(settings, "embeddings_enabled", False)
+    monkeypatch.setattr(settings, "seiton_chunk_size", 80)
+    monkeypatch.setattr(settings, "seiton_chunk_overlap", 10)
+
+    notes = tmp_path / "Notes"
+    notes.mkdir()
+    body = "word " * 100
+    (notes / "Long.md").write_text(
+        f"---\ntitle: Long\n---\n\n{body}", encoding="utf-8"
+    )
+
+    added: list = []
+    db = AsyncMock()
+    db.add = MagicMock(side_effect=added.append)
+    db.commit = AsyncMock()
+    db.flush = AsyncMock()
+    db.execute = AsyncMock(
+        return_value=MagicMock(scalar_one_or_none=MagicMock(return_value=None))
+    )
+
+    await upsert_vault_note_index(db, "Notes/Long.md")
+
+    chunks_added = [r for r in added if isinstance(r, VaultChunk)]
+    assert len(chunks_added) >= 2
+    assert [c.chunk_index for c in chunks_added] == list(range(len(chunks_added)))
 
 
 # ─── E17-5: retrieve_vault_notes (Keyword + semantisch) ───────────────────

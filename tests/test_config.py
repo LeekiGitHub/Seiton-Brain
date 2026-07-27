@@ -36,6 +36,8 @@ def test_settings_defaults_are_applied():
     assert settings.ollama_base_url == "http://localhost:11434"
     assert settings.ollama_model == "llama3.2"
     assert settings.vault_backend == "filesystem"
+    assert settings.seiton_chunk_size == 1500
+    assert settings.seiton_chunk_overlap == 200
 
 
 def test_settings_accept_extra_env_vars():

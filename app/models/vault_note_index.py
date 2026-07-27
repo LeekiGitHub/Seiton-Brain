@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import DateTime, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
 
@@ -19,8 +19,8 @@ class VaultNoteIndex(Base):
     Wird beim Schreiben/Append/Delete aktualisiert und fuer Keyword-Suche
     (E17-1) genutzt — statt bei jedem LLM-Aufruf ``rglob`` ueber den Vault.
     ``doc_type`` unterscheidet die Quelle (markdown, text, pdf, …).
-    ``embedding`` haelt den pgvector-Vektor fuer semantische Suche (E17-2);
-    ``None`` solange Embeddings deaktiviert sind oder die Berechnung scheiterte.
+    ``embedding`` (Notiz-Ebene) bleibt aus Kompatibilitaet; neue Embeddings
+    leben in ``vault_chunk`` (E18-4).
     """
 
     __tablename__ = "vault_note_index"
@@ -40,4 +40,11 @@ class VaultNoteIndex(Base):
     mtime: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     indexed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
+    )
+
+    chunks: Mapped[list["VaultChunk"]] = relationship(  # noqa: F821
+        "VaultChunk",
+        back_populates="note",
+        cascade="all, delete-orphan",
+        order_by="VaultChunk.chunk_index",
     )
