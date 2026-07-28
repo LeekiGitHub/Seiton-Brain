@@ -100,6 +100,7 @@ app/
 │   ├── prefilter.py         Token-Prefilter fuer Classify-Kontext (E5-2)
 │   ├── backend.py           VaultBackend Protocol + get_vault_backend() (E15-1)
 │   ├── filesystem.py        FilesystemVaultBackend (Markdown unter Vault-Pfad)
+│   ├── git_backend.py       GitVaultBackend (Commit pro Note, optional Push)
 │   ├── writer.py            Kompatibilitäts-Wrapper (write_note, …)
 ├── transcription/
 │   └── whisper.py           OpenAI Whisper API
@@ -295,7 +296,7 @@ flowchart LR
   end
 
   subgraph outputs [Output Adapters]
-    VAULT[VaultBackend<br/>Filesystem Markdown]
+    VAULT[VaultBackend<br/>Filesystem / Git Markdown]
     ALT[Weitere Backends]
     RET[Retrieval / Q&A<br/>REST + MCP]
   end
@@ -320,7 +321,8 @@ flowchart LR
 | Telegram (optional, Long-Polling) | ✅ Webhook + Long-Polling (E1-5) | — |
 | HTTP REST | ✅ | E13 REST API |
 | Setup | — | E19-1 UI-Wizard (CLI/`doctor` für Server-Edition, E16) |
-| Filesystem Vault | ✅ `FilesystemVaultBackend` | E15-1 Protocol 🟢; weitere Backends (Git/S3) später |
+| Filesystem Vault | ✅ `FilesystemVaultBackend` | E15-1 Protocol 🟢 |
+| Git-backed Vault | ✅ `GitVaultBackend` | E15-3 Commit pro Note + optional Push 🟢 |
 | Retrieval / Q&A | teilw. (E17-1) | E17 (Keyword → semantisch → RAG) |
 | MCP-Server (Brain als Tool für LLM-Agents) | ✅ `examples/mcp/` | — |
 | ~~n8n~~ | — | ❌ gestrichen (ADR 0004); via REST durch Power-User möglich |

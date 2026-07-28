@@ -38,4 +38,8 @@ def get_vault_backend() -> VaultBackend:
         from app.vault.filesystem import FilesystemVaultBackend
 
         return FilesystemVaultBackend()
+    if name in ("git", "git-backed", "gitbacked"):
+        from app.vault.git_backend import GitVaultBackend
+
+        return GitVaultBackend()
     raise ValueError(f"Unsupported VAULT_BACKEND: {name}")
