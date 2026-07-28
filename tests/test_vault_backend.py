@@ -144,13 +144,22 @@ def test_git_backend_pushes_when_enabled(monkeypatch):
             ClassificationResult(category="note", title="Push Note", summary="hello")
         )
 
-        remote_log = subprocess.run(
-            ["git", "--git-dir", str(remote), "log", "--oneline", "-1"],
+        ls_remote = subprocess.run(
+            ["git", "ls-remote", str(remote), "refs/heads/main"],
             text=True,
             capture_output=True,
             check=True,
-        ).stdout
-        assert "seiton(vault): add" in remote_log
+        ).stdout.strip()
+        assert ls_remote, "Expected refs/heads/main to exist on remote after push"
+
+        remote_sha = ls_remote.split()[0]
+        remote_subject = subprocess.run(
+            ["git", "--git-dir", str(remote), "show", "-s", "--format=%s", remote_sha],
+            text=True,
+            capture_output=True,
+            check=True,
+        ).stdout.strip()
+        assert "seiton(vault): add" in remote_subject
     finally:
         shutil.rmtree(root)
 
