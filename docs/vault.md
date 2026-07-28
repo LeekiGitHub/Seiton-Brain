@@ -125,7 +125,7 @@ zusätzlicher Export nötig.
 | **VS Code / Cursor** | Markdown direkt im Vault-Ordner bearbeiten |
 | **Logseq** | Wiki-Links, Outliner — gleicher Ordner möglich |
 | **Syncthing / iCloud** | Vault zwischen Geräten syncen |
-| **Git** | Versionshistorie (manuell; Git-Backend E15-3 ist Backlog) |
+| **Git** | Versionshistorie; optional automatisches Git-Backend (`VAULT_BACKEND=git`) |
 | **Web-UI `/notes`** | Suchen, öffnen, speichern, löschen — localhost only |
 
 Seiton **ersetzt** keine Notiz-App — es **befüllt** deinen Ordner strukturiert.

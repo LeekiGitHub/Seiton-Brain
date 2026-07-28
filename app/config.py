@@ -151,8 +151,13 @@ class Settings(BaseSettings):
 
     # Vault
     obsidian_vault_path: str
-    # Vault-Backend (E15-1). Default filesystem = Markdown unter OBSIDIAN_VAULT_PATH.
+    # Vault-Backend (E15-1/E15-3). filesystem = Markdown-Ordner, git = Commit pro Note.
     vault_backend: str = "filesystem"
+    vault_git_push: bool = False
+    vault_git_remote: str = "origin"
+    vault_git_branch: str = ""
+    vault_git_author_name: str = "Seiton Brain"
+    vault_git_author_email: str = "seiton@example.invalid"
 
     # Persistenz
     database_url: str

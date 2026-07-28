@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E15-3: Git-backed Vault.** `GitVaultBackend` ergänzt das Filesystem-Backend
+  um einen Commit pro Note und optionalen Push (`VAULT_GIT_PUSH`,
+  `VAULT_GIT_REMOTE`, `VAULT_GIT_BRANCH`). 4 neue Tests (375 gesamt).
 - **E18-4: Dokument-Chunking.** Tabelle `vault_chunk` (N Chunks/Dokument);
   Keyword- und semantische Suche laufen über Chunks; Config
   `SEITON_CHUNK_SIZE` / `SEITON_CHUNK_OVERLAP`. Parent bleibt

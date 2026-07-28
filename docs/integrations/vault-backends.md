@@ -26,7 +26,7 @@ class VaultBackend(Protocol):
     def note_exists(self, vault_path: str) -> bool: ...
 ```
 
-Config: `VAULT_BACKEND=filesystem` (Default; Aliase `fs`, `obsidian`).
+Config: `VAULT_BACKEND=filesystem` (Default; Aliase `fs`, `obsidian`) oder `VAULT_BACKEND=git` für Commit pro Note.
 
 Service-Layer (`process_message.py`) spricht `get_vault_backend()`, nicht
 direkt `Path`/`os`.
@@ -40,7 +40,7 @@ direkt `Path`/`os`.
 | **Filesystem Markdown** | Obsidian, Logseq, VS Code, jeder Editor | ✅ `FilesystemVaultBackend` | D | `E15-1` 🟢 |
 | **Plain folder + Doku** | User-Doku „Obsidian optional“ | Minimal | D | `E15-2` 🟢 → [`vault.md`](../vault.md) |
 | **Atomares Schreiben** | Tempfile + `os.replace` (Obsidian-Sync-sicher) | Gering | B | `E3-4` |
-| **Git-backed vault** | Commit pro Note/Push (Backup + History) | Mittel | E | `E15-3` |
+| **Git-backed vault** | Commit pro Note, optionaler Push auf Remote | ✅ `GitVaultBackend` | E | `E15-3` 🟢 |
 | **S3 / Object Storage** | Vault in Bucket (Cloud-Self-Hoster) | Mittel | E | Backlog |
 | **Read-only Web-UI** | Browser-Ansicht ohne Obsidian → **aufgegangen in UI-Epic** | Hoch | G | ➡️ `E19` |
 | **Notion / Google Docs API** | Fremdes Ökosystem | Hoch | später | Backlog |
@@ -74,4 +74,19 @@ Ausführlich: **[`docs/vault.md`](../vault.md)** (E15-2).
 ## Offene Fragen
 
 - Sync-Konflikte: Was passiert, wenn User manuell editiert während Append läuft?
-- Git-Backend: ein Commit pro Capture vs. batch?
+- Push-Strategie: sofort pro Änderung oder nur periodisch? (heute: optional sofort)
+
+## Git-Backend Config
+
+```env
+VAULT_BACKEND=git
+VAULT_GIT_PUSH=false
+VAULT_GIT_REMOTE=origin
+VAULT_GIT_BRANCH=
+VAULT_GIT_AUTHOR_NAME="Seiton Brain"
+VAULT_GIT_AUTHOR_EMAIL="seiton@example.invalid"
+```
+
+- `VAULT_GIT_PUSH=false`: nur lokaler Commit pro Änderung
+- `VAULT_GIT_PUSH=true`: nach jedem Commit zusätzlich `git push`
+- `VAULT_GIT_BRANCH` leer: aktueller Branch; sonst `HEAD:<branch>` auf Remote

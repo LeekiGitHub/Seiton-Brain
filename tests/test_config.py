@@ -36,6 +36,11 @@ def test_settings_defaults_are_applied():
     assert settings.ollama_base_url == "http://localhost:11434"
     assert settings.ollama_model == "llama3.2"
     assert settings.vault_backend == "filesystem"
+    assert settings.vault_git_push is False
+    assert settings.vault_git_remote == "origin"
+    assert settings.vault_git_branch == ""
+    assert settings.vault_git_author_name == "Seiton Brain"
+    assert settings.vault_git_author_email == "seiton@example.invalid"
     assert settings.seiton_chunk_size == 1500
     assert settings.seiton_chunk_overlap == 200
 
