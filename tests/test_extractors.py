@@ -1,14 +1,18 @@
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
 from docx import Document
 from pptx import Presentation
 from pypdf import PdfWriter
 
 from app.vault.extractors import (
+    IMAGE_OCR_TYPE,
     PDF_NO_TEXT_TYPE,
+    PDF_OCR_TYPE,
     SUPPORTED_EXTENSIONS,
     DocxExtractor,
+    ImageOcrExtractor,
     MarkdownExtractor,
     PdfExtractor,
     PlainTextExtractor,
@@ -16,6 +20,17 @@ from app.vault.extractors import (
     get_extractor,
     is_supported,
 )
+from app.vault.ocr import clear_ocr_availability_cache
+
+
+@pytest.fixture(autouse=True)
+def _ocr_off_by_default(monkeypatch):
+    """OCR in Extractor-Tests deterministisch aus — echte Soft-Deps variieren lokal."""
+    monkeypatch.setattr("app.vault.extractors.pdf_ocr_ready", lambda: False)
+    monkeypatch.setattr("app.vault.extractors.ocr_ready", lambda: False)
+    clear_ocr_availability_cache()
+    yield
+    clear_ocr_availability_cache()
 
 
 def test_markdown_extractor_parses_frontmatter(tmp_path: Path):
@@ -207,3 +222,61 @@ def test_pptx_extractor_corrupt_file_does_not_raise(tmp_path: Path):
     assert doc.doc_type == "pptx"
     assert doc.text == ""
     assert doc.title == "kaputt"
+
+
+def test_pdf_extractor_ocr_fallback_when_no_text_layer(tmp_path: Path, monkeypatch):
+    pdf = tmp_path / "Scan.pdf"
+    writer = PdfWriter()
+    writer.add_blank_page(width=72, height=72)
+    with pdf.open("wb") as fh:
+        writer.write(fh)
+
+    monkeypatch.setattr("app.vault.extractors.pdf_ocr_ready", lambda: True)
+    monkeypatch.setattr(
+        "app.vault.extractors.ocr_pdf",
+        lambda _path: "Rechnung Nr. 42\nBetrag 19,90 EUR",
+    )
+    doc = PdfExtractor().extract(pdf)
+    assert doc.doc_type == PDF_OCR_TYPE
+    assert "Rechnung Nr. 42" in doc.text
+    assert doc.title == "Scan"
+
+
+def test_pdf_extractor_ocr_empty_keeps_pdf_no_text(tmp_path: Path, monkeypatch):
+    pdf = tmp_path / "Scan.pdf"
+    writer = PdfWriter()
+    writer.add_blank_page(width=72, height=72)
+    with pdf.open("wb") as fh:
+        writer.write(fh)
+
+    monkeypatch.setattr("app.vault.extractors.pdf_ocr_ready", lambda: True)
+    monkeypatch.setattr("app.vault.extractors.ocr_pdf", lambda _path: "")
+    doc = PdfExtractor().extract(pdf)
+    assert doc.doc_type == PDF_NO_TEXT_TYPE
+    assert doc.text == ""
+
+
+def test_image_ocr_extractor(tmp_path: Path, monkeypatch):
+    img = tmp_path / "Zeugnis.png"
+    img.write_bytes(b"fake-png")
+    monkeypatch.setattr("app.vault.extractors.ocr_ready", lambda: True)
+    monkeypatch.setattr(
+        "app.vault.extractors.ocr_image",
+        lambda _path: "Abschluss: sehr gut",
+    )
+    doc = ImageOcrExtractor().extract(img)
+    assert doc.doc_type == IMAGE_OCR_TYPE
+    assert doc.title == "Zeugnis"
+    assert "sehr gut" in doc.text
+
+
+def test_get_extractor_images_when_ocr_ready(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr("app.vault.extractors.ocr_ready", lambda: True)
+    assert isinstance(get_extractor(tmp_path / "foto.jpg"), ImageOcrExtractor)
+    assert isinstance(get_extractor(tmp_path / "scan.PNG"), ImageOcrExtractor)
+    assert is_supported(Path("foto.webp"))
+
+
+def test_get_extractor_images_when_ocr_off(tmp_path: Path):
+    assert get_extractor(tmp_path / "foto.jpg") is None
+    assert not is_supported(Path("foto.jpg"))

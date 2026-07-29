@@ -1,0 +1,11 @@
+# Optional OCR extras (E18-5). Install:
+#   pip install -r requirements-ocr.txt
+# System-Binary (Beispiel):
+#   brew install tesseract tesseract-lang
+#   apt install tesseract-ocr tesseract-ocr-deu
+#
+# Lizenzen: pytesseract (Apache-2.0), Pillow (HPND), pypdfium2 (Apache-2.0/BSD).
+# Tesseract selbst ist Apache-2.0.
+pytesseract>=0.3.10
+Pillow>=10.0.0
+pypdfium2>=4.0.0

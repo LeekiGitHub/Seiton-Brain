@@ -149,6 +149,12 @@ class Settings(BaseSettings):
     seiton_chunk_size: int = 1500
     seiton_chunk_overlap: int = 200
 
+    # OCR (E18-5). Optional: braucht System-Tesseract + pip extras
+    # (requirements-ocr.txt). Bei False / fehlender Installation bleibt
+    # pdf_no_text und Bilddateien werden nicht indexiert.
+    seiton_ocr_enabled: bool = True
+    seiton_ocr_lang: str = "deu+eng"
+
     # Vault
     obsidian_vault_path: str
     # Vault-Backend (E15-1/E15-3). filesystem = Markdown-Ordner, git = Commit pro Note.

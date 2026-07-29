@@ -94,7 +94,8 @@ app/
 │   └── schemas.py           ClassificationResult, AnswerResult/NoteRef/LLMAnswer (Pydantic)
 ├── vault/
 │   ├── reader.py            VaultNote-Parsing, format_notes_for_prompt
-│   ├── extractors.py        DocumentExtractor (ABC) + md/txt/pdf/docx/pptx-Adapter (E18-1/2/3)
+│   ├── extractors.py        DocumentExtractor (ABC) + md/txt/pdf/docx/pptx + optional OCR (E18-1–5)
+│   ├── ocr.py               Tesseract Soft-Import (Bilder + PDF-Scans, E18-5)
 │   ├── index.py             Vault-Index + Chunks (E18-4) + Keyword-/semantische Suche
 │   ├── chunking.py          Text → überlappende Abschnitte (E18-4)
 │   ├── prefilter.py         Token-Prefilter fuer Classify-Kontext (E5-2)
