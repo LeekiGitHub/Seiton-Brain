@@ -183,6 +183,7 @@ Transkription auf Deutsch — leer lassen = Auto-Detect (E6-3).
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt -r requirements-dev.txt
+# Optional OCR (E18-5): pip install -r requirements-ocr.txt — siehe docs/ocr.md
 pytest
 ruff check app tests
 ```

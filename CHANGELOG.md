@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E18-5: OCR (optional).** Tesseract-Adapter für gescannte PDFs (`pdf_ocr`) und
+  Bilder (`image_ocr`); Soft-Import + `requirements-ocr.txt`, Config
+  `SEITON_OCR_ENABLED` / `SEITON_OCR_LANG`. Doku `docs/ocr.md`. 12 neue Tests
+  (387 gesamt).
 - **E15-3: Git-backed Vault.** `GitVaultBackend` ergänzt das Filesystem-Backend
   um einen Commit pro Note und optionalen Push (`VAULT_GIT_PUSH`,
   `VAULT_GIT_REMOTE`, `VAULT_GIT_BRANCH`). 4 neue Tests (375 gesamt).

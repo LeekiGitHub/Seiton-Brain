@@ -1,4 +1,4 @@
-"""Document-Extraktion (E18-1, E18-2, E18-3).
+"""Document-Extraktion (E18-1, E18-2, E18-3, E18-5).
 
 Engine+Adapter-Muster fuer Multi-Format-Ingestion: Jeder ``DocumentExtractor``
 liest eine bestimmte Dateigruppe (read-only) und liefert reinen Text fuer den
@@ -6,8 +6,8 @@ Vault-Index (E5-1) und spaeteres Retrieval/RAG (E17).
 
 Aktuell Tier 1 (direkt text-basiert): Markdown, Plain-Text, PDF (Text-Layer)
 sowie Office-Formate Word (.docx) und PowerPoint (.pptx).
-OCR (E18-5) und Vision (E18-6) docken hier als weitere Extractoren an, ohne den
-Index-Code zu aendern.
+OCR (E18-5) dockt als optionaler Adapter an (Bilder + PDF-Scans ohne Text-Layer),
+wenn Tesseract/pytesseract installiert sind. Vision (E18-6) spaeter analog.
 """
 
 from __future__ import annotations
@@ -22,12 +22,15 @@ from docx import Document
 from pptx import Presentation
 from pypdf import PdfReader
 
+from app.vault.ocr import IMAGE_OCR_EXTENSIONS, ocr_image, ocr_pdf, ocr_ready, pdf_ocr_ready
 from app.vault.reader import _parse_frontmatter
 
 logger = logging.getLogger(__name__)
 
 # Marker fuer PDFs ohne extrahierbaren Text-Layer (Scans) — Aufhaenger fuer OCR (E18-5).
 PDF_NO_TEXT_TYPE = "pdf_no_text"
+PDF_OCR_TYPE = "pdf_ocr"
+IMAGE_OCR_TYPE = "image_ocr"
 
 
 @dataclass(frozen=True)
@@ -106,9 +109,16 @@ class PdfExtractor(DocumentExtractor):
             logger.warning("PDF-Extraktion fehlgeschlagen fuer %s: %s", path, exc)
 
         text = "\n\n".join(text_parts).strip()
-        # Kein Text-Layer (Scan) → fuer OCR (E18-5) markieren statt leer indexieren.
-        doc_type = self.doc_type if text else PDF_NO_TEXT_TYPE
-        return ExtractedDocument(title=title, text=text, doc_type=doc_type)
+        if text:
+            return ExtractedDocument(title=title, text=text, doc_type=self.doc_type)
+
+        # Kein Text-Layer (Scan) → optional OCR (E18-5), sonst pdf_no_text markieren.
+        if pdf_ocr_ready():
+            ocr_text = ocr_pdf(path)
+            if ocr_text:
+                return ExtractedDocument(title=title, text=ocr_text, doc_type=PDF_OCR_TYPE)
+
+        return ExtractedDocument(title=title, text="", doc_type=PDF_NO_TEXT_TYPE)
 
 
 def _doc_core_title(properties) -> str | None:
@@ -174,6 +184,17 @@ class PptxExtractor(DocumentExtractor):
         )
 
 
+class ImageOcrExtractor(DocumentExtractor):
+    """Foto-/Scan-Bilder via Tesseract — nur aktiv, wenn OCR installiert ist."""
+
+    doc_type = IMAGE_OCR_TYPE
+    extensions = tuple(sorted(IMAGE_OCR_EXTENSIONS))
+
+    def extract(self, path: Path) -> ExtractedDocument:
+        text = ocr_image(path) if ocr_ready() else ""
+        return ExtractedDocument(title=path.stem, text=text, doc_type=self.doc_type)
+
+
 # Reihenfolge bestimmt die Aufloesung bei mehrdeutigen Endungen (hier eindeutig).
 _EXTRACTORS: tuple[DocumentExtractor, ...] = (
     MarkdownExtractor(),
@@ -183,6 +204,9 @@ _EXTRACTORS: tuple[DocumentExtractor, ...] = (
     PptxExtractor(),
 )
 
+_IMAGE_OCR_EXTRACTOR = ImageOcrExtractor()
+
+# Immer-verfuegbare Endungen (ohne optionales OCR).
 SUPPORTED_EXTENSIONS: frozenset[str] = frozenset(
     ext for extractor in _EXTRACTORS for ext in extractor.extensions
 )
@@ -194,8 +218,13 @@ def get_extractor(path: Path) -> DocumentExtractor | None:
     for extractor in _EXTRACTORS:
         if suffix in extractor.extensions:
             return extractor
+    if suffix in IMAGE_OCR_EXTENSIONS and ocr_ready():
+        return _IMAGE_OCR_EXTRACTOR
     return None
 
 
 def is_supported(path: Path) -> bool:
-    return path.suffix.lower() in SUPPORTED_EXTENSIONS
+    suffix = path.suffix.lower()
+    if suffix in SUPPORTED_EXTENSIONS:
+        return True
+    return suffix in IMAGE_OCR_EXTENSIONS and ocr_ready()
