@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from pydantic import ValidationError
 
+from app.config import settings
 from app.llm.openai_provider import OpenAIProvider
 from app.llm.parser import ClassificationParseError, parse_classification_json
 from app.llm.schemas import ClassificationResult
@@ -198,7 +199,8 @@ def test_parse_classification_json_raises_on_schema_mismatch():
 
 
 @pytest.mark.asyncio
-async def test_classify_retries_on_invalid_json_then_succeeds():
+async def test_classify_retries_on_invalid_json_then_succeeds(monkeypatch):
+    monkeypatch.setattr(settings, "seiton_llm_roles_enabled", False)
     provider = OpenAIProvider.__new__(OpenAIProvider)
     provider.client = MagicMock()
     provider.model = "gpt-4o-mini"
@@ -225,7 +227,8 @@ async def test_classify_retries_on_invalid_json_then_succeeds():
 
 
 @pytest.mark.asyncio
-async def test_classify_raises_after_max_parse_attempts():
+async def test_classify_raises_after_max_parse_attempts(monkeypatch):
+    monkeypatch.setattr(settings, "seiton_llm_roles_enabled", False)
     provider = OpenAIProvider.__new__(OpenAIProvider)
     provider.client = MagicMock()
     provider.model = "gpt-4o-mini"

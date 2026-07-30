@@ -44,17 +44,19 @@ async def test_ollama_classify_reuses_openai_pipeline(monkeypatch):
     """OllamaProvider erbt Sanitize/Parse — nur der Client ist Ollama."""
     monkeypatch.setattr(settings, "ollama_base_url", "http://localhost:11434")
     monkeypatch.setattr(settings, "ollama_model", "llama3.2")
+    monkeypatch.setattr(settings, "seiton_llm_roles_enabled", True)
 
     provider = OllamaProvider()
-    payload = (
-        '{"action":"create","title":"T","summary":"S","category":"inbox",'
-        '"tags":[],"related":[],"target_title":null}'
+    router_payload = (
+        '{"action":"create","title":"T","category":"inbox","target_title":null}'
     )
+    writer_payload = '{"summary":"S","tags":[]}'
     provider.client = MagicMock()
     provider.client.chat.completions.create = AsyncMock(
-        return_value=MagicMock(
-            choices=[MagicMock(message=MagicMock(content=payload))]
-        )
+        side_effect=[
+            MagicMock(choices=[MagicMock(message=MagicMock(content=router_payload))]),
+            MagicMock(choices=[MagicMock(message=MagicMock(content=writer_payload))]),
+        ]
     )
 
     with (
@@ -66,7 +68,9 @@ async def test_ollama_classify_reuses_openai_pipeline(monkeypatch):
 
     assert isinstance(result, ClassificationResult)
     assert result.title == "T"
-    provider.client.chat.completions.create.assert_awaited_once()
+    assert result.summary == "S"
+    # Leerer Vault → Router + Writer, kein Linker
+    assert provider.client.chat.completions.create.await_count == 2
     call_kwargs = provider.client.chat.completions.create.await_args.kwargs
     assert call_kwargs["model"] == "llama3.2"
     assert call_kwargs["response_format"] == {"type": "json_object"}

@@ -5,6 +5,40 @@ from pydantic import BaseModel, Field
 Action = Literal["create", "append"]
 
 
+class RouterResult(BaseModel):
+    """LLM-Rolle Router (E7-3): create/append + Identitaet der Notiz."""
+
+    action: Action = Field(
+        default="create",
+        description="create = new note; append = extend existing note",
+    )
+    target_title: str | None = Field(
+        default=None,
+        description="Exact existing note title when action=append; else null",
+    )
+    category: str = Field(description="Vault category for the note")
+    title: str = Field(description="Short title for the new content")
+
+
+class WriterResult(BaseModel):
+    """LLM-Rolle Writer (E7-3): Summary und Tags."""
+
+    summary: str = Field(description="Structured summary of the input")
+    tags: list[str] = Field(
+        default_factory=list,
+        description="0-5 short lowercase tags (no '#', no spaces)",
+    )
+
+
+class LinkerResult(BaseModel):
+    """LLM-Rolle Linker (E7-3): verwandte Vault-Titel."""
+
+    related: list[str] = Field(
+        default_factory=list,
+        description="0-3 titles of existing vault notes to link",
+    )
+
+
 class ClassificationResult(BaseModel):
     category: str = Field(
         description="One of: school, work, private, idea, travel, note"

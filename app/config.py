@@ -132,9 +132,13 @@ class Settings(BaseSettings):
     # Max. Notizen im Classify-Prompt nach Token-Prefilter (E5-2).
     seiton_llm_note_limit: int = 30
 
-    # Classify-Prompt-Version (E4-4): laedt prompts/classify.{version}.txt
-    # (Default v1). Wird in entries.prompt_version gespeichert.
+    # Classify-Prompt-Version (E4-4): laedt prompts/{name}.{version}.txt
+    # (classify / router / writer / linker). Wird in entries.prompt_version gespeichert.
     seiton_prompt_version: str = "v1"
+
+    # Spezialisierte LLM-Rollen (E7-3): Router → Writer → Linker statt Ein-Shot.
+    # false = Legacy-Ein-Shot mit prompts/classify.{version}.txt (guenstiger).
+    seiton_llm_roles_enabled: bool = True
 
     # Semantische Suche / Embeddings (E17-2, pgvector). Standardmaessig aus —
     # erzeugt zusaetzliche Embedding-API-Calls (Kosten). Wenn aktiviert, werden
