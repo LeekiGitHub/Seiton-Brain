@@ -1,6 +1,8 @@
 import json
 import logging
+from collections.abc import Callable
 from pathlib import Path
+from typing import TypeVar
 
 from openai import AsyncOpenAI
 from pydantic import ValidationError
@@ -14,9 +16,13 @@ from app.llm.parser import (
     parse_answer_json,
     parse_classification_json,
     parse_digest_json,
+    parse_linker_json,
+    parse_router_json,
+    parse_writer_json,
 )
 from app.llm.prompts import load_prompt
-from app.llm.schemas import ClassificationResult, LLMAnswer, LLMDigest
+from app.llm.roles import merge_role_results
+from app.llm.schemas import ClassificationResult, LLMAnswer, LLMDigest, LinkerResult
 from app.llm.tags import normalize_tags
 from app.vault.categories import (
     format_category_guide_for_prompt,
@@ -33,6 +39,8 @@ DIGEST_PROMPT_PATH = Path(__file__).resolve().parents[2] / "prompts" / "digest.t
 MAX_RELATED = 3
 MAX_TAGS = 5
 
+T = TypeVar("T")
+
 
 class OpenAIProvider:
     def __init__(
@@ -44,6 +52,9 @@ class OpenAIProvider:
         self.client = client or AsyncOpenAI(api_key=settings.openai_api_key)
         self.model = model or settings.openai_model
         self.prompt_template, self.prompt_version = load_prompt("classify")
+        self.router_template, _ = load_prompt("router")
+        self.writer_template, _ = load_prompt("writer")
+        self.linker_template, _ = load_prompt("linker")
         self.answer_template = ANSWER_PROMPT_PATH.read_text()
         self.digest_template = DIGEST_PROMPT_PATH.read_text()
 
@@ -54,13 +65,88 @@ class OpenAIProvider:
             text,
             max_notes=settings.seiton_llm_note_limit,
         )
+        if settings.seiton_llm_roles_enabled:
+            return await self._classify_with_roles(text, existing)
+        return await self._classify_monolithic(text, existing)
+
+    async def _classify_monolithic(
+        self, text: str, existing: list
+    ) -> ClassificationResult:
+        """Ein-Shot-Classify (Fallback wenn ``SEITON_LLM_ROLES_ENABLED=false``)."""
         prompt = (
             self.prompt_template.replace("{input}", text)
             .replace("{existing_notes}", format_notes_for_prompt(existing))
             .replace("{category_list}", format_category_list_for_prompt())
             .replace("{category_guide}", format_category_guide_for_prompt())
         )
+        result = await self._chat_json(
+            prompt,
+            parse_classification_json,
+            label="classification",
+        )
+        return self._sanitize_classification(result, existing)
 
+    async def _classify_with_roles(
+        self, text: str, existing: list
+    ) -> ClassificationResult:
+        """Router → Writer → (Linker) — max. 3 Steps (E7-3 / ADR 0003)."""
+        notes_block = format_notes_for_prompt(existing)
+        category_list = format_category_list_for_prompt()
+        category_guide = format_category_guide_for_prompt()
+
+        router_prompt = (
+            self.router_template.replace("{input}", text)
+            .replace("{existing_notes}", notes_block)
+            .replace("{category_list}", category_list)
+            .replace("{category_guide}", category_guide)
+        )
+        router = await self._chat_json(
+            router_prompt, parse_router_json, label="router"
+        )
+
+        writer_prompt = (
+            self.writer_template.replace("{input}", text)
+            .replace("{action}", router.action)
+            .replace("{target_title}", router.target_title or "null")
+            .replace("{category}", router.category)
+            .replace("{title}", router.title)
+        )
+        writer = await self._chat_json(
+            writer_prompt, parse_writer_json, label="writer"
+        )
+
+        linker: LinkerResult | None = None
+        if existing:
+            linker_prompt = (
+                self.linker_template.replace("{input}", text)
+                .replace("{existing_notes}", notes_block)
+                .replace("{title}", router.title)
+                .replace("{category}", router.category)
+                .replace("{summary}", writer.summary)
+            )
+            linker = await self._chat_json(
+                linker_prompt, parse_linker_json, label="linker"
+            )
+
+        result = merge_role_results(router, writer, linker)
+        return self._sanitize_classification(result, existing)
+
+    def _sanitize_classification(
+        self, result: ClassificationResult, existing: list
+    ) -> ClassificationResult:
+        result = self._sanitize_related(result, existing)
+        result = self._sanitize_action(result, existing)
+        result = self._sanitize_tags(result)
+        return result
+
+    async def _chat_json(
+        self,
+        prompt: str,
+        parse_fn: Callable[[str], T],
+        *,
+        label: str,
+    ) -> T:
+        """JSON-Mode Chat mit Retry bei Parse-/Schema-Fehlern."""
         last_error: json.JSONDecodeError | ValidationError | None = None
         for attempt in range(1, MAX_PARSE_ATTEMPTS + 1):
             response = await self.client.chat.completions.create(
@@ -70,25 +156,21 @@ class OpenAIProvider:
             )
             content = response.choices[0].message.content or ""
             try:
-                result = parse_classification_json(content)
+                return parse_fn(content)
             except (json.JSONDecodeError, ValidationError) as exc:
                 last_error = exc
                 logger.warning(
-                    "LLM classification parse failed (attempt %d/%d): %s",
+                    "LLM %s parse failed (attempt %d/%d): %s",
+                    label,
                     attempt,
                     MAX_PARSE_ATTEMPTS,
                     exc,
                 )
                 continue
 
-            result = self._sanitize_related(result, existing)
-            result = self._sanitize_action(result, existing)
-            result = self._sanitize_tags(result)
-            return result
-
         assert last_error is not None
         raise ClassificationParseError(
-            f"LLM returned invalid classification JSON after {MAX_PARSE_ATTEMPTS} attempts"
+            f"LLM returned invalid {label} JSON after {MAX_PARSE_ATTEMPTS} attempts"
         ) from last_error
 
     def _sanitize_related(

@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E7-3: Spezialisierte LLM-Rollen.** Classify läuft als Router → Writer →
+  Linker (max. 3 Steps, Linker nur bei Vault-Inhalt); Aggregate bleibt
+  `ClassificationResult`. Config `SEITON_LLM_ROLES_ENABLED` (Default true;
+  false = Ein-Shot `classify`). Prompts `router`/`writer`/`linker`.v1.
+  9 neue Tests (396 gesamt).
 - **E18-5: OCR (optional).** Tesseract-Adapter für gescannte PDFs (`pdf_ocr`) und
   Bilder (`image_ocr`); Soft-Import + `requirements-ocr.txt`, Config
   `SEITON_OCR_ENABLED` / `SEITON_OCR_LANG`. Doku `docs/ocr.md`. 12 neue Tests

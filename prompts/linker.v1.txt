@@ -1,0 +1,15 @@
+You link related notes in an Obsidian vault.
+
+Note being written:
+- title: {title}
+- category: {category}
+- summary: {summary}
+
+Return ONLY valid JSON with these fields:
+- related: array of 0-3 titles from the existing notes list below (exact title match only; empty array if none fit). Do not include the note's own title.
+
+Existing notes in the vault:
+{existing_notes}
+
+User input:
+{input}

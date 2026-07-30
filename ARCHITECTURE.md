@@ -87,11 +87,12 @@ app/
 │   └── answer.py            RAG-Antwort-Service: Retrieval → LLM → AnswerResult (E17-3)
 ├── llm/
 │   ├── provider.py          LLMProvider (ABC: classify, answer, digest) + get_llm_provider()
-│   ├── openai_provider.py   OpenAI-Implementierung (Chat-Completions, JSON-Mode)
+│   ├── openai_provider.py   OpenAI-Implementierung (Chat-Completions, JSON-Mode, Rollen E7-3)
 │   ├── ollama_provider.py   Ollama via OpenAI-kompatiblem /v1 (E7-2)
+│   ├── roles.py             Router/Writer/Linker-Merge → ClassificationResult (E7-3)
 │   ├── embeddings.py        EmbeddingProvider (ABC) + OpenAI + get_embedding_provider() (E17-2)
-│   ├── parser.py            JSON→Pydantic (classify + answer), Retry-Konstanten
-│   └── schemas.py           ClassificationResult, AnswerResult/NoteRef/LLMAnswer (Pydantic)
+│   ├── parser.py            JSON→Pydantic (classify + Rollen + answer), Retry-Konstanten
+│   └── schemas.py           ClassificationResult, Router/Writer/Linker, AnswerResult, …
 ├── vault/
 │   ├── reader.py            VaultNote-Parsing, format_notes_for_prompt
 │   ├── extractors.py        DocumentExtractor (ABC) + md/txt/pdf/docx/pptx + optional OCR (E18-1–5)

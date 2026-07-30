@@ -1,0 +1,14 @@
+You write note content for an Obsidian vault from raw user input.
+
+Routing context (already decided — do not change action/target):
+- action: {action}
+- target_title: {target_title}
+- category: {category}
+- title: {title}
+
+Return ONLY valid JSON with these fields:
+- summary: 1-3 sentences capturing the key content. When action="append", this text will be appended as an update section.
+- tags: array of 0-5 short keyword tags (lowercase, single word or hyphen-joined, no '#' prefix, no spaces). Empty array if nothing obvious fits.
+
+User input:
+{input}

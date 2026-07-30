@@ -7,7 +7,14 @@ statt json.loads + Pydantic inline zu duplizieren.
 import json
 import logging
 
-from app.llm.schemas import ClassificationResult, LLMAnswer, LLMDigest
+from app.llm.schemas import (
+    ClassificationResult,
+    LinkerResult,
+    LLMAnswer,
+    LLMDigest,
+    RouterResult,
+    WriterResult,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +43,24 @@ def parse_classification_json(content: str) -> ClassificationResult:
     """
     data = json.loads(content)
     return ClassificationResult.model_validate(data)
+
+
+def parse_router_json(content: str) -> RouterResult:
+    """Parst Router-JSON (E7-3)."""
+    data = json.loads(content)
+    return RouterResult.model_validate(data)
+
+
+def parse_writer_json(content: str) -> WriterResult:
+    """Parst Writer-JSON (E7-3)."""
+    data = json.loads(content)
+    return WriterResult.model_validate(data)
+
+
+def parse_linker_json(content: str) -> LinkerResult:
+    """Parst Linker-JSON (E7-3)."""
+    data = json.loads(content)
+    return LinkerResult.model_validate(data)
 
 
 def parse_answer_json(content: str) -> LLMAnswer:

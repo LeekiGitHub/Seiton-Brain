@@ -47,6 +47,20 @@ LAN-IP des Hosts.)
 - Für reinen Text-Capture mit Ollama kannst du `OPENAI_API_KEY` setzen und Voice/
   Embeddings auslassen bzw. `EMBEDDINGS_ENABLED=false` lassen.
 
+## Classify: Rollen vs. Ein-Shot (E7-3)
+
+Standard: **Router → Writer → Linker** (max. 3 LLM-Calls; Linker entfällt bei
+leerem Vault). Aggregat bleibt `ClassificationResult` — Vault/API unverändert.
+
+```env
+SEITON_LLM_ROLES_ENABLED=true
+SEITON_PROMPT_VERSION=v1
+```
+
+Prompts: `prompts/router.v1.txt`, `writer.v1.txt`, `linker.v1.txt`.
+`SEITON_LLM_ROLES_ENABLED=false` nutzt den Legacy-Ein-Shot `classify.v1.txt`
+(weniger Tokens/Kosten).
+
 ## Umschalten
 
 `LLM_PROVIDER` ändern und API/Worker neu starten. Keine Migration nötig —
