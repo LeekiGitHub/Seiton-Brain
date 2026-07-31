@@ -32,8 +32,9 @@ sudo apt install tesseract-ocr tesseract-ocr-deu   # Debian/Ubuntu
 | PDF mit Text-Layer | `doc_type=pdf` (wie bisher, kein OCR) |
 | PDF ohne Text, OCR ok | `doc_type=pdf_ocr` + erkannter Text |
 | PDF ohne Text, kein OCR | `doc_type=pdf_no_text`, leerer Text |
-| `.png` / `.jpg` / …, OCR ok | `doc_type=image_ocr` |
-| Bilder ohne OCR | nicht unterstützt (`get_extractor` → `None`) |
+| `.png` / `.jpg` / …, OCR-Text | `doc_type=image_ocr` |
+| Bilder, OCR leer/aus + Vision an | `doc_type=image_vision` — siehe [`vision.md`](vision.md) |
+| Bilder ohne OCR und ohne Vision | nicht unterstützt (`get_extractor` → `None`) |
 
 Der Vault-Index (`app/vault/index.py`) bleibt unverändert — nur neue Extractor-
 Ergebnisse fließen ein.

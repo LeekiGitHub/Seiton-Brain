@@ -73,6 +73,16 @@ class ClassificationResult(BaseModel):
     )
 
 
+class VisionImageResult(BaseModel):
+    """Vision-LLM-Ergebnis fuer reine Foto-Inhalte (E18-6)."""
+
+    description: str = Field(description="Searchable description of the image")
+    tags: list[str] = Field(
+        default_factory=list,
+        description="0-8 short lowercase tags (no '#', no spaces)",
+    )
+
+
 class LLMAnswer(BaseModel):
     """Rohe RAG-Antwort des LLM (E17-3), bevor Quellen aufgeloest werden.
 

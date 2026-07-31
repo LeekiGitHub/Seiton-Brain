@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E18-6: Vision für Fotos.** Optionaler OpenAI-Vision-Pfad (`SEITON_VISION_ENABLED`,
+  Default aus): Bildbeschreibung + Tags als Index-Text (`doc_type=image_vision`);
+  OCR hat Vorrang. Prompt `vision.v1.txt`, Doku `docs/vision.md`. 13 neue Tests
+  (409 gesamt).
 - **E7-3: Spezialisierte LLM-Rollen.** Classify läuft als Router → Writer →
   Linker (max. 3 Steps, Linker nur bei Vault-Inhalt); Aggregate bleibt
   `ClassificationResult`. Config `SEITON_LLM_ROLES_ENABLED` (Default true;

@@ -361,7 +361,7 @@ Priorisierung nach **RAG-Tauglichkeit** (Text first, Bild/Scan später):
 | E18-3 | Office-Formate: `.docx` (`python-docx`), `.pptx` (`python-pptx`). | 4 | 2 | 2 | 3 | 3 | 🟢 | F |
 | E18-4 | Chunking großer Dokumente in retrieval-taugliche Abschnitte; Index-Schema von 1 Zeile/Notiz → N Chunks/Dokument (eigene `vault_chunk`-Tabelle). Voraussetzung für sinnvolles semantisches Retrieval (E17-2/3) über lange Dateien. | 4 | 3 | 3 | 4 | 3 | 🟢 | F |
 | E18-5 | OCR für gescannte PDFs / Foto-Dokumente (Zeugnisse, Rechnungen) via Tesseract (`pytesseract`) — optionaler Adapter, nur wenn installiert. | 4 | 4 | 3 | 4 | 2 | 🟢 | F-Bonus |
-| E18-6 | Vision-LLM für reine Foto-Inhalte: Bildbeschreibung + Tags als durchsuchbare Text-Repräsentation im Index. | 3 | 4 | 3 | 4 | 2 | ⚪ | F-Bonus |
+| E18-6 | Vision-LLM für reine Foto-Inhalte: Bildbeschreibung + Tags als durchsuchbare Text-Repräsentation im Index. | 3 | 4 | 3 | 4 | 2 | 🟢 | F-Bonus |
 
 Abhängigkeiten: **E5-1** (Vault-Index ✅) als Speicherziel, **E17-2** (Embeddings)
 und **E17-3** (RAG) als Konsumenten des extrahierten Texts. Sinnvolle Reihenfolge:

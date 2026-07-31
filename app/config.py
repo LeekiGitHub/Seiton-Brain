@@ -155,9 +155,14 @@ class Settings(BaseSettings):
 
     # OCR (E18-5). Optional: braucht System-Tesseract + pip extras
     # (requirements-ocr.txt). Bei False / fehlender Installation bleibt
-    # pdf_no_text und Bilddateien werden nicht indexiert.
+    # pdf_no_text und Bilddateien werden nicht indexiert (ausser Vision).
     seiton_ocr_enabled: bool = True
     seiton_ocr_lang: str = "deu+eng"
+
+    # Vision-LLM fuer reine Fotos (E18-6). Standard aus (API-Kosten), analog
+    # Embeddings. Nutzt OPENAI_API_KEY; Modell leer = OPENAI_MODEL.
+    seiton_vision_enabled: bool = False
+    seiton_vision_model: str = ""
 
     # Vault
     obsidian_vault_path: str
