@@ -1,4 +1,4 @@
-"""Document-Extraktion (E18-1, E18-2, E18-3, E18-5).
+"""Document-Extraktion (E18-1, E18-2, E18-3, E18-5, E18-6).
 
 Engine+Adapter-Muster fuer Multi-Format-Ingestion: Jeder ``DocumentExtractor``
 liest eine bestimmte Dateigruppe (read-only) und liefert reinen Text fuer den
@@ -6,8 +6,7 @@ Vault-Index (E5-1) und spaeteres Retrieval/RAG (E17).
 
 Aktuell Tier 1 (direkt text-basiert): Markdown, Plain-Text, PDF (Text-Layer)
 sowie Office-Formate Word (.docx) und PowerPoint (.pptx).
-OCR (E18-5) dockt als optionaler Adapter an (Bilder + PDF-Scans ohne Text-Layer),
-wenn Tesseract/pytesseract installiert sind. Vision (E18-6) spaeter analog.
+OCR (E18-5) und Vision (E18-6) docken als optionale Adapter an (Bilder + PDF-Scans).
 """
 
 from __future__ import annotations
@@ -24,6 +23,7 @@ from pypdf import PdfReader
 
 from app.vault.ocr import IMAGE_OCR_EXTENSIONS, ocr_image, ocr_pdf, ocr_ready, pdf_ocr_ready
 from app.vault.reader import _parse_frontmatter
+from app.vault.vision import describe_image, format_vision_text, vision_ready
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 PDF_NO_TEXT_TYPE = "pdf_no_text"
 PDF_OCR_TYPE = "pdf_ocr"
 IMAGE_OCR_TYPE = "image_ocr"
+IMAGE_VISION_TYPE = "image_vision"
 
 
 @dataclass(frozen=True)
@@ -185,14 +186,36 @@ class PptxExtractor(DocumentExtractor):
 
 
 class ImageOcrExtractor(DocumentExtractor):
-    """Foto-/Scan-Bilder via Tesseract — nur aktiv, wenn OCR installiert ist."""
+    """Bilder: OCR (E18-5) wenn Text erkannt, sonst Vision-LLM (E18-6)."""
 
     doc_type = IMAGE_OCR_TYPE
     extensions = tuple(sorted(IMAGE_OCR_EXTENSIONS))
 
     def extract(self, path: Path) -> ExtractedDocument:
-        text = ocr_image(path) if ocr_ready() else ""
-        return ExtractedDocument(title=path.stem, text=text, doc_type=self.doc_type)
+        if ocr_ready():
+            text = ocr_image(path)
+            if text.strip():
+                return ExtractedDocument(
+                    title=path.stem, text=text, doc_type=IMAGE_OCR_TYPE
+                )
+
+        if vision_ready():
+            vision = describe_image(path)
+            if vision is not None:
+                return ExtractedDocument(
+                    title=path.stem,
+                    text=format_vision_text(vision),
+                    doc_type=IMAGE_VISION_TYPE,
+                )
+
+        # OCR an, aber kein Text / Vision aus oder fehlgeschlagen
+        if ocr_ready():
+            return ExtractedDocument(title=path.stem, text="", doc_type=IMAGE_OCR_TYPE)
+        return ExtractedDocument(title=path.stem, text="", doc_type=IMAGE_VISION_TYPE)
+
+
+# Alias: kombinierter Bild-Adapter (OCR + Vision).
+ImageExtractor = ImageOcrExtractor
 
 
 # Reihenfolge bestimmt die Aufloesung bei mehrdeutigen Endungen (hier eindeutig).
@@ -204,12 +227,16 @@ _EXTRACTORS: tuple[DocumentExtractor, ...] = (
     PptxExtractor(),
 )
 
-_IMAGE_OCR_EXTRACTOR = ImageOcrExtractor()
+_IMAGE_EXTRACTOR = ImageOcrExtractor()
 
-# Immer-verfuegbare Endungen (ohne optionales OCR).
+# Immer-verfuegbare Endungen (ohne optionales OCR/Vision).
 SUPPORTED_EXTENSIONS: frozenset[str] = frozenset(
     ext for extractor in _EXTRACTORS for ext in extractor.extensions
 )
+
+
+def image_extraction_ready() -> bool:
+    return ocr_ready() or vision_ready()
 
 
 def get_extractor(path: Path) -> DocumentExtractor | None:
@@ -218,8 +245,8 @@ def get_extractor(path: Path) -> DocumentExtractor | None:
     for extractor in _EXTRACTORS:
         if suffix in extractor.extensions:
             return extractor
-    if suffix in IMAGE_OCR_EXTENSIONS and ocr_ready():
-        return _IMAGE_OCR_EXTRACTOR
+    if suffix in IMAGE_OCR_EXTENSIONS and image_extraction_ready():
+        return _IMAGE_EXTRACTOR
     return None
 
 
@@ -227,4 +254,4 @@ def is_supported(path: Path) -> bool:
     suffix = path.suffix.lower()
     if suffix in SUPPORTED_EXTENSIONS:
         return True
-    return suffix in IMAGE_OCR_EXTENSIONS and ocr_ready()
+    return suffix in IMAGE_OCR_EXTENSIONS and image_extraction_ready()

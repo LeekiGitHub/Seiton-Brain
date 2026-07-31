@@ -8,6 +8,7 @@ from pypdf import PdfWriter
 
 from app.vault.extractors import (
     IMAGE_OCR_TYPE,
+    IMAGE_VISION_TYPE,
     PDF_NO_TEXT_TYPE,
     PDF_OCR_TYPE,
     SUPPORTED_EXTENSIONS,
@@ -25,9 +26,10 @@ from app.vault.ocr import clear_ocr_availability_cache
 
 @pytest.fixture(autouse=True)
 def _ocr_off_by_default(monkeypatch):
-    """OCR in Extractor-Tests deterministisch aus — echte Soft-Deps variieren lokal."""
+    """OCR/Vision in Extractor-Tests deterministisch aus — Soft-Deps variieren lokal."""
     monkeypatch.setattr("app.vault.extractors.pdf_ocr_ready", lambda: False)
     monkeypatch.setattr("app.vault.extractors.ocr_ready", lambda: False)
+    monkeypatch.setattr("app.vault.extractors.vision_ready", lambda: False)
     clear_ocr_availability_cache()
     yield
     clear_ocr_availability_cache()
@@ -270,11 +272,54 @@ def test_image_ocr_extractor(tmp_path: Path, monkeypatch):
     assert "sehr gut" in doc.text
 
 
+def test_image_vision_fallback_when_ocr_empty(tmp_path: Path, monkeypatch):
+    from app.llm.schemas import VisionImageResult
+
+    img = tmp_path / "Urlaub.jpg"
+    img.write_bytes(b"fake-jpg")
+    monkeypatch.setattr("app.vault.extractors.ocr_ready", lambda: True)
+    monkeypatch.setattr("app.vault.extractors.ocr_image", lambda _path: "")
+    monkeypatch.setattr("app.vault.extractors.vision_ready", lambda: True)
+    monkeypatch.setattr(
+        "app.vault.extractors.describe_image",
+        lambda _path: VisionImageResult(
+            description="Strand bei Sonnenuntergang.",
+            tags=["travel", "beach"],
+        ),
+    )
+    doc = ImageOcrExtractor().extract(img)
+    assert doc.doc_type == IMAGE_VISION_TYPE
+    assert "Strand bei Sonnenuntergang." in doc.text
+    assert "Tags: travel, beach" in doc.text
+
+
+def test_image_vision_only_when_ocr_off(tmp_path: Path, monkeypatch):
+    from app.llm.schemas import VisionImageResult
+
+    img = tmp_path / "Foto.webp"
+    img.write_bytes(b"fake")
+    monkeypatch.setattr("app.vault.extractors.ocr_ready", lambda: False)
+    monkeypatch.setattr("app.vault.extractors.vision_ready", lambda: True)
+    monkeypatch.setattr(
+        "app.vault.extractors.describe_image",
+        lambda _path: VisionImageResult(description="Ein Hund im Park.", tags=["dog"]),
+    )
+    doc = ImageOcrExtractor().extract(img)
+    assert doc.doc_type == IMAGE_VISION_TYPE
+    assert "Hund" in doc.text
+
+
 def test_get_extractor_images_when_ocr_ready(tmp_path: Path, monkeypatch):
     monkeypatch.setattr("app.vault.extractors.ocr_ready", lambda: True)
     assert isinstance(get_extractor(tmp_path / "foto.jpg"), ImageOcrExtractor)
     assert isinstance(get_extractor(tmp_path / "scan.PNG"), ImageOcrExtractor)
     assert is_supported(Path("foto.webp"))
+
+
+def test_get_extractor_images_when_vision_ready(tmp_path: Path, monkeypatch):
+    monkeypatch.setattr("app.vault.extractors.vision_ready", lambda: True)
+    assert isinstance(get_extractor(tmp_path / "foto.jpg"), ImageOcrExtractor)
+    assert is_supported(Path("foto.jpg"))
 
 
 def test_get_extractor_images_when_ocr_off(tmp_path: Path):
