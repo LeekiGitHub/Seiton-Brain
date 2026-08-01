@@ -109,6 +109,22 @@ Seiton klassifiziert und legt die Notiz im Vault ab.
 
 ---
 
+## 05 — Multi-LLM (Ollama → Capture)
+
+**Datei:** `05-multi-llm-enrich-then-capture.json`
+
+Lokales Ollama reichert den Text an, danach `POST /v1/capture` — Modelle mischen
+ohne Agent-Framework im Core (E7-4).
+
+```
+[Manual Trigger] → [Roh-Text] → [Ollama anreichern] → [Antwort extrahieren] → [Seiton Capture]
+```
+
+**Setup:** Ollama mit Modell (z. B. `llama3.2`), URLs anpassen, API-Key setzen.
+Details: [`docs/integrations/n8n-multi-llm.md`](../../docs/integrations/n8n-multi-llm.md)
+
+---
+
 ## Troubleshooting
 
 | Problem | Lösung |

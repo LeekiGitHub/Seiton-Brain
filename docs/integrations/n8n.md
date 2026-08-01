@@ -101,11 +101,15 @@ Cron (Sonntag) → POST /v1/digest { "topic": "Ideas", "days": 7 }
               → LLM-Synthese → Mail / Slack
 ```
 
-### D — Multi-LLM in n8n statt im Python-Core
+### D — Multi-LLM in n8n statt im Python-Core (E7-4) 🟢
 
 ```
-Input → OpenAI (Klassifikation) → Ollama lokal (Tags) → POST /v1/capture
+Input → Ollama lokal (Anreichern) → POST /v1/capture  (Core: Rollen E7-3)
 ```
+
+Ausführlich + Import-Workflow:
+[`n8n-multi-llm.md`](n8n-multi-llm.md) /
+[`examples/n8n/05-multi-llm-enrich-then-capture.json`](../../examples/n8n/05-multi-llm-enrich-then-capture.json)
 
 ---
 

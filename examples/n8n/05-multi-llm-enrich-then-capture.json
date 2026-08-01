@@ -1,0 +1,178 @@
+{
+  "name": "Seiton Brain — Multi-LLM (Ollama → Capture)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "e74-0001-1111-4000-8000-000000000001",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [200, 320]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e74-0002-2222-4000-8000-000000000002",
+              "name": "text",
+              "value": "Meeting-Notizen: Q3-Roadmap priorisieren, OCR-Pipeline fertig, Vision optional. Naechste Woche VPS-TLS und n8n Multi-LLM dokumentieren.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e74-0002-2222-4000-8000-000000000002",
+      "name": "Roh-Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [420, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama3.2\",\n  \"stream\": false,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Rewrite the user note into a clear German summary of 2-4 sentences. Keep facts, drop filler. Plain text only — no JSON, no markdown headings.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.text) }}\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "e74-0003-3333-4000-8000-000000000003",
+      "name": "Ollama anreichern",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [640, 320]
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e74-0004-4444-4000-8000-000000000004",
+              "name": "text",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e74-0004-4444-4000-8000-000000000004",
+      "name": "Antwort extrahieren",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [860, 320]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/v1/capture",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Seiton-Api-Key",
+              "value": "REPLACE_WITH_SEITON_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": {{ JSON.stringify($json.text) }}\n}",
+        "options": {}
+      },
+      "id": "e74-0005-5555-4000-8000-000000000005",
+      "name": "Seiton Capture",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1080, 320]
+    },
+    {
+      "parameters": {
+        "content": "## E7-4 Multi-LLM\n\n1. Ollama-URL/Modell anpassen\n2. `REPLACE_WITH_SEITON_API_KEY` setzen\n3. Doku: docs/integrations/n8n-multi-llm.md",
+        "height": 200,
+        "width": 340
+      },
+      "id": "e74-0006-6666-4000-8000-000000000006",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [180, 80]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Roh-Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Roh-Text": {
+      "main": [
+        [
+          {
+            "node": "Ollama anreichern",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama anreichern": {
+      "main": [
+        [
+          {
+            "node": "Antwort extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Antwort extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Seiton Capture",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e74-05-multi-llm-enrich-then-capture",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": [
+    {
+      "name": "seiton-brain"
+    }
+  ]
+}
