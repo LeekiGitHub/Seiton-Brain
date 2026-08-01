@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E7-4: Multi-LLM in n8n.** Doku `docs/integrations/n8n-multi-llm.md` + Workflow
+  `examples/n8n/05-multi-llm-enrich-then-capture.json` (Ollama anreichern →
+  Seiton Capture). 1 neuer Test (410 gesamt).
 - **E18-6: Vision für Fotos.** Optionaler OpenAI-Vision-Pfad (`SEITON_VISION_ENABLED`,
   Default aus): Bildbeschreibung + Tags als Index-Text (`doc_type=image_vision`);
   OCR hat Vorrang. Prompt `vision.v1.txt`, Doku `docs/vision.md`. 13 neue Tests

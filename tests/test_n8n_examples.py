@@ -7,6 +7,7 @@ WORKFLOW_FILES = (
     "02-seiton-webhook-events.json",
     "03-todoist-to-capture.json",
     "04-knowledge-backend-on-indexed.json",
+    "05-multi-llm-enrich-then-capture.json",
 )
 
 
@@ -44,3 +45,20 @@ def test_n8n_knowledge_workflow_searches_semantically():
     assert len(http_nodes) == 1
     assert "/v1/notes/search" in http_nodes[0]["parameters"]["url"]
     assert "semantic=true" in http_nodes[0]["parameters"]["url"]
+
+
+def test_n8n_multi_llm_workflow_calls_ollama_then_capture():
+    data = json.loads(
+        (EXAMPLES_DIR / "05-multi-llm-enrich-then-capture.json").read_text(encoding="utf-8")
+    )
+    http_nodes = [n for n in data["nodes"] if n["type"] == "n8n-nodes-base.httpRequest"]
+    assert len(http_nodes) == 2
+    urls = [n["parameters"]["url"] for n in http_nodes]
+    assert any("/v1/chat/completions" in u for u in urls)
+    assert any("/v1/capture" in u for u in urls)
+    capture = next(n for n in http_nodes if "/v1/capture" in n["parameters"]["url"])
+    headers = capture["parameters"]["headerParameters"]["parameters"]
+    assert any(h["name"] == "X-Seiton-Api-Key" for h in headers)
+    # Ollama → Extract → Capture verdrahtet
+    assert "Ollama anreichern" in data["connections"]
+    assert "Antwort extrahieren" in data["connections"]

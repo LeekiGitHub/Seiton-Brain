@@ -61,6 +61,13 @@ Prompts: `prompts/router.v1.txt`, `writer.v1.txt`, `linker.v1.txt`.
 `SEITON_LLM_ROLES_ENABLED=false` nutzt den Legacy-Ein-Shot `classify.v1.txt`
 (weniger Tokens/Kosten).
 
+## Multi-LLM in n8n (E7-4)
+
+Für **gemischte Modelle** (z. B. Ollama vorverarbeiten → Seiton Capture) siehe
+[`docs/integrations/n8n-multi-llm.md`](integrations/n8n-multi-llm.md) und Workflow
+`examples/n8n/05-multi-llm-enrich-then-capture.json`. Der Core bleibt bei max.
+2–3 Rollen (ADR 0003); schwere Orchestrierung gehört nach n8n.
+
 ## Umschalten
 
 `LLM_PROVIDER` ändern und API/Worker neu starten. Keine Migration nötig —
