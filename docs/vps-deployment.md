@@ -16,11 +16,14 @@ Dauerbetrieb auf einem **Linux-VPS** (IONOS, Hetzner, DigitalOcean, …) mit
 | 1 | VPS + Docker |
 | 2 | `./scripts/deploy-vps.sh` |
 | 3 | Setup-Wizard per SSH-Tunnel |
-| 4 | Caddy (TLS) vor die API |
+| 4 | TLS / Tunnel vor die API — siehe [`remote-access.md`](remote-access.md) (E9-3) |
 | 5 | `./scripts/register-telegram-webhook.sh` |
 
 Die API lauscht nur auf **127.0.0.1:8000**. Telegram und Browser erreichen sie
-über einen Reverse-Proxy mit gültigem TLS-Zertifikat.
+über einen Reverse-Proxy oder Tunnel mit gültigem TLS.
+
+**Remote-Zugang (Caddy / nginx / Cloudflare Tunnel / SSH):** ausführlich in
+[`remote-access.md`](remote-access.md).
 
 ---
 
@@ -87,6 +90,8 @@ docker compose -f docker-compose.yml -f docker-compose.vps.yml up -d
 ---
 
 ## 4. TLS mit Caddy
+
+Standardweg — Alternativen (nginx, Cloudflare Tunnel): [`remote-access.md`](remote-access.md).
 
 ```bash
 sudo apt install -y caddy    # oder siehe caddyserver.com/docs/install

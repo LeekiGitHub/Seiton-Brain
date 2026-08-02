@@ -20,6 +20,7 @@ def test_self_hosting_covers_platforms_and_compose_modes():
         "docker-compose.vps.yml",
         "packaging.md",
         "vps-deployment.md",
+        "remote-access.md",
         "install.sh",
         "install.ps1",
     ):
