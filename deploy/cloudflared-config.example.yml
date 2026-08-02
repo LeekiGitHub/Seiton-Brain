@@ -1,0 +1,17 @@
+# Beispiel-cloudflared-Config fuer VPS (E9-3).
+#
+# 1. cloudflared tunnel login && tunnel create seiton-brain
+# 2. tunnel route dns seiton-brain brain.example.com
+# 3. tunnel-ID und credentials-file unten eintragen
+# 4. cloudflared tunnel --config /etc/cloudflared/config.yml run
+# 5. PUBLIC_URL=https://brain.example.com ./scripts/register-telegram-webhook.sh
+#
+# Docs: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
+
+tunnel: REPLACE_WITH_TUNNEL_ID
+credentials-file: /etc/cloudflared/REPLACE_WITH_TUNNEL_ID.json
+
+ingress:
+  - hostname: brain.example.com
+    service: http://127.0.0.1:8000
+  - service: http_status:404

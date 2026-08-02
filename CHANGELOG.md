@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E9-3: Remote-Zugang VPS.** Hub-Doku `docs/remote-access.md` (Caddy, nginx,
+  Cloudflare Tunnel, SSH, Tailscale) + Beispiele
+  `deploy/nginx-seiton.conf.example`, `deploy/cloudflared-config.example.yml`.
+  4 neue Tests (414 gesamt).
 - **E7-4: Multi-LLM in n8n.** Doku `docs/integrations/n8n-multi-llm.md` + Workflow
   `examples/n8n/05-multi-llm-enrich-then-capture.json` (Ollama anreichern →
   Seiton Capture). 1 neuer Test (410 gesamt).

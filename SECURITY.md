@@ -80,7 +80,7 @@ Schweregrad und Komplexität ab — wir stimmen das mit dir ab.
 | Vault-Pfade | Path-Traversal-Schutz (`resolve_vault_file`) |
 | Vault-Schreiben | Atomare Writes (Tempfile + `os.replace`) |
 | Docker | Non-root User im Image (E9-1) |
-| VPS | API bindet auf `127.0.0.1:8000` — TLS via Reverse-Proxy |
+| VPS | API bindet auf `127.0.0.1:8000` — TLS via Reverse-Proxy oder Tunnel ([`docs/remote-access.md`](docs/remote-access.md)) |
 | Secrets in Logs | Keys werden nicht geloggt; UI maskiert gespeicherte Werte |
 | Idempotenz | Telegram-`update_id` verhindert Doppelverarbeitung |
 
@@ -104,13 +104,15 @@ Ausführlichere Architektur-Entscheidungen: [`docs/adr/`](docs/adr/).
 1. **`.env` schützen** — `chmod 600`, nicht committen, nicht in Backups unverschlüsselt teilen.
 2. **Telegram-Allowlist setzen**, wenn der Webhook öffentlich erreichbar ist.
 3. **`SEITON_API_KEY`** lang und zufällig; API nur aktivieren, wenn nötig.
-4. **VPS:** API nicht direkt auf `0.0.0.0` exposen; Reverse-Proxy mit TLS;
-   nur `/webhook` (und ggf. nichts anderes) nach außen.
+4. **VPS:** API nicht direkt auf `0.0.0.0` exposen; Reverse-Proxy/Tunnel mit TLS
+   ([`docs/remote-access.md`](docs/remote-access.md)); Web-UI nur per SSH-Tunnel;
+   öffentlich möglichst nur Webhook/Health, nicht Setup/OpenAPI.
 5. **Updates:** `./scripts/update.sh` für Patches.
 6. **Backups:** `./scripts/backup.sh` — Vault + DB enthalten persönliche Daten.
 
 Consumer-Setup: [`docs/self-hosting.md`](docs/self-hosting.md) ·
-VPS: [`docs/vps-deployment.md`](docs/vps-deployment.md)
+VPS: [`docs/vps-deployment.md`](docs/vps-deployment.md) ·
+Remote: [`docs/remote-access.md`](docs/remote-access.md)
 
 ---
 

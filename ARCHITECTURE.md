@@ -59,7 +59,8 @@ Volumes:
 **Lizenzierung (E21-1):** `app/licensing/` + `docs/licensing.md` — offline Ed25519-Keys,
 `SEITON_LICENSE_REQUIRED` für kommerzielle Distribution; Issuer `scripts/issue-license.py`.
 
-**Self-Hosting (E9-2):** `docs/self-hosting.md` — Plattform-Überblick, Compose-Modi
+**Self-Hosting (E9-2):** `docs/self-hosting.md` — Plattform-Überblick, Compose-Modi  
+**Remote-Zugang VPS (E9-3):** `docs/remote-access.md` — Caddy / nginx / Cloudflare Tunnel / SSH
 (consumer/vps/dev), Verweise auf E20-Installer und VPS-Doku.
 
 **OpenAPI (E13-4):** `/docs` + `/openapi.json` bei gesetztem `SEITON_API_KEY` oder

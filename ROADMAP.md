@@ -190,7 +190,7 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 |----|-------|---|---|---|---|---|--------|-------|
 | E9-1 | Dockerfile härten: non-root user, multi-stage, `HEALTHCHECK`. | 3 | 2 | 2 | 4 | 3 | 🟢 | C |
 | E9-2 | Multi-Plattform-Self-Hosting: Anleitungen + Compose-Profile für Mac/Windows/Linux **und** VPS (z. B. IONOS). Verallgemeinert den früheren „Mac Mini 24/7"-Plan. | 4 | 2 | 2 | 4 | 4 | 🟢 | G |
-| E9-3 | Optionaler Remote-Zugang für VPS-Betrieb (Reverse-Proxy/Tunnel, TLS). Für lokales Consumer-Hosting **nicht** nötig (Long-Polling, E1-5). | 3 | 2 | 2 | 3 | 3 | ⚪ | G |
+| E9-3 | Optionaler Remote-Zugang für VPS-Betrieb (Reverse-Proxy/Tunnel, TLS). Für lokales Consumer-Hosting **nicht** nötig (Long-Polling, E1-5). | 3 | 2 | 2 | 3 | 3 | 🟢 | G |
 | E9-4 | Backups: Postgres-Dump + Vault-Snapshot (lokal). | 3 | 2 | 2 | 3 | 3 | 🟢 | C |
 | E9-5 | (Eval) Vereinfachter Stack für Consumer-Edition: SQLite statt Postgres, in-process Worker statt Redis/Celery — weniger bewegliche Teile beim Endnutzer. Server-/VPS-Edition behält vollen Stack. Offen: eine vs. zwei Editionen (ADR 0004). | 4 | 4 | 4 | 5 | 3 | ⚪ | G |
 

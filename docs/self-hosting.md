@@ -85,8 +85,9 @@ docker compose -f docker-compose.yml -f docker-compose.vps.yml up -d
 ### Linux-VPS
 
 - Nur **Webhook-Modus** (kein Poller)
-- API bindet auf `127.0.0.1:8000`; TLS über Caddy/nginx
-- Vollständige Schritte: [`vps-deployment.md`](vps-deployment.md)
+- API bindet auf `127.0.0.1:8000`; TLS über Caddy/nginx oder Cloudflare Tunnel
+- Deploy: [`vps-deployment.md`](vps-deployment.md)
+- Remote-Zugang: [`remote-access.md`](remote-access.md) (E9-3)
 
 ---
 
@@ -122,6 +123,7 @@ Mehr: [`troubleshooting.md`](troubleshooting.md) und `./scripts/doctor.sh`.
 
 - Consumer-Installer: [`packaging.md`](packaging.md) (E20-1)
 - VPS: [`vps-deployment.md`](vps-deployment.md) (E20-2)
+- Remote-Zugang (TLS/Tunnel): [`remote-access.md`](remote-access.md) (E9-3)
 - Updates: [`packaging.md#updates`](packaging.md#updates-e20-4) (E20-4)
 - Lizenz (kommerzielle Edition): [`licensing.md`](licensing.md) (E21)
 - Architektur: [`ARCHITECTURE.md`](../ARCHITECTURE.md)

@@ -1,5 +1,6 @@
-# Beispiel-Caddy-Konfiguration fuer VPS (E20-2).
+# Beispiel-Caddy-Konfiguration fuer VPS (E20-2 / E9-3).
 #
+# Siehe auch docs/remote-access.md (nginx, Cloudflare Tunnel, SSH).
 # 1. Domain per DNS auf die VPS-IP zeigen lassen
 # 2. Caddy installieren: https://caddyserver.com/docs/install
 # 3. Diese Datei nach /etc/caddy/Caddyfile kopieren und Domain anpassen

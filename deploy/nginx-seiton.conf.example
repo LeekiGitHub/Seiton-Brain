@@ -1,0 +1,27 @@
+# Beispiel-nginx-Konfiguration fuer VPS (E9-3).
+#
+# 1. Domain per DNS auf die VPS-IP zeigen lassen
+# 2. Datei nach /etc/nginx/sites-available/seiton kopieren, server_name anpassen
+# 3. ln -s ... sites-enabled; nginx -t; systemctl reload nginx
+# 4. certbot --nginx -d brain.example.com
+# 5. PUBLIC_URL=https://brain.example.com ./scripts/register-telegram-webhook.sh
+#
+# TLS-Bloecke ergaenzt certbot typischerweise automatisch; unten HTTP→HTTPS
+# und Reverse-Proxy als Ausgangspunkt.
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name brain.example.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+        client_max_body_size 20m;
+    }
+}
