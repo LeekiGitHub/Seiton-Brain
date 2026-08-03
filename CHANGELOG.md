@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E9-5: Consumer-Stack-Eval.** [ADR 0006](docs/adr/0006-consumer-stack-no-sqlite-fork.md):
+  kein SQLite-/in-process-Fork; ein Stack (Postgres + Redis + Celery),
+  Vereinfachung über Packaging. ADR 0004 Open-Items aktualisiert.
+  2 neue Tests (416 gesamt).
 - **E9-3: Remote-Zugang VPS.** Hub-Doku `docs/remote-access.md` (Caddy, nginx,
   Cloudflare Tunnel, SSH, Tailscale) + Beispiele
   `deploy/nginx-seiton.conf.example`, `deploy/cloudflared-config.example.yml`.

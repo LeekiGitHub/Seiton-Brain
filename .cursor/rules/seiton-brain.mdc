@@ -10,7 +10,8 @@ retrieve (search, RAG `/ask`, digest `/digest`, REST, MCP).
 
 **Produkt:** Öffentliche Entwicklung (MIT, Portfolio). Geplante kommerzielle
 Consumer-Edition — [ADR 0004](docs/adr/0004-commercial-consumer-product.md),
-[ADR 0005](docs/adr/0005-repo-and-license-strategy.md). Name from **Seiton** (整頓).
+[ADR 0005](docs/adr/0005-repo-and-license-strategy.md),
+[ADR 0006](docs/adr/0006-consumer-stack-no-sqlite-fork.md) (ein Stack). Name from **Seiton** (整頓).
 
 ## Flow
 
@@ -45,14 +46,14 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 Core pipeline + REST API + retrieval (E17 komplett). **Web-UI E19 komplett.**
 **E20** Packaging (Installer, VPS, Auto-Update) 🟢. **E21-1/E21-3** Lizenzierung 🟢.
 **E9-2** Self-Hosting-Hub 🟢. **E13-4** OpenAPI/Swagger 🟢. **E11-2** SECURITY.md 🟢. **E11-3** CONTRIBUTING + Templates 🟢. **E12-3** Troubleshooting 🟢. **E15-2** Vault/Obsidian optional 🟢. **E16-1** init.sh + make init 🟢.
-**E5-2** LLM-Prefilter 🟢. **E4-4** Prompt-Versionierung 🟢. **E7-2** Ollama-Provider 🟢. **E7-3** LLM-Rollen 🟢. **E7-4** n8n Multi-LLM 🟢. **E9-3** Remote-Zugang 🟢. **E11-4** README-Visuals 🟢. **E15-1** VaultBackend 🟢. **E15-3** Git-backed Vault 🟢. **E18-4** Chunking 🟢. **E18-5** OCR 🟢. **E18-6** Vision 🟢. 414 Tests.
+**E5-2** LLM-Prefilter 🟢. **E4-4** Prompt-Versionierung 🟢. **E7-2** Ollama-Provider 🟢. **E7-3** LLM-Rollen 🟢. **E7-4** n8n Multi-LLM 🟢. **E9-3** Remote-Zugang 🟢. **E9-5** Stack-Eval 🟢. **E11-4** README-Visuals 🟢. **E15-1** VaultBackend 🟢. **E15-3** Git-backed Vault 🟢. **E18-4** Chunking 🟢. **E18-5** OCR 🟢. **E18-6** Vision 🟢. 416 Tests.
 
 ## Roadmap & Backlog
 
 - **`ROADMAP.md`** — Epics, Stories, Phasen
 - **`ARCHITECTURE.md`** — Diagramm, Modul-Map
 - **`CHANGELOG.md`** — Keep-a-Changelog
-- **`docs/adr/`** — ADRs (0001–0005)
+- **`docs/adr/`** — ADRs (0001–0006)
 - **`docs/integrations/`** — n8n (REST-only), MCP, knowledge-retrieval
 
 Bei neuen Features: zuerst ROADMAP-Eintrag und/oder Issue, dann Code.

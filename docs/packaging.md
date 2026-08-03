@@ -8,6 +8,10 @@ trägst du im **Setup-Wizard** ein (`http://localhost:8000/setup`).
 
 > **Vertrauen:** Der Installer fragt **keine Secrets ab** und sendet nichts ins
 > Internet. Alles bleibt lokal in `.env` und deinem Vault.
+>
+> **Stack:** Consumer nutzt denselben Postgres/Redis/Celery-Stack wie VPS
+> ([ADR 0006](adr/0006-consumer-stack-no-sqlite-fork.md)); Vereinfachung über
+> diesen Installer, nicht über SQLite.
 
 ---
 
