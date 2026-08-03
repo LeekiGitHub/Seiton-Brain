@@ -338,16 +338,17 @@ Roadmap-Stories: Phasen E–G, Epics E13–E21 in [`ROADMAP.md`](./ROADMAP.md).
 (Editor/Graph/Plugins); ungeschützte Public-Retrieval-Endpunkte (Auth identisch
 zur Capture-API); eigene n8n-Node bauen/pflegen.
 
-### Produkt-Editionen (ADR 0004)
+### Produkt-Editionen (ADR 0004 / ADR 0006)
 
-Mit dem kommerziellen Pivot zeichnet sich eine mögliche Zweiteilung ab — bewusst
-zu entscheiden, noch offen:
+**Eine Codebasis**, zwei **Hosting-Profile** (nicht zwei Stacks):
 
-- **Consumer-Edition:** UI-first, lokales Self-Hosting (Mac/Win/Linux), Telegram
-  per Long-Polling, ggf. vereinfachter Stack (SQLite/in-process Worker, E9-5),
-  reduzierte Version → später Desktop-App (E20).
-- **Server/VPS-Edition:** voller Stack (Postgres/Redis/Celery), Webhook möglich,
-  Dauerbetrieb auf VPS (z. B. IONOS), CLI-Setup.
+- **Consumer (Heim-Box):** UI-first, Long-Polling, Installer — gleicher Stack
+  (Postgres + Redis + Celery + pgvector), Profil `SEITON_DEPLOY_MODE=consumer`.
+- **VPS:** Webhook + Reverse-Proxy/Tunnel — Profil `vps`, gleicher Stack.
+
+Stack-Fork (SQLite / in-process Worker) wurde in
+[ADR 0006](./docs/adr/0006-consumer-stack-no-sqlite-fork.md) verworfen (E9-5).
+Native Desktop-App bleibt kein Nahziel (E20-3).
 
 ### Capture und Retrieve als gleichwertige Hälften
 

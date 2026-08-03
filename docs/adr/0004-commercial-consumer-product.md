@@ -96,10 +96,10 @@ Produkts ist Distribution & Einrichtung, nicht der Funktionsumfang.**
 ### Architektur
 
 - UI-first; Telegram optional; Long-Polling-Pfad.
-- **Stack-Vereinfachung für die Consumer-Edition zu evaluieren** (z. B. SQLite
-  statt Postgres, in-process Worker statt Redis/Celery), um die Anzahl
-  beweglicher Teile beim Endnutzer zu minimieren. Server-/VPS-Edition kann den
-  vollen Stack behalten.
+- **Stack-Vereinfachung für die Consumer-Edition** wurde evaluiert (E9-5) und
+  in [ADR 0006](./0006-consumer-stack-no-sqlite-fork.md) verworfen: **ein** Stack
+  (Postgres + Redis + Celery); Heim-Box und VPS unterscheiden sich per
+  Deploy-Profil, nicht per Codebasis. Vereinfachung über Installer/UI/Doctor.
 
 ### Positiv
 
@@ -128,12 +128,15 @@ Produkts ist Distribution & Einrichtung, nicht der Funktionsumfang.**
 
 ## Offene Detailentscheidungen
 
-- **Wie weit Stack-Vereinfachung?** SQLite/in-process für die Heim-Box ja/nein
-  (E9-5, Eval). „Editionen" voraussichtlich ein Stack, verschiedene Hosting-Orte.
-- **UI-Tech-Stack** (welches Framework für die lokale Web-UI).
+- ~~**Wie weit Stack-Vereinfachung?**~~ → entschieden in
+  [ADR 0006](./0006-consumer-stack-no-sqlite-fork.md): **kein** SQLite-/in-process-
+  Fork; ein Stack (Postgres + Redis + Celery), Vereinfachung über Packaging.
+- **UI-Tech-Stack** (welches Framework für die lokale Web-UI) — Jinja2-Web-UI
+  (E19) ist geliefert; Framework-Wechsel kein Nahziel.
 - **Distributionsform der reduzierten Version:** gebündelter Installer um den
-  bestehenden Stack vs. nur radikal vereinfachtes Setup.
-- **Lizenz-Mechanik & Verkaufskanal** — geparkt, bis Produkt steht.
+  bestehenden Stack vs. nur radikal vereinfachtes Setup — Installer (E20-1)
+  ist der aktuelle Weg; „eine Binary ohne Docker" weiter offen/später.
+- **Lizenz-Mechanik & Verkaufskanal** — geparkt, bis Produkt steht (E21).
 
 ## Alternativen, die wir nicht gewählt haben
 
