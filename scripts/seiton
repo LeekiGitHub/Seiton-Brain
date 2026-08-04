@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Seiton Brain CLI-Wrapper (E16-3).
+#
+# Aufruf (im Repo-Root):
+#   ./scripts/seiton init
+#   ./scripts/seiton init --non-interactive --vault ./vault --openai-api-key sk-...
+#
+# Nutzt .venv falls vorhanden, sonst python3.
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+if [[ -x "$ROOT/.venv/bin/python" ]]; then
+  PY="$ROOT/.venv/bin/python"
+elif command -v python3 >/dev/null 2>&1; then
+  PY=python3
+else
+  printf 'Fehler: python3 nicht gefunden\n' >&2
+  exit 1
+fi
+
+exec "$PY" -m app.cli "$@"

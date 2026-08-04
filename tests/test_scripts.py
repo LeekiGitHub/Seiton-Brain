@@ -5,6 +5,7 @@ SCRIPTS = (
     "scripts/backup.sh",
     "scripts/bootstrap_github.sh",
     "scripts/init.sh",
+    "scripts/seiton",
     "scripts/install.sh",
     "scripts/doctor.sh",
     "scripts/deploy-vps.sh",
