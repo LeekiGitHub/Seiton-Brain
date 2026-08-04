@@ -10,8 +10,8 @@ Vertrauensprobleme bei API-Keys.
 > verschiebt sich das Onboarding von **CLI/TUI in einen UI-Setup-Wizard**
 > (Epic E19-1). Die hier beschriebenen CLI-Stufen bleiben relevant für die
 > **Server-/VPS-Edition** und Power-User; `seiton doctor` (E16-2) bleibt als
-> Diagnose nützlich. `init`-TUI (E16-3) und Browser-Setup (E16-4) werden vom
-> UI-Wizard weitgehend abgelöst.
+> Diagnose nützlich. `seiton init` (E16-3) und der UI-Wizard (E16-4/E19) sind
+> parallele lokale Setup-Pfade — CLI für Power-User/VPS, Browser für Consumer.
 
 ---
 
@@ -69,22 +69,27 @@ Exit-Code ≠ 0 bei harten Fehlern — gut für CI und Support.
 
 **Story:** `E16-2`
 
-### Stufe 4 — `seiton init` TUI (Phase D/E, optional)
+### Stufe 4 — `seiton init` (Phase D/E) 🟢
 
-Interaktiver Wizard (`questionary`, `textual` oder einfaches `input()`):
+Interaktiver Wizard (stdlib `input()`, kein Extra-UI-Paket):
+
+```bash
+./scripts/seiton init
+# oder: python -m app.cli init
+# CI/Skript: python -m app.cli init --non-interactive --vault ./vault --openai-api-key …
+```
 
 1. Vault-Pfad (Default: `./vault`)
-2. Telegram Bot Token
-3. Telegram Webhook Secret
-4. OpenAI API Key
-5. Optional: Allowlist-User-IDs
-6. Schreibt **nur** lokale `.env`
-7. Zeigt: `docker compose up -d` + `seiton doctor`
+2. OpenAI API Key
+3. Telegram Bot Token (optional) + Webhook Secret / Allowlist
+4. Seiton API Key (leer = generieren)
+5. Embeddings an/aus
+6. Schreibt **nur** lokale `.env`, legt Vault-Ordner an
+7. Zeigt: `install.sh` / `doctor.sh` / UI-Setup
 
-**Wichtig:** Script läuft **lokal**, kein Netzwerk-Upload. Im README und in der
-TUI explizit kommunizieren.
+**Wichtig:** Läuft **lokal**, kein Netzwerk-Upload.
 
-**Story:** `E16-3`
+**Story:** `E16-3` — `app/cli/`, `scripts/seiton`
 
 ### Stufe 5 — Browser-Setup auf localhost (Phase E, optional)
 

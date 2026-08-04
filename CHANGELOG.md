@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E16-3: `seiton init`.** Interaktives CLI (`python -m app.cli init` /
+  `./scripts/seiton init`) schreibt lokale `.env` (Vault, Keys, Embeddings);
+  `--non-interactive` für Skripte. Kein Netzwerk-Upload. 7 neue Tests
+  (423 gesamt).
 - **E9-5: Consumer-Stack-Eval.** [ADR 0006](docs/adr/0006-consumer-stack-no-sqlite-fork.md):
   kein SQLite-/in-process-Fork; ein Stack (Postgres + Redis + Celery),
   Vereinfachung über Packaging. ADR 0004 Open-Items aktualisiert.

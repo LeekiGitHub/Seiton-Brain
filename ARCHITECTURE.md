@@ -75,6 +75,7 @@ app/
 ├── main.py                  FastAPI-App, /health, registriert Webhook-Router
 ├── config.py                Settings-Klasse (pydantic-settings), zentrale Env-Konfig
 ├── licensing/               Offline-Lizenzprüfung Ed25519 (E21-1): validate, startup
+├── cli/                     ``python -m app.cli`` / ``scripts/seiton`` (init E16-3)
 ├── telegram/
 │   ├── webhook.py           POST /webhook (Transport) + process_update (transport-agnostisch)
 │   ├── polling.py           Long-Polling-Poller (getUpdates) als Webhook-Alternative (E1-5)

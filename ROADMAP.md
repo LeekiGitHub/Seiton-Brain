@@ -286,14 +286,14 @@ Easy Setup für Selfhoster. **Keys nur lokal** — nie Remote-Install mit Key-Up
 > **Reframe (ADR 0004):** Für das Consumer-Produkt verschiebt sich Onboarding von
 > CLI/TUI in die **grafische UI** (Setup-Wizard, Epic **E19**). Die CLI-Stufen
 > bleiben relevant für die Server-/VPS-Edition und Power-User; `seiton doctor`
-> (E16-2) bleibt als Diagnose nützlich. `init`-TUI (E16-3) und Browser-Setup
-> (E16-4) werden durch den UI-Wizard weitgehend abgelöst.
+> (E16-2) und `seiton init` (E16-3) bleiben als CLI-Pfade; Browser-Setup (E16-4)
+> ist im UI-Wizard aufgegangen.
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
 | E16-1 | `scripts/init.sh` / `make init`: `.env` aus Example, Vault-Ordner, Docker-Hinweise — ohne Secrets abfragen. | 4 | 1 | 1 | 2 | 4 | 🟢 | D |
 | E16-2 | `seiton doctor`: prüft `.env`, DB, Redis, Vault-Pfad, optional OpenAI/Telegram. | 4 | 2 | 1 | 3 | 4 | 🟢 | D |
-| E16-3 | `seiton init` TUI: interaktiv `.env` schreiben (lokal, kein Netzwerk-Upload). | 4 | 2 | 1 | 3 | 3 | ⚪ | D/E |
+| E16-3 | `seiton init` TUI: interaktiv `.env` schreiben (lokal, kein Netzwerk-Upload). | 4 | 2 | 1 | 3 | 3 | 🟢 | D/E |
 | E16-4 | (Optional) Browser-Setup `localhost:8000/setup` — einmalig, nur localhost. | 2 | 3 | 2 | 3 | 1 | 🟢 | E |
 | E16-5 | (Optional) At-Rest-Key-Schutz via OS-Keystore (`keyring` → macOS Keychain / Windows Credential Manager / libsecret). `seiton init` legt Keys im Store ab; Launcher injiziert sie beim `docker compose up` als Env statt Klartext-`.env`. Baut auf E16-3. | 3 | 4 | 3 | 4 | 2 | ⚪ | E |
 

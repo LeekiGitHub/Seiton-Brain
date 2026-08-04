@@ -27,6 +27,7 @@ git clone https://github.com/LeekiGitHub/Seiton-Brain.git
 cd Seiton-Brain
 chmod +x scripts/*.sh
 ./scripts/init.sh    # oder: make init — .env + Vault, keine Secrets
+./scripts/seiton init  # E16-3: interaktiv Keys in lokale .env (kein Upload)
 ```
 
 ---
@@ -333,7 +334,8 @@ Statistik (E19-2).
 
 ## Geplantes Setup (CLI — Phase D)
 
-Vorhanden: **`./scripts/init.sh`** / **`make init`** (E16-1), **`./scripts/doctor.sh`** (E16-2),
+Vorhanden: **`./scripts/init.sh`** / **`make init`** (E16-1), **`./scripts/seiton init`**
+(E16-3), **`./scripts/doctor.sh`** (E16-2),
 **Setup-Wizard** `/setup` (E19-1 / E16-4).
 API-Keys werden **nur lokal** in `.env` geschrieben — nie an externe Server gesendet.
 

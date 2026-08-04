@@ -1,7 +1,10 @@
-.PHONY: init doctor lint test
+.PHONY: init doctor lint test seiton-init
 
 init:
 	./scripts/init.sh
+
+seiton-init:
+	./scripts/seiton init
 
 doctor:
 	./scripts/doctor.sh

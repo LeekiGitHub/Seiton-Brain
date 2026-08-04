@@ -46,7 +46,7 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 Core pipeline + REST API + retrieval (E17 komplett). **Web-UI E19 komplett.**
 **E20** Packaging (Installer, VPS, Auto-Update) 🟢. **E21-1/E21-3** Lizenzierung 🟢.
 **E9-2** Self-Hosting-Hub 🟢. **E13-4** OpenAPI/Swagger 🟢. **E11-2** SECURITY.md 🟢. **E11-3** CONTRIBUTING + Templates 🟢. **E12-3** Troubleshooting 🟢. **E15-2** Vault/Obsidian optional 🟢. **E16-1** init.sh + make init 🟢.
-**E5-2** LLM-Prefilter 🟢. **E4-4** Prompt-Versionierung 🟢. **E7-2** Ollama-Provider 🟢. **E7-3** LLM-Rollen 🟢. **E7-4** n8n Multi-LLM 🟢. **E9-3** Remote-Zugang 🟢. **E9-5** Stack-Eval 🟢. **E11-4** README-Visuals 🟢. **E15-1** VaultBackend 🟢. **E15-3** Git-backed Vault 🟢. **E18-4** Chunking 🟢. **E18-5** OCR 🟢. **E18-6** Vision 🟢. 416 Tests.
+**E5-2** LLM-Prefilter 🟢. **E4-4** Prompt-Versionierung 🟢. **E7-2** Ollama-Provider 🟢. **E7-3** LLM-Rollen 🟢. **E7-4** n8n Multi-LLM 🟢. **E9-3** Remote-Zugang 🟢. **E9-5** Stack-Eval 🟢. **E11-4** README-Visuals 🟢. **E15-1** VaultBackend 🟢. **E15-3** Git-backed Vault 🟢. **E16-3** seiton init 🟢. **E18-4** Chunking 🟢. **E18-5** OCR 🟢. **E18-6** Vision 🟢. 423 Tests.
 
 ## Roadmap & Backlog
 
