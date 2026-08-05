@@ -67,7 +67,8 @@ def test_apply_init_writes_env_and_vault(tmp_path: Path):
     assert vault.is_dir()
 
 
-def test_collect_interactive_uses_defaults():
+def test_collect_interactive_uses_defaults(monkeypatch):
+    monkeypatch.setattr("app.cli.keyring_store.is_keyring_available", lambda: False)
     prompts = iter(
         [
             "",  # vault default
@@ -86,6 +87,7 @@ def test_collect_interactive_uses_defaults():
     assert answers.openai_api_key == "sk-from-prompt"
     assert answers.telegram_bot_token == ""
     assert answers.embeddings_enabled is False
+    assert answers.use_keyring is False
 
 
 def test_run_init_non_interactive(tmp_path: Path, monkeypatch):

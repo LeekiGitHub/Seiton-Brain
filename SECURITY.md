@@ -102,6 +102,7 @@ Ausführlichere Architektur-Entscheidungen: [`docs/adr/`](docs/adr/).
 ## Empfehlungen für Betreiber
 
 1. **`.env` schützen** — `chmod 600`, nicht committen, nicht in Backups unverschlüsselt teilen.
+   Optional At-Rest im OS-Keystore: [`docs/keyring.md`](docs/keyring.md) (E16-5).
 2. **Telegram-Allowlist setzen**, wenn der Webhook öffentlich erreichbar ist.
 3. **`SEITON_API_KEY`** lang und zufällig; API nur aktivieren, wenn nötig.
 4. **VPS:** API nicht direkt auf `0.0.0.0` exposen; Reverse-Proxy/Tunnel mit TLS

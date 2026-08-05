@@ -29,6 +29,7 @@ class InitAnswers:
     telegram_allowed_user_ids: str
     seiton_api_key: str
     embeddings_enabled: bool | None
+    use_keyring: bool = False
 
 
 def ensure_env_from_example(env_path: Path, example_path: Path) -> bool:
@@ -137,6 +138,20 @@ def collect_interactive(
         "Semantische Suche (Embeddings) aktivieren?",
         default=emb_default,
     )
+    use_keyring = False
+    from app.cli.keyring_store import is_keyring_available
+
+    if is_keyring_available():
+        keyring_default = existing.get("SEITON_KEYRING", "").lower() in {
+            "true",
+            "1",
+            "yes",
+        }
+        use_keyring = _prompt_yes_no(
+            prompt_fn,
+            "Secrets im OS-Keystore ablegen (statt Klartext-.env)?",
+            default=keyring_default,
+        )
     return InitAnswers(
         vault_host_path=vault,
         openai_api_key=openai,
@@ -145,6 +160,7 @@ def collect_interactive(
         telegram_allowed_user_ids=allowed,
         seiton_api_key=seiton_key,
         embeddings_enabled=embeddings,
+        use_keyring=use_keyring,
     )
 
 
@@ -178,6 +194,8 @@ def collect_non_interactive(args: argparse.Namespace, existing: dict[str, str]) 
     elif args.embeddings == "false":
         embeddings = False
 
+    use_keyring = bool(getattr(args, "keyring", False))
+
     return InitAnswers(
         vault_host_path=vault,
         openai_api_key=openai,
@@ -186,6 +204,7 @@ def collect_non_interactive(args: argparse.Namespace, existing: dict[str, str]) 
         telegram_allowed_user_ids=allowed,
         seiton_api_key=seiton_key,
         embeddings_enabled=embeddings,
+        use_keyring=use_keyring,
     )
 
 
@@ -211,6 +230,11 @@ def answers_to_updates(answers: InitAnswers) -> dict[str, str]:
     if answers.embeddings_enabled is not None:
         updates["EMBEDDINGS_ENABLED"] = "true" if answers.embeddings_enabled else "false"
 
+    if answers.use_keyring:
+        updates["SEITON_KEYRING"] = "true"
+    else:
+        updates["SEITON_KEYRING"] = "false"
+
     return updates
 
 
@@ -220,9 +244,24 @@ def apply_init(
     env_path: Path,
     example_vault: Path | None = None,
 ) -> Path:
+    from app.cli.keyring_store import SECRET_ENV_KEYS, is_keyring_available, store_secrets
+
     updates = answers_to_updates(answers)
     vault = Path(updates["OBSIDIAN_VAULT_HOST_PATH"])
     ensure_vault_dir(vault, example_dir=example_vault)
+
+    if answers.use_keyring:
+        if not is_keyring_available():
+            raise RuntimeError(
+                "SEITON_KEYRING angefordert, aber Paket 'keyring' fehlt — "
+                "pip install -r requirements-keyring.txt"
+            )
+        store_secrets(updates)
+        # Klartext aus .env entfernen (leere Werte), Flag behalten.
+        for key in SECRET_ENV_KEYS:
+            if key in updates:
+                updates[key] = ""
+
     return update_env_file(updates, env_path)
 
 
@@ -236,8 +275,8 @@ def run_init(
     example_path = Path(args.example)
     cwd = Path.cwd()
 
-    print_fn("Seiton Brain — init (E16-3)")
-    print_fn("Keys bleiben lokal in der .env. Kein Netzwerk-Upload.")
+    print_fn("Seiton Brain — init (E16-3/E16-5)")
+    print_fn("Keys bleiben lokal (Datei oder OS-Keystore). Kein Netzwerk-Upload.")
     print_fn("")
 
     try:
@@ -264,13 +303,25 @@ def run_init(
             prompt_fn=prompt_fn,
         )
 
-    written = apply_init(answers, env_path=env_path, example_vault=cwd / "vault.example")
+    try:
+        written = apply_init(
+            answers, env_path=env_path, example_vault=cwd / "vault.example"
+        )
+    except RuntimeError as exc:
+        print(f"Fehler: {exc}", file=sys.stderr)
+        return 1
+
     print_fn("")
     print_fn(f"[ok] Konfiguration geschrieben: {written}")
     print_fn(f"[ok] Vault: {Path(answers.vault_host_path).expanduser().resolve()}")
+    if answers.use_keyring:
+        print_fn("[ok] Secrets im OS-Keystore (SEITON_KEYRING=true)")
     print_fn("")
     print_fn("Naechste Schritte:")
-    print_fn("  1. Stack starten:  ./scripts/install.sh   # oder docker compose up -d")
+    if answers.use_keyring:
+        print_fn("  1. Stack starten:  ./scripts/seiton-up.sh")
+    else:
+        print_fn("  1. Stack starten:  ./scripts/install.sh   # oder docker compose up -d")
     print_fn("  2. Diagnose:       ./scripts/doctor.sh")
     print_fn("  3. UI (nach Start): http://localhost:8000/setup  (Keys nachpflegen)")
     print_fn("")

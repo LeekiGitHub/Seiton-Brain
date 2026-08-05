@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E16-5: OS-Keystore für Secrets.** Optional `keyring` (MIT):
+  `seiton init --keyring`, `seiton keyring-export`, Launcher
+  `./scripts/seiton-up.sh` + `deploy/compose.keyring.yml`. Doku
+  `docs/keyring.md`. 8 neue Tests (431 gesamt).
 - **E16-3: `seiton init`.** Interaktives CLI (`python -m app.cli init` /
   `./scripts/seiton init`) schreibt lokale `.env` (Vault, Keys, Embeddings);
   `--non-interactive` für Skripte. Kein Netzwerk-Upload. 7 neue Tests

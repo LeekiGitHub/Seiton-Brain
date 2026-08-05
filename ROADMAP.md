@@ -295,7 +295,7 @@ Easy Setup für Selfhoster. **Keys nur lokal** — nie Remote-Install mit Key-Up
 | E16-2 | `seiton doctor`: prüft `.env`, DB, Redis, Vault-Pfad, optional OpenAI/Telegram. | 4 | 2 | 1 | 3 | 4 | 🟢 | D |
 | E16-3 | `seiton init` TUI: interaktiv `.env` schreiben (lokal, kein Netzwerk-Upload). | 4 | 2 | 1 | 3 | 3 | 🟢 | D/E |
 | E16-4 | (Optional) Browser-Setup `localhost:8000/setup` — einmalig, nur localhost. | 2 | 3 | 2 | 3 | 1 | 🟢 | E |
-| E16-5 | (Optional) At-Rest-Key-Schutz via OS-Keystore (`keyring` → macOS Keychain / Windows Credential Manager / libsecret). `seiton init` legt Keys im Store ab; Launcher injiziert sie beim `docker compose up` als Env statt Klartext-`.env`. Baut auf E16-3. | 3 | 4 | 3 | 4 | 2 | ⚪ | E |
+| E16-5 | (Optional) At-Rest-Key-Schutz via OS-Keystore (`keyring` → macOS Keychain / Windows Credential Manager / libsecret). `seiton init` legt Keys im Store ab; Launcher injiziert sie beim `docker compose up` als Env statt Klartext-`.env`. Baut auf E16-3. | 3 | 4 | 3 | 4 | 2 | 🟢 | E |
 
 Bewusst **nicht** in E16: universeller Dependency-Installer (kein Auto-Install von
 Python/Docker/Obsidian über brew/winget/choco/apt/… — zu fragil, hoher Wartungsaufwand,
