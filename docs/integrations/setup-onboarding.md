@@ -98,24 +98,13 @@ einmalig, danach deaktiviert). Alternative zur TUI für weniger CLI-affine User.
 
 **Story:** `E16-4` (Backlog, niedrige Priorität)
 
-### Stufe 6 — OS-Keystore (Phase E, optional)
+### Stufe 6 — OS-Keystore (Phase E) 🟢
 
-At-Rest-Schutz statt Klartext-`.env`: `seiton init` legt Keys via
-[`keyring`](https://pypi.org/project/keyring/) im nativen OS-Store ab (macOS
-Keychain, Windows Credential Manager, libsecret). Ein Launcher liest sie beim
-`docker compose up` und injiziert sie als Env — es liegt nichts Klartext auf der
-Platte.
+At-Rest-Schutz statt Klartext-`.env`: `seiton init --keyring` legt Keys via
+[`keyring`](https://pypi.org/project/keyring/) ab; Start mit
+`./scripts/seiton-up.sh`. Details: [`docs/keyring.md`](../keyring.md).
 
-**Docker-Vorbehalt:** Ein Container kann **nicht** direkt auf den OS-Keystore
-zugreifen; der Key muss zur Laufzeit als Env in den Container. Der Keystore löst
-daher nur den At-Rest-Teil, nicht die Laufzeit-Sichtbarkeit (unvermeidbar — die
-App muss OpenAI aufrufen). `.env` bleibt die Baseline (headless/Server, CI).
-
-**Referenz-Pattern:** Docker Credential Helpers (`osxkeychain`, `wincred`,
-`secretservice`) machen exakt das. Kein OAuth-/Device-Flow für OpenAI/Telegram
-verfügbar — die Provider bieten ihn nicht.
-
-**Story:** `E16-5` (Backlog, niedrige Priorität)
+**Story:** `E16-5`
 
 ---
 

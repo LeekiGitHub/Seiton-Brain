@@ -1,0 +1,25 @@
+# Compose-Override: Secrets aus der Shell-Umgebung (E16-5).
+# Wird von ./scripts/seiton-up.sh angehaengt, nachdem keyring-export gelaufen ist.
+# ``environment`` ueberschreibt leere Werte aus env_file (.env).
+services:
+  api:
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      SEITON_API_KEY: ${SEITON_API_KEY:-}
+      SEITON_LICENSE_KEY: ${SEITON_LICENSE_KEY:-}
+  worker:
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      SEITON_API_KEY: ${SEITON_API_KEY:-}
+      SEITON_LICENSE_KEY: ${SEITON_LICENSE_KEY:-}
+  poller:
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      SEITON_API_KEY: ${SEITON_API_KEY:-}
+      SEITON_LICENSE_KEY: ${SEITON_LICENSE_KEY:-}

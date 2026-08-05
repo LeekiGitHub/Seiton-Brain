@@ -164,6 +164,10 @@ class Settings(BaseSettings):
     seiton_vision_enabled: bool = False
     seiton_vision_model: str = ""
 
+    # OS-Keystore fuer Secrets (E16-5). true = Keys in Keychain/Credential Manager;
+    # Start via ./scripts/seiton-up.sh. Braucht pip install -r requirements-keyring.txt.
+    seiton_keyring: bool = False
+
     # Vault
     obsidian_vault_path: str
     # Vault-Backend (E15-1/E15-3). filesystem = Markdown-Ordner, git = Commit pro Note.
