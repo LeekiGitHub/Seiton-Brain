@@ -42,10 +42,12 @@ LAN-IP des Hosts.)
 
 ### Was bleibt bei OpenAI?
 
-- **Whisper** (Sprachnachrichten) und **Embeddings** (semantische Suche) nutzen
-  weiterhin den OpenAI-Client, bis es lokale Adapter gibt.
-- Für reinen Text-Capture mit Ollama kannst du `OPENAI_API_KEY` setzen und Voice/
-  Embeddings auslassen bzw. `EMBEDDINGS_ENABLED=false` lassen.
+- **Embeddings** (semantische Suche) nutzen weiterhin den OpenAI-Client, bis es
+  einen lokalen Adapter gibt.
+- **Whisper** (Sprachnachrichten): Default OpenAI; optional lokal via
+  `WHISPER_PROVIDER=whisper.cpp` — siehe [`whisper-cpp.md`](whisper-cpp.md) (E6-4).
+- Für reinen Text-Capture mit Ollama kannst du Voice/Embeddings auslassen bzw.
+  `EMBEDDINGS_ENABLED=false` lassen.
 
 ## Classify: Rollen vs. Ein-Shot (E7-3)
 

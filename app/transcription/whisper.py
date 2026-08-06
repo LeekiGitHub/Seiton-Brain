@@ -29,7 +29,15 @@ def normalize_whisper_language(value: str | None) -> str | None:
     return match.group(1)
 
 
-async def transcribe_audio(audio_bytes: bytes, filename: str = "voice.ogg") -> str:
+def _normalize_provider(value: str | None) -> str:
+    raw = (value or "openai").strip().lower().replace("_", ".")
+    if raw in {"whisper.cpp", "whispercpp", "local", "cpp"}:
+        return "whisper.cpp"
+    return "openai"
+
+
+async def transcribe_openai(audio_bytes: bytes, filename: str = "voice.ogg") -> str:
+    """OpenAI Whisper API (``whisper-1``)."""
     client = AsyncOpenAI(api_key=settings.openai_api_key)
     audio_file = io.BytesIO(audio_bytes)
     audio_file.name = filename
@@ -45,3 +53,39 @@ async def transcribe_audio(audio_bytes: bytes, filename: str = "voice.ogg") -> s
 
     transcript = await client.audio.transcriptions.create(**kwargs)
     return transcript.text.strip()
+
+
+async def transcribe_audio(audio_bytes: bytes, filename: str = "voice.ogg") -> str:
+    """Transkription je nach ``WHISPER_PROVIDER`` (openai | whisper.cpp).
+
+    Bei ``whisper.cpp``: Soft-Probe; bei Fehlern/fehlender Installation optional
+    Fallback auf OpenAI (``WHISPER_CPP_FALLBACK_OPENAI``, Default true).
+    """
+    provider = _normalize_provider(settings.whisper_provider)
+    if provider == "whisper.cpp":
+        from app.transcription.whisper_cpp import (
+            is_whisper_cpp_available,
+            transcribe_whisper_cpp,
+        )
+
+        if is_whisper_cpp_available():
+            try:
+                return await transcribe_whisper_cpp(audio_bytes, filename=filename)
+            except Exception as exc:  # noqa: BLE001
+                if not settings.whisper_cpp_fallback_openai:
+                    raise
+                logger.warning(
+                    "whisper.cpp fehlgeschlagen (%s) — Fallback auf OpenAI",
+                    exc,
+                )
+        else:
+            if not settings.whisper_cpp_fallback_openai:
+                raise RuntimeError(
+                    "WHISPER_PROVIDER=whisper.cpp, aber Binary/Modell fehlen "
+                    "(siehe docs/whisper-cpp.md)"
+                )
+            logger.warning(
+                "whisper.cpp nicht verfuegbar — Fallback auf OpenAI Whisper"
+            )
+
+    return await transcribe_openai(audio_bytes, filename=filename)

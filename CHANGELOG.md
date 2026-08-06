@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E6-4: Lokaler Whisper (whisper.cpp).** `WHISPER_PROVIDER=whisper.cpp` mit
+  Soft-Probe Binary/Modell, optionalem OpenAI-Fallback; Config
+  `WHISPER_CPP_*`. Doku `docs/whisper-cpp.md`. 7 neue Tests (438 gesamt).
 - **E16-5: OS-Keystore für Secrets.** Optional `keyring` (MIT):
   `seiton init --keyring`, `seiton keyring-export`, Launcher
   `./scripts/seiton-up.sh` + `deploy/compose.keyring.yml`. Doku

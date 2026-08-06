@@ -108,7 +108,8 @@ app/
 │   ├── git_backend.py       GitVaultBackend (Commit pro Note, optional Push)
 │   ├── writer.py            Kompatibilitäts-Wrapper (write_note, …)
 ├── transcription/
-│   └── whisper.py           OpenAI Whisper API
+│   ├── whisper.py           Whisper-Facade (openai | whisper.cpp)
+│   └── whisper_cpp.py       Optional lokaler whisper.cpp-CLI (E6-4)
 ├── webhooks/
 │   └── outbound.py          Outbound Events (note.created, note.indexed, …)
 ├── models/

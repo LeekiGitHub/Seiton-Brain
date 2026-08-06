@@ -120,14 +120,21 @@ class Settings(BaseSettings):
     llm_provider: str = "openai"
     openai_api_key: str
     openai_model: str = "gpt-4o-mini"
-    # Ollama (E7-2), wenn LLM_PROVIDER=ollama. Whisper/Embeddings bleiben OpenAI,
-    # solange kein lokaler Adapter existiert — OPENAI_API_KEY dann ggf. trotzdem noetig.
+    # Ollama (E7-2), wenn LLM_PROVIDER=ollama. Whisper kann lokal laufen
+    # (WHISPER_PROVIDER=whisper.cpp, E6-4); Embeddings bleiben OpenAI.
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "llama3.2"
 
     # Whisper language-Hint (E6-3), ISO-639-1 z. B. "de" / "en".
-    # Leer = Automatische Spracherkennung (OpenAI-Default).
+    # Leer = Automatische Spracherkennung (OpenAI-Default / whisper.cpp auto).
     whisper_language: str = ""
+    # Transkription: openai (Default) oder whisper.cpp (E6-4, lokal).
+    whisper_provider: str = "openai"
+    whisper_cpp_binary: str = "whisper-cli"
+    # GGML-Modell; Default unter /models/ (gitignored, ADR 0002).
+    whisper_cpp_model: str = "models/ggml-base.bin"
+    # Bei fehlendem Binary/Modell oder Laufzeitfehler → OpenAI.
+    whisper_cpp_fallback_openai: bool = True
 
     # Max. Notizen im Classify-Prompt nach Token-Prefilter (E5-2).
     seiton_llm_note_limit: int = 30
