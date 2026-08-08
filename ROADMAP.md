@@ -78,10 +78,14 @@ Integrations-Details: [`docs/integrations/`](./docs/integrations/).
 | **E — Integrations & Ökosystem** | REST-API, Vault-Backends, Multi-LLM-Agenten (optional). n8n-Eigenbau gestrichen (→ ADR 0004). | 🟢 done |
 | **F — Knowledge Retrieval & Q&A** | Brain wird befragbar: semantische Suche, RAG-Antworten, Retrieval-API + MCP-Server für Fremdagents. | 🟢 done |
 | **G — Produktisierung (kommerziell)** | UI/Dashboard, Packaging/Installer, Lizenzierung. Offen: Verkaufskanal (**E21-2**); native App (**E20-3/5**) kein Nahziel. | 🔵 |
+| **H — Capture überall & Mobile** | UI-Capture, Telegram-Uploads, PWA/Companion, UI-Auth, Betriebs-Polish. Epics **E22/E23/E25**. | 🔵 |
+| **I — Cloud-Edition (Abo)** | Hosted-Instanzen + Managed LLM für Nicht-Selfhoster. Gated auf **ADR 0007** (Proposed). Epic **E24**. | ⚪ |
 
 > **Hinweis (ADR 0004):** Phase **G** ist bis auf Verkaufskanal (E21-2) und die
 > bewusst zurückgestellte native App weitgehend fertig. Formelles **v1.0**-Tag
 > und Shop-Mechanik sind die verbleibenden Produktisierungsschritte.
+> **Phase H/I** (2026-08-08): Ergebnis der Bestandsaufnahme — Capture-Lücken,
+> Mobile-Companion und die strategische Cloud-/Abo-Frage (ADR 0007).
 
 ---
 
@@ -424,6 +428,70 @@ Offen: genaue Lizenz-Mechanik, Update-Auslieferung, evtl. Edition-Stufen (ADR 00
 
 ---
 
+### E22 — Capture Everywhere · `epic:capture`
+
+Capture-Lücken schließen (Analyse 2026-08-08): Die UI kann Notizen **verwalten,
+aber nicht erfassen**; Telegram nimmt **keine Fotos/Dokumente** an; MCP ist
+read-only. ADR 0004 will die UI als Hauptoberfläche — dann muss sie auch der
+Haupteingang sein.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E22-1 | UI-Capture: Notiz in der Web-UI erfassen (Text, gleiche Pipeline wie Telegram/REST, inkl. Status-Feedback). | 5 | 2 | 1 | 2 | 5 | ⚪ | H |
+| E22-2 | Telegram Foto-/Dokument-Capture: Uploads annehmen → OCR (E18-5) / Vision (E18-6) / Extractors (E18-1..3) in der Inbox-Pipeline. | 4 | 3 | 2 | 3 | 4 | ⚪ | H |
+| E22-3 | Digest in der Web-UI (Konsument von E17-8; heute nur REST/Telegram). | 3 | 2 | 1 | 2 | 3 | ⚪ | H |
+| E22-4 | MCP-Tools `capture_note` + `digest` (heute nur Retrieval) — Agenten können ins Brain schreiben. | 3 | 2 | 2 | 3 | 3 | ⚪ | H |
+| E22-5 | E-Mail-Ingestion: dediziertes IMAP-Postfach pollen → capture (Newsletter, Mail-an-mich-selbst). | 3 | 3 | 2 | 3 | 2 | ⚪ | H |
+| E22-6 | `/ask`-Antwort als Notiz speichern (Q&A→Note, offene Designfrage aus `docs/integrations/knowledge-retrieval.md`). | 3 | 2 | 1 | 2 | 2 | ⚪ | H |
+
+---
+
+### E23 — Mobile Companion (PWA-first) · `epic:mobile`
+
+„Passende App" ohne native-App-Kosten: die bestehende Web-UI **installierbar**
+machen (PWA). Nativer Wrapper nur bei echtem Bedarf (ersetzt die
+E20-3-Diskussion). Voraussetzung für alles Mobile: **UI-Auth**, da localhost-only
+nicht reicht, sobald das Handy zugreift.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E23-1 | UI-Auth: Login/Session (Passwort oder Token) statt nur localhost-Guard — Voraussetzung für Remote-/Mobile-Zugriff und Cloud-Edition. | 5 | 3 | 3 | 3 | 5 | ⚪ | H |
+| E23-2 | PWA: Manifest + Service Worker + Icons — UI auf Handy/Desktop „installierbar" (Homescreen). | 4 | 3 | 2 | 3 | 4 | ⚪ | H |
+| E23-3 | Offline-Capture-Queue: Notiz ohne Verbindung erfassen, Sync bei Reconnect (Service Worker + Background Sync). | 3 | 4 | 3 | 4 | 2 | ⚪ | H+ |
+| E23-4 | Teilen ins Brain: Android `share_target` (PWA) + iOS-Shortcuts-Beispiel gegen `POST /v1/capture`. | 4 | 2 | 1 | 2 | 3 | ⚪ | H |
+| E23-5 | (Später) Nativer Wrapper (z. B. Capacitor) nur bei echtem Bedarf — löst E20-3/5 ab. | 2 | 4 | 3 | 3 | 1 | ⚪ | H+ |
+
+---
+
+### E24 — Cloud-Edition & Abo · `epic:cloud` · ⚠️ gated auf ADR 0007
+
+Für Kunden, die **nicht selbst hosten** und **keinen eigenen LLM-Key** wollen:
+gehostete Instanz + Managed LLM im **Abo** — bewusster Bruch mit Teilen von
+ADR 0004, daher zuerst Entscheidung ([ADR 0007](./docs/adr/0007-cloud-edition-subscription.md), Proposed).
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E24-1 | ADR 0007 entscheiden: Single-Tenant-Instanzen vs. Multi-Tenant vs. Partner-Hosting; Abo-Preislogik; DSGVO-Rahmen. | 5 | 2 | 2 | 4 | 4 | ⚪ | I |
+| E24-2 | Managed-LLM-Proxy: eigener Key serverseitig, per-Kunde-Quota (Tokens/Monat), Kostendeckel, Modell-Whitelist. | 4 | 4 | 4 | 4 | 3 | ⚪ | I |
+| E24-3 | Provisioning-Blaupause: Instanz pro Kunde automatisiert aufsetzen/updaten (EU-Hoster), Monitoring + Backups. | 4 | 4 | 4 | 4 | 3 | ⚪ | I |
+| E24-4 | Abo-Billing (z. B. Stripe) + Entitlements — koexistiert mit Buy-once-Lizenz (E21-1); Verknüpfung mit E21-2. | 4 | 3 | 3 | 3 | 3 | ⚪ | I |
+| E24-5 | DSGVO-Paket: AVV-Vorlage, Datenexport, Löschkonzept, EU-Region-Garantie. | 4 | 3 | 3 | 3 | 3 | ⚪ | I |
+
+---
+
+### E25 — Betrieb & Polish · `epic:ops-polish`
+
+Kleine, klar umrissene Verbesserungen aus der Bestandsaufnahme 2026-08-08.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E25-1 | Backup/Restore in der Settings-UI: One-Click-Backup + geführter Restore (heute nur `scripts/backup.sh` + Doku). | 4 | 2 | 2 | 2 | 4 | ⚪ | H |
+| E25-2 | `seiton doctor` als CLI-Subcommand (Parität zu `scripts/doctor.sh`, E16-2-Wortlaut). | 2 | 2 | 1 | 2 | 2 | ⚪ | H |
+| E25-3 | Rate-Limits für `/ask` und `/digest` (Kostenkontrolle, offene Designfrage aus `knowledge-retrieval.md`). | 3 | 2 | 1 | 2 | 3 | ⚪ | H |
+| E25-4 | Dashboard-Panel „System-Gesundheit": Health, Queue-Länge, letzte Fehler (nutzt `/health` + Logs). | 3 | 3 | 2 | 3 | 2 | ⚪ | H+ |
+
+---
+
 ## Aktueller Sprint (Phase A — MVP-Härtung) ✅ abgeschlossen
 
 1. 🟢 **Doku-Fundament**: ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
@@ -447,12 +515,23 @@ Offen: genaue Lizenz-Mechanik, Update-Auslieferung, evtl. Edition-Stufen (ADR 00
 **Phasen A–F sind komplett** (Release-Linie v0.2.x). **Phase G** weitgehend:
 E19/E20-1/2/4/E21-1/3 🟢; offen **E21-2** (Verkaufskanal); **E20-3/5** kein Nahziel.
 
-## Verbleibender Backlog
+## Nächster Sprint (Phase H — Vorschlag, Reihenfolge nach Nutzen/Aufwand)
+
+1. ⚪ **E22-1** — UI-Capture (größte Produkt-Lücke: UI soll Haupteingang sein)
+2. ⚪ **E22-3** — Digest in der Web-UI (klein, rundet Retrieval-UI ab)
+3. ⚪ **E25-1** — Backup/Restore One-Click in Settings
+4. ⚪ **E22-2** — Telegram Foto-/Dokument-Capture (nutzt vorhandene E18-Extractors)
+5. ⚪ **E23-1** — UI-Auth (Voraussetzung für Mobile **und** Cloud)
+6. ⚪ **E23-2** — PWA installierbar (danach E23-4 Share-Target)
+7. ⚪ **E22-4** — MCP `capture_note`
+8. Parallel/Diskussion: **E24-1** — ADR 0007 Cloud-/Abo-Entscheidung
+
+## Verbleibender Backlog (übrig aus Phase G)
 
 | ID | Fokus | Hinweis |
 |----|-------|---------|
-| **E21-2** | Verkaufskanal + Lizenz-Ausgabe | Kommerziell, ADR 0004 geparkt bis Verkaufsentscheidung |
-| **E20-3 / E20-5** | Native Desktop-App / Code-Signing | Kein Nahziel (Web-UI E19 reicht) |
+| **E21-2** | Verkaufskanal + Lizenz-Ausgabe | Kommerziell; bei Cloud-Entscheidung mit E24-4 zusammen denken |
+| **E20-3 / E20-5** | Native Desktop-App / Code-Signing | Kein Nahziel; wenn überhaupt, dann als E23-5-Wrapper |
 
 Integrations-Vision und Szenarien: [`docs/integrations/`](./docs/integrations/).
 
