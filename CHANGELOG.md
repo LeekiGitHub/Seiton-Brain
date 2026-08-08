@@ -8,6 +8,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 
+### Changed
+- **Roadmap-Hygiene:** E12-1/2/4 → 🟢; Phasen A–F als done; Phase G auf
+  verbleibenden Backlog (**E21-2**, deferred **E20-3/5**) fokussiert.
+
 ### Added
 - **E6-4: Lokaler Whisper (whisper.cpp).** `WHISPER_PROVIDER=whisper.cpp` mit
   Soft-Probe Binary/Modell, optionalem OpenAI-Fallback; Config

@@ -72,17 +72,16 @@ Integrations-Details: [`docs/integrations/`](./docs/integrations/).
 | Phase | Ziel | Status |
 |---|---|---|
 | **A — MVP-Härtung** | Ich nutze es zuverlässig allein. Auth, saubere Datenhygiene, keine Überschreibung von Notizen. | 🟢 done |
-| **B — Produktfunktionen** | Echtes Second-Brain-Verhalten: „bestehende Notiz ergänzen", Telegram-Commands, Tags. | ⚪ |
-| **C — Robustheit & Self-Hosting** | Retries, Logging, Mac Mini als 24/7-Host (Cloudflare Tunnel statt ngrok). | ⚪ |
-| **D — Public Release v1.0** | LICENSE, Setup-Doku für Selfhoster, optionaler Ollama-Provider. | ⚪ |
-| **E — Integrations & Ökosystem** | REST-API, Vault-Backends, Multi-LLM-Agenten (optional). n8n-Eigenbau gestrichen (→ ADR 0004). | ⚪ |
-| **F — Knowledge Retrieval & Q&A** | Brain wird befragbar: semantische Suche, RAG-Antworten, Retrieval-API + MCP-Server für Fremdagents. | ⚪ |
-| **G — Produktisierung (kommerziell)** | UI/Dashboard, einfaches Multi-Plattform-Self-Hosting (Mac/Win/Linux/VPS), Packaging/Installer, Lizenzierung. Reduzierte Version → später Desktop-App. | 🔵 |
+| **B — Produktfunktionen** | Echtes Second-Brain-Verhalten: „bestehende Notiz ergänzen", Telegram-Commands, Tags. | 🟢 done |
+| **C — Robustheit & Self-Hosting** | Retries, Logging, Mac Mini als 24/7-Host (Cloudflare Tunnel statt ngrok). | 🟢 done |
+| **D — Public Release v1.0** | LICENSE, Setup-Doku für Selfhoster, optionaler Ollama-Provider. | 🟢 done |
+| **E — Integrations & Ökosystem** | REST-API, Vault-Backends, Multi-LLM-Agenten (optional). n8n-Eigenbau gestrichen (→ ADR 0004). | 🟢 done |
+| **F — Knowledge Retrieval & Q&A** | Brain wird befragbar: semantische Suche, RAG-Antworten, Retrieval-API + MCP-Server für Fremdagents. | 🟢 done |
+| **G — Produktisierung (kommerziell)** | UI/Dashboard, Packaging/Installer, Lizenzierung. Offen: Verkaufskanal (**E21-2**); native App (**E20-3/5**) kein Nahziel. | 🔵 |
 
-> **Hinweis (ADR 0004):** Mit dem Pivot zum kommerziellen Produkt verschiebt sich
-> der Schwerpunkt Richtung **Phase G**. Die UI (Phase G) ist Voraussetzung dafür,
-> dass Privatkunden Retrieval (Phase F) und Verwaltung überhaupt nutzen können —
-> Phase F und G greifen daher ineinander.
+> **Hinweis (ADR 0004):** Phase **G** ist bis auf Verkaufskanal (E21-2) und die
+> bewusst zurückgestellte native App weitgehend fertig. Formelles **v1.0**-Tag
+> und Shop-Mechanik sind die verbleibenden Produktisierungsschritte.
 
 ---
 
@@ -222,10 +221,10 @@ Bewertung pro Story: **N**utzen / **S**chwierigkeit / **R**isiko / **L**ernwert 
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E12-1 | `docs/setup.md`: Bot-Token holen, Webhook setzen, Vault mounten. | 4 | 2 | 1 | 2 | 4 | 🟡 | A |
-| E12-2 | `ARCHITECTURE.md`: Diagramm + Modul-Map. | 3 | 1 | 1 | 2 | 4 | 🟡 | A |
+| E12-1 | `docs/setup.md`: Bot-Token holen, Webhook setzen, Vault mounten. | 4 | 2 | 1 | 2 | 4 | 🟢 | A |
+| E12-2 | `ARCHITECTURE.md`: Diagramm + Modul-Map. | 3 | 1 | 1 | 2 | 4 | 🟢 | A |
 | E12-3 | Troubleshooting-Sektion (ngrok-Restart, Migration-Fehler etc.). | 3 | 1 | 1 | 2 | 3 | 🟢 | D |
-| E12-4 | ADR-Verzeichnis (`docs/adr/`) + Template. | 3 | 1 | 1 | 3 | 4 | 🟡 | A |
+| E12-4 | ADR-Verzeichnis (`docs/adr/`) + Template. | 3 | 1 | 1 | 3 | 4 | 🟢 | A |
 
 ---
 
@@ -435,7 +434,7 @@ Offen: genaue Lizenz-Mechanik, Update-Auslieferung, evtl. Edition-Stufen (ADR 00
 6. 🟢 **E3-1** — Filename-Kollision verhindern
 7. 🟢 **E8-1** — Settings-Klasse (pydantic-settings)
 
-## Aktueller Sprint (Phase B — Produktfunktionen)
+## Aktueller Sprint (Phase B — Produktfunktionen) ✅ abgeschlossen
 
 1. 🟢 **E4-1 + E3-2** — Append-Logik (Killer-Feature)
 2. 🟢 **E4-2** — Tags als strukturiertes Feld
@@ -445,19 +444,15 @@ Offen: genaue Lizenz-Mechanik, Update-Auslieferung, evtl. Edition-Stufen (ADR 00
 6. 🟢 **E3-4** — Atomares Schreiben (Tempfile + `os.replace`)
 7. 🟢 **E1-4** — Webhook-Body-Size-Limit + Ignore unbekannter Update-Typen
 
-**Phase A (MVP) und Phase B (Product) sind komplett — Release v0.2.0.**
-**Phase C** läuft: E10-4, E10-1, E8-2, E13-1, E13-2, E7-1, E9-1, E10-3, E9-4, E13-3, E14-1, E5-1, E17-1 🟢.
-Mac-Mini-spezifisch (E9-3 Remote-Zugang) optional; **E9-2** Self-Hosting-Hub 🟢.
+**Phasen A–F sind komplett** (Release-Linie v0.2.x). **Phase G** weitgehend:
+E19/E20-1/2/4/E21-1/3 🟢; offen **E21-2** (Verkaufskanal); **E20-3/5** kein Nahziel.
 
-## Spätere Phasen (Kurzüberblick)
+## Verbleibender Backlog
 
-| Phase | Fokus | Wichtigste Epics |
-|-------|-------|------------------|
-| **C** | Robustheit, Self-Hosting, REST-API | E9, E10, **E13** (API v1) |
-| **D** | Setup, Doku, Public-Readiness | E11, E12, **E16**, E7-2 |
-| **E** | Ökosystem | **E15** Vault-Backends, E7-3/4, **E17-1/2** Suche (n8n-Eigenbau gestrichen, ADR 0004) |
-| **F** | Brain als Wissensquelle | **E17-3/4** RAG + `/ask`, **E17-5** Retrieval-API, **E17-6** MCP-Server, **E17-8** Digest |
-| **G** | Produktisierung (kommerziell) | **E19** UI/Dashboard, **E20** Packaging/Distribution, **E21** Lizenzierung, **E1-5** Long-Polling, **E9-2/5** Multi-Plattform/Stack |
+| ID | Fokus | Hinweis |
+|----|-------|---------|
+| **E21-2** | Verkaufskanal + Lizenz-Ausgabe | Kommerziell, ADR 0004 geparkt bis Verkaufsentscheidung |
+| **E20-3 / E20-5** | Native Desktop-App / Code-Signing | Kein Nahziel (Web-UI E19 reicht) |
 
 Integrations-Vision und Szenarien: [`docs/integrations/`](./docs/integrations/).
 
