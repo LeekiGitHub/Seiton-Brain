@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Changed
+- **Planung: E15-5 Notion-Evaluation.** Standalone + Obsidian sind per Design
+  abgedeckt (E15-1/2, E19); Notion als offene Lücke jetzt als
+  Evaluations-Story festgehalten (Export/Sync vs. API-Backend).
 - **Planung: Epic E26 Notiz-Templates.** Nutzerdefinierte Vorlagen, wie die KI
   Notizen ablegt: Markdown-Template mit Platzhaltern, KI-Felder, visueller
   Builder für Nicht-Markdown-Nutzer; 6 Stories in der ROADMAP.

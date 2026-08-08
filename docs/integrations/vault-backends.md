@@ -43,7 +43,7 @@ direkt `Path`/`os`.
 | **Git-backed vault** | Commit pro Note, optionaler Push auf Remote | ✅ `GitVaultBackend` | E | `E15-3` 🟢 |
 | **S3 / Object Storage** | Vault in Bucket (Cloud-Self-Hoster) | Mittel | E | Backlog |
 | **Read-only Web-UI** | Browser-Ansicht ohne Obsidian → **aufgegangen in UI-Epic** | Hoch | G | ➡️ `E19` |
-| **Notion / Google Docs API** | Fremdes Ökosystem | Hoch | später | Backlog |
+| **Notion / Google Docs API** | Fremdes Ökosystem (API, Block-Modell statt Markdown-Dateien) | Hoch | H+ | `E15-5` ⚪ (Evaluation zuerst: Export/Sync vs. Backend) |
 
 **Bewusst ausgeschlossen:** Vollwertige Obsidian-Ersatz-App (Editor, Graph, Plugins)
 — wäre ein separates Produkt.

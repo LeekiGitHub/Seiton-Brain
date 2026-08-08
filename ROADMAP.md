@@ -277,6 +277,7 @@ Notiz-App als Obsidian-Ersatz.
 | E15-2 | Doku: „Obsidian optional“ — jeder Markdown-Ordner reicht (`vault.example/`). | 3 | 1 | 1 | 2 | 3 | 🟢 | D |
 | E15-3 | (Optional) Git-backed Vault: Commit pro Note / konfigurierbarer Push. | 3 | 3 | 3 | 4 | 2 | 🟢 | E |
 | E15-4 | ~~(Optional) Read-only Web-UI für Vault-Browse~~ → **aufgegangen in Epic E19 (UI/Dashboard)**. | — | — | — | — | — | ➡️ E19 | G |
+| E15-5 | Notion-Anbindung evaluieren: einseitiger Export/Sync nach Notion vs. vollwertiges API-Backend (Block-Modell ≠ Markdown; Frontmatter/Wiki-Links mappen nicht 1:1). Ergebnis als ADR/Doku, erst dann ggf. Code. | 3 | 4 | 3 | 3 | 2 | ⚪ | H+ |
 
 Details: [`docs/integrations/vault-backends.md`](./docs/integrations/vault-backends.md)
 
