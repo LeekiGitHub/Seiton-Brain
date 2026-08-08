@@ -78,7 +78,7 @@ Integrations-Details: [`docs/integrations/`](./docs/integrations/).
 | **E — Integrations & Ökosystem** | REST-API, Vault-Backends, Multi-LLM-Agenten (optional). n8n-Eigenbau gestrichen (→ ADR 0004). | 🟢 done |
 | **F — Knowledge Retrieval & Q&A** | Brain wird befragbar: semantische Suche, RAG-Antworten, Retrieval-API + MCP-Server für Fremdagents. | 🟢 done |
 | **G — Produktisierung (kommerziell)** | UI/Dashboard, Packaging/Installer, Lizenzierung. Offen: Verkaufskanal (**E21-2**); native App (**E20-3/5**) kein Nahziel. | 🔵 |
-| **H — Capture überall & Mobile** | UI-Capture, Telegram-Uploads, PWA/Companion, UI-Auth, Betriebs-Polish. Epics **E22/E23/E25**. | 🔵 |
+| **H — Capture überall & Mobile** | UI-Capture, Telegram-Uploads, PWA/Companion, UI-Auth, Notiz-Templates, Betriebs-Polish. Epics **E22/E23/E25/E26**. | 🔵 |
 | **I — Cloud-Edition (Abo)** | Hosted-Instanzen + Managed LLM für Nicht-Selfhoster. Gated auf **ADR 0007** (Proposed). Epic **E24**. | ⚪ |
 
 > **Hinweis (ADR 0004):** Phase **G** ist bis auf Verkaufskanal (E21-2) und die
@@ -492,6 +492,33 @@ Kleine, klar umrissene Verbesserungen aus der Bestandsaufnahme 2026-08-08.
 
 ---
 
+### E26 — Notiz-Templates · `epic:templates`
+
+Nutzer bestimmen selbst, **wie** die KI Notizen ablegt (Idee 2026-08-08). Heute
+ist das Format hartcodiert (`filesystem.py`: Frontmatter + Titel + Summary +
+Related). Zwei Schichten: **Render-Template** (deterministische Markdown-Vorlage
+mit Platzhaltern, kein LLM) und **KI-Felder** (nutzerdefinierte Felder wie
+„Action Items", die der Writer-LLM aus dem Input füllt). Für
+Nicht-Markdown-Nutzer ein **visueller Builder** in der UI — nur eine zweite
+Ansicht auf dasselbe Template-Artefakt.
+
+**Leitplanken:** Frontmatter-Pflichtteil bleibt fix (Append-Logik E3-3/E4-1 und
+Index dürfen nicht brechen); Templates liegen als Dateien im Vault (in Obsidian
+sichtbar, portabel), nicht in der DB; kaputte Templates → Default + Warnung.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E26-1 | Render-Template: Markdown-Vorlage mit Platzhaltern (`{{title}}`, `{{summary}}`, `{{tags}}`, `{{date}}`, `{{related}}`) ersetzt hartcodiertes Body-Format; Default = heutiges Layout; Datei im Vault (z. B. `_seiton/templates/note.md`). | 4 | 3 | 3 | 3 | 4 | ⚪ | H |
+| E26-2 | Validierung + Fallback: unbekannte Platzhalter/kaputtes Template → Default-Layout + Log/UI-Warnung; Append-/Frontmatter-Kompatibilität abgesichert (Tests). | 4 | 2 | 2 | 2 | 4 | ⚪ | H |
+| E26-3 | KI-Felder: eigene Felder im Template (z. B. `{{ai:action_items}}`, `{{ai:kernaussagen}}`) → Writer-Prompt bekommt dynamisches Feld-Schema, LLM füllt sie aus dem Input. | 4 | 4 | 3 | 4 | 3 | ⚪ | H |
+| E26-4 | Template-Editor in der Settings-UI: Markdown-Editor + Live-Vorschau mit Beispieldaten. | 3 | 2 | 1 | 2 | 3 | ⚪ | H |
+| E26-5 | Visueller Builder: Bausteine (Titel, Zusammenfassung, Tags, KI-Feld, …) benennen/sortieren per Drag-and-drop → erzeugt intern das Markdown-Template. | 4 | 4 | 2 | 3 | 2 | ⚪ | H+ |
+| E26-6 | Template pro Kategorie (Aufgabe ≠ Idee ≠ Journal), mit globalem Default. | 3 | 2 | 2 | 2 | 2 | ⚪ | H+ |
+
+Sinnvolle Reihenfolge: E26-1 → E26-2 → E26-4 → E26-3 → E26-6 → E26-5.
+
+---
+
 ## Aktueller Sprint (Phase A — MVP-Härtung) ✅ abgeschlossen
 
 1. 🟢 **Doku-Fundament**: ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
@@ -524,7 +551,8 @@ E19/E20-1/2/4/E21-1/3 🟢; offen **E21-2** (Verkaufskanal); **E20-3/5** kein Na
 5. ⚪ **E23-1** — UI-Auth (Voraussetzung für Mobile **und** Cloud)
 6. ⚪ **E23-2** — PWA installierbar (danach E23-4 Share-Target)
 7. ⚪ **E22-4** — MCP `capture_note`
-8. Parallel/Diskussion: **E24-1** — ADR 0007 Cloud-/Abo-Entscheidung
+8. ⚪ **E26-1 + E26-2** — Notiz-Templates: Render-Template + Validierung/Fallback
+9. Parallel/Diskussion: **E24-1** — ADR 0007 Cloud-/Abo-Entscheidung
 
 ## Verbleibender Backlog (übrig aus Phase G)
 

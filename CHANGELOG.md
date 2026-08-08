@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Changed
+- **Planung: Epic E26 Notiz-Templates.** Nutzerdefinierte Vorlagen, wie die KI
+  Notizen ablegt: Markdown-Template mit Platzhaltern, KI-Felder, visueller
+  Builder für Nicht-Markdown-Nutzer; 6 Stories in der ROADMAP.
 - **Planung 2026-08-08:** Bestandsaufnahme → neue Phasen **H** (Capture überall
   & Mobile) und **I** (Cloud-Edition); neue Epics **E22** Capture Everywhere,
   **E23** Mobile Companion (PWA-first), **E24** Cloud & Abo (gated auf

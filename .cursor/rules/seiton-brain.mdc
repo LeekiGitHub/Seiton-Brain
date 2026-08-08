@@ -45,8 +45,8 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 
 Core pipeline + REST + retrieval + Web-UI + Packaging + offline-Lizenz 🟢.
 **Phase H (aktiv):** E22 Capture Everywhere (UI-Capture!), E23 Mobile/PWA +
-UI-Auth, E25 Ops-Polish. **Phase I:** E24 Cloud/Abo — gated auf ADR 0007
-(Proposed). Offen aus G: E21-2 Verkaufskanal. 438 Tests.
+UI-Auth, E25 Ops-Polish, E26 Notiz-Templates. **Phase I:** E24 Cloud/Abo —
+gated auf ADR 0007 (Proposed). Offen aus G: E21-2 Verkaufskanal. 438 Tests.
 
 ## Roadmap & Backlog
 
