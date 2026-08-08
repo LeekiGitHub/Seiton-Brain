@@ -41,18 +41,19 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 - `examples/n8n/` — Power-user workflow JSONs (no custom node)
 - `prompts/` — versioned LLM prompts
 
-## Status (v0.2.x — Phasen A–F done, G offen)
+## Status (v0.2.x — Phasen A–F done, G fast, H geplant)
 
 Core pipeline + REST + retrieval + Web-UI + Packaging + offline-Lizenz 🟢.
-**Offen:** E21-2 Verkaufskanal; E20-3/5 native App (kein Nahziel).
-**E12** Doku 🟢. **E6-4** whisper.cpp 🟢. **E16-5** Keyring 🟢. 438 Tests.
+**Phase H (aktiv):** E22 Capture Everywhere (UI-Capture!), E23 Mobile/PWA +
+UI-Auth, E25 Ops-Polish. **Phase I:** E24 Cloud/Abo — gated auf ADR 0007
+(Proposed). Offen aus G: E21-2 Verkaufskanal. 438 Tests.
 
 ## Roadmap & Backlog
 
 - **`ROADMAP.md`** — Epics, Stories, Phasen
 - **`ARCHITECTURE.md`** — Diagramm, Modul-Map
 - **`CHANGELOG.md`** — Keep-a-Changelog
-- **`docs/adr/`** — ADRs (0001–0006)
+- **`docs/adr/`** — ADRs (0001–0007; 0007 = Cloud/Abo, Proposed)
 - **`docs/integrations/`** — n8n (REST-only), MCP, knowledge-retrieval
 
 Bei neuen Features: zuerst ROADMAP-Eintrag und/oder Issue, dann Code.

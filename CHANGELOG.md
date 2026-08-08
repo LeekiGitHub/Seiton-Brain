@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Changed
+- **Planung 2026-08-08:** Bestandsaufnahme → neue Phasen **H** (Capture überall
+  & Mobile) und **I** (Cloud-Edition); neue Epics **E22** Capture Everywhere,
+  **E23** Mobile Companion (PWA-first), **E24** Cloud & Abo (gated auf
+  [ADR 0007](docs/adr/0007-cloud-edition-subscription.md), Proposed),
+  **E25** Betrieb & Polish; Sprint-Vorschlag in der ROADMAP.
 - **Roadmap-Hygiene:** E12-1/2/4 → 🟢; Phasen A–F als done; Phase G auf
   verbleibenden Backlog (**E21-2**, deferred **E20-3/5**) fokussiert.
 
