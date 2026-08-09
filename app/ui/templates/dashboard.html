@@ -8,6 +8,15 @@
   <p>Letzte Captures und Vault-Aktivität — lokal auf deiner Maschine.</p>
 </header>
 
+<section class="card" id="capture-card">
+  <h2>Erfassen</h2>
+  <form id="capture-form" class="ask-form">
+    <textarea id="capture-text" rows="3" placeholder="Gedanke, Idee, Aufgabe … — wird wie eine Telegram-Nachricht klassifiziert und im Vault abgelegt." required maxlength="100000"></textarea>
+    <button type="submit" class="primary" id="capture-submit">Ins Brain speichern</button>
+  </form>
+  <div id="capture-result" aria-live="polite"></div>
+</section>
+
 <section class="card" id="stats-card">
   <h2>Überblick</h2>
   <div class="stats-grid" id="stats-grid">

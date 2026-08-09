@@ -24,6 +24,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   verbleibenden Backlog (**E21-2**, deferred **E20-3/5**) fokussiert.
 
 ### Added
+- **E22-1: Capture in der Web-UI.** Erfassen-Formular im Dashboard +
+  `POST /api/ui/capture` — gleiche Pipeline wie Telegram/REST (classify →
+  Vault + DB, Webhook-Event), mit Status-Feedback (Titel, Kategorie,
+  create/append, Pfad, Tags). 5 neue Tests (443 gesamt).
 - **E6-4: Lokaler Whisper (whisper.cpp).** `WHISPER_PROVIDER=whisper.cpp` mit
   Soft-Probe Binary/Modell, optionalem OpenAI-Fallback; Config
   `WHISPER_CPP_*`. Doku `docs/whisper-cpp.md`. 7 neue Tests (438 gesamt).
