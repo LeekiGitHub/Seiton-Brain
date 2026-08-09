@@ -150,6 +150,18 @@ a:hover {
   color: #f0a0a0;
 }
 
+.capture-ok {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.capture-err {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: #f0a0a0;
+}
+
 table.data {
   width: 100%;
   border-collapse: collapse;

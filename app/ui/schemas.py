@@ -29,6 +29,20 @@ class DashboardResponse(BaseModel):
     recent_vault_notes: list[VaultNotePreview]
 
 
+class UiCaptureRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=100_000)
+
+
+class UiCaptureResponse(BaseModel):
+    entry_id: int
+    title: str
+    category: str
+    action: str
+    vault_path: str
+    status: str
+    tags: list[str] = Field(default_factory=list)
+
+
 class NoteListItem(BaseModel):
     title: str
     vault_path: str

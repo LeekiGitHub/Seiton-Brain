@@ -13,6 +13,8 @@ from app.config import settings
 from app.db.session import get_db
 from app.llm.schemas import AnswerResult
 from app.services.answer import answer_question
+from app.services.process_message import process_text_message
+from app.webhooks.outbound import emit_capture_event
 from app.setup.security import require_localhost
 from app.setup.status import is_setup_complete
 from app.ui.notes import (
@@ -32,6 +34,8 @@ from app.ui.schemas import (
     NoteSaveResponse,
     SettingsSaveRequest,
     SettingsViewResponse,
+    UiCaptureRequest,
+    UiCaptureResponse,
     VaultConfigResponse,
 )
 from app.setup.schemas import SetupSaveResponse, SetupTestRequest, SetupTestResponse
@@ -131,6 +135,28 @@ async def dashboard_api(
     _: None = Depends(_localhost_dep),
 ) -> DashboardResponse:
     return await load_dashboard(db)
+
+
+@ui_api_router.post("/capture", response_model=UiCaptureResponse)
+async def capture_api(
+    body: UiCaptureRequest,
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(_localhost_dep),
+) -> UiCaptureResponse:
+    """Notiz aus der Web-UI erfassen — gleiche Pipeline wie Telegram/REST (E22-1)."""
+    result = await process_text_message(body.text, db, kind="text")
+    if result is None:
+        raise HTTPException(status_code=409, detail="Duplicate capture rejected")
+    await emit_capture_event(result, kind="text")
+    return UiCaptureResponse(
+        entry_id=result.entry_id,
+        title=result.classification.title,
+        category=result.classification.category,
+        action=result.classification.action,
+        vault_path=result.vault_path,
+        status=result.status,
+        tags=result.classification.tags,
+    )
 
 
 @ui_api_router.get("/search", response_model=NoteSearchResponse)

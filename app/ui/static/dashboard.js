@@ -88,6 +88,65 @@
     renderVault(data.recent_vault_notes);
   }
 
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  async function capture(text) {
+    const res = await fetch("/api/ui/capture", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) {
+      let detail = "Capture fehlgeschlagen";
+      try {
+        detail = (await res.json()).detail || detail;
+      } catch {
+        /* Antwort ohne JSON-Body */
+      }
+      throw new Error(detail);
+    }
+    return res.json();
+  }
+
+  document.getElementById("capture-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const textEl = document.getElementById("capture-text");
+    const text = textEl.value.trim();
+    if (!text) return;
+
+    const submitBtn = document.getElementById("capture-submit");
+    const resultEl = document.getElementById("capture-result");
+    submitBtn.disabled = true;
+    resultEl.innerHTML = '<p class="empty">Klassifiziere und speichere …</p>';
+
+    try {
+      const data = await capture(text);
+      const actionLabel = data.action === "append" ? "ergänzt" : "neu angelegt";
+      const tags = data.tags.length
+        ? ` · ${data.tags.map((t) => `#${escapeHtml(t)}`).join(" ")}`
+        : "";
+      resultEl.innerHTML = `<p class="capture-ok">${badge(data.status)}
+        <strong>${escapeHtml(data.title)}</strong> (${escapeHtml(data.category)}, ${actionLabel})
+        <span class="hit-path">${escapeHtml(data.vault_path)}</span>${tags}</p>`;
+      textEl.value = "";
+      await load();
+    } catch (err) {
+      resultEl.innerHTML = `<p class="capture-err">${escapeHtml(err.message)}</p>`;
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  document.getElementById("capture-text").addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      document.getElementById("capture-form").requestSubmit();
+    }
+  });
+
   document.getElementById("btn-refresh").addEventListener("click", () => {
     load().catch((err) => alert(err.message));
   });
