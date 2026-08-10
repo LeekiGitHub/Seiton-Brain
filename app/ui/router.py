@@ -8,11 +8,18 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.v1.schemas import AskRequest, NoteContentResponse, NoteSearchHit, NoteSearchResponse
+from app.api.v1.schemas import (
+    AskRequest,
+    DigestRequest,
+    NoteContentResponse,
+    NoteSearchHit,
+    NoteSearchResponse,
+)
 from app.config import settings
 from app.db.session import get_db
-from app.llm.schemas import AnswerResult
+from app.llm.schemas import AnswerResult, DigestResult
 from app.services.answer import answer_question
+from app.services.digest import build_digest
 from app.services.process_message import process_text_message
 from app.webhooks.outbound import emit_capture_event
 from app.setup.security import require_localhost
@@ -191,6 +198,16 @@ async def ask_api(
     _: None = Depends(_localhost_dep),
 ) -> AnswerResult:
     return await answer_question(body.question, db)
+
+
+@ui_api_router.post("/digest", response_model=DigestResult)
+async def digest_api(
+    body: DigestRequest,
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(_localhost_dep),
+) -> DigestResult:
+    """Themen-Digest in der UI — gleiche Pipeline wie Telegram/REST (E22-3)."""
+    return await build_digest(body.topic, db, days=body.days, limit=body.limit)
 
 
 @ui_api_router.get("/notes", response_model=NoteListResponse)

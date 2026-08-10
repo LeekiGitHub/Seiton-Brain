@@ -150,6 +150,16 @@ a:hover {
   color: #f0a0a0;
 }
 
+.card-hint {
+  margin: -0.25rem 0 0.75rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.digest-text {
+  white-space: pre-line;
+}
+
 .capture-ok {
   margin-top: 0.75rem;
   font-size: 0.9rem;

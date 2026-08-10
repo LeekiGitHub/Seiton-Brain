@@ -3,7 +3,8 @@
 Sammelt verwandte Vault-Notizen zu einem Thema (Ordner, Kategorie oder
 Freitext) und erzeugt eine LLM-Synthese — Wochenrückblick, Themen-Brief.
 
-Konsumenten: ``/digest`` (Telegram), ``POST /v1/digest`` (REST).
+Konsumenten: ``/digest`` (Telegram), ``POST /v1/digest`` (REST),
+``POST /api/ui/digest`` (Web-UI, E22-3).
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession

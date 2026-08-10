@@ -69,6 +69,59 @@
     }
   });
 
+  function renderDigest(data) {
+    if (!data.note_count) {
+      return `<p class="empty">${escapeHtml(data.digest)}</p>`;
+    }
+    const header = data.days
+      ? `${escapeHtml(data.topic)} — letzte ${data.days} Tage`
+      : escapeHtml(data.topic);
+    const highlights = data.highlights.length
+      ? `<p class="chat-sources-label">Highlights:</p><ul class="chat-sources">${data.highlights
+          .map((h) => `<li>${escapeHtml(h)}</li>`)
+          .join("")}</ul>`
+      : "";
+    const sources = data.sources.length
+      ? `<p class="chat-sources-label">Quellen (${data.note_count}):</p><ul class="chat-sources">${data.sources
+          .map((s) => `<li>${escapeHtml(s.title)}${s.vault_path ? ` <span class="hit-path">(${escapeHtml(s.vault_path)})</span>` : ""}</li>`)
+          .join("")}</ul>`
+      : "";
+    return `<article class="hit">
+      <h3 class="hit-title">${header}</h3>
+      <p class="hit-snippet digest-text">${escapeHtml(data.digest)}</p>
+      ${highlights}${sources}
+    </article>`;
+  }
+
+  document.getElementById("digest-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const topic = document.getElementById("digest-topic").value.trim();
+    if (!topic) return;
+
+    const btn = document.getElementById("digest-submit");
+    const wrap = document.getElementById("digest-result");
+    const daysRaw = document.getElementById("digest-days").value;
+    btn.disabled = true;
+    wrap.innerHTML = '<p class="empty">Sammle Notizen und erstelle Digest …</p>';
+
+    try {
+      const body = { topic };
+      if (daysRaw) body.days = Number(daysRaw);
+      else body.days = null;
+      const res = await fetch("/api/ui/digest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("Digest konnte nicht erstellt werden");
+      wrap.innerHTML = renderDigest(await res.json());
+    } catch (err) {
+      wrap.innerHTML = `<p class="empty">${escapeHtml(err.message)}</p>`;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
   document.getElementById("ask-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const input = document.getElementById("ask-question");
