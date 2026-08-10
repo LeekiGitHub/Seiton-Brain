@@ -24,6 +24,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   verbleibenden Backlog (**E21-2**, deferred **E20-3/5**) fokussiert.
 
 ### Added
+- **E22-3: Digest in der Web-UI.** Themen-Digest-Card auf „Suchen & Fragen"
+  (Thema + Zeitraum 7/30/90 Tage/alle) + `POST /api/ui/digest` — gleiche
+  Pipeline wie Telegram `/digest` und REST. 4 neue Tests (447 gesamt).
 - **E22-1: Capture in der Web-UI.** Erfassen-Formular im Dashboard +
   `POST /api/ui/capture` — gleiche Pipeline wie Telegram/REST (classify →
   Vault + DB, Webhook-Event), mit Status-Feedback (Titel, Kategorie,

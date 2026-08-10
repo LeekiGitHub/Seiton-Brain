@@ -25,6 +25,22 @@
   </div>
 </section>
 
+<section class="card" id="digest-card">
+  <h2>Themen-Digest</h2>
+  <p class="card-hint">Synthese verwandter Notizen zu einem Thema — wie Telegram <code>/digest</code>.</p>
+  <form id="digest-form" class="inline-form">
+    <input type="text" id="digest-topic" placeholder="Thema, Ordner oder Kategorie …" required maxlength="200" autocomplete="off" />
+    <select id="digest-days" aria-label="Zeitraum">
+      <option value="7" selected>Letzte 7 Tage</option>
+      <option value="30">Letzte 30 Tage</option>
+      <option value="90">Letzte 90 Tage</option>
+      <option value="">Alle Notizen</option>
+    </select>
+    <button type="submit" class="primary" id="digest-submit">Digest erstellen</button>
+  </form>
+  <div id="digest-result" class="result-list" aria-live="polite"></div>
+</section>
+
 <section class="card" id="ask-card">
   <h2>Brain fragen</h2>
   <div id="chat-log" class="chat-log" aria-live="polite"></div>
