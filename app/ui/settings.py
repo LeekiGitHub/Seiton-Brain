@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from app.config import settings
+from app.services.backup import backups_dir
 from app.setup.env_file import read_env_values, resolve_env_path
 from app.setup.status import component_status, is_placeholder, is_setup_complete
 from app.licensing.startup import check_current_license
@@ -44,17 +43,12 @@ def mask_secret(value: str) -> str:
     return f"{'•' * 8}{stripped[-4:]}"
 
 
-def _backups_dir() -> Path:
-    env_parent = resolve_env_path(settings.seiton_env_file).parent
-    return env_parent / "backups"
-
-
 def list_recent_backups(limit: int = 5) -> list[str]:
-    backups_dir = _backups_dir()
-    if not backups_dir.is_dir():
+    parent = backups_dir()
+    if not parent.is_dir():
         return []
     names = sorted(
-        (p.name for p in backups_dir.iterdir() if p.is_dir()),
+        (p.name for p in parent.iterdir() if p.is_dir()),
         reverse=True,
     )
     return names[:limit]
@@ -86,7 +80,7 @@ def load_settings_view() -> SettingsViewResponse:
         edition=resolve_edition_info(),
         backup=BackupInfo(
             command="./scripts/backup.sh",
-            directory=str(_backups_dir()),
+            directory=str(backups_dir()),
             recent=list_recent_backups(),
         ),
     )

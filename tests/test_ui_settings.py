@@ -39,7 +39,7 @@ def test_list_recent_backups(tmp_path, monkeypatch):
     backups.mkdir()
     (backups / "seiton-20260101-120000").mkdir()
     (backups / "seiton-20260102-120000").mkdir()
-    monkeypatch.setattr("app.ui.settings._backups_dir", lambda: backups)
+    monkeypatch.setattr("app.ui.settings.backups_dir", lambda: backups)
     names = list_recent_backups(limit=3)
     assert names[0] == "seiton-20260102-120000"
 

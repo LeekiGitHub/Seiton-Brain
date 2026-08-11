@@ -19,6 +19,11 @@ ENV PATH="/opt/venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+# pg_dump fuer One-Click-Backup aus der Web-UI (E25-1)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN groupadd --gid 1000 seiton \
     && useradd --uid 1000 --gid seiton --create-home --shell /usr/sbin/nologin seiton
 
