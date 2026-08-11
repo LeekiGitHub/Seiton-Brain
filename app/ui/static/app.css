@@ -160,6 +160,27 @@ a:hover {
   white-space: pre-line;
 }
 
+.backup-item {
+  margin: 0.35rem 0;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.backup-item summary {
+  cursor: pointer;
+}
+
+.restore-cmds {
+  overflow-x: auto;
+  padding: 0.6rem;
+  border-radius: 6px;
+  background: var(--bg);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
 .capture-ok {
   margin-top: 0.75rem;
   font-size: 0.9rem;

@@ -105,6 +105,25 @@ class BackupInfo(BaseModel):
     recent: list[str]
 
 
+class BackupCreateResponse(BaseModel):
+    name: str
+    directory: str
+    files: dict[str, int]
+    warnings: list[str] = Field(default_factory=list)
+
+
+class BackupListItem(BaseModel):
+    name: str
+    created_at: datetime
+    files: dict[str, int]
+    restore: list[str]
+
+
+class BackupListResponse(BaseModel):
+    directory: str
+    items: list[BackupListItem]
+
+
 class SettingsViewResponse(BaseModel):
     complete: bool
     components: dict[str, bool]

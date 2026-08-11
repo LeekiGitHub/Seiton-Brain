@@ -35,6 +35,8 @@ services:
       REDIS_URL: redis://redis:6379/0
     volumes:
       - "${OBSIDIAN_VAULT_HOST_PATH}:/vault"
+      # One-Click-Backups aus der UI landen auf dem Host (E25-1)
+      - ./backups:/app/backups
     depends_on:
       db:
         condition: service_healthy

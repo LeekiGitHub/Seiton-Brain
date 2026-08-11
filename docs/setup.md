@@ -218,7 +218,12 @@ Schnellreferenz:
 
 ## Backups (lokal)
 
-Mit dem Backup-Skript sicherst du Postgres und den Obsidian-Vault in einem
+**Am einfachsten per Web-UI (E25-1):** *Einstellungen → Backup → „Backup jetzt
+erstellen"*. Die UI listet vorhandene Backups mit Dateigrößen und zeigt pro
+Backup die passenden Restore-Befehle an. Im Docker-Betrieb landen die Backups
+über den `./backups`-Mount direkt im Projektverzeichnis auf dem Host.
+
+Alternativ per Skript — sichert Postgres und den Obsidian-Vault in einem
 Zeitstempel-Ordner unter `backups/` (gitignored):
 
 ```bash

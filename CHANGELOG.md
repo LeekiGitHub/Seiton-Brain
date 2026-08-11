@@ -24,6 +24,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   verbleibenden Backlog (**E21-2**, deferred **E20-3/5**) fokussiert.
 
 ### Added
+- **E25-1: One-Click-Backup in der Settings-UI.** „Backup jetzt erstellen"
+  (`POST /api/ui/backup`): `pg_dump` + Vault-tar.gz + Manifest wie
+  `scripts/backup.sh`; Backup-Liste mit Größen und geführten
+  Restore-Befehlen (`GET /api/ui/backups`). Docker: `postgresql-client` im
+  Image, `./backups`-Mount für die API. 7 neue Tests (454 gesamt).
 - **E22-3: Digest in der Web-UI.** Themen-Digest-Card auf „Suchen & Fragen"
   (Thema + Zeitraum 7/30/90 Tage/alle) + `POST /api/ui/digest` — gleiche
   Pipeline wie Telegram `/digest` und REST. 4 neue Tests (447 gesamt).

@@ -38,14 +38,70 @@
   }
 
   function renderBackup(backup) {
-    const recent = backup.recent.length
-      ? `<ul class="chat-sources">${backup.recent.map((n) => `<li>${escapeHtml(n)}</li>`).join("")}</ul>`
-      : "<p class=\"empty\">Noch keine Backups in diesem Verzeichnis.</p>";
     document.getElementById("backup-info").innerHTML = `
-      <p class="hit-path">Befehl: <code>${escapeHtml(backup.command)}</code></p>
-      <p class="hit-path">Verzeichnis: ${escapeHtml(backup.directory)}</p>
-      <p class="chat-sources-label">Letzte Backups:</p>${recent}`;
+      <p class="hit-path">Verzeichnis: ${escapeHtml(backup.directory)} · Alternativ per Terminal: <code>${escapeHtml(backup.command)}</code></p>`;
   }
+
+  function formatBytes(n) {
+    if (n >= 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`;
+    if (n >= 1024) return `${(n / 1024).toFixed(0)} KB`;
+    return `${n} B`;
+  }
+
+  function renderBackupList(data) {
+    const wrap = document.getElementById("backup-list");
+    if (!data.items.length) {
+      wrap.innerHTML = '<p class="empty">Noch keine Backups in diesem Verzeichnis.</p>';
+      return;
+    }
+    const rows = data.items
+      .map((b) => {
+        const files = Object.entries(b.files)
+          .map(([name, size]) => `${escapeHtml(name)} (${formatBytes(size)})`)
+          .join(" · ");
+        const restore = b.restore.map((c) => escapeHtml(c)).join("\n");
+        return `<details class="backup-item">
+          <summary><strong>${escapeHtml(b.name)}</strong> — ${files}</summary>
+          <p class="chat-sources-label">Restore (Terminal, überschreibt bestehende Daten):</p>
+          <pre class="restore-cmds"><code>${restore}</code></pre>
+        </details>`;
+      })
+      .join("");
+    wrap.innerHTML = `<p class="chat-sources-label">Vorhandene Backups:</p>${rows}`;
+  }
+
+  async function loadBackups() {
+    try {
+      const res = await fetch("/api/ui/backups");
+      if (!res.ok) throw new Error("Backups konnten nicht geladen werden");
+      renderBackupList(await res.json());
+    } catch (err) {
+      document.getElementById("backup-list").innerHTML =
+        `<p class="empty">${escapeHtml(err.message)}</p>`;
+    }
+  }
+
+  document.getElementById("btn-backup").addEventListener("click", async () => {
+    const btn = document.getElementById("btn-backup");
+    const resultEl = document.getElementById("backup-result");
+    btn.disabled = true;
+    resultEl.innerHTML = '<p class="empty">Erstelle Backup (Datenbank + Vault) …</p>';
+    try {
+      const res = await fetch("/api/ui/backup", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Backup fehlgeschlagen");
+      const warn = data.warnings.length
+        ? ` <span class="badge warn">${escapeHtml(data.warnings.join(" "))}</span>`
+        : "";
+      resultEl.innerHTML = `<p class="capture-ok"><span class="badge ok">ok</span>
+        Backup <strong>${escapeHtml(data.name)}</strong> erstellt.${warn}</p>`;
+      await loadBackups();
+    } catch (err) {
+      resultEl.innerHTML = `<p class="capture-err">${escapeHtml(err.message)}</p>`;
+    } finally {
+      btn.disabled = false;
+    }
+  });
 
   function renderEdition(edition) {
     document.getElementById("edition-info").innerHTML = `
@@ -195,4 +251,5 @@
     document.getElementById("status-components").innerHTML =
       `<p class="empty">${escapeHtml(err.message)}</p>`;
   });
+  loadBackups();
 })();

@@ -486,7 +486,7 @@ Kleine, klar umrissene Verbesserungen aus der Bestandsaufnahme 2026-08-08.
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E25-1 | Backup/Restore in der Settings-UI: One-Click-Backup + geführter Restore (heute nur `scripts/backup.sh` + Doku). | 4 | 2 | 2 | 2 | 4 | ⚪ | H |
+| E25-1 | Backup/Restore in der Settings-UI: One-Click-Backup + geführter Restore (heute nur `scripts/backup.sh` + Doku). | 4 | 2 | 2 | 2 | 4 | 🟢 | H |
 | E25-2 | `seiton doctor` als CLI-Subcommand (Parität zu `scripts/doctor.sh`, E16-2-Wortlaut). | 2 | 2 | 1 | 2 | 2 | ⚪ | H |
 | E25-3 | Rate-Limits für `/ask` und `/digest` (Kostenkontrolle, offene Designfrage aus `knowledge-retrieval.md`). | 3 | 2 | 1 | 2 | 3 | ⚪ | H |
 | E25-4 | Dashboard-Panel „System-Gesundheit": Health, Queue-Länge, letzte Fehler (nutzt `/health` + Logs). | 3 | 3 | 2 | 3 | 2 | ⚪ | H+ |
@@ -547,7 +547,7 @@ E19/E20-1/2/4/E21-1/3 🟢; offen **E21-2** (Verkaufskanal); **E20-3/5** kein Na
 
 1. 🟢 **E22-1** — UI-Capture (größte Produkt-Lücke: UI soll Haupteingang sein)
 2. 🟢 **E22-3** — Digest in der Web-UI (klein, rundet Retrieval-UI ab)
-3. ⚪ **E25-1** — Backup/Restore One-Click in Settings
+3. 🟢 **E25-1** — Backup/Restore One-Click in Settings
 4. ⚪ **E22-2** — Telegram Foto-/Dokument-Capture (nutzt vorhandene E18-Extractors)
 5. ⚪ **E23-1** — UI-Auth (Voraussetzung für Mobile **und** Cloud)
 6. ⚪ **E23-2** — PWA installierbar (danach E23-4 Share-Target)

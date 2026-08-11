@@ -1,5 +1,6 @@
 """Web-UI Router (E19): Setup-Wizard, Dashboard und statische Assets."""
 
+import asyncio
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -19,6 +20,12 @@ from app.config import settings
 from app.db.session import get_db
 from app.llm.schemas import AnswerResult, DigestResult
 from app.services.answer import answer_question
+from app.services.backup import (
+    backups_dir,
+    create_backup_sync,
+    list_backup_details,
+    restore_commands,
+)
 from app.services.digest import build_digest
 from app.services.process_message import process_text_message
 from app.webhooks.outbound import emit_capture_event
@@ -32,6 +39,9 @@ from app.ui.notes import (
     update_note_content,
 )
 from app.ui.schemas import (
+    BackupCreateResponse,
+    BackupListItem,
+    BackupListResponse,
     DashboardResponse,
     LicenseSaveRequest,
     LicenseStatusResponse,
@@ -268,6 +278,39 @@ async def notes_delete_api(
         raise HTTPException(status_code=400, detail="Invalid vault path") from exc
     except OSError as exc:
         raise HTTPException(status_code=500, detail="Could not delete note") from exc
+
+
+@ui_api_router.post("/backup", response_model=BackupCreateResponse)
+async def backup_create_api(
+    _: None = Depends(_localhost_dep),
+) -> BackupCreateResponse:
+    """One-Click-Backup: Postgres-Dump + Vault-Archiv (E25-1)."""
+    try:
+        outcome = await asyncio.to_thread(create_backup_sync)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    return BackupCreateResponse(
+        name=outcome.name,
+        directory=outcome.directory,
+        files=outcome.files,
+        warnings=outcome.warnings,
+    )
+
+
+@ui_api_router.get("/backups", response_model=BackupListResponse)
+async def backup_list_api(
+    _: None = Depends(_localhost_dep),
+) -> BackupListResponse:
+    items = [
+        BackupListItem(
+            name=entry.name,
+            created_at=entry.created_at,
+            files=entry.files,
+            restore=restore_commands(entry.name),
+        )
+        for entry in list_backup_details()
+    ]
+    return BackupListResponse(directory=str(backups_dir()), items=items)
 
 
 @ui_api_router.get("/vault-config", response_model=VaultConfigResponse)
