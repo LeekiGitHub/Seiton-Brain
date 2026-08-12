@@ -106,6 +106,9 @@ class Settings(BaseSettings):
     # Telegram/OpenAI erlauben mehr — dieses Limit schuetzt vor teuren Downloads
     # und Whisper-Calls. Default 10 MB.
     telegram_voice_max_bytes: int = 10_485_760
+    # Max. Groesse fuer Telegram-Dokumente/Fotos (E22-2). Telegram-Bot-API
+    # erlaubt Downloads bis 20 MB — Default entsprechend.
+    telegram_document_max_bytes: int = 20_971_520
     # Verzeichnis fuer temporaere Voice-Dateien bis Verarbeitung erfolgreich
     # (E6-2 Replay bei Crash/Retry). Leer = temp/voice relativ zum CWD.
     telegram_voice_cache_dir: str = "temp/voice"

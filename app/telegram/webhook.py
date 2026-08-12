@@ -12,9 +12,11 @@ from app.models.entry import Entry
 from app.telegram.client import send_message
 from app.telegram.commands import handle_command
 from app.transcription.voice_limits import format_voice_too_large_message
+from app.services.document_capture import photo_extraction_ready, supported_document
 from app.worker.tasks import (
     process_ask_message_task,
     process_digest_message_task,
+    process_document_message_task,
     process_text_message_task,
     process_voice_message_task,
 )
@@ -146,6 +148,9 @@ async def process_update(update: dict) -> None:
     message_id = message.get("message_id")
     text = message.get("text")
     voice = message.get("voice")
+    document = message.get("document")
+    photo = message.get("photo")
+    caption = message.get("caption")
 
     try:
         if text and text.startswith("/"):
@@ -198,10 +203,71 @@ async def process_update(update: dict) -> None:
                     voice["file_id"], chat_id, update_id, message_id
                 )
                 await send_message(chat_id, "Sprachnachricht wird verarbeitet…")
+        elif document:
+            file_name = (document.get("file_name") or "").strip() or "dokument"
+            file_size = document.get("file_size")
+            if (
+                file_size is not None
+                and file_size > settings.telegram_document_max_bytes
+            ):
+                limit_mb = settings.telegram_document_max_bytes / 1024 / 1024
+                await send_message(
+                    chat_id,
+                    f"Datei zu groß (max. {limit_mb:.0f} MB) — bitte verkleinern.",
+                )
+            elif not supported_document(file_name):
+                await send_message(
+                    chat_id,
+                    f"Dateityp von „{file_name}“ wird nicht unterstützt "
+                    "(Markdown, Text, PDF, Word, PowerPoint; Bilder mit "
+                    "OCR/Vision).",
+                )
+            else:
+                process_document_message_task.delay(
+                    document["file_id"],
+                    file_name,
+                    caption,
+                    chat_id,
+                    update_id,
+                    message_id,
+                )
+                await send_message(chat_id, "Dokument wird verarbeitet…")
+        elif photo:
+            if not photo_extraction_ready():
+                await send_message(
+                    chat_id,
+                    "Foto-Capture braucht OCR (SEITON_OCR_ENABLED) oder "
+                    "Vision (SEITON_VISION_ENABLED) — siehe docs/ocr.md "
+                    "und docs/vision.md.",
+                )
+            else:
+                largest = max(photo, key=lambda p: p.get("file_size") or 0)
+                file_size = largest.get("file_size")
+                if (
+                    file_size is not None
+                    and file_size > settings.telegram_document_max_bytes
+                ):
+                    limit_mb = settings.telegram_document_max_bytes / 1024 / 1024
+                    await send_message(
+                        chat_id,
+                        f"Foto zu groß (max. {limit_mb:.0f} MB).",
+                    )
+                else:
+                    process_document_message_task.delay(
+                        largest["file_id"],
+                        "foto.jpg",
+                        caption,
+                        chat_id,
+                        update_id,
+                        message_id,
+                        "photo",
+                    )
+                    await send_message(chat_id, "Foto wird verarbeitet…")
         else:
             await send_message(
                 chat_id,
-                "Aktuell werden nur Text- und Sprachnachrichten unterstützt.",
+                "Aktuell werden Text, Sprachnachrichten, Dokumente und "
+                "Fotos unterstützt.",
             )
     except httpx.HTTPError as exc:
         logger.warning("Telegram sendMessage failed: %s", exc)

@@ -10,10 +10,15 @@ from openai import (
     RateLimitError,
 )
 
+from app.config import settings
 from app.db.session import worker_session
 from app.logging_config import bind_log_context
 from app.services.answer import answer_question, format_answer_for_chat
 from app.services.digest import build_digest, format_digest_for_chat
+from app.services.document_capture import (
+    compose_capture_text,
+    extract_document_text,
+)
 from app.services.process_message import process_text_message
 from app.telegram.admin_notify import notify_admin_error
 from app.telegram.client import download_file, send_message
@@ -137,6 +142,47 @@ async def _process_voice(
         kind="voice",
     )
     delete_voice_cache(file_id)
+
+
+async def _process_document(
+    file_id: str,
+    file_name: str,
+    caption: str | None,
+    chat_id: int,
+    *,
+    telegram_update_id: int | None = None,
+    telegram_message_id: int | None = None,
+    kind: str = "document",
+) -> None:
+    data = await download_file(file_id)
+    if len(data) > settings.telegram_document_max_bytes:
+        limit_mb = settings.telegram_document_max_bytes / 1024 / 1024
+        await send_message(
+            chat_id,
+            f"Datei zu groß (max. {limit_mb:.0f} MB) — bitte verkleinern.",
+        )
+        return
+
+    extracted = await asyncio.to_thread(extract_document_text, data, file_name)
+    if not extracted:
+        await send_message(
+            chat_id,
+            "Aus der Datei ließ sich kein Text extrahieren. Bei Scans/Fotos: "
+            "OCR (SEITON_OCR_ENABLED) oder Vision (SEITON_VISION_ENABLED) "
+            "aktivieren — siehe docs/ocr.md und docs/vision.md.",
+        )
+        return
+
+    logger.info(
+        "Extracted %s chars from %s for chat_id=%s", len(extracted), file_name, chat_id
+    )
+    await _process_text(
+        compose_capture_text(extracted, file_name=file_name, caption=caption),
+        chat_id,
+        telegram_update_id=telegram_update_id,
+        telegram_message_id=telegram_message_id,
+        kind=kind,
+    )
 
 
 async def _process_ask(question: str, chat_id: int) -> None:
@@ -277,6 +323,57 @@ def process_digest_message_task(self, topic: str, chat_id: int) -> None:
                 telegram_update_id=None,
                 kind="digest",
                 raw_input=topic,
+            )
+        )
+        raise
+
+
+@celery_app.task(name="process_document_message", bind=True, **RETRY_KWARGS)
+def process_document_message_task(
+    self,
+    file_id: str,
+    file_name: str,
+    caption: str | None,
+    chat_id: int,
+    telegram_update_id: int | None = None,
+    telegram_message_id: int | None = None,
+    kind: str = "document",
+) -> None:
+    bind_log_context(
+        task_id=self.request.id,
+        telegram_update_id=telegram_update_id,
+    )
+    logger.info(
+        "process_document_message started chat_id=%s file=%s", chat_id, file_name
+    )
+    try:
+        _run(
+            _process_document(
+                file_id,
+                file_name,
+                caption,
+                chat_id,
+                telegram_update_id=telegram_update_id,
+                telegram_message_id=telegram_message_id,
+                kind=kind,
+            )
+        )
+        logger.info("process_document_message done chat_id=%s", chat_id)
+    except Retry:
+        raise
+    except Exception as exc:
+        logger.exception(
+            "process_document_message failed permanently chat_id=%s", chat_id
+        )
+        _run(
+            _handle_permanent_failure(
+                chat_id,
+                exc,
+                task_name="process_document_message",
+                task_id=self.request.id,
+                telegram_update_id=telegram_update_id,
+                kind=kind,
+                raw_input=file_name,
             )
         )
         raise
