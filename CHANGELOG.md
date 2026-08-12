@@ -24,6 +24,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   verbleibenden Backlog (**E21-2**, deferred **E20-3/5**) fokussiert.
 
 ### Added
+- **E22-2: Telegram Foto-/Dokument-Capture.** Der Bot nimmt jetzt Dokumente
+  (PDF/Word/PowerPoint/Text/Markdown) und Fotos an: Download → Text via
+  E18-Extractors (OCR/Vision für Bilder) → normale Capture-Pipeline
+  (`kind=document|photo`, Caption wird vorangestellt). Größenlimit
+  `TELEGRAM_DOCUMENT_MAX_BYTES` (Default 20 MB). 13 neue Tests (467 gesamt).
 - **E25-1: One-Click-Backup in der Settings-UI.** „Backup jetzt erstellen"
   (`POST /api/ui/backup`): `pg_dump` + Vault-tar.gz + Manifest wie
   `scripts/backup.sh`; Backup-Liste mit Größen und geführten

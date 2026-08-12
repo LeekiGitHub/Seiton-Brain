@@ -29,8 +29,8 @@ HELP_TEXT = (
     "/digest <thema> — fasst Notizen zu einem Thema zusammen (Wochenrückblick)\n"
     "/undo — zeigt deine letzte Notiz; /undo confirm löscht sie\n"
     "\n"
-    "Sonst: Text- oder Sprachnachricht senden — wird klassifiziert und in "
-    "deinem Vault gespeichert."
+    "Sonst: Text, Sprachnachricht, Dokument (PDF/Word/PowerPoint/Text) oder "
+    "Foto senden — wird klassifiziert und in deinem Vault gespeichert."
 )
 
 DEFAULT_RECENT_LIMIT = 5
