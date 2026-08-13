@@ -29,6 +29,14 @@ class DashboardResponse(BaseModel):
     recent_vault_notes: list[VaultNotePreview]
 
 
+class LoginRequest(BaseModel):
+    password: str = Field(min_length=1, max_length=1_000)
+
+
+class LoginResponse(BaseModel):
+    ok: bool
+
+
 class UiCaptureRequest(BaseModel):
     text: str = Field(min_length=1, max_length=100_000)
 

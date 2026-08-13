@@ -204,6 +204,11 @@ class Settings(BaseSettings):
     # Pfad zur lokalen .env fuer den Setup-Wizard (E19-1).
     seiton_env_file: str = ".env"
 
+    # UI-Auth (E23-1). Leer = Web-UI nur von localhost (Status quo).
+    # Gesetzt = Login-Pflicht (Session-Cookie) — auch Remote-Zugriff moeglich,
+    # dann unbedingt hinter TLS betreiben (docs/remote-access.md).
+    ui_password: str = ""
+
     # Outbound Webhooks (E13-3). Leer = deaktiviert. Eine URL fuer alle Events;
     # Event-Typ steht im JSON-Feld ``event`` und Header ``X-Seiton-Event``.
     seiton_webhook_url: str = ""

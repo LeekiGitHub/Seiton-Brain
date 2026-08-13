@@ -75,7 +75,7 @@ Schweregrad und Komplexität ab — wir stimmen das mit dir ab.
 | Telegram-Zugriff | Optionale Allowlist (`TELEGRAM_ALLOWED_USER_IDS`) |
 | Webhook-Body | Größenlimit (`TELEGRAM_WEBHOOK_MAX_BODY_BYTES`) |
 | REST-API `/v1/*` | Deaktiviert ohne `SEITON_API_KEY`; Header `X-Seiton-Api-Key` (timing-safe) |
-| Web-UI `/setup`, `/settings`, … | Nur **localhost** |
+| Web-UI `/setup`, `/settings`, … | Nur **localhost**; mit `UI_PASSWORD` Login-Pflicht (Session-Cookie, HMAC-signiert, Brute-Force-Lockout) — `/setup` bleibt immer localhost (E23-1) |
 | OpenAPI `/docs` | Nur bei gesetztem API-Key oder `SEITON_DEBUG`; nur **localhost** |
 | Vault-Pfade | Path-Traversal-Schutz (`resolve_vault_file`) |
 | Vault-Schreiben | Atomare Writes (Tempfile + `os.replace`) |
@@ -106,7 +106,8 @@ Ausführlichere Architektur-Entscheidungen: [`docs/adr/`](docs/adr/).
 2. **Telegram-Allowlist setzen**, wenn der Webhook öffentlich erreichbar ist.
 3. **`SEITON_API_KEY`** lang und zufällig; API nur aktivieren, wenn nötig.
 4. **VPS:** API nicht direkt auf `0.0.0.0` exposen; Reverse-Proxy/Tunnel mit TLS
-   ([`docs/remote-access.md`](docs/remote-access.md)); Web-UI nur per SSH-Tunnel;
+   ([`docs/remote-access.md`](docs/remote-access.md)); Web-UI nur per SSH-Tunnel
+   oder mit `UI_PASSWORD` hinter TLS (E23-1);
    öffentlich möglichst nur Webhook/Health, nicht Setup/OpenAPI.
 5. **Updates:** `./scripts/update.sh` für Patches.
 6. **Backups:** `./scripts/backup.sh` — Vault + DB enthalten persönliche Daten.
