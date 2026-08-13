@@ -1,10 +1,11 @@
 """Web-UI Router (E19): Setup-Wizard, Dashboard und statische Assets."""
 
 import asyncio
+import logging
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,6 +32,17 @@ from app.services.process_message import process_text_message
 from app.webhooks.outbound import emit_capture_event
 from app.setup.security import require_localhost
 from app.setup.status import is_setup_complete
+from app.ui.auth import (
+    SESSION_COOKIE,
+    SESSION_TTL_SECONDS,
+    clear_failed_attempts,
+    create_session_token,
+    lockout_remaining,
+    register_failed_attempt,
+    ui_auth_enabled,
+    verify_password,
+    verify_session_token,
+)
 from app.ui.notes import (
     list_notes,
     load_vault_config,
@@ -45,6 +57,8 @@ from app.ui.schemas import (
     DashboardResponse,
     LicenseSaveRequest,
     LicenseStatusResponse,
+    LoginRequest,
+    LoginResponse,
     NoteDeleteResponse,
     NoteListResponse,
     NoteSaveRequest,
@@ -61,8 +75,11 @@ from app.ui.license import license_status, save_license
 from app.ui.settings import load_settings_view, save_settings
 from app.vault.index import retrieve_vault_notes
 
+logger = logging.getLogger(__name__)
+
 UI_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(UI_DIR / "templates"))
+templates.env.globals["ui_auth_enabled"] = ui_auth_enabled
 
 router = APIRouter(tags=["ui"])
 ui_api_router = APIRouter(prefix="/api/ui", tags=["ui-api"])
@@ -72,6 +89,32 @@ def _localhost_dep(request: Request) -> None:
     require_localhost(request)
 
 
+def _has_session(request: Request) -> bool:
+    return verify_session_token(request.cookies.get(SESSION_COOKIE, ""))
+
+
+def _ui_page_dep(request: Request) -> None:
+    """Guard für HTML-Seiten (E23-1): Login-Redirect statt 403/401."""
+    if not ui_auth_enabled():
+        require_localhost(request)
+        return
+    if not _has_session(request):
+        raise HTTPException(
+            status_code=303,
+            detail="Login erforderlich",
+            headers={"Location": "/login"},
+        )
+
+
+def _ui_api_dep(request: Request) -> None:
+    """Guard für /api/ui/* (E23-1): 401 ohne gültige Session."""
+    if not ui_auth_enabled():
+        require_localhost(request)
+        return
+    if not _has_session(request):
+        raise HTTPException(status_code=401, detail="Login erforderlich")
+
+
 @router.get("/", response_class=HTMLResponse)
 async def home():
     if not is_setup_complete():
@@ -79,10 +122,52 @@ async def home():
     return RedirectResponse(url="/dashboard", status_code=302)
 
 
+@router.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    if not ui_auth_enabled() or _has_session(request):
+        return RedirectResponse(url="/dashboard", status_code=302)
+    return templates.TemplateResponse(request, "login.html", {"active": "login"})
+
+
+@router.get("/logout")
+async def logout():
+    response = RedirectResponse(url="/login", status_code=302)
+    response.delete_cookie(SESSION_COOKIE)
+    return response
+
+
+@ui_api_router.post("/login", response_model=LoginResponse)
+async def login_api(body: LoginRequest, request: Request) -> Response:
+    """Login mit UI-Passwort → Session-Cookie (E23-1)."""
+    if not ui_auth_enabled():
+        raise HTTPException(status_code=404, detail="UI-Auth ist nicht aktiviert")
+    host = request.client.host if request.client else "unknown"
+    retry_in = lockout_remaining(host)
+    if retry_in:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Zu viele Fehlversuche — bitte in {retry_in}s erneut versuchen.",
+        )
+    if not verify_password(body.password):
+        register_failed_attempt(host)
+        logger.warning("UI login failed for host=%s", host)
+        raise HTTPException(status_code=401, detail="Falsches Passwort")
+    clear_failed_attempts(host)
+    response = JSONResponse(LoginResponse(ok=True).model_dump())
+    response.set_cookie(
+        SESSION_COOKIE,
+        create_session_token(),
+        max_age=SESSION_TTL_SECONDS,
+        httponly=True,
+        samesite="lax",
+    )
+    return response
+
+
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_page(
     request: Request,
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_page_dep),
 ):
     return templates.TemplateResponse(
         request,
@@ -94,7 +179,7 @@ async def dashboard_page(
 @router.get("/ask", response_class=HTMLResponse)
 async def ask_page(
     request: Request,
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_page_dep),
 ):
     return templates.TemplateResponse(
         request,
@@ -109,7 +194,7 @@ async def ask_page(
 @router.get("/notes", response_class=HTMLResponse)
 async def notes_page(
     request: Request,
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_page_dep),
 ):
     return templates.TemplateResponse(
         request,
@@ -121,7 +206,7 @@ async def notes_page(
 @router.get("/settings", response_class=HTMLResponse)
 async def settings_page(
     request: Request,
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_page_dep),
 ):
     return templates.TemplateResponse(
         request,
@@ -133,6 +218,7 @@ async def settings_page(
 @router.get("/setup", response_class=HTMLResponse)
 async def setup_wizard(
     request: Request,
+    # Setup schreibt Secrets in die .env — bleibt bewusst localhost-only.
     _: None = Depends(_localhost_dep),
 ):
     return templates.TemplateResponse(
@@ -149,7 +235,7 @@ async def setup_wizard(
 @ui_api_router.get("/dashboard", response_model=DashboardResponse)
 async def dashboard_api(
     db: AsyncSession = Depends(get_db),
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> DashboardResponse:
     return await load_dashboard(db)
 
@@ -158,7 +244,7 @@ async def dashboard_api(
 async def capture_api(
     body: UiCaptureRequest,
     db: AsyncSession = Depends(get_db),
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> UiCaptureResponse:
     """Notiz aus der Web-UI erfassen — gleiche Pipeline wie Telegram/REST (E22-1)."""
     result = await process_text_message(body.text, db, kind="text")
@@ -182,7 +268,7 @@ async def search_api(
     limit: int = Query(default=10, ge=1, le=50),
     semantic: bool | None = Query(default=None),
     db: AsyncSession = Depends(get_db),
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> NoteSearchResponse:
     use_semantic = settings.embeddings_enabled if semantic is None else semantic
     hits = await retrieve_vault_notes(db, q, limit=limit, semantic=use_semantic)
@@ -205,7 +291,7 @@ async def search_api(
 async def ask_api(
     body: AskRequest,
     db: AsyncSession = Depends(get_db),
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> AnswerResult:
     return await answer_question(body.question, db)
 
@@ -214,7 +300,7 @@ async def ask_api(
 async def digest_api(
     body: DigestRequest,
     db: AsyncSession = Depends(get_db),
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> DigestResult:
     """Themen-Digest in der UI — gleiche Pipeline wie Telegram/REST (E22-3)."""
     return await build_digest(body.topic, db, days=body.days, limit=body.limit)
@@ -228,7 +314,7 @@ async def notes_list_api(
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: AsyncSession = Depends(get_db),
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> NoteListResponse:
     return await list_notes(
         db, q=q, folder=folder, category=category, limit=limit, offset=offset
@@ -238,7 +324,7 @@ async def notes_list_api(
 @ui_api_router.get("/notes/content", response_model=NoteContentResponse)
 async def notes_content_api(
     vault_path: str = Query(min_length=1, max_length=500),
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> NoteContentResponse:
     try:
         return read_note_content(vault_path)
@@ -254,7 +340,7 @@ async def notes_content_api(
 async def notes_save_api(
     body: NoteSaveRequest,
     db: AsyncSession = Depends(get_db),
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> NoteSaveResponse:
     try:
         return await update_note_content(db, body.vault_path, body.content)
@@ -270,7 +356,7 @@ async def notes_save_api(
 async def notes_delete_api(
     vault_path: str = Query(min_length=1, max_length=500),
     db: AsyncSession = Depends(get_db),
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> NoteDeleteResponse:
     try:
         return await remove_note(db, vault_path)
@@ -282,7 +368,7 @@ async def notes_delete_api(
 
 @ui_api_router.post("/backup", response_model=BackupCreateResponse)
 async def backup_create_api(
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> BackupCreateResponse:
     """One-Click-Backup: Postgres-Dump + Vault-Archiv (E25-1)."""
     try:
@@ -299,7 +385,7 @@ async def backup_create_api(
 
 @ui_api_router.get("/backups", response_model=BackupListResponse)
 async def backup_list_api(
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> BackupListResponse:
     items = [
         BackupListItem(
@@ -315,14 +401,14 @@ async def backup_list_api(
 
 @ui_api_router.get("/vault-config", response_model=VaultConfigResponse)
 async def vault_config_api(
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> VaultConfigResponse:
     return load_vault_config()
 
 
 @ui_api_router.get("/settings", response_model=SettingsViewResponse)
 async def settings_api(
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> SettingsViewResponse:
     return load_settings_view()
 
@@ -330,7 +416,7 @@ async def settings_api(
 @ui_api_router.post("/settings", response_model=SetupSaveResponse)
 async def settings_save_api(
     body: SettingsSaveRequest,
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> SetupSaveResponse:
     try:
         return save_settings(body)
@@ -341,7 +427,7 @@ async def settings_save_api(
 @ui_api_router.post("/settings/test", response_model=SetupTestResponse)
 async def settings_test_api(
     body: SetupTestRequest,
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> SetupTestResponse:
     from app.setup.routes import setup_test
 
@@ -350,7 +436,7 @@ async def settings_test_api(
 
 @ui_api_router.get("/license", response_model=LicenseStatusResponse)
 async def license_api(
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> LicenseStatusResponse:
     return license_status()
 
@@ -358,7 +444,7 @@ async def license_api(
 @ui_api_router.post("/license", response_model=SetupSaveResponse)
 async def license_save_api(
     body: LicenseSaveRequest,
-    _: None = Depends(_localhost_dep),
+    _: None = Depends(_ui_api_dep),
 ) -> SetupSaveResponse:
     try:
         return save_license(body)

@@ -24,6 +24,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   verbleibenden Backlog (**E21-2**, deferred **E20-3/5**) fokussiert.
 
 ### Added
+- **E23-1: UI-Auth (Login/Session).** Optionales `UI_PASSWORD`: Web-UI und
+  `/api/ui/*` verlangen dann Login (HMAC-signiertes Session-Cookie, 7 Tage,
+  stateless; Passwortwechsel invalidiert Sessions). Brute-Force-Lockout
+  (5 Versuche/60 s pro IP), Login-Seite `/login`, Logout in der Nav.
+  `/setup` bleibt localhost-only. Ohne Passwort: Status quo (localhost-Guard).
+  17 neue Tests (484 gesamt).
 - **E22-2: Telegram Foto-/Dokument-Capture.** Der Bot nimmt jetzt Dokumente
   (PDF/Word/PowerPoint/Text/Markdown) und Fotos an: Download → Text via
   E18-Extractors (OCR/Vision für Bilder) → normale Capture-Pipeline

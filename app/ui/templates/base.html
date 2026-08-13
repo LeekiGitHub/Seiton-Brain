@@ -11,11 +11,16 @@
   <div class="wrap{% block wrap_class %}{% endblock %}">
     <nav class="topnav">
       <a class="brand" href="/dashboard">Seiton Brain</a>
+      {% if active != 'login' %}
       <a href="/dashboard" class="{% if active == 'dashboard' %}active{% endif %}">Dashboard</a>
       <a href="/ask" class="{% if active == 'ask' %}active{% endif %}">Suchen &amp; Fragen</a>
       <a href="/notes" class="{% if active == 'notes' %}active{% endif %}">Notizen</a>
       <a href="/settings" class="{% if active == 'settings' %}active{% endif %}">Einstellungen</a>
       <a href="/setup" class="{% if active == 'setup' %}active{% endif %}">Setup</a>
+      {% if ui_auth_enabled() %}
+      <a href="/logout" class="logout-link">Abmelden</a>
+      {% endif %}
+      {% endif %}
     </nav>
     {% block content %}{% endblock %}
   </div>

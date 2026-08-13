@@ -456,7 +456,7 @@ nicht reicht, sobald das Handy zugreift.
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E23-1 | UI-Auth: Login/Session (Passwort oder Token) statt nur localhost-Guard — Voraussetzung für Remote-/Mobile-Zugriff und Cloud-Edition. | 5 | 3 | 3 | 3 | 5 | ⚪ | H |
+| E23-1 | UI-Auth: Login/Session (Passwort oder Token) statt nur localhost-Guard — Voraussetzung für Remote-/Mobile-Zugriff und Cloud-Edition. | 5 | 3 | 3 | 3 | 5 | 🟢 | H |
 | E23-2 | PWA: Manifest + Service Worker + Icons — UI auf Handy/Desktop „installierbar" (Homescreen). | 4 | 3 | 2 | 3 | 4 | ⚪ | H |
 | E23-3 | Offline-Capture-Queue: Notiz ohne Verbindung erfassen, Sync bei Reconnect (Service Worker + Background Sync). | 3 | 4 | 3 | 4 | 2 | ⚪ | H+ |
 | E23-4 | Teilen ins Brain: Android `share_target` (PWA) + iOS-Shortcuts-Beispiel gegen `POST /v1/capture`. | 4 | 2 | 1 | 2 | 3 | ⚪ | H |
@@ -549,7 +549,7 @@ E19/E20-1/2/4/E21-1/3 🟢; offen **E21-2** (Verkaufskanal); **E20-3/5** kein Na
 2. 🟢 **E22-3** — Digest in der Web-UI (klein, rundet Retrieval-UI ab)
 3. 🟢 **E25-1** — Backup/Restore One-Click in Settings
 4. 🟢 **E22-2** — Telegram Foto-/Dokument-Capture (nutzt vorhandene E18-Extractors)
-5. ⚪ **E23-1** — UI-Auth (Voraussetzung für Mobile **und** Cloud)
+5. 🟢 **E23-1** — UI-Auth (Voraussetzung für Mobile **und** Cloud)
 6. ⚪ **E23-2** — PWA installierbar (danach E23-4 Share-Target)
 7. ⚪ **E22-4** — MCP `capture_note`
 8. ⚪ **E26-1 + E26-2** — Notiz-Templates: Render-Template + Validierung/Fallback

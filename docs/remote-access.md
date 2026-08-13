@@ -1,8 +1,15 @@
 # Remote-Zugang für VPS (E9-3)
 
 Optionale Wege, die Seiton-API auf einem **Linux-VPS** von außen erreichbar zu
-machen — für **Telegram-Webhook** und ggf. REST. Die Web-UI bleibt bewusst
-**localhost-only**; Admin-Zugriff läuft über SSH (oder ein privates Netz).
+machen — für **Telegram-Webhook** und ggf. REST. Die Web-UI ist ohne weitere
+Konfiguration **localhost-only**; Admin-Zugriff läuft über SSH (oder ein
+privates Netz).
+
+> **UI-Auth (E23-1):** Mit gesetztem `UI_PASSWORD` in der `.env` verlangt die
+> Web-UI einen Login (Session-Cookie, 7 Tage gültig) und darf dann auch remote
+> erreichbar sein — **ausschließlich hinter TLS** (Caddy/nginx/Tunnel, s. u.).
+> Der Setup-Wizard (`/setup`) bleibt immer localhost-only, weil er Secrets in
+> die `.env` schreibt. Passwortwechsel meldet alle Sessions ab.
 
 > **Consumer / Heim-Box:** kein öffentlicher Zugang nötig — Long-Polling (E1-5),
 > siehe [`packaging.md`](packaging.md). Diese Seite gilt für **VPS-Webhook**.
@@ -134,7 +141,8 @@ oder Cloudflare Tunnel). Tailscale ersetzt den Webhook nicht.
 
 - API nur auf `127.0.0.1:8000` (Compose VPS-Profil)
 - Öffentlich: nur Proxy/Tunnel mit TLS; Port 8000 geschlossen
-- Web-UI nicht ins Internet legen
+- Web-UI nur mit gesetztem `UI_PASSWORD` **und** TLS ins Internet legen —
+  sonst gar nicht
 - `SEITON_API_KEY`, Telegram-Webhook-Secret, Firewall/SSH härten
 - Details: [`SECURITY.md`](../SECURITY.md)
 

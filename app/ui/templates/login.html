@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Login — Seiton Brain{% endblock %}
+{% block content %}
+<section class="card login-card">
+  <h2>Anmelden</h2>
+  <p class="card-hint">Diese Instanz ist passwortgeschützt (<code>UI_PASSWORD</code>).</p>
+  <form id="login-form" class="ask-form">
+    <input
+      type="password"
+      id="login-password"
+      placeholder="Passwort"
+      required
+      autocomplete="current-password"
+      autofocus
+    />
+    <button type="submit" class="primary" id="login-submit">Anmelden</button>
+  </form>
+  <div id="login-result" aria-live="polite"></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="/ui/static/login.js"></script>
+{% endblock %}
