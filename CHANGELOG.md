@@ -24,6 +24,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   verbleibenden Backlog (**E21-2**, deferred **E20-3/5**) fokussiert.
 
 ### Added
+- **E23-2: PWA — UI installierbar.** Web-App-Manifest (`/manifest.webmanifest`),
+  Service Worker mit Root-Scope (`/sw.js`, cached nur `/ui/static/*` —
+  HTML/API bewusst nie), generierte Icons inkl. maskable + Apple-Touch
+  (`scripts/generate_pwa_icons.py`). 6 neue Tests (490 gesamt).
 - **E23-1: UI-Auth (Login/Session).** Optionales `UI_PASSWORD`: Web-UI und
   `/api/ui/*` verlangen dann Login (HMAC-signiertes Session-Cookie, 7 Tage,
   stateless; Passwortwechsel invalidiert Sessions). Brute-Force-Lockout
