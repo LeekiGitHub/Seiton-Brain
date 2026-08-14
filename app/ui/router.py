@@ -5,7 +5,12 @@ import logging
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+    JSONResponse,
+    RedirectResponse,
+)
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -113,6 +118,24 @@ def _ui_api_dep(request: Request) -> None:
         return
     if not _has_session(request):
         raise HTTPException(status_code=401, detail="Login erforderlich")
+
+
+@router.get("/manifest.webmanifest", include_in_schema=False)
+async def pwa_manifest() -> FileResponse:
+    """PWA-Manifest (E23-2) — korrekter MIME-Type, kein Guard (keine Daten)."""
+    return FileResponse(
+        UI_DIR / "static" / "manifest.webmanifest",
+        media_type="application/manifest+json",
+    )
+
+
+@router.get("/sw.js", include_in_schema=False)
+async def service_worker() -> FileResponse:
+    """Service Worker (E23-2) — muss auf Root liegen fuer Scope ``/``."""
+    return FileResponse(
+        UI_DIR / "static" / "sw.js",
+        media_type="text/javascript",
+    )
 
 
 @router.get("/", response_class=HTMLResponse)

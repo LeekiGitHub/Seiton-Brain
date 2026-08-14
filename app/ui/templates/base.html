@@ -4,6 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}Seiton Brain{% endblock %}</title>
+  <meta name="theme-color" content="#0f1419" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/ui/static/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/ui/static/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="/ui/static/app.css" />
   {% block extra_css %}{% endblock %}
 </head>
@@ -25,5 +29,10 @@
     {% block content %}{% endblock %}
   </div>
   {% block scripts %}{% endblock %}
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js");
+    }
+  </script>
 </body>
 </html>

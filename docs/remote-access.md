@@ -11,6 +11,10 @@ privates Netz).
 > Der Setup-Wizard (`/setup`) bleibt immer localhost-only, weil er Secrets in
 > die `.env` schreibt. Passwortwechsel meldet alle Sessions ab.
 
+> **PWA (E23-2):** Ist die UI so erreichbar (HTTPS + Login), lässt sie sich am
+> Handy/Desktop **installieren** („Zum Home-Bildschirm hinzufügen") — eigenes
+> Icon, Vollbild ohne Browser-Chrome. Offline-Capture-Queue folgt mit E23-3.
+
 > **Consumer / Heim-Box:** kein öffentlicher Zugang nötig — Long-Polling (E1-5),
 > siehe [`packaging.md`](packaging.md). Diese Seite gilt für **VPS-Webhook**.
 >
