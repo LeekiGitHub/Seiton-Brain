@@ -24,6 +24,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   verbleibenden Backlog (**E21-2**, deferred **E20-3/5**) fokussiert.
 
 ### Added
+- **E22-4: MCP `capture_note` + `digest`.** Der MCP-Server (Cursor/Claude)
+  kann jetzt ins Brain schreiben (`POST /v1/capture`) und Themen-Digests
+  abrufen (`POST /v1/digest`) — bisher nur Retrieval. 2 neue Client-Tests,
+  Doku-Tabellen aktualisiert.
 - **E23-2: PWA — UI installierbar.** Web-App-Manifest (`/manifest.webmanifest`),
   Service Worker mit Root-Scope (`/sw.js`, cached nur `/ui/static/*` —
   HTML/API bewusst nie), generierte Icons inkl. maskable + Apple-Touch

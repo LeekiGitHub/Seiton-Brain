@@ -441,7 +441,7 @@ Haupteingang sein.
 | E22-1 | UI-Capture: Notiz in der Web-UI erfassen (Text, gleiche Pipeline wie Telegram/REST, inkl. Status-Feedback). | 5 | 2 | 1 | 2 | 5 | 🟢 | H |
 | E22-2 | Telegram Foto-/Dokument-Capture: Uploads annehmen → OCR (E18-5) / Vision (E18-6) / Extractors (E18-1..3) in der Inbox-Pipeline. | 4 | 3 | 2 | 3 | 4 | 🟢 | H |
 | E22-3 | Digest in der Web-UI (Konsument von E17-8; heute nur REST/Telegram). | 3 | 2 | 1 | 2 | 3 | 🟢 | H |
-| E22-4 | MCP-Tools `capture_note` + `digest` (heute nur Retrieval) — Agenten können ins Brain schreiben. | 3 | 2 | 2 | 3 | 3 | ⚪ | H |
+| E22-4 | MCP-Tools `capture_note` + `digest` (heute nur Retrieval) — Agenten können ins Brain schreiben. | 3 | 2 | 2 | 3 | 3 | 🟢 | H |
 | E22-5 | E-Mail-Ingestion: dediziertes IMAP-Postfach pollen → capture (Newsletter, Mail-an-mich-selbst). | 3 | 3 | 2 | 3 | 2 | ⚪ | H |
 | E22-6 | `/ask`-Antwort als Notiz speichern (Q&A→Note, offene Designfrage aus `docs/integrations/knowledge-retrieval.md`). | 3 | 2 | 1 | 2 | 2 | ⚪ | H |
 
@@ -551,7 +551,7 @@ E19/E20-1/2/4/E21-1/3 🟢; offen **E21-2** (Verkaufskanal); **E20-3/5** kein Na
 4. 🟢 **E22-2** — Telegram Foto-/Dokument-Capture (nutzt vorhandene E18-Extractors)
 5. 🟢 **E23-1** — UI-Auth (Voraussetzung für Mobile **und** Cloud)
 6. 🟢 **E23-2** — PWA installierbar (danach E23-4 Share-Target)
-7. ⚪ **E22-4** — MCP `capture_note`
+7. 🟢 **E22-4** — MCP `capture_note` + `digest`
 8. ⚪ **E26-1 + E26-2** — Notiz-Templates: Render-Template + Validierung/Fallback
 9. Parallel/Diskussion: **E24-1** — ADR 0007 Cloud-/Abo-Entscheidung
 

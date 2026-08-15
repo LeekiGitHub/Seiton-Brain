@@ -2,7 +2,7 @@
 
 | Ordner | Inhalt |
 |--------|--------|
-| [`seiton-brain-mcp/`](./seiton-brain-mcp/README.md) | MCP-Server fuer Cursor / Claude Desktop — Tools `search_notes`, `ask_brain`, `get_note` |
+| [`seiton-brain-mcp/`](./seiton-brain-mcp/README.md) | MCP-Server fuer Cursor / Claude Desktop — Tools `search_notes`, `ask_brain`, `get_note`, `capture_note`, `digest` |
 
 Der Server lebt bewusst unter `examples/mcp/` im Hauptrepo (duenner REST-Wrapper).
 Ein separates Repo `seiton-brain-mcp` bleibt optional fuer spaetere Veroeffentlichung.

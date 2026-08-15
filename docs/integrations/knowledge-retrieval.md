@@ -113,6 +113,8 @@ für Cursor, Claude Desktop und andere MCP-Clients — wrappt die Retrieval-API
 | `search_notes(query, semantic?)` | `GET /v1/notes/search` | Agent prüft, ob ich schon etwas weiß |
 | `ask_brain(question)` | `POST /v1/ask` | Agent stellt mir Fragen an mein Wissen |
 | `get_note(entry_id \| vault_path)` | `GET /v1/entries/{id}` / `GET /v1/notes/content` | Volle Notiz nachladen |
+| `capture_note(text)` | `POST /v1/capture` | Agent schreibt Erkenntnisse ins Brain (E22-4) |
+| `digest(topic, days?, limit?)` | `POST /v1/digest` | Themen-Synthese direkt im Agenten (E22-4) |
 
 Auth: `SEITON_API_KEY` im MCP-Server-Env (identisch zu E13-2).
 

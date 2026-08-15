@@ -23,6 +23,8 @@ pip install -r requirements.txt
 | `search_notes` | `GET /v1/notes/search` | Keyword- oder semantische Trefferliste |
 | `ask_brain` | `POST /v1/ask` | RAG-Antwort mit Quellen |
 | `get_note` | `GET /v1/entries/{id}` oder `GET /v1/notes/content` | Volle Notiz nachladen |
+| `capture_note` | `POST /v1/capture` | Notiz erfassen — klassifiziert + im Vault gespeichert (E22-4) |
+| `digest` | `POST /v1/digest` | Themen-Synthese verwandter Notizen mit Quellen (E22-4) |
 
 Auth: `SEITON_API_KEY` im MCP-Prozess-Env (Header `X-Seiton-Api-Key`).
 
