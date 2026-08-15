@@ -14,7 +14,7 @@ und [ADR 0004 — Kommerzielles Produkt](../adr/0004-commercial-consumer-product
 |----------|--------|
 | [n8n.md](./n8n.md) | n8n per REST + Webhooks (kein Custom Node, ADR 0004) |
 | [`examples/n8n/`](../../examples/n8n/README.md) | Importierbare Workflow-JSONs für Power-User |
-| [`examples/mcp/`](../../examples/mcp/README.md) | MCP-Server für Cursor/Claude (`search_notes`, `ask_brain`, `get_note`) |
+| [`examples/mcp/`](../../examples/mcp/README.md) | MCP-Server für Cursor/Claude (`search_notes`, `ask_brain`, `get_note`, `capture_note`, `digest`) |
 | [setup-onboarding.md](./setup-onboarding.md) | Easy Setup, TUI/CLI, API-Key-Handling, `seiton doctor` |
 | [vault-backends.md](./vault-backends.md) | Obsidian-Alternative, `VaultBackend`-Interface, Backends |
 | [knowledge-retrieval.md](./knowledge-retrieval.md) | Brain als Wissensquelle: Suche, RAG-Q&A, Retrieval-API, MCP-Server |

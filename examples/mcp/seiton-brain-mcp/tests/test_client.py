@@ -54,6 +54,34 @@ async def test_ask_brain_calls_api(mock_post):
 
 
 @pytest.mark.asyncio
+@patch.object(SeitonApiClient, "_post", new_callable=AsyncMock)
+async def test_capture_note_calls_api(mock_post):
+    mock_post.return_value = {"entry_id": 7, "vault_path": "Ideas/T.md", "status": "created"}
+    client = SeitonApiClient(base_url="http://test", api_key="k")
+
+    result = await client.capture_note("Neue Idee: MCP-Capture")
+
+    assert result["entry_id"] == 7
+    mock_post.assert_awaited_once_with(
+        "/v1/capture", json={"text": "Neue Idee: MCP-Capture"}
+    )
+
+
+@pytest.mark.asyncio
+@patch.object(SeitonApiClient, "_post", new_callable=AsyncMock)
+async def test_digest_topic_calls_api(mock_post):
+    mock_post.return_value = {"topic": "fitness", "digest": "…", "sources": []}
+    client = SeitonApiClient(base_url="http://test", api_key="k")
+
+    result = await client.digest_topic("fitness", days=30, limit=10)
+
+    assert result["topic"] == "fitness"
+    mock_post.assert_awaited_once_with(
+        "/v1/digest", json={"topic": "fitness", "days": 30, "limit": 10}
+    )
+
+
+@pytest.mark.asyncio
 @patch.object(SeitonApiClient, "_get", new_callable=AsyncMock)
 async def test_get_entry_and_note_content(mock_get):
     client = SeitonApiClient(base_url="http://test", api_key="k")

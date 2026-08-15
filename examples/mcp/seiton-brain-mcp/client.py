@@ -49,6 +49,16 @@ class SeitonApiClient:
     async def ask_brain(self, question: str) -> dict:
         return await self._post("/v1/ask", json={"question": question})
 
+    async def capture_note(self, text: str) -> dict:
+        return await self._post("/v1/capture", json={"text": text})
+
+    async def digest_topic(
+        self, topic: str, *, days: int | None = 7, limit: int = 15
+    ) -> dict:
+        return await self._post(
+            "/v1/digest", json={"topic": topic, "days": days, "limit": limit}
+        )
+
     async def get_entry(self, entry_id: int) -> dict:
         return await self._get(f"/v1/entries/{entry_id}")
 

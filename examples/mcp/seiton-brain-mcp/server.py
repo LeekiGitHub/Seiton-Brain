@@ -1,7 +1,8 @@
-"""Seiton Brain MCP-Server (E17-6).
+"""Seiton Brain MCP-Server (E17-6, E22-4).
 
-Exponiert ``search_notes``, ``ask_brain`` und ``get_note`` als MCP-Tools —
-duenne Wrapper um die REST-API (E17-5). Kein Embedding/RAG in diesem Prozess.
+Exponiert ``search_notes``, ``ask_brain``, ``get_note``, ``capture_note``
+und ``digest`` als MCP-Tools — duenne Wrapper um die REST-API (E17-5).
+Kein Embedding/RAG in diesem Prozess.
 
 Start (stdio, fuer Cursor / Claude Desktop)::
 
@@ -104,6 +105,47 @@ async def get_note(
         else:
             assert vault_path is not None
             result = await client.get_note_content(vault_path)
+        return _json_result(result)
+    except SeitonApiError as exc:
+        return _format_error(exc)
+
+
+@mcp.tool()
+async def capture_note(text: str) -> str:
+    """Save a thought, idea, task or note into the Seiton Brain (E22-4).
+
+    The text is classified by the LLM (category, title, tags) and stored in
+    the vault + database — same pipeline as Telegram/Web-UI capture.
+
+    Args:
+        text: The note content to capture (plain text or markdown).
+    """
+    if not text.strip():
+        return json.dumps({"error": "text must not be empty"})
+    try:
+        client = _get_client()
+        result = await client.capture_note(text)
+        return _json_result(result)
+    except SeitonApiError as exc:
+        return _format_error(exc)
+
+
+@mcp.tool()
+async def digest(
+    topic: str,
+    days: int | None = 7,
+    limit: int = 15,
+) -> str:
+    """Synthesize related notes on a topic into a digest with sources (E22-4).
+
+    Args:
+        topic: Topic, folder or category to summarize (e.g. "Ideas", "fitness").
+        days: Look-back window in days (1-365); null/None means all notes.
+        limit: Max notes considered (1-30).
+    """
+    try:
+        client = _get_client()
+        result = await client.digest_topic(topic, days=days, limit=limit)
         return _json_result(result)
     except SeitonApiError as exc:
         return _format_error(exc)
