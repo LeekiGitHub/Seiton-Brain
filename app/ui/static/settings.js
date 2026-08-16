@@ -37,6 +37,21 @@
       <table class="data"><thead><tr><th>Kategorie</th><th>Ordner</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
 
+  function renderNoteTemplate(status, path) {
+    const el = document.getElementById("note-template-info");
+    if (!el) return;
+    let badge;
+    if (status === "custom") {
+      badge = '<span class="badge ok">eigenes Template aktiv</span>';
+    } else if (status === "invalid") {
+      badge = '<span class="badge err">Template ungültig — Default-Layout aktiv (Details im Log)</span>';
+    } else {
+      badge = '<span class="badge">Default-Layout</span>';
+    }
+    el.innerHTML = `<p class="hit-path">Notiz-Template (E26): ${badge} · Datei: <code>${escapeHtml(path)}</code> im Vault ·
+      Platzhalter: <code>{{title}}</code> <code>{{summary}}</code> <code>{{tags}}</code> <code>{{date}}</code> <code>{{category}}</code> <code>{{related}}</code></p>`;
+  }
+
   function renderBackup(backup) {
     document.getElementById("backup-info").innerHTML = `
       <p class="hit-path">Verzeichnis: ${escapeHtml(backup.directory)} · Alternativ per Terminal: <code>${escapeHtml(backup.command)}</code></p>`;
@@ -153,6 +168,7 @@
       ? `Aktuell: ${data.seiton_api_key_masked}`
       : "";
     renderCategories(data.categories);
+    renderNoteTemplate(data.note_template, data.note_template_path);
     renderBackup(data.backup);
     renderEdition(data.edition);
     await loadLicense();

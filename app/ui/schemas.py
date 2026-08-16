@@ -150,6 +150,9 @@ class SettingsViewResponse(BaseModel):
     categories: dict[str, str]
     edition: EditionInfo
     backup: BackupInfo
+    # Notiz-Template (E26): default | custom | invalid (Fallback auf Default)
+    note_template: str
+    note_template_path: str
 
 
 class SettingsSaveRequest(BaseModel):

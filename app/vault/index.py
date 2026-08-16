@@ -217,6 +217,8 @@ async def sync_vault_index_from_disk(db: AsyncSession) -> int:
         rel_parts = file.relative_to(vault_path).parts
         if any(part.startswith(".") for part in rel_parts):
             continue  # versteckte Dateien/Ordner (.obsidian, .trash, …)
+        if rel_parts and rel_parts[0] == "_seiton":
+            continue  # reservierter Seiton-Ordner (Notiz-Templates, E26-1)
         if get_extractor(file) is None:
             continue  # nicht unterstuetzter Dateityp
         try:

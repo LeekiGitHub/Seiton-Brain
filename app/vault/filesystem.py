@@ -13,6 +13,7 @@ from app.llm.schemas import ClassificationResult
 from app.llm.tags import merge_tags
 from app.vault.categories import folder_for_category
 from app.vault.paths import resolve_vault_file
+from app.vault.templates import render_note_body
 
 FRONTMATTER_KEY_ORDER = ("title", "category", "created", "updated", "tags")
 
@@ -183,16 +184,15 @@ class FilesystemVaultBackend:
         base_name = _sanitize_filename(result.title)
         filepath = _next_available_path(target_dir, base_name)
 
-        content = f"""---
+        frontmatter = f"""---
 title: {result.title}
 category: {result.category}
 created: {date.today().isoformat()}
 {_tags_frontmatter_line(result.tags)}---
 
-# {result.title}
-
-{result.summary}{_related_section(result.related)}
 """
+        # Body via Notiz-Template (E26-1) — Default entspricht dem alten Layout.
+        content = frontmatter + render_note_body(result)
         _atomic_write(filepath, content)
         return _to_relative(filepath)
 

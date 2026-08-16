@@ -24,6 +24,13 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   verbleibenden Backlog (**E21-2**, deferred **E20-3/5**) fokussiert.
 
 ### Added
+- **E26-1/E26-2: Notiz-Templates.** Eigene Markdown-Vorlage für den Body
+  neuer Notizen: `_seiton/templates/note.md` im Vault mit `{{title}}`,
+  `{{summary}}`, `{{tags}}`, `{{date}}`, `{{category}}`, `{{related}}`.
+  Frontmatter bleibt fix (Append/Index kompatibel); kaputte Templates →
+  Default-Layout + Log-Warnung, Status in Settings sichtbar; `_seiton/`
+  vom Index ausgenommen. Doku `docs/note-templates.md`. 15 neue Tests
+  (505 gesamt).
 - **E22-4: MCP `capture_note` + `digest`.** Der MCP-Server (Cursor/Claude)
   kann jetzt ins Brain schreiben (`POST /v1/capture`) und Themen-Digests
   abrufen (`POST /v1/digest`) — bisher nur Retrieval. 2 neue Client-Tests,
