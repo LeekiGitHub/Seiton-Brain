@@ -8,6 +8,7 @@ from app.setup.env_file import read_env_values, resolve_env_path
 from app.setup.status import component_status, is_placeholder, is_setup_complete
 from app.licensing.startup import check_current_license
 from app.vault.categories import get_category_folders
+from app.vault.templates import TEMPLATE_RELATIVE_PATH, template_status
 from app.ui.schemas import BackupInfo, EditionInfo, SettingsSaveRequest, SettingsViewResponse
 
 EDITION_INFO = EditionInfo(
@@ -83,6 +84,8 @@ def load_settings_view() -> SettingsViewResponse:
             directory=str(backups_dir()),
             recent=list_recent_backups(),
         ),
+        note_template=template_status(),
+        note_template_path=TEMPLATE_RELATIVE_PATH,
     )
 
 

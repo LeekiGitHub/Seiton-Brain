@@ -509,8 +509,8 @@ sichtbar, portabel), nicht in der DB; kaputte Templates → Default + Warnung.
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E26-1 | Render-Template: Markdown-Vorlage mit Platzhaltern (`{{title}}`, `{{summary}}`, `{{tags}}`, `{{date}}`, `{{related}}`) ersetzt hartcodiertes Body-Format; Default = heutiges Layout; Datei im Vault (z. B. `_seiton/templates/note.md`). | 4 | 3 | 3 | 3 | 4 | ⚪ | H |
-| E26-2 | Validierung + Fallback: unbekannte Platzhalter/kaputtes Template → Default-Layout + Log/UI-Warnung; Append-/Frontmatter-Kompatibilität abgesichert (Tests). | 4 | 2 | 2 | 2 | 4 | ⚪ | H |
+| E26-1 | Render-Template: Markdown-Vorlage mit Platzhaltern (`{{title}}`, `{{summary}}`, `{{tags}}`, `{{date}}`, `{{related}}`) ersetzt hartcodiertes Body-Format; Default = heutiges Layout; Datei im Vault (z. B. `_seiton/templates/note.md`). | 4 | 3 | 3 | 3 | 4 | 🟢 | H |
+| E26-2 | Validierung + Fallback: unbekannte Platzhalter/kaputtes Template → Default-Layout + Log/UI-Warnung; Append-/Frontmatter-Kompatibilität abgesichert (Tests). | 4 | 2 | 2 | 2 | 4 | 🟢 | H |
 | E26-3 | KI-Felder: eigene Felder im Template (z. B. `{{ai:action_items}}`, `{{ai:kernaussagen}}`) → Writer-Prompt bekommt dynamisches Feld-Schema, LLM füllt sie aus dem Input. | 4 | 4 | 3 | 4 | 3 | ⚪ | H |
 | E26-4 | Template-Editor in der Settings-UI: Markdown-Editor + Live-Vorschau mit Beispieldaten. | 3 | 2 | 1 | 2 | 3 | ⚪ | H |
 | E26-5 | Visueller Builder: Bausteine (Titel, Zusammenfassung, Tags, KI-Feld, …) benennen/sortieren per Drag-and-drop → erzeugt intern das Markdown-Template. | 4 | 4 | 2 | 3 | 2 | ⚪ | H+ |
@@ -552,7 +552,7 @@ E19/E20-1/2/4/E21-1/3 🟢; offen **E21-2** (Verkaufskanal); **E20-3/5** kein Na
 5. 🟢 **E23-1** — UI-Auth (Voraussetzung für Mobile **und** Cloud)
 6. 🟢 **E23-2** — PWA installierbar (danach E23-4 Share-Target)
 7. 🟢 **E22-4** — MCP `capture_note` + `digest`
-8. ⚪ **E26-1 + E26-2** — Notiz-Templates: Render-Template + Validierung/Fallback
+8. 🟢 **E26-1 + E26-2** — Notiz-Templates: Render-Template + Validierung/Fallback
 9. Parallel/Diskussion: **E24-1** — ADR 0007 Cloud-/Abo-Entscheidung
 
 ## Verbleibender Backlog (übrig aus Phase G)
