@@ -2,7 +2,7 @@
 
 Lebendes Dokument. Status-Updates per PR. Detaillierte Tickets liegen in **GitHub Issues** (Labels `epic:*`, `phase:*`, `priority:*`).
 
-Status-Legende: 🟢 Done · 🟡 In Progress · 🔵 Ready (nächster Sprint) · ⚪ Backlog
+Status-Legende: 🟢 Done · 🟡 In Progress · 🔵 Ready (nächster Sprint) · ⚪ Backlog · ⚫ Aufgegangen in anderer Story
 
 ---
 
@@ -488,7 +488,7 @@ Kleine, klar umrissene Verbesserungen aus der Bestandsaufnahme 2026-08-08.
 |----|-------|---|---|---|---|---|--------|-------|
 | E25-1 | Backup/Restore in der Settings-UI: One-Click-Backup + geführter Restore (heute nur `scripts/backup.sh` + Doku). | 4 | 2 | 2 | 2 | 4 | 🟢 | H |
 | E25-2 | `seiton doctor` als CLI-Subcommand (Parität zu `scripts/doctor.sh`, E16-2-Wortlaut). | 2 | 2 | 1 | 2 | 2 | ⚪ | H |
-| E25-3 | Rate-Limits für `/ask` und `/digest` (Kostenkontrolle, offene Designfrage aus `knowledge-retrieval.md`). | 3 | 2 | 1 | 2 | 3 | ⚪ | H |
+| E25-3 | Rate-Limits für `/ask` und `/digest` (Kostenkontrolle, offene Designfrage aus `knowledge-retrieval.md`). → **aufgegangen in E27-6** (ein Rate-Limit-Konzept für Login + `/v1` + LLM-Endpunkte). | 3 | 2 | 1 | 2 | 3 | ⚫ | H |
 | E25-4 | Dashboard-Panel „System-Gesundheit": Health, Queue-Länge, letzte Fehler (nutzt `/health` + Logs). | 3 | 3 | 2 | 3 | 2 | ⚪ | H+ |
 
 ---
@@ -520,6 +520,101 @@ Sinnvolle Reihenfolge: E26-1 → E26-2 → E26-4 → E26-3 → E26-6 → E26-5.
 
 ---
 
+## Phase L — Launch-Härtung (Audit 2026-08)
+
+Ergebnis des **Product Readiness Audits**
+([`docs/audit-2026-08-product-readiness.md`](./docs/audit-2026-08-product-readiness.md)):
+Gesamturteil **GO WITH CONDITIONS**. Die Epics E27–E31 sind die Bedingungen —
+sie kommen **vor** Monetarisierung/Cloud (E21-2, E24). Alle Findings sind im
+Ist-Code verifiziert (Datei-Referenzen im Audit-Bericht).
+
+### E27 — Security-Härtung · `epic:security` · **P0/P1**
+
+Betroffene Komponenten: `app/setup/security.py`, `app/ui/`, `deploy/`,
+`docker-compose*.yml`. Risiko bei Nichtumsetzung: Secrets-/Datenzugriff durch
+Dritte auf dem dokumentierten VPS-Deployment-Pfad.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E27-1 | **P0 — Proxy-sichere Zugriffskontrolle:** `require_localhost` prüft nur `request.client.host` — hinter dem dokumentierten Caddy/nginx-Proxy immer die Proxy-IP → `/setup`, UI ohne Passwort und `/docs` sind remote erreichbar. Guard härten (explizites Trusted-Proxy-Konzept, z. B. Opt-in `SEITON_BEHIND_PROXY` + Forwarded-Header nur dann) **und** Deploy-Beispiele so ändern, dass `/setup` + `/docs` nie durch den Proxy laufen. AK: Setup remote nachweislich 403; Test mit simuliertem Proxy-Header. | 5 | 2 | 3 | 2 | 5 | ⚪ | L |
+| E27-2 | **XSS-Fix:** `dashboard.js` rendert `title`/`folder`/`vault_path`/`err.message` ungeescaped in `innerHTML` (Stored XSS über Notiz-Titel, z. B. aus OCR/Dokument-Inhalten); `login.js`/`setup.js` latent. Zentrale `escapeHtml`-Nutzung überall; Regression-Test der die JS-Dateien auf rohe Interpolationen prüft. | 5 | 1 | 2 | 1 | 5 | ⚪ | L |
+| E27-3 | **Sichere Remote-Defaults:** Session-Cookie `Secure`-Flag (config-gesteuert bei TLS), Standard-Compose bindet `127.0.0.1:8000` statt `0.0.0.0`, Setup-Wizard macht Telegram-Allowlist zum empfohlenen Pflichtschritt (Warnung wenn leer + Webhook aktiv), Logout per POST. | 4 | 2 | 2 | 2 | 4 | ⚪ | L |
+| E27-4 | **Frontmatter-/Pfad-Härtung:** Titel/Tags werden roh ins YAML-Frontmatter geschrieben (Newline/`---` zerstören die Notiz) → sanitizen; `resolve_vault_file` nutzt `startswith` ohne Separator → `is_relative_to`; Append-Pfad läuft an `resolve_vault_file` vorbei → vereinheitlichen. | 4 | 2 | 2 | 1 | 4 | ⚪ | L |
+| E27-5 | **Rate-Limits & Brute-Force** (ersetzt E25-3): Limits für `/api/ui/login`, `/v1/*` und LLM-Endpunkte (`/ask`, `/digest`, Capture) — Kostenkontrolle + Key-Brute-Force; Lockout-Store proxy-/multi-worker-tauglich (Redis). Webhook-Secret timing-safe vergleichen. | 4 | 3 | 2 | 2 | 4 | ⚪ | L |
+
+Abhängigkeiten: keine untereinander; E27-1 zuerst (größtes Risiko).
+
+### E28 — Datenintegrität & Index-Konsistenz · `epic:data-integrity` · **P1**
+
+Betroffene Komponenten: `app/services/process_message.py`,
+`app/vault/filesystem.py`, `app/vault/index.py`, `app/worker/tasks.py`.
+Risiko: Datenverlust/Doppelnotizen unter Parallelität; stale Suche/RAG nach
+externen Obsidian-Edits — bricht das Kernversprechen Vault-Koexistenz.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E28-1 | **Inkrementeller Index-Sync:** externe Vault-Edits landen heute nie im Index (Full-Sync nur bei leerem Index). mtime-basierter inkrementeller Sync (periodischer Worker-Task) + „Neu indexieren"-Button in Settings. AK: Obsidian-Edit ist nach ≤ Sync-Intervall in Suche/RAG sichtbar. | 5 | 3 | 3 | 3 | 5 | ⚪ | L |
+| E28-2 | **File-Locks für Create/Append:** `_next_available_path` und Read-Modify-Write-Append ohne Lock → Lost Updates bei parallelen Captures. Prozessübergreifendes Locking (z. B. `flock` pro Zieldatei) + Test. | 4 | 2 | 3 | 2 | 4 | ⚪ | L |
+| E28-3 | **Capture-Kompensation:** Vault-Write vor DB-Commit ohne Rollback → Orphan-Dateien; bei Telegram-Retry im Verarbeitungsfenster Doppel-Writes. Kompensationslogik (Datei löschen bei DB-Fehler auf Create-Pfad) + Idempotenz-Fenster schließen. | 4 | 3 | 3 | 2 | 4 | ⚪ | L |
+| E28-4 | **Idempotency-Key für REST/UI-Capture:** optionaler `Idempotency-Key`-Header (REST) bzw. Client-Token (UI) gegen Mehrfachklick/Netz-Retry-Doppelnotizen. | 3 | 2 | 2 | 2 | 3 | ⚪ | L |
+| E28-5 | **Fehler-Semantik reparieren:** `APIError` zu breit in `RETRYABLE_EXCEPTIONS` (retryt 4xx/Auth sinnlos) → nur transiente Fehler; `entries.status="failed"` bei permanenten Fehlern tatsächlich setzen (Dashboard zeigt Status heute nie). | 3 | 2 | 2 | 1 | 4 | ⚪ | L |
+
+Reihenfolge: E28-5 (klein) → E28-2 → E28-3 → E28-1 → E28-4. E28-1 vor E30-2
+(klickbare Treffer nützen wenig, wenn der Index stale ist).
+
+### E29 — Release- & Ops-Readiness · `epic:release-ops` · **P1**
+
+Risiko: nicht reproduzierbare Builds, Schema-Drift bei Kunden-Updates,
+Support-Unfähigkeit ohne Release-Stände.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E29-1 | **Dependencies pinnen** (`requirements.txt` komplett ungepinnt) + Dependabot/`pip-audit` in CI; Python-Version im Dockerfile bewusst festlegen (3.14-slim prüfen). | 4 | 1 | 2 | 1 | 5 | ⚪ | L |
+| E29-2 | **CI-Härtung:** Docker-Build-Job + Alembic-`upgrade head` gegen echte `pgvector/pgvector:pg16`-Postgres (Service-Container) + Smoke-Insert mit Vector. | 4 | 2 | 2 | 2 | 4 | ⚪ | L |
+| E29-3 | **Release v0.3.0:** CHANGELOG-„Unreleased"-Berg schneiden, Git-Tag, GitHub-Release, leichter Release-Prozess dokumentieren (kein Release seit 0.2.0 trotz ~20 Features). | 4 | 1 | 1 | 1 | 4 | ⚪ | L |
+| E29-4 | **Backup-Retention + Restore-Verifikation:** Backups wachsen unbegrenzt → Rotation (konfigurierbar, z. B. letzte N behalten); Restore einmal automatisiert als Roundtrip testen (CI oder Skript); Update-Skript bricht bei fehlgeschlagenem Backup ab statt weiterzulaufen. | 4 | 2 | 2 | 2 | 4 | ⚪ | L |
+| E29-5 | **Doku-Sync:** README (Stand „Phase C–F, 360 Tests") und ARCHITECTURE.md (Modul-Map ohne `ui/`, falsches DB-Image, veraltete Write-Reihenfolge, `kind` ohne document/photo) auf Ist-Stand; `KIND_VALUES`/`STATUS_VALUES` im Code an Realität anpassen. | 3 | 2 | 1 | 1 | 4 | ⚪ | L |
+| E29-6 | **Betriebs-Robustheit:** Log-Rotation im Compose (`max-size`), Restart-Policies auch im Standard-Compose dokumentiert abgrenzen, `/health` optional um Worker-Erreichbarkeit + Vault-Schreibbarkeit erweitern (Basis für E25-4). | 3 | 2 | 2 | 2 | 3 | ⚪ | L |
+
+### E30 — UX Consumer-Pass · `epic:ux-polish` · **P1/P2**
+
+Vom „fähigen Admin-Tool" zum kaufbaren Produkt (UI-Audit: die Kern-Journey
+„wiederfinden → lesen" ist heute unterbrochen).
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E30-1 | **Retrieval-Loop schließen:** Suchtreffer + Ask-/Digest-Quellen klickbar → öffnen die Notiz (`/notes?path=…`-Deep-Link). | 5 | 1 | 1 | 1 | 5 | ⚪ | L |
+| E30-2 | **Notiz-Lesemodus:** Markdown-Preview (gerendert, XSS-sicher) mit Edit-Toggle; klickbare `[[Wikilinks]]`; Speichern-Feedback statt stillem Erfolg. | 5 | 3 | 2 | 3 | 4 | ⚪ | L |
+| E30-3 | **Post-Setup-Onboarding:** Abschluss-Screen mit Neustart-Checkliste + CTA „Erste Notiz erfassen"; „Setup" verschwindet aus der Hauptnav, wenn abgeschlossen; Formular-Labels statt Env-Namen (`OBSIDIAN_VAULT_HOST_PATH` → „Vault-Ordner"). | 5 | 2 | 1 | 2 | 4 | ⚪ | L |
+| E30-4 | **Feedback-Layer:** Toasts/Modals statt `alert()`/`confirm()`; alle nutzerseitigen Fehlertexte deutsch (heute z. T. rohe EN-API-Details wie „Duplicate capture rejected"); Undo-Snackbar bzw. Papierkorb beim Löschen. | 4 | 3 | 1 | 2 | 4 | ⚪ | L |
+| E30-5 | **Terminologie- & Status-Pass:** eine Nutzersprache (keine „Entries", Status-Rohwerte `appended`/`failed`, „E26"-Codes oder Container-Pfade in Primär-UI); Empty-States mit CTA. | 3 | 2 | 1 | 1 | 3 | ⚪ | L |
+| E30-6 | **Mobile-Politur:** Topnav umbrechen/Hamburger, Touch-Targets ≥ 44 px, Fokus-Styles auf Buttons, `aria-current`, `<main>`-Landmark (A11y-AA-Basis). | 3 | 2 | 1 | 2 | 3 | ⚪ | L |
+| E30-7 | **Ask-Verlauf persistieren:** Chat-History überlebt Reload (DB oder LocalStorage) — bei Wettbewerbern Standard. | 3 | 2 | 1 | 2 | 3 | ⚪ | L+ |
+| E30-8 | **Integrations-Karte in Settings:** API-Key/MCP/Webhooks/n8n verständlich erklärt und verlinkt (Discoverability der Power-Features). | 2 | 1 | 1 | 1 | 3 | ⚪ | L+ |
+
+Reihenfolge: E30-1 → E30-3 → E30-4 → E30-2 → E30-5 → E30-6 → E30-7 → E30-8.
+
+### E31 — Privacy/DSGVO-Basis · `epic:privacy` · **P1 (vor Verkauf in DE/EU)**
+
+Technischer Produktbedarf (juristische Prüfung von AGB/Datenschutzerklärung
+ist separat und **nicht** Teil dieser Stories).
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E31-1 | **Voll-Löschung:** ein geführter Weg („Alle Daten löschen" in Settings + CLI), der DB (Entries, Index, Chunks, Embeddings), Voice-Cache und optional Vault + Backups löscht. Art.-17-Basis. | 4 | 2 | 2 | 2 | 4 | ⚪ | L |
+| E31-2 | **Strukturierter Export:** Vault ist schon portabel; zusätzlich Entries/Metadaten/Einstellungen als JSON/ZIP-Export (Art.-20-Basis, auch Umzugs-Feature). | 3 | 2 | 1 | 2 | 3 | ⚪ | L |
+| E31-3 | **Log- & Retention-Hygiene:** kein Notiz-/Transkript-Text in Logs (heute 80-Zeichen-Transkript-Snippet), Voice-Cache-TTL/Cleanup, `raw_input_preview` im Outbound-Webhook opt-in. | 3 | 1 | 1 | 1 | 4 | ⚪ | L |
+| E31-4 | **Datenfluss-Doku `docs/privacy.md`:** welche Daten gehen an OpenAI/Telegram, lokale Alternativen (Ollama, whisper.cpp) als Privacy-Modus dokumentiert — Grundlage für spätere Datenschutzerklärung und DE-Verkaufsargument. | 3 | 1 | 1 | 1 | 3 | ⚪ | L |
+
+### Bewusst NICHT aufgenommen (Challenge-Ergebnis, siehe Audit-Bericht)
+
+- **Multi-User/Rollen** — ADR 0004: Single-User; Cloud-Edition = eigene Instanzen.
+- **ANN-Index (HNSW)** — erst bei großen Vaults/Cloud relevant, exakter kNN reicht.
+- **i18n-Umsetzung** — erst bei EN-Markteintritt; E30-4 (zentrale Fehlertexte) bereitet vor.
+- **Daily Notes, Feature-Flags, Prometheus-Stack, breite E2E-Browser-Tests** — Aufwand/Nutzen für Self-Hosted-Single-User nicht gerechtfertigt.
+
+---
+
 ## Aktueller Sprint (Phase A — MVP-Härtung) ✅ abgeschlossen
 
 1. 🟢 **Doku-Fundament**: ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
@@ -543,7 +638,7 @@ Sinnvolle Reihenfolge: E26-1 → E26-2 → E26-4 → E26-3 → E26-6 → E26-5.
 **Phasen A–F sind komplett** (Release-Linie v0.2.x). **Phase G** weitgehend:
 E19/E20-1/2/4/E21-1/3 🟢; offen **E21-2** (Verkaufskanal); **E20-3/5** kein Nahziel.
 
-## Nächster Sprint (Phase H — Vorschlag, Reihenfolge nach Nutzen/Aufwand)
+## Sprint Phase H ✅ (Kern abgeschlossen)
 
 1. 🟢 **E22-1** — UI-Capture (größte Produkt-Lücke: UI soll Haupteingang sein)
 2. 🟢 **E22-3** — Digest in der Web-UI (klein, rundet Retrieval-UI ab)
@@ -553,7 +648,28 @@ E19/E20-1/2/4/E21-1/3 🟢; offen **E21-2** (Verkaufskanal); **E20-3/5** kein Na
 6. 🟢 **E23-2** — PWA installierbar (danach E23-4 Share-Target)
 7. 🟢 **E22-4** — MCP `capture_note` + `digest`
 8. 🟢 **E26-1 + E26-2** — Notiz-Templates: Render-Template + Validierung/Fallback
-9. Parallel/Diskussion: **E24-1** — ADR 0007 Cloud-/Abo-Entscheidung
+
+Offen aus H (nach Phase L wieder aufnehmen): E22-5/6, E23-3/4, E25-2/4,
+E26-3/4/6.
+
+## Nächster Sprint (Phase L — Launch-Härtung, Reihenfolge nach Risiko/Nutzen)
+
+Ergebnis Audit 2026-08 (**GO WITH CONDITIONS**) — diese Punkte kommen vor
+Monetarisierung/Cloud:
+
+1. 🔵 **E27-1** — P0: Proxy-sichere Zugriffskontrolle (`/setup` remote dicht)
+2. 🔵 **E27-2** — XSS-Fix Dashboard/Login/Setup (Quick Win, hohes Risiko)
+3. 🔵 **E27-3 + E27-4** — Sichere Defaults + Frontmatter-/Pfad-Härtung
+4. 🔵 **E28-5** — Retry-/Status-Semantik (klein, entlastet Debugging sofort)
+5. 🔵 **E29-1** — Dependencies pinnen + Dependabot (Quick Win)
+6. 🔵 **E30-1** — Klickbare Suchtreffer/Quellen (größter UX-Hebel, Aufwand S)
+7. 🔵 **E28-2 + E28-3** — File-Locks + Capture-Kompensation
+8. 🔵 **E28-1** — Inkrementeller Index-Sync (Obsidian-Koexistenz-Versprechen)
+9. 🔵 **E29-2 + E29-3** — CI-Härtung + Release v0.3.0
+10. 🔵 **E30-3 + E30-4** — Onboarding + Feedback-Layer
+11. 🔵 **E31-1 + E31-3** — Voll-Löschung + Log-Hygiene
+12. Danach: restliche E29/E30/E31-Stories, dann **E24-1** (ADR 0007 Cloud/Abo)
+    und **E21-2** (Verkaufskanal) auf gehärteter Basis
 
 ## Verbleibender Backlog (übrig aus Phase G)
 

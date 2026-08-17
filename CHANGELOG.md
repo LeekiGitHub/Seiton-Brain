@@ -9,6 +9,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Changed
+- **Product Readiness Audit 2026-08.** Vollständiger Review (Architektur,
+  Security, UX, Tests/Ops, Privacy, Markt) vor Monetarisierung/Cloud:
+  Bericht [`docs/audit-2026-08-product-readiness.md`](docs/audit-2026-08-product-readiness.md),
+  Gesamturteil **GO WITH CONDITIONS**. Neue Phase **L — Launch-Härtung** mit
+  Epics **E27** Security-Härtung (P0: Localhost-Guard hinter Proxy, XSS),
+  **E28** Datenintegrität & Index-Sync, **E29** Release-/Ops-Readiness,
+  **E30** UX Consumer-Pass, **E31** Privacy/DSGVO-Basis; E25-3 aufgegangen
+  in E27-5; neuer Sprint-Vorschlag in der ROADMAP.
 - **Planung: E15-5 Notion-Evaluation.** Standalone + Obsidian sind per Design
   abgedeckt (E15-1/2, E19); Notion als offene Lücke jetzt als
   Evaluations-Story festgehalten (Export/Sync vs. API-Backend).
