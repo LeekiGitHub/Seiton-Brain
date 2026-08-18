@@ -11,6 +11,14 @@ privates Netz).
 > Der Setup-Wizard (`/setup`) bleibt immer localhost-only, weil er Secrets in
 > die `.env` schreibt. Passwortwechsel meldet alle Sessions ab.
 
+> **Proxy-sicherer Localhost-Guard (E27-1):** Der Guard erkennt Requests, die
+> ein Reverse-Proxy weiterleitet (`X-Forwarded-For`/`X-Real-IP`/`Forwarded`),
+> und lehnt sie **fail-closed** ab, wenn die Original-IP nicht localhost ist —
+> `/setup` und `/docs` sind also auch dann dicht, wenn der Proxy „alles"
+> weiterreicht. Zusätzlich blocken die Beispiel-Configs (`deploy/`) diese
+> Pfade direkt im Proxy. Admin-Zugriff auf `/setup` vom Laptop: SSH-Tunnel
+> (`ssh -L 8000:127.0.0.1:8000 user@vps`), dann `http://localhost:8000/setup`.
+
 > **PWA (E23-2):** Ist die UI so erreichbar (HTTPS + Login), lässt sie sich am
 > Handy/Desktop **installieren** („Zum Home-Bildschirm hinzufügen") — eigenes
 > Icon, Vollbild ohne Browser-Chrome. Offline-Capture-Queue folgt mit E23-3.
