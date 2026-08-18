@@ -651,7 +651,7 @@ beide werden mit Phase M priorisiert und bleiben unter ihren Epics geführt.
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E33-1 | **Provenance im Capture-Pfad:** `source` (telegram/ui/rest/email/web/mcp) + optionales `source_url` durch `process_text_message` bis ins Frontmatter (`source:`) und `entries`; Filter in Notes-API. Grundlage für E33-2/E22-5 und Vertrauen („Woher kam das?"). Jetzt billig, nachträglich teuer. | 4 | 2 | 2 | 2 | 4 | ⚪ | M |
+| E33-1 | **Provenance im Capture-Pfad:** `source` (telegram/ui/rest/email/web/mcp) + optionales `source_url` **+ `actor`** (Telegram-User-ID/API-Key-ID/Session — Team-Audit 2026-08: Attribution-Vorstufe für E41-2) durch `process_text_message` bis ins Frontmatter (`source:`) und `entries`; Filter in Notes-API. Grundlage für E33-2/E22-5 und Vertrauen („Woher kam das?"). Jetzt billig, nachträglich teuer. | 4 | 2 | 2 | 2 | 4 | ⚪ | M |
 | E33-2 | **URL/Web-Capture:** erkannte URL (Telegram/UI/REST) → Artikel-Fetch + Text-Extraktion (Readability-Ansatz, permissive Lizenz prüfen) → Notiz mit Quelle, Titel, Auszug; Fallback bei Paywall/Fehler = heutiges Verhalten. AK: geteilter Artikel-Link wird zur durchsuchbaren Wissensnotiz mit `source_url`. | 5 | 3 | 2 | 3 | 4 | ⚪ | M |
 | E33-3 | **Capture-Rezepte (Doku):** Bookmarklet gegen `POST /v1/capture`, iOS-Shortcut-Beispiel (bis E23-4), E-Mail-Weiterleitungs-Setup (mit E22-5). | 2 | 1 | 1 | 1 | 3 | ⚪ | M |
 
@@ -776,6 +776,82 @@ E39-2/3. Reranker-Entscheidung erst nach E37-3-Messung.
 
 ---
 
+## Phase O — Shared Knowledge & Small Teams (Team-Audit 2026-08)
+
+Ergebnis des **Team-/Collaboration-Audits**
+([`docs/audit-2026-08-team-collaboration.md`](./docs/audit-2026-08-team-collaboration.md)),
+Einstufung **PERSONAL + SMALL TEAM**. Kernmodell: **Shared Instance** — ein
+Team = eine Instanz = ein gemeinsamer Vault (konsistent mit ADR 0004/0007;
+die Instanzgrenze bleibt die Isolationsgrenze, **kein** Multi-Tenant-Umbau).
+Zielgruppe: 2–10 Personen (Familien, kleine Teams, Agenturen, Kanzleien) —
+„das gemeinsame Gedächtnis, selbst gehostet, mit kontrollierter AI".
+Kollaboration heißt geteiltes Wissen, **nicht** Echtzeit-Redaktion.
+
+Phase O startet **nach** dem Phase-N-Kern: E38 (Permission-Muster) ist
+Vorstufe von E42-2/E44-2, E34 (Git-Backup) von E43-2, E36-1 (Scoped Keys)
+von E42-3. Vorstufe in Phase M: **E33-1 wird um `actor` erweitert**
+(Attribution im Capture-Pfad — jetzt billig, nachträglich teuer).
+
+**Bewusst NICHT gebaut (siehe Audit-Matrix):** Realtime-Editing (CRDT/OT,
+Presence), Kommentare/Threads/Mentions/Notifications, Kanban/Sprints/
+Projektmanagement (→ E35-Integrationen), externe Share-Links (P4,
+beobachten), Multi-Tenant/Workspace-Tabellen, SSO/SAML/SCIM/Enterprise-IAM,
+Cross-Instance-Links.
+
+### E41 — Identity & Accounts · `epic:identity` (P0-Fundament)
+
+Heute: ein geteiltes `UI_PASSWORD`, zustandslose Sessions, keine
+`users`-Tabelle. Für Teams braucht jede Person Login + Attribution.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E41-1 | **Accounts + Login pro Person:** `users`-Tabelle (Name, E-Mail, Passwort-Hash argon2/bcrypt), Login-Session mit `user_id` (serverseitig widerrufbar statt zustandslos), Owner-Account im Setup-Wizard; `UI_PASSWORD` bleibt Single-User-Fallback (Personal-Modus unverändert). Bewusst **ohne** SSO/OIDC — built-in Login ist für kleine Teams ein Feature (Outline-Gegenbeispiel). AK: zwei Personen können sich getrennt an-/abmelden; Passwortwechsel einer Person wirft nicht alle raus. | 5 | 3 | 3 | 4 | 5 | ⚪ | O |
+| E41-2 | **Attribution:** `created_by`/`updated_by` (nullable) auf `entries` + `author:` im Frontmatter; Telegram-ID→User-Mapping (Allowlist wird personenbezogen); Autor in Notes-API/UI sichtbar. Nutzt den `actor` aus E33-1. AK: „Wer hat das erfasst/geändert?" ist pro Notiz beantwortbar; Alt-Daten ohne Autor bleiben gültig. | 4 | 2 | 2 | 3 | 5 | ⚪ | O |
+| E41-3 | **Einladung & Offboarding:** Invite-Link/-Code durch Owner (kein E-Mail-Server nötig), Eingeladener setzt eigenes Passwort (Default-Rolle Editor); Deaktivieren = Sessions + API-Keys sofort ungültig; Inhalte bleiben der Instanz (Attribution bleibt), dokumentiertes Verfahren für private Ordner Ausgeschiedener (Export/Überführung durch Owner). | 4 | 2 | 2 | 2 | 4 | ⚪ | O |
+
+### E42 — Rollen & Sichtbarkeit · `epic:roles-visibility`
+
+Drei Rollen, capabilities-basiert intern, serverseitig durchgesetzt —
+und Ordner-Sichtbarkeit nach dem `ai_access`-Muster (E38), am selben
+Durchsetzungspunkt **vor** dem Retrieval.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E42-1 | **Rollen Owner/Editor/Viewer:** Rolle am User, intern Capability-Mapping (`can(user, capability)`: read/write/manage_members/manage_ai/manage_settings/export); Durchsetzung in UI-Routen **und** REST/MCP (Backend-only, Frontend blendet nur aus). AK: Viewer kann suchen/lesen/fragen, aber weder capturen noch ändern; nur Owner sieht Settings/Members. | 5 | 3 | 3 | 3 | 5 | ⚪ | O |
+| E42-2 | **Ordner-Sichtbarkeit `visibility`:** `team` (Default) \| `private` (nur Ersteller + dokumentierter Owner-Notfallzugriff) — Ordner-Regel in `vault_config.yaml` + Frontmatter-Override, denormalisiert auf `vault_note_index`; WHERE-Filter in `retrieve_vault_notes` (Suche, Vektor, RAG, Digest, Notes-API), fail-closed (unbekannt = privat). AK: CI-Invariante „User B findet/liest nie private Notizen von User A — auch nicht via Suche/AI/Embeddings". Abhängig von E38-1/2, E41-1. | 5 | 3 | 3 | 4 | 5 | ⚪ | O |
+| E42-3 | **API-Keys pro Nutzer:** E36-1-Keys bekommen `user_id`-Bezug — REST/MCP-Zugriffe laufen unter Rolle + Sichtbarkeit des Key-Inhabers; Key-Widerruf beim Offboarding (E41-3). | 4 | 2 | 2 | 2 | 4 | ⚪ | O |
+
+### E43 — Team-Gedächtnis & Wiki-Qualitäten · `epic:team-memory`
+
+Wiki-*Qualitäten* (Auffindbarkeit, Vertrauen, Historie) statt Wiki-Produkt —
+maximal auf Vorhandenem aufbauend (Git E34, Templates E26, entries).
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E43-1 | **Recently Changed & Autor:** „Zuletzt geändert"-Liste (Dashboard) + Autor/„zuletzt geändert von" auf der Notiz-Seite — aus `entries`-Attribution (E41-2) + Git-Log (E34-2); respektiert Sichtbarkeit. Bewusst ohne Mentions/Notifications (Pushes → Webhooks/n8n E35-3). | 4 | 2 | 1 | 2 | 4 | ⚪ | O |
+| E43-2 | **Version History (git-basiert):** Verlauf pro Notiz (Zeitpunkt, Autor), Diff-Ansicht, Restore einzelner Versionen (als neuer Commit), Wiederherstellen gelöschter Notizen — UI über `GitVaultBackend`-Historie, **keine** eigene Revisions-DB. Auch für Einzelnutzer wertvoll (Undo über `/undo` hinaus). Abhängig von E34-1/2. AK: „Wer hat das geändert und wie sah es vorher aus?" in 2 Klicks. | 5 | 3 | 2 | 3 | 4 | ⚪ | O |
+| E43-3 | **Team-Template-Paket:** mitgelieferte E26-Vorlagen für Profi-Nutzung — Meeting Notes, Decision Record, Project Brief, SOP, Retro, Kundennotiz; im geteilten Vault automatisch team-weit; Doku. | 3 | 1 | 1 | 1 | 3 | ⚪ | O |
+| E43-4 | **Aufgaben-Ansicht (light):** Liste über `category: aufgabe` + `status: offen/erledigt` im Frontmatter, Abhaken in der UI, optional `assignee` (ab E41-2); Filter „mir zugewiesen". Bewusst **kein** Kanban/Due-Date-Engine/PM — echtes Projektmanagement via E35-3 (Todoist/Linear). | 3 | 2 | 1 | 2 | 3 | ⚪ | O |
+| E43-5 | **Konflikt-Erkennung beim UI-Speichern:** mtime-/Hash-Check („Notiz wurde zwischenzeitlich geändert — neu laden/überschreiben"), Git als Sicherheitsnetz; bewusst **kein** Realtime-Editing/CRDT. Ergänzt E28-2 (File-Locks). | 3 | 2 | 2 | 2 | 3 | ⚪ | O |
+
+### E44 — Team-AI & Administration · `epic:team-ai`
+
+Fortsetzung von Phase N im Team-Kontext: der Owner kontrolliert, welche AI
+das Team-Wissen sehen darf — Members können nur enger stellen, nie lockern.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E44-1 | **Admin-AI-Policy:** Owner legt instanzweit fest: erlaubte Provider-/Trust-Klassen (nur `local`? auch `external`?), eigener Company-Endpoint (via E39-2), ob eigene Keys/Endpoints der Members erlaubt sind. Default restriktiv. Abhängig von E38-3. AK: Member kann keinen Provider nutzen, den die Policy verbietet. | 4 | 2 | 2 | 3 | 4 | ⚪ | O |
+| E44-2 | **Permission-aware Team-RAG:** Retrieval-Filter dreidimensional — `ai_access(note) ∩ visibility(note, user) ∩ Kanal-Trust`; ein Nutzer ohne Ordner-Zugriff bekommt daraus **nie** RAG-Kontext (Filter vor Retrieval, E38-2-Mechanik). AK: CI-Invariante analog E42-2, zusätzlich für den LLM-Kontext. Abhängig von E38-2, E42-2. | 5 | 2 | 3 | 4 | 5 | ⚪ | O |
+| E44-3 | **Security-Audit-Log (Owner):** Login-Ereignisse, Einladung/Entfernung, Rollenänderung, AI-Provider-/Policy-Änderung, Export, Löschungen — nur Metadaten, keine Inhalte (E31-3-konform); getrennt von der Activity-Liste (E43-1). Kein SIEM/Retention-Engine. | 3 | 2 | 1 | 2 | 3 | ⚪ | O |
+
+Sinnvolle Reihenfolge Phase O: E41-1 → E41-2 (+ E33-1-`actor` liegt dann
+vor) → E42-1 → E42-2 → E44-2 → E41-3 → E42-3 → E44-1 → E43-2 → E43-1 →
+E43-5 → E43-3/4 → E44-3. Lizenz-Seite (Seats/`edition` im E21-1-Payload)
+bei E21-2 (Verkaufskanal) mitdenken.
+
+---
+
 ## Aktueller Sprint (Phase A — MVP-Härtung) ✅ abgeschlossen
 
 1. 🟢 **Doku-Fundament**: ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
@@ -831,9 +907,10 @@ Monetarisierung/Cloud:
 11. 🔵 **E31-1 + E31-3** — Voll-Löschung + Log-Hygiene
 12. Danach: restliche E29/E30/E31-Stories, dann **Phase M** (Ecosystem &
     Interoperability, E32–E36 + E22-5/E23-4), danach **Phase N**
-    (Privacy-First Knowledge AI, E37–E40; E37-2 ggf. mit E28-1 vorziehen)
-    und parallel **E24-1** (ADR 0007 Cloud/Abo) und **E21-2**
-    (Verkaufskanal) auf gehärteter Basis
+    (Privacy-First Knowledge AI, E37–E40; E37-2 ggf. mit E28-1 vorziehen),
+    danach **Phase O** (Shared Knowledge & Small Teams, E41–E44) und
+    parallel **E24-1** (ADR 0007 Cloud/Abo) und **E21-2** (Verkaufskanal)
+    auf gehärteter Basis
 
 ## Verbleibender Backlog (übrig aus Phase G)
 

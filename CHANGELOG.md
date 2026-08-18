@@ -9,6 +9,19 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Changed
+- **Team-Collaboration-Audit 2026-08 + Phase O.** Strategie-Analyse
+  (`docs/audit-2026-08-team-collaboration.md`): Eignung für kleine Teams/
+  professionelle Nutzung — Einstufung **PERSONAL + SMALL TEAM** über das
+  Modell **Shared Instance** (ein Team = eine Instanz = ein Vault, kein
+  Multi-Tenant; konsistent mit ADR 0004/0007). Neue Phase **O — Shared
+  Knowledge & Small Teams** in der ROADMAP: **E41** Identity & Accounts,
+  **E42** Rollen & Sichtbarkeit (Owner/Editor/Viewer + `visibility` nach
+  `ai_access`-Muster), **E43** Team-Gedächtnis & Wiki-Qualitäten (git-basierte
+  Version History, Recently Changed, Template-Paket, Aufgaben-light,
+  Konflikt-Erkennung), **E44** Team-AI & Administration (Admin-AI-Policy,
+  permission-aware Team-RAG, Security-Audit-Log). E33-1 um `actor`
+  (Attribution-Vorstufe) erweitert. Bewusst nicht: Realtime-Editing,
+  Kommentare/Mentions, Kanban, Share-Links, Multi-Tenant, SSO/Enterprise-IAM.
 - **Private-Knowledge-AI-Audit 2026-08 + Phase N.** Analyse
   (`docs/audit-2026-08-private-knowledge-ai.md`): Kann Seiton Brain ein
   privates Wissenssystem mit kontrolliertem AI-Zugriff werden? Ist-Inventar
