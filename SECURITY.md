@@ -76,7 +76,8 @@ Schweregrad und Komplexität ab — wir stimmen das mit dir ab.
 | Webhook-Body | Größenlimit (`TELEGRAM_WEBHOOK_MAX_BODY_BYTES`) |
 | REST-API `/v1/*` | Deaktiviert ohne `SEITON_API_KEY`; Header `X-Seiton-Api-Key` (timing-safe) |
 | Web-UI `/setup`, `/settings`, … | Nur **localhost**; mit `UI_PASSWORD` Login-Pflicht (Session-Cookie, HMAC-signiert, Brute-Force-Lockout) — `/setup` bleibt immer localhost (E23-1) |
-| OpenAPI `/docs` | Nur bei gesetztem API-Key oder `SEITON_DEBUG`; nur **localhost** |
+| Localhost-Guard | **Proxy-sicher, fail-closed** (E27-1): hinter einem lokalen Reverse-Proxy werden `X-Forwarded-For`/`X-Real-IP`/`Forwarded` ausgewertet — remote weitergeleitete Requests erhalten 403; Deploy-Beispiele blocken `/setup` + `/docs` zusätzlich im Proxy |
+| OpenAPI `/docs` | Nur bei gesetztem API-Key oder `SEITON_DEBUG`; nur **localhost** (proxy-sicher wie oben) |
 | Vault-Pfade | Path-Traversal-Schutz (`resolve_vault_file`) |
 | Vault-Schreiben | Atomare Writes (Tempfile + `os.replace`) |
 | Docker | Non-root User im Image (E9-1) |

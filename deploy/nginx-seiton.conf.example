@@ -14,6 +14,13 @@ server {
     listen [::]:80;
     server_name brain.example.com;
 
+    # Setup-Wizard und API-Doku niemals oeffentlich machen (E27-1):
+    # /setup schreibt Secrets in die .env. Admin-Zugriff nur lokal auf dem
+    # Server (SSH-Tunnel: ssh -L 8000:127.0.0.1:8000 user@vps).
+    location ~ ^/(setup|api/setup|docs|redoc|openapi\.json) {
+        return 403;
+    }
+
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_http_version 1.1;

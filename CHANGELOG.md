@@ -31,6 +31,15 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 - **Roadmap-Hygiene:** E12-1/2/4 → 🟢; Phasen A–F als done; Phase G auf
   verbleibenden Backlog (**E21-2**, deferred **E20-3/5**) fokussiert.
 
+### Security
+- **E27-1: Proxy-sicherer Localhost-Guard (P0 aus Audit 2026-08).** Hinter
+  einem lokalen Reverse-Proxy war `request.client.host` immer `127.0.0.1` —
+  `/setup`, UI ohne Passwort und `/docs` waren auf dem dokumentierten
+  VPS-Setup remote erreichbar. Der Guard wertet jetzt fail-closed
+  `X-Forwarded-For`/`X-Real-IP`/`Forwarded` aus (alle Hops müssen localhost
+  sein); Caddy-/nginx-Beispiele blocken `/setup` + API-Doku zusätzlich im
+  Proxy. Doku: `SECURITY.md`, `docs/remote-access.md`. 17 neue Tests.
+
 ### Added
 - **E26-1/E26-2: Notiz-Templates.** Eigene Markdown-Vorlage für den Body
   neuer Notizen: `_seiton/templates/note.md` im Vault mit `{{title}}`,
