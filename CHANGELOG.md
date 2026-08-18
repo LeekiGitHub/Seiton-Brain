@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Changed
+- **Integrations-Audit 2026-08.** Ökosystem-/Interoperabilitäts-Analyse als
+  Entscheidungsgrundlage (`docs/audit-2026-08-integrations.md`): Ist-Inventar
+  der Integrationsflächen, Markt-/Community-Recherche, Jobs-to-be-Done,
+  Integration Matrix (Tier 1–4), Architektur-Empfehlungen, Top-5-Initiativen.
+  **Keine** Roadmap-Änderung — Stories erst nach Bestätigung.
 - **Product Readiness Audit 2026-08.** Vollständiger Review (Architektur,
   Security, UX, Tests/Ops, Privacy, Markt) vor Monetarisierung/Cloud:
   Bericht [`docs/audit-2026-08-product-readiness.md`](docs/audit-2026-08-product-readiness.md),
