@@ -9,6 +9,15 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Changed
+- **Private-Knowledge-AI-Audit 2026-08.** Analyse als Entscheidungsgrundlage
+  (`docs/audit-2026-08-private-knowledge-ai.md`): Kann Seiton Brain ein
+  privates Wissenssystem mit kontrolliertem AI-Zugriff werden? Ist-Inventar
+  (RAG/Suche/Embeddings/Parsing), RAG-Architektur-Empfehlung (Hybrid Search +
+  RRF), Local-AI-Machbarkeit (Lücke: lokale Embeddings), Permission-Modell
+  (`ai_access` pro Ordner/Notiz, Filter vor Retrieval), Threat Model,
+  Kosten, Wettbewerb, Strategie-Empfehlung **D — Privacy-First Knowledge AI**
+  (inkrementell B→C→D), MVP-Skizze. **Keine** Roadmap-Änderung — Stories erst
+  nach Bestätigung.
 - **Integrations-Audit 2026-08 + Phase M.** Ökosystem-/Interoperabilitäts-
   Analyse (`docs/audit-2026-08-integrations.md`): Ist-Inventar der
   Integrationsflächen, Markt-/Community-Recherche, Jobs-to-be-Done,
