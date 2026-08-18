@@ -697,6 +697,85 @@ E22-5 + E23-4 parallel einplanen, sobald E33-1 gemerged ist.
 
 ---
 
+## Phase N — Privacy-First Knowledge AI (Knowledge-AI-Audit 2026-08)
+
+Ergebnis des **Private-Knowledge-AI-/RAG-Audits**
+([`docs/audit-2026-08-private-knowledge-ai.md`](./docs/audit-2026-08-private-knowledge-ai.md)),
+Strategie **D — Privacy-First Knowledge AI** vom Product Owner bestätigt
+(2026-08-18). Nordstern: *„Chat with your own knowledge"* — ohne Kontrollverlust
+über die eigenen Daten. Erreicht als Rampe **B → C → D**: erst Retrieval-
+Qualität (E37), dann Permission-Layer (E38) + Local AI (E39), dann Knowledge
+Chat (E40). Produktprinzip (Architektur-Invariante):
+`User data → Permission/Trust Boundary → Retrieval → Context Selection → Model`
+— der Filter sitzt **vor** dem Retrieval; der Answer-Pfad bleibt **read-only**.
+
+Phase N startet nach dem Phase-M-Kern; **E37-2 gehört technisch zu E28-1**
+(Index-Sync) und kann mit Phase L/M vorgezogen werden. Synergien: E33-1
+(Provenance), E36 (Scoped Keys/Zugriffs-Log = API-Seite desselben
+Vertrauensversprechens).
+
+**Bewusst NICHT gebaut (siehe Audit, Abschnitt 17):** Agent mit
+Schreibrechten (Strategie E — eigene spätere Entscheidung mit
+Confirmation/Audit/Undo), Cross-Encoder-Reranking als Default (erst nach
+gemessenem Bedarf via E37-3), Query-Rewriting/Multi-Query/HyDE/Knowledge
+Graph, neue Kanäle (WhatsApp/Discord/Voice), persistente Chat-Historie,
+Anthropic-/Gemini-native SDKs (OpenAI-kompatible Ebene reicht), automatische
+Sensibilitäts-Klassifikation als Barriere, eigenes Modell-Management.
+
+### E37 — Retrieval-Fundament · `epic:retrieval` (Stufe B)
+
+„Excellent retrieval first, chatbot second." Größter Qualitätshebel, kein
+neues Privacy-Risiko; nützt `/ask`, `/find`, REST, MCP und UI gleichzeitig.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E37-1 | **Hybrid Search (RRF):** Postgres-Volltext (`tsvector`, Konfig `german`+`english`) parallel zu pgvector-kNN, Fusion via Reciprocal Rank Fusion in `retrieve_vault_notes` (ein Durchsetzungspunkt bleibt). Ersetzt den heutigen Entweder-oder-Fallback. AK: Mehrwort-Fragen und exakte Begriffe (Namen, Codes) treffen; alle Konsumenten profitieren ohne API-Änderung. | 5 | 3 | 2 | 4 | 5 | ⚪ | N |
+| E37-2 | **Index-Hygiene — Content-Hash + Embedding-Metadaten:** Hash pro Chunk (nur Geändertes re-embedden) + Modell/Dimension/Version am Index; Re-Index-Routine bei Modellwechsel. Löst die implizite 1536-Dim-Verdrahtung — Voraussetzung für E39-1. Teil von/Synergie mit E28-1. | 4 | 2 | 2 | 3 | 5 | ⚪ | N |
+| E37-3 | **Retrieval-Eval-Harness:** 30–50 deutsche Gold-Fragen gegen Fixture-Vault, Hit-Rate@5 als CI-Metrik — **ohne** LLM-Call lauffähig (keine API-Kosten in CI). Entscheidungsgrundlage für „Reranker ja/nein" und jede künftige Retrieval-Änderung. | 4 | 2 | 1 | 4 | 4 | ⚪ | N |
+| E37-4 | **Similar Notes ohne LLM:** „Ähnliche Notizen" auf der Notiz-Seite (kNN auf vorhandene Vektoren) + Capture-Hinweis „Dazu hast du schon geschrieben" (kNN vor dem Schreiben, Schwellwert). 0 Kosten, 0 Halluzination, wirkt täglich. | 4 | 2 | 1 | 3 | 3 | ⚪ | N |
+
+### E38 — Permission-Layer `ai_access` · `epic:ai-permissions` (Stufe D-Kern)
+
+Das Differenzierungsmerkmal (Marktlücke, Audit Abschnitt 11): granulare
+Per-Ordner-Kontrolle, welche Inhalte welche AI-Klasse sehen darf —
+**fail-closed, vor dem Retrieval durchgesetzt.**
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E38-1 | **Konvention + Datenmodell:** `ai_access: none \| local \| trusted \| external` — Ordner-Regeln in `vault_config.yaml`, Frontmatter-Override pro Notiz, denormalisiert als Spalte auf `vault_note_index` (beim Indexieren aufgelöst); Konvention dokumentiert (auch für Fremd-Tools/Obsidian-Nutzer). Default `external` = Status quo, beim Onboarding erklärt. | 5 | 2 | 2 | 3 | 5 | ⚪ | N |
+| E38-2 | **Durchsetzung vor Retrieval:** WHERE-Filter in `retrieve_vault_notes` (`trust(provider) ≤ ai_access`); bei `none` wird **nicht embedded**, Stufen-Downgrade löscht vorhandene Vektoren; unbekannte Stufe = `none` (fail-closed). AK: CI-Invarianten-Test „externe AI erhält nie einen `local`-Chunk" (Muster E27-1-Tests). | 5 | 3 | 3 | 4 | 5 | ⚪ | N |
+| E38-3 | **Provider- & Kanal-Trust-Klassen:** jeder LLM-/Embedding-Provider deklariert `local`/`trusted`/`external` (konfiguriert, nicht erraten); **kein Auto-Fallback über Trust-Grenzen** (Ollama-Ausfall wechselt nie still zu OpenAI). Kanäle als zweite Dimension: Telegram = `external`-Kanal ⇒ `/ask` via Telegram sieht nur `external`-freigegebene Inhalte. | 4 | 2 | 2 | 3 | 4 | ⚪ | N |
+| E38-4 | **Settings-UI:** Ordner-Liste mit `ai_access`-Wahl (+ Vererbung sichtbar), Hinweis-Texte („Finanzen → nie an externe AI"); Änderungen stoßen Re-Index/Vektor-Aufräumen an. | 4 | 2 | 1 | 2 | 4 | ⚪ | N |
+
+### E39 — Local AI komplett · `epic:local-ai`
+
+Chat lokal ✅ (E7-2), Whisper lokal ✅ (E6-4) — es fehlen nur die Embeddings.
+Danach ist „No data leaves the user's environment" ein ehrlicher Modus.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E39-1 | **Lokale Embeddings (Ollama):** `OllamaEmbeddingProvider` (Empfehlung `bge-m3`: MIT, 1024 dim, stark auf Deutsch), Dimension aus Embedding-Metadaten (E37-2); geführter Modellwechsel mit Re-Index + Fortschrittsanzeige. AK: Vault komplett ohne externe API durchsuchbar (semantisch). Abhängig von E37-2. | 5 | 3 | 2 | 4 | 4 | ⚪ | N |
+| E39-2 | **Generischer OpenAI-kompatibler Provider:** `LLM_PROVIDER=openai_compatible` mit freier `base_url` + Key — deckt LM Studio, vLLM, Mistral API, Azure OpenAI und EU-Gateways ohne je ein natives SDK ab; Trust-Klasse konfigurierbar (E38-3). | 3 | 1 | 1 | 2 | 3 | ⚪ | N |
+| E39-3 | **Local-Modus-Doku + Doctor-Check:** `docs/local-ai.md` — geführter Power-User-Pfad (Ollama installieren, Modellempfehlung nach Hardware, Grenzen ehrlich benennen); `doctor.sh` prüft Ollama-Erreichbarkeit + Modelle. | 3 | 1 | 1 | 1 | 3 | ⚪ | N |
+
+### E40 — Knowledge Chat · `epic:knowledge-chat` (Stufe C)
+
+`/ask` wird vom One-Shot zur Konversation — mit Quellen, Scope und voller
+Transparenz, **read-only by design**.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E40-1 | **Chat-Seite mit Verlauf:** Session-Verlauf (bewusst nicht persistiert), Folgefragen mit Kontext; Retrieval-Kontext = voller Treffer-Chunk (+ Nachbar-Chunks via `chunk_index`) statt 400-Zeichen-Snippet. Quellen als klickbare Notiz-Links (nutzt E30-1). | 5 | 3 | 2 | 3 | 4 | ⚪ | N |
+| E40-2 | **Per-Conversation-Scope:** Selector „ganzer Vault / Ordner / Kategorie" vor bzw. im Chat — wirkt als zusätzlicher Retrieval-Filter (schneidet mit `ai_access`, ersetzt ihn nie). Erhöht Präzision, senkt Kosten, stärkt Vertrauen — bester Nutzen/Aufwand-Punkt des Audits. | 4 | 2 | 1 | 2 | 4 | ⚪ | N |
+| E40-3 | **Transparenz-Layer:** Provider-Badge („lokal" / „extern: OpenAI"), aufklappbarer Kontext-Inspektor (welche Passagen wurden gesendet, Modell, ungefähre Tokenzahl), ehrliches „nichts gefunden" bleibt. AK: Nutzer kann pro Antwort nachvollziehen, was das Gerät verlassen hat. | 4 | 2 | 1 | 2 | 4 | ⚪ | N |
+| E40-4 | **Injection-Härtung + Read-only-Invariante:** Kontext klar delimitiert („Dokumente, keine Anweisungen"), Antwort wird nie als Aktion interpretiert, keine Tools im Answer-Pfad — als dokumentierte Invariante + Testabdeckung (Basis: OWASP LLM01, Dokumente = untrusted input; relevant ab E33-2/E22-5). | 4 | 2 | 2 | 3 | 4 | ⚪ | N |
+
+Sinnvolle Reihenfolge Phase N: E37-2 (mit/nach E28-1) → E37-1 → E37-3 →
+E38-1 + E38-2 → E38-3 → E39-1 → E40-1/2/3 → E40-4 → E38-4 → E37-4 →
+E39-2/3. Reranker-Entscheidung erst nach E37-3-Messung.
+
+---
+
 ## Aktueller Sprint (Phase A — MVP-Härtung) ✅ abgeschlossen
 
 1. 🟢 **Doku-Fundament**: ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
@@ -751,8 +830,10 @@ Monetarisierung/Cloud:
 10. 🔵 **E30-3 + E30-4** — Onboarding + Feedback-Layer
 11. 🔵 **E31-1 + E31-3** — Voll-Löschung + Log-Hygiene
 12. Danach: restliche E29/E30/E31-Stories, dann **Phase M** (Ecosystem &
-    Interoperability, E32–E36 + E22-5/E23-4) und parallel **E24-1**
-    (ADR 0007 Cloud/Abo) und **E21-2** (Verkaufskanal) auf gehärteter Basis
+    Interoperability, E32–E36 + E22-5/E23-4), danach **Phase N**
+    (Privacy-First Knowledge AI, E37–E40; E37-2 ggf. mit E28-1 vorziehen)
+    und parallel **E24-1** (ADR 0007 Cloud/Abo) und **E21-2**
+    (Verkaufskanal) auf gehärteter Basis
 
 ## Verbleibender Backlog (übrig aus Phase G)
 

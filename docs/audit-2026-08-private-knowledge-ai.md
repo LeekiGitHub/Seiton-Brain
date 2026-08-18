@@ -5,9 +5,14 @@
 Wissenssystem werden, auf das ein persönlicher AI-Assistent **kontrolliert**
 zugreifen kann?
 
-> **Status: Entscheidungsgrundlage.** Dieser Bericht ändert weder Roadmap noch
-> Code. Epics/Stories entstehen erst nach ausdrücklicher Bestätigung durch den
-> Product Owner.
+> **Status: Entscheidungsgrundlage.** Dieser Bericht ändert keinen Code.
+>
+> **Entscheidung (2026-08-18):** Strategie **D — Privacy-First Knowledge AI**
+> (inkrementell B→C→D) vom Product Owner bestätigt. Umsetzung als
+> **Phase N** in der ROADMAP: **E37** Retrieval-Fundament, **E38**
+> Permission-Layer `ai_access`, **E39** Local AI komplett, **E40** Knowledge
+> Chat. Strategie E (Agent) und die Tier-„NOT yet"-Liste (Abschnitt 17)
+> bleiben bewusst außen vor.
 
 Verwandte Dokumente: [`audit-2026-08-product-readiness.md`](./audit-2026-08-product-readiness.md)
 (Phase L), [`audit-2026-08-integrations.md`](./audit-2026-08-integrations.md)
