@@ -11,7 +11,7 @@ from app.health import run_health_checks
 from app.licensing.startup import enforce_license_if_required
 from app.logging_config import bind_log_context, clear_log_context, configure_logging
 from app.setup.routes import router as setup_api_router
-from app.setup.security import is_localhost_host
+from app.setup.security import is_local_request
 from app.telegram.webhook import router as telegram_router
 from app.ui.router import mount_ui_static, router as ui_router, ui_api_router
 
@@ -43,8 +43,7 @@ async def openapi_localhost_guard(request: Request, call_next):
     if request.url.path in _OPENAPI_PATHS:
         if not is_openapi_enabled():
             return JSONResponse(status_code=404, content={"detail": "Not found"})
-        host = request.client.host if request.client else ""
-        if not is_localhost_host(host):
+        if not is_local_request(request):
             return JSONResponse(
                 status_code=403,
                 content={"detail": "OpenAPI-Dokumentation nur von localhost erreichbar."},
