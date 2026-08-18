@@ -5,7 +5,12 @@ Leitfrage: **Welche externen Systeme und Informationsflüsse sollte Seiton
 Brain unterstützen, damit es sich wie die zentrale Wissensschicht im
 digitalen Leben des Nutzers anfühlt — nicht wie eine isolierte Notiz-App?**
 
-Kein Produktivcode geändert, keine Roadmap-Änderung — Entscheidungsgrundlage.
+Kein Produktivcode geändert — Entscheidungsgrundlage.
+
+> **Entscheidung (2026-08-18):** Alle 5 Initiativen vom Product Owner
+> bestätigt → **Phase M — Ecosystem & Interoperability** mit Epics
+> **E32–E36** in der [ROADMAP](../ROADMAP.md), geplant nach dem
+> Phase-L-Kern (Launch-Härtung).
 
 ---
 

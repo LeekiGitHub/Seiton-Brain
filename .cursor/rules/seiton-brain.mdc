@@ -49,7 +49,9 @@ Härtung nach Audit 2026-08 (GO WITH CONDITIONS,
 `docs/audit-2026-08-product-readiness.md`) — E27 Security (P0: Proxy-Guard,
 XSS), E28 Datenintegrität/Index-Sync, E29 Release/Ops, E30 UX Consumer-Pass,
 E31 Privacy/DSGVO — **vor** E24 Cloud/Abo (ADR 0007) und E21-2
-Verkaufskanal. Offen aus H: E22-5/6, E23-3/4, E25-2/4, E26-3/4/6. 505 Tests.
+Verkaufskanal. **Phase M (geplant, `docs/audit-2026-08-integrations.md`):**
+E32 Vault-Interop, E33 Universal Capture, E34 Git-Backup, E35 Automation,
+E36 AI-Access. Offen aus H: E22-5/6, E23-3/4, E25-2/4, E26-3/4/6. 505 Tests.
 
 ## Roadmap & Backlog
 

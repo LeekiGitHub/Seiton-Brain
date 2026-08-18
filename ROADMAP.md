@@ -553,7 +553,7 @@ externen Obsidian-Edits — bricht das Kernversprechen Vault-Koexistenz.
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E28-1 | **Inkrementeller Index-Sync:** externe Vault-Edits landen heute nie im Index (Full-Sync nur bei leerem Index). mtime-basierter inkrementeller Sync (periodischer Worker-Task) + „Neu indexieren"-Button in Settings. AK: Obsidian-Edit ist nach ≤ Sync-Intervall in Suche/RAG sichtbar. | 5 | 3 | 3 | 3 | 5 | ⚪ | L |
+| E28-1 | **Inkrementeller Index-Sync:** externe Vault-Edits landen heute nie im Index (Full-Sync nur bei leerem Index). mtime-basierter inkrementeller Sync (periodischer Worker-Task; etabliert damit die **Celery-Beat-/Scheduler-Grundlage**, die Phase M für E34-2/E22-5 wiederverwendet) + „Neu indexieren"-Button in Settings. AK: Obsidian-Edit ist nach ≤ Sync-Intervall in Suche/RAG sichtbar. | 5 | 3 | 3 | 3 | 5 | ⚪ | L |
 | E28-2 | **File-Locks für Create/Append:** `_next_available_path` und Read-Modify-Write-Append ohne Lock → Lost Updates bei parallelen Captures. Prozessübergreifendes Locking (z. B. `flock` pro Zieldatei) + Test. | 4 | 2 | 3 | 2 | 4 | ⚪ | L |
 | E28-3 | **Capture-Kompensation:** Vault-Write vor DB-Commit ohne Rollback → Orphan-Dateien; bei Telegram-Retry im Verarbeitungsfenster Doppel-Writes. Kompensationslogik (Datei löschen bei DB-Fehler auf Create-Pfad) + Idempotenz-Fenster schließen. | 4 | 3 | 3 | 2 | 4 | ⚪ | L |
 | E28-4 | **Idempotency-Key für REST/UI-Capture:** optionaler `Idempotency-Key`-Header (REST) bzw. Client-Token (UI) gegen Mehrfachklick/Netz-Retry-Doppelnotizen. | 3 | 2 | 2 | 2 | 3 | ⚪ | L |
@@ -615,6 +615,88 @@ ist separat und **nicht** Teil dieser Stories).
 
 ---
 
+## Phase M — Ecosystem & Interoperability (Integrations-Audit 2026-08)
+
+Ergebnis des **Integrations-/Ökosystem-Audits**
+([`docs/audit-2026-08-integrations.md`](./docs/audit-2026-08-integrations.md)),
+alle 5 Initiativen vom Product Owner bestätigt (2026-08-18). Leitidee: nicht
+fremde Plattformen einzeln integrieren, sondern die **eigene Offenheit
+vervollständigen** — Vault als offene Wissensschicht, Capture von überall,
+Events/API für Automation, MCP für AI. Phase M startet **nach** dem
+Phase-L-Kern; E28-1 (Index-Sync inkl. periodischem Worker-Task) ist die
+technische Vorstufe mehrerer M-Stories.
+
+**Bewusst NICHT gebaut (Tier 4, siehe Audit):** Task-Tool-Integrationen
+(→ n8n-Rezepte E35-3), Google/Microsoft-Office-Embeds & Two-Way-Sync,
+Cloud-Storage-OAuth-APIs (Ordnersync/rclone genügt), Zapier-App (erst mit
+Cloud-Edition E24 neu bewerten), Plugin-System, OAuth-Framework auf Vorrat.
+
+### E32 — Vault-Interop & Migration · `epic:vault-interop` (Initiative 1)
+
+„Bring your Second Brain": bestehende Obsidian-Vaults sind der native
+Import; das Obsidian-Ökosystem (Readwise-Plugin, Web Clipper, Ordnersync)
+wird via Index-Sync automatisch zum Seiton-Integrationskatalog.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E32-1 | **Vault-Onboarding im Setup:** „Bestehenden Vault verbinden" als eigener Schritt — erkennt vorhandene Notizen, zeigt Statistik (Anzahl, Ordner), startet Erstindexierung mit Fortschrittsanzeige und erklärt Koexistenz (Obsidian parallel nutzen). AK: bestehender 1k-Notizen-Vault ist nach Setup durchsuchbar, Nutzer sieht Fortschritt/Ergebnis. Abhängig von E28-1. | 5 | 3 | 2 | 3 | 4 | ⚪ | M |
+| E32-2 | **Koexistenz-Rezepte (Doku):** `docs/integrations/obsidian-ecosystem.md` — Readwise-Plugin, Obsidian Web Clipper, iCloud/Syncthing-Ordnersync als „Integrationen ohne Code"; Frontmatter-/`_seiton`-Konventionen für Fremd-Tools. | 3 | 1 | 1 | 1 | 3 | ⚪ | M |
+| E32-3 | **Markdown-ZIP-Import:** Upload eines ZIP (z. B. Notion-Export) in der UI → Dateien in Vault-Unterordner entpacken (Pfad-sicher), indexieren, Import-Report (übernommen/übersprungen). Deckt Notion-/Generic-Markdown-Migration ab; ENEX/OneNote bewusst Tier 3. | 4 | 3 | 2 | 3 | 3 | ⚪ | M |
+
+### E33 — Universal Capture · `epic:universal-capture` (Initiative 3)
+
+„Everything can be sent into my Second Brain." Ergänzt die bestehenden
+Stories **E22-5** (E-Mail via IMAP) und **E23-4** (Share-Target/Shortcut) —
+beide werden mit Phase M priorisiert und bleiben unter ihren Epics geführt.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E33-1 | **Provenance im Capture-Pfad:** `source` (telegram/ui/rest/email/web/mcp) + optionales `source_url` durch `process_text_message` bis ins Frontmatter (`source:`) und `entries`; Filter in Notes-API. Grundlage für E33-2/E22-5 und Vertrauen („Woher kam das?"). Jetzt billig, nachträglich teuer. | 4 | 2 | 2 | 2 | 4 | ⚪ | M |
+| E33-2 | **URL/Web-Capture:** erkannte URL (Telegram/UI/REST) → Artikel-Fetch + Text-Extraktion (Readability-Ansatz, permissive Lizenz prüfen) → Notiz mit Quelle, Titel, Auszug; Fallback bei Paywall/Fehler = heutiges Verhalten. AK: geteilter Artikel-Link wird zur durchsuchbaren Wissensnotiz mit `source_url`. | 5 | 3 | 2 | 3 | 4 | ⚪ | M |
+| E33-3 | **Capture-Rezepte (Doku):** Bookmarklet gegen `POST /v1/capture`, iOS-Shortcut-Beispiel (bis E23-4), E-Mail-Weiterleitungs-Setup (mit E22-5). | 2 | 1 | 1 | 1 | 3 | ⚪ | M |
+
+### E34 — Git-Backup & Data Ownership · `epic:git-backup` (Initiative 2)
+
+`GitVaultBackend` (E15-3) kann bereits Commit-pro-Änderung + Push —
+produktisieren: geführtes Setup, externe Edits, Sichtbarkeit. Zusammen mit
+Backup-Rotation (E29-4) und Export (E31-2) wird „**Deine Daten, versioniert,
+für immer**" zum Marketing-Argument.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E34-1 | **Geführtes Git-Backup-Setup:** Settings-Karte — Repo-Status erkennen, `git init` anbieten, Remote/Deploy-Key-Anleitung (GitHub/GitLab/lokal), Test-Push, Statusanzeige (letzter Commit/Push, Fehler). | 4 | 3 | 2 | 2 | 4 | ⚪ | M |
+| E34-2 | **Auto-Commit externer Edits:** periodischer Task (nutzt Scheduler aus E28-1) committet Obsidian-/Fremd-Änderungen im Vault (`git add -A` + Batch-Commit, konfigurierbares Intervall) + optional Push. Heute werden nur Seiton-eigene Writes committet. | 4 | 2 | 2 | 2 | 4 | ⚪ | M |
+| E34-3 | **Offsite-Rezept:** `docs/backup-offsite.md` + optionaler Hook im Backup-Flow — rclone/S3/beliebiges Sync-Ziel für `backups/` und Vault; bewusst ohne eigene Cloud-OAuth-Integrationen. | 3 | 1 | 1 | 1 | 3 | ⚪ | M |
+
+### E35 — Automation-Fundament · `epic:automation` (Initiative 4)
+
+Ein sauberes Fundament statt Dutzender Einzelintegrationen (ADR 0004:
+REST + n8n statt Custom-Nodes). Deckt Task-Tools, Benachrichtigungen und
+Long-Tail-Wünsche ab.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E35-1 | **REST-CRUD vervollständigen:** `PUT /v1/notes/content`, `DELETE /v1/notes`, `PATCH`-Semantik für Tags/Kategorie; konsistente Fehler; OpenAPI-Beispiele. Heute ist die API read+capture-only. | 4 | 2 | 2 | 2 | 4 | ⚪ | M |
+| E35-2 | **Webhooks härten:** HMAC-Signatur (`X-Seiton-Signature`), Payload-`version`, Retry mit Backoff, neue Events `note.updated`/`note.deleted`; Empfänger-Doku. | 4 | 2 | 2 | 2 | 4 | ⚪ | M |
+| E35-3 | **n8n-Rezepte:** 3–4 Beispiel-Workflows in `examples/n8n/` — Aufgabe→Todoist/Linear (via `note.created` + category), Wochen-Digest→Slack/E-Mail, Webhook→Sheets-Log. | 3 | 2 | 1 | 2 | 3 | ⚪ | M |
+
+### E36 — Kontrollierter AI-Access · `epic:ai-access` (Initiative 5)
+
+MCP haben wir vor dem Mainstream — die Vertrauensschicht (Scope, Revocation,
+Audit) macht daraus ein bewerbbares Differenzierungsmerkmal.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E36-1 | **Scoped API-Keys:** mehrere Keys (DB-Tabelle statt Env-String), Scope `read` / `read-write`, Anlegen/Widerrufen in Settings; `SEITON_API_KEY` bleibt als Legacy-Fallback. AK: AI-Client mit Read-only-Key kann suchen/lesen, aber nicht capturen/ändern. | 4 | 3 | 2 | 3 | 4 | ⚪ | M |
+| E36-2 | **Zugriffs-Log (opt-in):** pro API-Key letzte Zugriffe (Endpoint, Zeit) in Settings sichtbar — „welches Tool hat wann was gelesen"; keine Inhalte loggen (E31-3-konform). | 3 | 2 | 1 | 2 | 3 | ⚪ | M |
+| E36-3 | **AI-Integrations-Doku + Settings-Karte:** Claude Desktop/ChatGPT/Cursor-Setup Schritt für Schritt, Read-only-Empfehlung; Synergie mit E30-8 (Integrations-Karte). | 3 | 1 | 1 | 1 | 3 | ⚪ | M |
+
+Sinnvolle Reihenfolge Phase M: E33-1 (Provenance, klein & fundamental) →
+E32-1/E32-2 → E34-1/E34-2 → E33-2 → E35-1/E35-2 → E36-1 → Rest.
+E22-5 + E23-4 parallel einplanen, sobald E33-1 gemerged ist.
+
+---
+
 ## Aktueller Sprint (Phase A — MVP-Härtung) ✅ abgeschlossen
 
 1. 🟢 **Doku-Fundament**: ROADMAP, ARCHITECTURE, CHANGELOG, ADR-Struktur, LICENSE, setup-Doku
@@ -668,8 +750,9 @@ Monetarisierung/Cloud:
 9. 🔵 **E29-2 + E29-3** — CI-Härtung + Release v0.3.0
 10. 🔵 **E30-3 + E30-4** — Onboarding + Feedback-Layer
 11. 🔵 **E31-1 + E31-3** — Voll-Löschung + Log-Hygiene
-12. Danach: restliche E29/E30/E31-Stories, dann **E24-1** (ADR 0007 Cloud/Abo)
-    und **E21-2** (Verkaufskanal) auf gehärteter Basis
+12. Danach: restliche E29/E30/E31-Stories, dann **Phase M** (Ecosystem &
+    Interoperability, E32–E36 + E22-5/E23-4) und parallel **E24-1**
+    (ADR 0007 Cloud/Abo) und **E21-2** (Verkaufskanal) auf gehärteter Basis
 
 ## Verbleibender Backlog (übrig aus Phase G)
 
