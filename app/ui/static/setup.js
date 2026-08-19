@@ -14,6 +14,12 @@
     if (n === 4) renderSummary();
   }
 
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   function showResult(el, ok, message) {
     el.textContent = message;
     el.classList.remove("hidden", "ok", "err");
@@ -61,8 +67,8 @@
   function renderSummary() {
     const p = payload();
     const lines = [
-      `Vault: ${p.obsidian_vault_host_path || "—"}`,
-      `OpenAI: ${p.openai_api_key ? "••••" + p.openai_api_key.slice(-4) : "—"}`,
+      `Vault: ${escapeHtml(p.obsidian_vault_host_path || "—")}`,
+      `OpenAI: ${p.openai_api_key ? "••••" + escapeHtml(p.openai_api_key.slice(-4)) : "—"}`,
       `Embeddings: ${p.embeddings_enabled ? "an" : "aus"}`,
       `Telegram: ${p.telegram_bot_token ? "ja" : "übersprungen"}`,
     ];
@@ -142,7 +148,7 @@
         method: "POST",
         body: JSON.stringify(payload()),
       });
-      showResult(el, true, data.message + "\nDatei: " + data.env_file);
+      showResult(el, true, data.message + "\nDatei: " + (data.env_file || ""));
     } catch (err) {
       showResult(el, false, String(err.message));
     } finally {
