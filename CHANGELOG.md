@@ -8,6 +8,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 
+### Security
+- **E27-2 XSS-Fix (P0).** Alle `innerHTML`-Zuweisungen in `dashboard.js`,
+  `login.js`, `setup.js` nutzen jetzt `escapeHtml()` — schließt Stored-XSS
+  via Notiz-Titel, Ordner, Pfade, Server-Fehlermeldungen. Regressionstest
+  prüft alle JS-Dateien auf rohe Interpolationen in `innerHTML`-Kontexten.
+
 ### Changed
 - **Team-Collaboration-Audit 2026-08 + Phase O.** Strategie-Analyse
   (`docs/audit-2026-08-team-collaboration.md`): Eignung für kleine Teams/

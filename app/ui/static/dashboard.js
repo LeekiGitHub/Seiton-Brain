@@ -1,4 +1,10 @@
 (() => {
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   function badge(status) {
     const cls =
       status === "failed" || status === "rejected"
@@ -6,7 +12,7 @@
         : status === "appended"
           ? "warn"
           : "ok";
-    return `<span class="badge ${cls}">${status}</span>`;
+    return `<span class="badge ${cls}">${escapeHtml(status)}</span>`;
   }
 
   function formatDate(iso) {
@@ -28,9 +34,9 @@
       .map(
         (e) => `<tr>
           <td>${formatDate(e.created_at)}</td>
-          <td class="truncate" title="${e.title}">${e.title}</td>
-          <td>${e.category || "—"}</td>
-          <td>${e.kind}</td>
+          <td class="truncate" title="${escapeHtml(e.title)}">${escapeHtml(e.title)}</td>
+          <td>${escapeHtml(e.category || "—")}</td>
+          <td>${escapeHtml(e.kind)}</td>
           <td>${badge(e.status)}</td>
         </tr>`
       )
@@ -50,9 +56,9 @@
       .map(
         (n) => `<tr>
           <td>${formatDate(n.mtime)}</td>
-          <td class="truncate" title="${n.title}">${n.title}</td>
-          <td>${n.folder}</td>
-          <td class="truncate" title="${n.vault_path}">${n.vault_path}</td>
+          <td class="truncate" title="${escapeHtml(n.title)}">${escapeHtml(n.title)}</td>
+          <td>${escapeHtml(n.folder)}</td>
+          <td class="truncate" title="${escapeHtml(n.vault_path)}">${escapeHtml(n.vault_path)}</td>
         </tr>`
       )
       .join("");
@@ -86,12 +92,6 @@
     renderStats(data.stats);
     renderEntries(data.recent_entries);
     renderVault(data.recent_vault_notes);
-  }
-
-  function escapeHtml(text) {
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
   }
 
   async function capture(text) {
@@ -130,7 +130,7 @@
         ? ` · ${data.tags.map((t) => `#${escapeHtml(t)}`).join(" ")}`
         : "";
       resultEl.innerHTML = `<p class="capture-ok">${badge(data.status)}
-        <strong>${escapeHtml(data.title)}</strong> (${escapeHtml(data.category)}, ${actionLabel})
+        <strong>${escapeHtml(data.title)}</strong> (${escapeHtml(data.category)}, ${escapeHtml(actionLabel)})
         <span class="hit-path">${escapeHtml(data.vault_path)}</span>${tags}</p>`;
       textEl.value = "";
       await load();
@@ -153,6 +153,6 @@
 
   load().catch((err) => {
     document.getElementById("entries-table-wrap").innerHTML =
-      `<p class="empty">${err.message}</p>`;
+      `<p class="empty">${escapeHtml(err.message)}</p>`;
   });
 })();
