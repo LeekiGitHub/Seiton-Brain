@@ -60,12 +60,10 @@ def _find_violations(path: Path) -> list[str]:
     lines = source.split("\n")
 
     in_template = False
-    template_start = 0
 
     for i, line in enumerate(lines, 1):
         if INNERHTML_ASSIGN.search(line):
             in_template = True
-            template_start = i
 
         if in_template:
             for m in TEMPLATE_INTERP.finditer(line):
