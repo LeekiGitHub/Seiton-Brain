@@ -8,8 +8,10 @@ privates Netz).
 > **UI-Auth (E23-1):** Mit gesetztem `UI_PASSWORD` in der `.env` verlangt die
 > Web-UI einen Login (Session-Cookie, 7 Tage gültig) und darf dann auch remote
 > erreichbar sein — **ausschließlich hinter TLS** (Caddy/nginx/Tunnel, s. u.).
-> Der Setup-Wizard (`/setup`) bleibt immer localhost-only, weil er Secrets in
-> die `.env` schreibt. Passwortwechsel meldet alle Sessions ab.
+> Setze zusätzlich `UI_COOKIE_SECURE=true`, damit das Session-Cookie nur über
+> HTTPS gesendet wird (E27-3). Der Setup-Wizard (`/setup`) bleibt immer
+> localhost-only, weil er Secrets in die `.env` schreibt. Passwortwechsel
+> meldet alle Sessions ab. Logout läuft per POST (CSRF-sicher).
 
 > **Proxy-sicherer Localhost-Guard (E27-1):** Der Guard erkennt Requests, die
 > ein Reverse-Proxy weiterleitet (`X-Forwarded-For`/`X-Real-IP`/`Forwarded`),
@@ -28,8 +30,9 @@ privates Netz).
 >
 > **Stack deployen:** zuerst [`vps-deployment.md`](vps-deployment.md) (E20-2).
 
-Die API lauscht nur auf `127.0.0.1:8000`. Von außen kommt Traffic nur über einen
-TLS-fähigen Proxy oder Tunnel.
+Die API lauscht standardmäßig nur auf `127.0.0.1:8000` (E27-3, auch im
+Basis-Compose). Von außen kommt Traffic nur über einen TLS-fähigen Proxy oder
+Tunnel.
 
 ---
 

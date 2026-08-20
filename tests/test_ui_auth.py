@@ -109,6 +109,9 @@ def test_login_success_sets_cookie_and_grants_access(auth_enabled):
     assert response.json() == {"ok": True}
     token = response.cookies.get(auth.SESSION_COOKIE)
     assert token and auth.verify_session_token(token)
+    set_cookie = response.headers.get("set-cookie", "").lower()
+    assert "httponly" in set_cookie
+    assert "secure" not in set_cookie  # Default: UI_COOKIE_SECURE=false
 
     page = client.get(
         "/dashboard", cookies={auth.SESSION_COOKIE: token}, follow_redirects=False
@@ -117,6 +120,14 @@ def test_login_success_sets_cookie_and_grants_access(auth_enabled):
 
     api = client.get("/api/ui/settings", cookies={auth.SESSION_COOKIE: token})
     assert api.status_code == 200
+
+
+def test_login_sets_secure_cookie_when_configured(auth_enabled, monkeypatch):
+    monkeypatch.setattr(settings, "ui_cookie_secure", True)
+    response = client.post("/api/ui/login", json={"password": PASSWORD})
+    assert response.status_code == 200
+    set_cookie = response.headers.get("set-cookie", "").lower()
+    assert "secure" in set_cookie
 
 
 def test_login_lockout_after_failed_attempts(auth_enabled):
@@ -131,21 +142,36 @@ def test_login_lockout_after_failed_attempts(auth_enabled):
 def test_logout_clears_cookie(auth_enabled):
     login = client.post("/api/ui/login", json={"password": PASSWORD})
     token = login.cookies.get(auth.SESSION_COOKIE)
+    response = client.post(
+        "/logout", cookies={auth.SESSION_COOKIE: token}, follow_redirects=False
+    )
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login"
+    set_cookie = response.headers.get("set-cookie", "")
+    assert auth.SESSION_COOKIE in set_cookie and "Max-Age=0" in set_cookie
+
+
+def test_logout_get_does_not_clear_cookie(auth_enabled):
+    """GET /logout darf die Session nicht mehr invalidieren (E27-3 CSRF)."""
+    login = client.post("/api/ui/login", json={"password": PASSWORD})
+    token = login.cookies.get(auth.SESSION_COOKIE)
     response = client.get(
         "/logout", cookies={auth.SESSION_COOKIE: token}, follow_redirects=False
     )
     assert response.status_code == 302
     assert response.headers["location"] == "/login"
     set_cookie = response.headers.get("set-cookie", "")
-    assert auth.SESSION_COOKIE in set_cookie and 'Max-Age=0' in set_cookie
+    assert "Max-Age=0" not in set_cookie
 
 
 def test_logout_link_rendered_when_auth_enabled(auth_enabled):
     token = auth.create_session_token()
     page = client.get("/dashboard", cookies={auth.SESSION_COOKIE: token})
-    assert "/logout" in page.text
+    assert 'action="/logout"' in page.text
+    assert "Abmelden" in page.text
 
 
 def test_no_logout_link_when_auth_disabled():
     page = client.get("/dashboard")
-    assert "/logout" not in page.text
+    assert "Abmelden" not in page.text
+    assert 'action="/logout"' not in page.text

@@ -538,8 +538,8 @@ Dritte auf dem dokumentierten VPS-Deployment-Pfad.
 |----|-------|---|---|---|---|---|--------|-------|
 | E27-1 | **P0 — Proxy-sichere Zugriffskontrolle:** `require_localhost` prüft nur `request.client.host` — hinter dem dokumentierten Caddy/nginx-Proxy immer die Proxy-IP → `/setup`, UI ohne Passwort und `/docs` sind remote erreichbar. Umgesetzt fail-closed **ohne** neues Setting: Forwarded-Header (`X-Forwarded-For`/`X-Real-IP`/`Forwarded`) werden ausgewertet — alle gemeldeten Hops müssen localhost sein; Deploy-Beispiele blocken `/setup` + `/docs` zusätzlich im Proxy. AK erfüllt: Setup remote 403; Tests mit simulierten Proxy-Headern. | 5 | 2 | 3 | 2 | 5 | 🟢 | L |
 | E27-2 | **XSS-Fix:** `dashboard.js` rendert `title`/`folder`/`vault_path`/`err.message` ungeescaped in `innerHTML` (Stored XSS über Notiz-Titel, z. B. aus OCR/Dokument-Inhalten); `login.js`/`setup.js` latent. Zentrale `escapeHtml`-Nutzung überall; Regression-Test der die JS-Dateien auf rohe Interpolationen prüft. | 5 | 1 | 2 | 1 | 5 | 🟢 | L |
-| E27-3 | **Sichere Remote-Defaults:** Session-Cookie `Secure`-Flag (config-gesteuert bei TLS), Standard-Compose bindet `127.0.0.1:8000` statt `0.0.0.0`, Setup-Wizard macht Telegram-Allowlist zum empfohlenen Pflichtschritt (Warnung wenn leer + Webhook aktiv), Logout per POST. | 4 | 2 | 2 | 2 | 4 | ⚪ | L |
-| E27-4 | **Frontmatter-/Pfad-Härtung:** Titel/Tags werden roh ins YAML-Frontmatter geschrieben (Newline/`---` zerstören die Notiz) → sanitizen; `resolve_vault_file` nutzt `startswith` ohne Separator → `is_relative_to`; Append-Pfad läuft an `resolve_vault_file` vorbei → vereinheitlichen. | 4 | 2 | 2 | 1 | 4 | ⚪ | L |
+| E27-3 | **Sichere Remote-Defaults:** Session-Cookie `Secure`-Flag (config-gesteuert bei TLS), Standard-Compose bindet `127.0.0.1:8000` statt `0.0.0.0`, Setup-Wizard macht Telegram-Allowlist zum empfohlenen Pflichtschritt (Warnung wenn leer + Webhook aktiv), Logout per POST. | 4 | 2 | 2 | 2 | 4 | 🟢 | L |
+| E27-4 | **Frontmatter-/Pfad-Härtung:** Titel/Tags werden roh ins YAML-Frontmatter geschrieben (Newline/`---` zerstören die Notiz) → sanitizen; `resolve_vault_file` nutzt `startswith` ohne Separator → `is_relative_to`; Append-Pfad läuft an `resolve_vault_file` vorbei → vereinheitlichen. | 4 | 2 | 2 | 1 | 4 | 🟢 | L |
 | E27-5 | **Rate-Limits & Brute-Force** (ersetzt E25-3): Limits für `/api/ui/login`, `/v1/*` und LLM-Endpunkte (`/ask`, `/digest`, Capture) — Kostenkontrolle + Key-Brute-Force; Lockout-Store proxy-/multi-worker-tauglich (Redis). Webhook-Secret timing-safe vergleichen. | 4 | 3 | 2 | 2 | 4 | ⚪ | L |
 
 Abhängigkeiten: keine untereinander; E27-1 zuerst (größtes Risiko).
@@ -896,7 +896,7 @@ Monetarisierung/Cloud:
 
 1. 🔵 **E27-1** — P0: Proxy-sichere Zugriffskontrolle (`/setup` remote dicht)
 2. 🔵 **E27-2** — XSS-Fix Dashboard/Login/Setup (Quick Win, hohes Risiko)
-3. 🔵 **E27-3 + E27-4** — Sichere Defaults + Frontmatter-/Pfad-Härtung
+3. 🟢 **E27-3 + E27-4** — Sichere Defaults + Frontmatter-/Pfad-Härtung
 4. 🔵 **E28-5** — Retry-/Status-Semantik (klein, entlastet Debugging sofort)
 5. 🔵 **E29-1** — Dependencies pinnen + Dependabot (Quick Win)
 6. 🔵 **E30-1** — Klickbare Suchtreffer/Quellen (größter UX-Hebel, Aufwand S)

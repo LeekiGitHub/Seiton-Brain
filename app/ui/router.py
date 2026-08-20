@@ -153,9 +153,20 @@ async def login_page(request: Request):
 
 
 @router.get("/logout")
+async def logout_get():
+    """Legacy-GET: leitet auf Login um; Cookie wird nur per POST gelöscht (E27-3)."""
+    return RedirectResponse(url="/login", status_code=302)
+
+
+@router.post("/logout")
 async def logout():
-    response = RedirectResponse(url="/login", status_code=302)
-    response.delete_cookie(SESSION_COOKIE)
+    response = RedirectResponse(url="/login", status_code=303)
+    response.delete_cookie(
+        SESSION_COOKIE,
+        httponly=True,
+        samesite="lax",
+        secure=settings.ui_cookie_secure,
+    )
     return response
 
 
@@ -183,6 +194,7 @@ async def login_api(body: LoginRequest, request: Request) -> Response:
         max_age=SESSION_TTL_SECONDS,
         httponly=True,
         samesite="lax",
+        secure=settings.ui_cookie_secure,
     )
     return response
 

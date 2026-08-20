@@ -87,7 +87,30 @@
 
   document.getElementById("telegram-enable").addEventListener("change", (e) => {
     document.getElementById("telegram-fields").classList.toggle("hidden", !e.target.checked);
+    updateAllowlistWarning();
   });
+
+  document.getElementById("telegram-allowlist").addEventListener("input", updateAllowlistWarning);
+
+  function updateAllowlistWarning() {
+    const enabled = document.getElementById("telegram-enable").checked;
+    const empty = !document.getElementById("telegram-allowlist").value.trim();
+    document.getElementById("allowlist-warning").classList.toggle(
+      "hidden",
+      !(enabled && empty)
+    );
+  }
+
+  function confirmEmptyAllowlist() {
+    const enabled = document.getElementById("telegram-enable").checked;
+    const empty = !document.getElementById("telegram-allowlist").value.trim();
+    if (!enabled || !empty) return true;
+    return window.confirm(
+      "Telegram ohne Allowlist speichern?\n\n" +
+        "Ohne TELEGRAM_ALLOWED_USER_IDS akzeptiert der Bot Nachrichten von jedem. " +
+        "Das ist bei Webhook besonders riskant. Fortfahren?"
+    );
+  }
 
   document.getElementById("btn-test-vault").addEventListener("click", async () => {
     const el = document.getElementById("result-vault");
@@ -142,6 +165,7 @@
   document.getElementById("btn-save").addEventListener("click", async () => {
     const el = document.getElementById("result-save");
     const btn = document.getElementById("btn-save");
+    if (!confirmEmptyAllowlist()) return;
     btn.disabled = true;
     try {
       const data = await api("/api/setup/save", {

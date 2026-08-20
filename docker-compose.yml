@@ -27,7 +27,9 @@ services:
   api:
     build: .
     ports:
-      - "8000:8000"
+      # Nur localhost (E27-3) — Remote-Zugriff hinter TLS-Proxy, siehe
+      # docs/remote-access.md und docker-compose.vps.yml
+      - "127.0.0.1:8000:8000"
     env_file:
       - .env
     environment:

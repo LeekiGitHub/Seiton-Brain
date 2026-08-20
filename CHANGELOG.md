@@ -9,6 +9,13 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Security
+- **E27-3 Sichere Remote-Defaults.** Compose bindet `127.0.0.1:8000`
+  (statt `0.0.0.0`); Session-Cookie `Secure`-Flag via `UI_COOKIE_SECURE`;
+  Logout per POST (GET löscht Cookie nicht mehr); Setup-Wizard warnt bei
+  Telegram ohne Allowlist.
+- **E27-4 Frontmatter-/Pfad-Härtung.** Titel/Tags werden vor YAML-Schreiben
+  bereinigt (Newlines/`---`/Steuerzeichen); `resolve_vault_file` nutzt
+  `Path.is_relative_to`; Append läuft über denselben Resolver.
 - **E27-2 XSS-Fix (P0).** Alle `innerHTML`-Zuweisungen in `dashboard.js`,
   `login.js`, `setup.js` nutzen jetzt `escapeHtml()` — schließt Stored-XSS
   via Notiz-Titel, Ordner, Pfade, Server-Fehlermeldungen. Regressionstest
