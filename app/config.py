@@ -208,6 +208,9 @@ class Settings(BaseSettings):
     # Gesetzt = Login-Pflicht (Session-Cookie) — auch Remote-Zugriff moeglich,
     # dann unbedingt hinter TLS betreiben (docs/remote-access.md).
     ui_password: str = ""
+    # Session-Cookie Secure-Flag (E27-3). true = nur ueber HTTPS senden —
+    # hinter TLS-Proxy setzen. Localhost/HTTP: false belassen.
+    ui_cookie_secure: bool = False
 
     # Outbound Webhooks (E13-3). Leer = deaktiviert. Eine URL fuer alle Events;
     # Event-Typ steht im JSON-Feld ``event`` und Header ``X-Seiton-Event``.

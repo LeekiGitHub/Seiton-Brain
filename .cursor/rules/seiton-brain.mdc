@@ -57,7 +57,7 @@ E38 Permission-Layer `ai_access`, E39 Local AI, E40 Knowledge Chat.
 **Phase O (geplant, `docs/audit-2026-08-team-collaboration.md`):** Small
 Teams via Shared Instance — E41 Identity, E42 Rollen/Sichtbarkeit, E43
 Team-Gedächtnis, E44 Team-AI. Offen aus H: E22-5/6, E23-3/4, E25-2/4,
-E26-3/4/6. 530 Tests (E27-2 XSS-Fix 🟢).
+E26-3/4/6. 536 Tests (E27-2 XSS-Fix 🟢, E27-3/4 Defaults+Frontmatter 🟢).
 
 ## Roadmap & Backlog
 

@@ -455,3 +455,48 @@ def test_append_to_note_raises_if_file_missing(tmp_path, monkeypatch):
     )
     with pytest.raises(FileNotFoundError):
         append_to_note("Notes/does-not-exist.md", update)
+
+
+def test_append_to_note_rejects_path_traversal(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    update = ClassificationResult(
+        category="note",
+        title="X",
+        summary="Y",
+        action="append",
+        target_title="Nope",
+    )
+    with pytest.raises(ValueError, match="Invalid vault path"):
+        append_to_note("../../../etc/passwd", update)
+
+
+def test_sanitize_frontmatter_scalar_strips_newlines_and_delimiter():
+    from app.vault.filesystem import _sanitize_frontmatter_scalar
+
+    assert "\n" not in _sanitize_frontmatter_scalar("a\nb\rc")
+    assert "---" not in _sanitize_frontmatter_scalar("before --- after")
+    quoted = _sanitize_frontmatter_scalar("Title: with colon")
+    assert quoted.startswith("'") and quoted.endswith("'")
+
+
+def test_write_note_sanitizes_hostile_title(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    result = ClassificationResult(
+        category="note",
+        title="Evil\n---\nscript: true",
+        summary="Body.",
+        tags=["ok", "bad,tag", "x]y"],
+    )
+    path = write_note(result)
+    content = path.read_text(encoding="utf-8")
+    assert content.startswith("---\n")
+    fm_end = content.find("\n---\n", 4)
+    assert fm_end != -1
+    fm_block = content[4:fm_end]
+    assert "\n---\n" not in fm_block
+    # Titel ist gequoted — „script: true" ist Text, keine YAML-Key-Injection
+    assert "title: 'Evil — script: true'" in fm_block
+    assert not any(
+        line.startswith("script:") for line in fm_block.splitlines()
+    )
+    assert "tags: [ok, badtag, xy]" in fm_block

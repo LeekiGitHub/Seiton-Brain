@@ -74,8 +74,22 @@ a:hover {
   color: var(--text);
 }
 
-.topnav .logout-link {
+.topnav .logout-form {
   margin-left: auto;
+  display: inline;
+}
+
+.topnav .logout-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.topnav .logout-link:hover {
+  color: var(--text);
 }
 
 .login-card {

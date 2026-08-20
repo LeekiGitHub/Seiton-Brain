@@ -22,7 +22,9 @@
       <a href="/settings" class="{% if active == 'settings' %}active{% endif %}">Einstellungen</a>
       <a href="/setup" class="{% if active == 'setup' %}active{% endif %}">Setup</a>
       {% if ui_auth_enabled() %}
-      <a href="/logout" class="logout-link">Abmelden</a>
+      <form method="post" action="/logout" class="logout-form">
+        <button type="submit" class="logout-link">Abmelden</button>
+      </form>
       {% endif %}
       {% endif %}
     </nav>

@@ -92,9 +92,14 @@
       <input type="text" id="telegram-secret" autocomplete="off" />
     </label>
     <label>
-      <span>TELEGRAM_ALLOWED_USER_IDS (kommagetrennt, empfohlen)</span>
+      <span>TELEGRAM_ALLOWED_USER_IDS (kommagetrennt, stark empfohlen)</span>
       <input type="text" id="telegram-allowlist" placeholder="12345678" autocomplete="off" />
     </label>
+    <p id="allowlist-warning" class="hint capture-err hidden">
+      Ohne Allowlist akzeptiert der Bot Nachrichten von jedem, der die Bot-URL
+      kennt — besonders riskant bei Webhook. Bitte deine Telegram-User-ID eintragen
+      (via @userinfobot).
+    </p>
     <div class="actions" style="margin-top:0">
       <button type="button" class="secondary" id="btn-test-telegram">Bot testen</button>
     </div>
