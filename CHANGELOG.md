@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Security
+- **E28-5 Retry-/Status-Semantik.** Celery retryt nur noch wirklich
+  transiente Fehler (`RateLimit`/`Timeout`/`Connection`/`InternalServerError`,
+  `httpx.RequestError`) — kein Retry mehr bei `APIError`/4xx/Auth.
+  Permanente Capture-Fehler setzen `entries.status=failed` (Dashboard-
+  sichtbar).
 - **E27-3 Sichere Remote-Defaults.** Compose bindet `127.0.0.1:8000`
   (statt `0.0.0.0`); Session-Cookie `Secure`-Flag via `UI_COOKIE_SECURE`;
   Logout per POST (GET löscht Cookie nicht mehr); Setup-Wizard warnt bei

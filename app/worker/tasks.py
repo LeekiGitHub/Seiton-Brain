@@ -5,14 +5,17 @@ import httpx
 from celery.exceptions import Retry
 from openai import (
     APIConnectionError,
-    APIError,
     APITimeoutError,
+    InternalServerError,
     RateLimitError,
 )
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.config import settings
 from app.db.session import worker_session
 from app.logging_config import bind_log_context
+from app.models.entry import Entry
 from app.services.answer import answer_question, format_answer_for_chat
 from app.services.digest import build_digest, format_digest_for_chat
 from app.services.document_capture import (
@@ -39,22 +42,23 @@ from app.worker.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
 
-# Transiente Fehler, die einen Retry rechtfertigen. Bewusst keine
-# Validation-/Auth-Fehler (4xx ausser 429) — die werden nie besser durch
-# Warten. Wir verlassen uns auf die OpenAI-SDK-Hierarchie:
-#   - RateLimitError, APITimeoutError, APIConnectionError -> spezifisch
-#   - APIError -> Basisklasse, faengt 5xx und generische API-Fehler
-# Daneben httpx- und Standard-Netzwerk-Fehler fuer alles davor (Telegram-
-# Download, andere HTTP-Calls).
+# Transiente Fehler, die einen Retry rechtfertigen (E28-5).
+# Bewusst KEIN ``APIError`` (Basisklasse) — die wuerde 4xx/Auth mitretryen.
+# OpenAI: RateLimit (429), Timeout, Connection, InternalServerError (5xx).
+# httpx.RequestError = Netzwerk (nicht HTTPStatusError/4xx).
 RETRYABLE_EXCEPTIONS: tuple[type[BaseException], ...] = (
     RateLimitError,
     APITimeoutError,
     APIConnectionError,
-    APIError,
-    httpx.HTTPError,
+    InternalServerError,
+    httpx.RequestError,
     ConnectionError,
     TimeoutError,
 )
+
+# Capture-Kinds, fuer die bei permanentem Fehler ein Entry mit status=failed
+# angelegt wird (Ask/Digest erzeugen keinen Entry).
+_CAPTURE_FAIL_KINDS = frozenset({"text", "voice", "document", "photo"})
 
 # Celery-Retry-Konfiguration. Exponentieller Backoff mit Jitter, deckelt
 # bei 60s, gibt nach 3 Versuchen auf. Auf die Art "spuert" der User
@@ -201,6 +205,90 @@ async def _send_error(chat_id: int) -> None:
     await send_message(chat_id, "Etwas ist schiefgelaufen — bitte später nochmal versuchen.")
 
 
+def _failed_entry_title(raw_input: str | None, exc: BaseException) -> str:
+    src = (raw_input or "").strip() or type(exc).__name__
+    first_line = src.split("\n", 1)[0].strip() or "Fehlgeschlagen"
+    if len(first_line) > 80:
+        first_line = first_line[:77] + "..."
+    return f"[Fehler] {first_line}"[:255]
+
+
+async def _record_failed_entry(
+    *,
+    exc: BaseException,
+    chat_id: int | None,
+    telegram_update_id: int | None,
+    kind: str | None,
+    raw_input: str | None,
+) -> None:
+    """Persistiert ``entries.status=failed`` bei permanenten Capture-Fehlern (E28-5).
+
+    Ask/Digest erzeugen keinen Entry. Bei vorhandenem ``telegram_update_id``
+    wird ein bestehender Eintrag auf failed gesetzt (falls vorhanden), sonst
+    neu angelegt. Fehler hier werden nur geloggt — der User hat die Meldung
+    schon bekommen.
+    """
+    if kind not in _CAPTURE_FAIL_KINDS:
+        return
+
+    summary = f"{type(exc).__name__}: {exc}"[:2000]
+    title = _failed_entry_title(raw_input, exc)
+    entry_kind = kind if len(kind) <= 10 else "text"
+
+    try:
+        async with worker_session() as db:
+            if telegram_update_id is not None:
+                existing = (
+                    await db.execute(
+                        select(Entry)
+                        .where(Entry.telegram_update_id == telegram_update_id)
+                        .limit(1)
+                    )
+                ).scalar_one_or_none()
+                if existing is not None:
+                    existing.status = "failed"
+                    existing.summary = summary
+                    if not existing.title.startswith("[Fehler]"):
+                        existing.title = title
+                    await db.commit()
+                    logger.info(
+                        "Marked entry id=%s as failed (telegram_update_id=%s)",
+                        existing.id,
+                        telegram_update_id,
+                    )
+                    return
+
+            entry = Entry(
+                title=title,
+                category="note",
+                summary=summary,
+                raw_input=raw_input,
+                vault_path=None,
+                telegram_update_id=telegram_update_id,
+                telegram_chat_id=chat_id,
+                kind=entry_kind,
+                status="failed",
+                prompt_version=settings.seiton_prompt_version,
+            )
+            db.add(entry)
+            try:
+                await db.commit()
+            except IntegrityError:
+                await db.rollback()
+                logger.warning(
+                    "Could not insert failed entry (duplicate telegram_update_id=%s)",
+                    telegram_update_id,
+                )
+                return
+            logger.info(
+                "Recorded failed entry id=%s kind=%s",
+                entry.id,
+                entry_kind,
+            )
+    except Exception:
+        logger.exception("Failed to persist entries.status=failed")
+
+
 async def _handle_permanent_failure(
     chat_id: int,
     exc: BaseException,
@@ -212,6 +300,13 @@ async def _handle_permanent_failure(
     raw_input: str | None = None,
 ) -> None:
     await _send_error(chat_id)
+    await _record_failed_entry(
+        exc=exc,
+        chat_id=chat_id,
+        telegram_update_id=telegram_update_id,
+        kind=kind,
+        raw_input=raw_input,
+    )
     await notify_admin_error(
         task_name=task_name,
         error=exc,

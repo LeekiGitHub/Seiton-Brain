@@ -557,7 +557,7 @@ externen Obsidian-Edits — bricht das Kernversprechen Vault-Koexistenz.
 | E28-2 | **File-Locks für Create/Append:** `_next_available_path` und Read-Modify-Write-Append ohne Lock → Lost Updates bei parallelen Captures. Prozessübergreifendes Locking (z. B. `flock` pro Zieldatei) + Test. | 4 | 2 | 3 | 2 | 4 | ⚪ | L |
 | E28-3 | **Capture-Kompensation:** Vault-Write vor DB-Commit ohne Rollback → Orphan-Dateien; bei Telegram-Retry im Verarbeitungsfenster Doppel-Writes. Kompensationslogik (Datei löschen bei DB-Fehler auf Create-Pfad) + Idempotenz-Fenster schließen. | 4 | 3 | 3 | 2 | 4 | ⚪ | L |
 | E28-4 | **Idempotency-Key für REST/UI-Capture:** optionaler `Idempotency-Key`-Header (REST) bzw. Client-Token (UI) gegen Mehrfachklick/Netz-Retry-Doppelnotizen. | 3 | 2 | 2 | 2 | 3 | ⚪ | L |
-| E28-5 | **Fehler-Semantik reparieren:** `APIError` zu breit in `RETRYABLE_EXCEPTIONS` (retryt 4xx/Auth sinnlos) → nur transiente Fehler; `entries.status="failed"` bei permanenten Fehlern tatsächlich setzen (Dashboard zeigt Status heute nie). | 3 | 2 | 2 | 1 | 4 | ⚪ | L |
+| E28-5 | **Fehler-Semantik reparieren:** `APIError` zu breit in `RETRYABLE_EXCEPTIONS` (retryt 4xx/Auth sinnlos) → nur transiente Fehler; `entries.status="failed"` bei permanenten Fehlern tatsächlich setzen (Dashboard zeigt Status heute nie). | 3 | 2 | 2 | 1 | 4 | 🟢 | L |
 
 Reihenfolge: E28-5 (klein) → E28-2 → E28-3 → E28-1 → E28-4. E28-1 vor E30-2
 (klickbare Treffer nützen wenig, wenn der Index stale ist).
@@ -897,7 +897,7 @@ Monetarisierung/Cloud:
 1. 🔵 **E27-1** — P0: Proxy-sichere Zugriffskontrolle (`/setup` remote dicht)
 2. 🔵 **E27-2** — XSS-Fix Dashboard/Login/Setup (Quick Win, hohes Risiko)
 3. 🟢 **E27-3 + E27-4** — Sichere Defaults + Frontmatter-/Pfad-Härtung
-4. 🔵 **E28-5** — Retry-/Status-Semantik (klein, entlastet Debugging sofort)
+4. 🟢 **E28-5** — Retry-/Status-Semantik (klein, entlastet Debugging sofort)
 5. 🔵 **E29-1** — Dependencies pinnen + Dependabot (Quick Win)
 6. 🔵 **E30-1** — Klickbare Suchtreffer/Quellen (größter UX-Hebel, Aufwand S)
 7. 🔵 **E28-2 + E28-3** — File-Locks + Capture-Kompensation
