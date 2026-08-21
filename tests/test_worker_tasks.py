@@ -19,6 +19,9 @@ from openai import (
     APIConnectionError,
     APIError,
     APITimeoutError,
+    AuthenticationError,
+    BadRequestError,
+    InternalServerError,
     RateLimitError,
 )
 
@@ -26,8 +29,10 @@ from app.llm.schemas import AnswerResult, NoteRef
 from app.worker.tasks import (
     RETRY_KWARGS,
     RETRYABLE_EXCEPTIONS,
+    _failed_entry_title,
     _process_ask,
     _process_digest,
+    _record_failed_entry,
     process_ask_message_task,
     process_text_message_task,
     process_voice_message_task,
@@ -46,11 +51,20 @@ def test_retryable_exceptions_cover_openai_transient_errors():
     assert RateLimitError in RETRYABLE_EXCEPTIONS
     assert APITimeoutError in RETRYABLE_EXCEPTIONS
     assert APIConnectionError in RETRYABLE_EXCEPTIONS
-    assert APIError in RETRYABLE_EXCEPTIONS
+    assert InternalServerError in RETRYABLE_EXCEPTIONS
+
+
+def test_retryable_exceptions_exclude_client_errors():
+    """E28-5: 4xx/Auth dürfen nicht auto-retryt werden."""
+    assert APIError not in RETRYABLE_EXCEPTIONS
+    assert AuthenticationError not in RETRYABLE_EXCEPTIONS
+    assert BadRequestError not in RETRYABLE_EXCEPTIONS
+    assert httpx.HTTPError not in RETRYABLE_EXCEPTIONS
+    assert httpx.HTTPStatusError not in RETRYABLE_EXCEPTIONS
 
 
 def test_retryable_exceptions_cover_network_errors():
-    assert httpx.HTTPError in RETRYABLE_EXCEPTIONS
+    assert httpx.RequestError in RETRYABLE_EXCEPTIONS
     assert ConnectionError in RETRYABLE_EXCEPTIONS
     assert TimeoutError in RETRYABLE_EXCEPTIONS
 
@@ -238,3 +252,122 @@ async def test_process_digest_sends_formatted_digest(
     sent_text = mock_send.call_args[0][1]
     assert "Digest: Ideas" in sent_text
     assert "[[Side Project]]" in sent_text
+
+
+# ─── E28-5: failed Entry-Persistenz ───────────────────────────────────────
+
+
+def test_failed_entry_title_truncates():
+    long = "x" * 200
+    title = _failed_entry_title(long, ValueError("boom"))
+    assert title.startswith("[Fehler] ")
+    assert len(title) <= 255
+
+
+@pytest.mark.asyncio
+@patch("app.worker.tasks.worker_session")
+async def test_record_failed_entry_inserts_capture(mock_session):
+    db = AsyncMock()
+    db.add = MagicMock()
+    cm = MagicMock()
+    cm.__aenter__ = AsyncMock(return_value=db)
+    cm.__aexit__ = AsyncMock(return_value=False)
+    mock_session.return_value = cm
+    # Kein bestehender Entry
+    result = MagicMock()
+    result.scalar_one_or_none.return_value = None
+    db.execute = AsyncMock(return_value=result)
+    db.commit = AsyncMock()
+
+    await _record_failed_entry(
+        exc=ValueError("classify boom"),
+        chat_id=42,
+        telegram_update_id=99,
+        kind="text",
+        raw_input="Meine Idee",
+    )
+
+    assert db.add.called
+    entry = db.add.call_args[0][0]
+    assert entry.status == "failed"
+    assert entry.kind == "text"
+    assert entry.telegram_update_id == 99
+    assert entry.telegram_chat_id == 42
+    assert entry.raw_input == "Meine Idee"
+    assert entry.title.startswith("[Fehler]")
+    assert "ValueError" in entry.summary
+    db.commit.assert_awaited()
+
+
+@pytest.mark.asyncio
+@patch("app.worker.tasks.worker_session")
+async def test_record_failed_entry_updates_existing(mock_session):
+    db = AsyncMock()
+    cm = MagicMock()
+    cm.__aenter__ = AsyncMock(return_value=db)
+    cm.__aexit__ = AsyncMock(return_value=False)
+    mock_session.return_value = cm
+
+    existing = MagicMock()
+    existing.id = 7
+    existing.title = "Partial"
+    existing.status = "processed"
+    result = MagicMock()
+    result.scalar_one_or_none.return_value = existing
+    db.execute = AsyncMock(return_value=result)
+    db.commit = AsyncMock()
+
+    await _record_failed_entry(
+        exc=RuntimeError("vault write failed"),
+        chat_id=1,
+        telegram_update_id=5,
+        kind="voice",
+        raw_input=None,
+    )
+
+    assert existing.status == "failed"
+    assert "RuntimeError" in existing.summary
+    assert existing.title.startswith("[Fehler]")
+    db.add.assert_not_called()
+    db.commit.assert_awaited()
+
+
+@pytest.mark.asyncio
+@patch("app.worker.tasks.worker_session")
+async def test_record_failed_entry_skips_ask_kind(mock_session):
+    await _record_failed_entry(
+        exc=ValueError("x"),
+        chat_id=1,
+        telegram_update_id=None,
+        kind="qa",
+        raw_input="frage",
+    )
+    mock_session.assert_not_called()
+
+
+@pytest.mark.asyncio
+@patch("app.worker.tasks.emit_entry_failed_event", new_callable=AsyncMock)
+@patch("app.worker.tasks.notify_admin_error", new_callable=AsyncMock)
+@patch("app.worker.tasks._record_failed_entry", new_callable=AsyncMock)
+@patch("app.worker.tasks._send_error", new_callable=AsyncMock)
+async def test_handle_permanent_failure_calls_record(
+    mock_send, mock_record, mock_notify, mock_emit
+):
+    from app.worker.tasks import _handle_permanent_failure
+
+    exc = ValueError("boom")
+    await _handle_permanent_failure(
+        42,
+        exc,
+        task_name="process_text_message",
+        task_id="t1",
+        telegram_update_id=9,
+        kind="text",
+        raw_input="hi",
+    )
+    mock_send.assert_awaited_once_with(42)
+    mock_record.assert_awaited_once()
+    assert mock_record.await_args.kwargs["kind"] == "text"
+    assert mock_record.await_args.kwargs["raw_input"] == "hi"
+    mock_notify.assert_awaited_once()
+    mock_emit.assert_awaited_once()
