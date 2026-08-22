@@ -1,4 +1,4 @@
-pytest
-pytest-asyncio
+pytest==9.1.1
+pytest-asyncio==1.4.0
 ruff==0.15.18  # pin: 0.16+ enables many new rules and breaks CI (unpinned pip)
-pillow  # optional: scripts/generate-readme-assets.py (E11-4)
+pillow==12.2.0  # optional: scripts/generate-readme-assets.py (E11-4)

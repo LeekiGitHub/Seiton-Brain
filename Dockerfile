@@ -1,6 +1,9 @@
 # syntax=docker/dockerfile:1
+#
+# Python 3.14 auf Debian bookworm-slim (E29-1). CI nutzt python-version "3.14".
+# Patch-Updates: Tag bei Bedarf anheben (z. B. 3.14.6-slim-bookworm).
 
-FROM python:3.14-slim AS builder
+FROM python:3.14-slim-bookworm AS builder
 
 WORKDIR /build
 
@@ -11,7 +14,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 
-FROM python:3.14-slim AS runtime
+FROM python:3.14-slim-bookworm AS runtime
 
 WORKDIR /app
 
