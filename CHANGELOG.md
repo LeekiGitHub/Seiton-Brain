@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Security
+- **E29-1 Dependency-Pins + Supply-Chain.** `requirements.txt`/`requirements-dev.txt`
+  und MCP-Requirements mit exakten Versionen; Dependabot (pip + Actions);
+  `pip-audit` in CI; Dockerfile auf `python:3.14-slim-bookworm`.
 - **E28-5 Retry-/Status-Semantik.** Celery retryt nur noch wirklich
   transiente Fehler (`RateLimit`/`Timeout`/`Connection`/`InternalServerError`,
   `httpx.RequestError`) — kein Retry mehr bei `APIError`/4xx/Auth.

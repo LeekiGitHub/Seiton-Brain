@@ -569,7 +569,7 @@ Support-Unfähigkeit ohne Release-Stände.
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E29-1 | **Dependencies pinnen** (`requirements.txt` komplett ungepinnt) + Dependabot/`pip-audit` in CI; Python-Version im Dockerfile bewusst festlegen (3.14-slim prüfen). | 4 | 1 | 2 | 1 | 5 | ⚪ | L |
+| E29-1 | **Dependencies pinnen** (`requirements.txt` komplett ungepinnt) + Dependabot/`pip-audit` in CI; Python-Version im Dockerfile bewusst festlegen (3.14-slim prüfen). | 4 | 1 | 2 | 1 | 5 | 🟢 | L |
 | E29-2 | **CI-Härtung:** Docker-Build-Job + Alembic-`upgrade head` gegen echte `pgvector/pgvector:pg16`-Postgres (Service-Container) + Smoke-Insert mit Vector. | 4 | 2 | 2 | 2 | 4 | ⚪ | L |
 | E29-3 | **Release v0.3.0:** CHANGELOG-„Unreleased"-Berg schneiden, Git-Tag, GitHub-Release, leichter Release-Prozess dokumentieren (kein Release seit 0.2.0 trotz ~20 Features). | 4 | 1 | 1 | 1 | 4 | ⚪ | L |
 | E29-4 | **Backup-Retention + Restore-Verifikation:** Backups wachsen unbegrenzt → Rotation (konfigurierbar, z. B. letzte N behalten); Restore einmal automatisiert als Roundtrip testen (CI oder Skript); Update-Skript bricht bei fehlgeschlagenem Backup ab statt weiterzulaufen. | 4 | 2 | 2 | 2 | 4 | ⚪ | L |
@@ -898,7 +898,7 @@ Monetarisierung/Cloud:
 2. 🔵 **E27-2** — XSS-Fix Dashboard/Login/Setup (Quick Win, hohes Risiko)
 3. 🟢 **E27-3 + E27-4** — Sichere Defaults + Frontmatter-/Pfad-Härtung
 4. 🟢 **E28-5** — Retry-/Status-Semantik (klein, entlastet Debugging sofort)
-5. 🔵 **E29-1** — Dependencies pinnen + Dependabot (Quick Win)
+5. 🟢 **E29-1** — Dependencies pinnen + Dependabot (Quick Win)
 6. 🔵 **E30-1** — Klickbare Suchtreffer/Quellen (größter UX-Hebel, Aufwand S)
 7. 🔵 **E28-2 + E28-3** — File-Locks + Capture-Kompensation
 8. 🔵 **E28-1** — Inkrementeller Index-Sync (Obsidian-Koexistenz-Versprechen)
