@@ -1,4 +1,4 @@
 # Optional: OS-Keystore fuer Secrets (E16-5).
 #   pip install -r requirements-keyring.txt
 # Lizenz: keyring (MIT). Backend: macOS Keychain / Windows / libsecret.
-keyring>=25.0.0
+keyring>=25.7.0
