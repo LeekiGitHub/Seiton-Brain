@@ -1,4 +1,4 @@
 pytest==9.1.1
 pytest-asyncio==1.4.0
-ruff==0.15.18  # pin: 0.16+ enables many new rules and breaks CI (unpinned pip)
+ruff==0.16.3  # pin: 0.16+ enables many new rules and breaks CI (unpinned pip)
 pillow==12.3.0  # optional: scripts/generate-readme-assets.py (E11-4)
