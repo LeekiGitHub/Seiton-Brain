@@ -1,23 +1,53 @@
-# Dependabot (E29-1): wöchentliche Updates für Python-Deps und GitHub Actions.
+# Dependabot (E29-1 / Hygiene): prüft wöchentlich auf neue Versionen und
+# öffnet Pull Requests. Updates werden gebündelt, damit nicht Dutzende
+# Einzel-PRs entstehen.
+#
+# Major-Updates (z. B. openai 2→3, mcp 1→2, ruff 0.15→0.16) kommen einzeln —
+# die brauchen oft Code-Anpassungen und sollen bewusst reviewed werden.
 version: 2
 updates:
+  # Produktions- und Dev-Requirements im Repo-Root
   - package-ecosystem: pip
     directory: /
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
+    groups:
+      python-patch-and-minor:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    # Bekannt problematisch / bewusst gepinnt — nicht automatisch hochziehen
+    ignore:
+      - dependency-name: ruff
+        versions: [">=0.16.0"]
 
+  # Eigenständiger MCP-Client (examples/)
   - package-ecosystem: pip
     directory: /examples/mcp/seiton-brain-mcp
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
+    groups:
+      mcp-patch-and-minor:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
+  # GitHub Actions (checkout, setup-python, …)
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
+    groups:
+      github-actions:
+        patterns:
+          - "*"
