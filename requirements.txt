@@ -1,7 +1,7 @@
 # Production dependencies (E29-1: exact pins for reproducible builds).
 # Update: pip install -U <pkg> && pip freeze | grep <pkg>
 fastapi==0.138.0
-uvicorn==0.49.0
+uvicorn==0.52.4
 sqlalchemy==2.0.52
 asyncpg==0.31.0
 alembic==1.19.1
