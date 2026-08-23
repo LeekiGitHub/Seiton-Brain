@@ -9,6 +9,9 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Security
+- **Dependabot gebündelt.** Wöchentliche Updates als wenige Gruppen-PRs
+  (Patch/Minor zusammen); Major-Updates einzeln; `ruff>=0.16` ignoriert
+  (bewusst auf 0.15.x gepinnt wegen neuer Lint-Regeln).
 - **E29-1 Dependency-Pins + Supply-Chain.** `requirements.txt`/`requirements-dev.txt`
   und MCP-Requirements mit exakten Versionen; Dependabot (pip + Actions);
   `pip-audit` in CI; Dockerfile auf `python:3.14-slim-bookworm`.
