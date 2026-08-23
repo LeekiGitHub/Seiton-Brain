@@ -6,6 +6,6 @@
 #
 # Lizenzen: pytesseract (Apache-2.0), Pillow (HPND), pypdfium2 (Apache-2.0/BSD).
 # Tesseract selbst ist Apache-2.0.
-pytesseract>=0.3.10
+pytesseract>=0.3.13
 Pillow>=10.0.0
 pypdfium2>=4.0.0
