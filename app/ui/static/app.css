@@ -355,6 +355,29 @@ button.secondary {
   font-family: ui-monospace, monospace;
 }
 
+.hit-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.hit-link:hover {
+  color: var(--text);
+}
+
+.hit-link.muted {
+  color: var(--muted);
+  font-weight: inherit;
+}
+
+.hit-title .hit-link {
+  text-decoration: none;
+}
+
+.hit-title .hit-link:hover {
+  text-decoration: underline;
+}
+
 .chat-log {
   max-height: 360px;
   overflow-y: auto;

@@ -22,6 +22,16 @@
     document.getElementById("btn-delete").disabled = !enabled;
   }
 
+  function syncUrl(path) {
+    const url = new URL(window.location.href);
+    if (path) {
+      url.searchParams.set("path", path);
+    } else {
+      url.searchParams.delete("path");
+    }
+    history.replaceState(null, "", url.pathname + url.search);
+  }
+
   function renderNotesList(items) {
     const wrap = document.getElementById("notes-list");
     if (!items.length) {
@@ -83,6 +93,7 @@
     }
     selectedPath = path;
     dirty = false;
+    syncUrl(path);
     document.getElementById("editor-title").textContent = titleHint || "Editor";
     document.getElementById("editor-path").textContent = path;
     document.getElementById("note-content").value = "Lade …";
@@ -142,6 +153,7 @@
       if (!res.ok) throw new Error("Löschen fehlgeschlagen");
       selectedPath = null;
       dirty = false;
+      syncUrl(null);
       document.getElementById("editor-title").textContent = "Editor";
       document.getElementById("editor-path").textContent = "";
       document.getElementById("note-content").value = "";
@@ -152,7 +164,16 @@
     }
   });
 
-  Promise.all([loadVaultConfig(), loadNotes()]).catch((err) => {
-    document.getElementById("notes-list").innerHTML = `<p class="empty">${escapeHtml(err.message)}</p>`;
-  });
+  const deepLinkPath = new URLSearchParams(window.location.search).get("path");
+
+  Promise.all([loadVaultConfig(), loadNotes()])
+    .then(async () => {
+      if (deepLinkPath) {
+        await selectNote(deepLinkPath);
+      }
+    })
+    .catch((err) => {
+      document.getElementById("notes-list").innerHTML =
+        `<p class="empty">${escapeHtml(err.message)}</p>`;
+    });
 })();
