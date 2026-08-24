@@ -21,6 +21,37 @@ def test_notes_page_renders():
     assert 'href="/notes"' in response.text
 
 
+def test_notes_page_accepts_path_query():
+    """Deep-Link /notes?path=… bleibt 200 — Öffnen macht notes.js clientseitig (E30-1)."""
+    response = client.get("/notes", params={"path": "Ideas/Test.md"})
+    assert response.status_code == 200
+    assert "notes.js" in response.text
+
+
+def test_ask_js_links_notes_via_path_query():
+    """Suchtreffer/Quellen verweisen auf /notes?path=… (E30-1)."""
+    from pathlib import Path
+
+    ask_js = Path(__file__).resolve().parent.parent / "app" / "ui" / "static" / "ask.js"
+    source = ask_js.read_text(encoding="utf-8")
+    assert "noteHref" in source
+    assert "noteLink" in source
+    assert "/notes?path=" in source
+    assert "encodeURIComponent" in source
+
+
+def test_notes_js_opens_deep_link_path():
+    from pathlib import Path
+
+    notes_js = (
+        Path(__file__).resolve().parent.parent / "app" / "ui" / "static" / "notes.js"
+    )
+    source = notes_js.read_text(encoding="utf-8")
+    assert 'URLSearchParams(window.location.search).get("path")' in source
+    assert "syncUrl" in source
+    assert "deepLinkPath" in source
+
+
 def test_vault_config_api():
     response = client.get("/api/ui/vault-config")
     assert response.status_code == 200

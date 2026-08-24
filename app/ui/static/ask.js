@@ -5,6 +5,16 @@
     return div.innerHTML;
   }
 
+  /** Deep-Link zur Notiz-Seite (E30-1). */
+  function noteHref(vaultPath) {
+    return `/notes?path=${encodeURIComponent(vaultPath)}`;
+  }
+
+  function noteLink(title, vaultPath) {
+    if (!vaultPath) return escapeHtml(title);
+    return `<a class="hit-link" href="${noteHref(vaultPath)}">${escapeHtml(title)}</a>`;
+  }
+
   function renderSearchHits(items, query) {
     const wrap = document.getElementById("search-results");
     if (!items.length) {
@@ -14,10 +24,10 @@
     const rows = items
       .map(
         (hit) => `<article class="hit">
-          <h3 class="hit-title">${escapeHtml(hit.title)}</h3>
+          <h3 class="hit-title">${noteLink(hit.title, hit.vault_path)}</h3>
           <p class="hit-meta">${escapeHtml(hit.folder)} · ${escapeHtml(hit.category)}</p>
           <p class="hit-snippet">${escapeHtml(hit.snippet)}</p>
-          <p class="hit-path">${escapeHtml(hit.vault_path)}</p>
+          <p class="hit-path"><a class="hit-link muted" href="${noteHref(hit.vault_path)}">${escapeHtml(hit.vault_path)}</a></p>
         </article>`
       )
       .join("");
@@ -40,7 +50,13 @@
         : "";
     }
     const links = sources
-      .map((s) => `<li>${escapeHtml(s.title)}${s.vault_path ? ` <span class="hit-path">(${escapeHtml(s.vault_path)})</span>` : ""}</li>`)
+      .map((s) => {
+        const label = noteLink(s.title, s.vault_path);
+        const path = s.vault_path
+          ? ` <span class="hit-path">(<a class="hit-link muted" href="${noteHref(s.vault_path)}">${escapeHtml(s.vault_path)}</a>)</span>`
+          : "";
+        return `<li>${label}${path}</li>`;
+      })
       .join("");
     return `<p class="chat-meta">Konfidenz: ${Math.round(confidence * 100)}%</p><p class="chat-sources-label">Quellen:</p><ul class="chat-sources">${links}</ul>`;
   }
@@ -83,7 +99,13 @@
       : "";
     const sources = data.sources.length
       ? `<p class="chat-sources-label">Quellen (${data.note_count}):</p><ul class="chat-sources">${data.sources
-          .map((s) => `<li>${escapeHtml(s.title)}${s.vault_path ? ` <span class="hit-path">(${escapeHtml(s.vault_path)})</span>` : ""}</li>`)
+          .map((s) => {
+            const label = noteLink(s.title, s.vault_path);
+            const path = s.vault_path
+              ? ` <span class="hit-path">(<a class="hit-link muted" href="${noteHref(s.vault_path)}">${escapeHtml(s.vault_path)}</a>)</span>`
+              : "";
+            return `<li>${label}${path}</li>`;
+          })
           .join("")}</ul>`
       : "";
     return `<article class="hit">

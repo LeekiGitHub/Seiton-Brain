@@ -583,7 +583,7 @@ Vom „fähigen Admin-Tool" zum kaufbaren Produkt (UI-Audit: die Kern-Journey
 
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
-| E30-1 | **Retrieval-Loop schließen:** Suchtreffer + Ask-/Digest-Quellen klickbar → öffnen die Notiz (`/notes?path=…`-Deep-Link). | 5 | 1 | 1 | 1 | 5 | ⚪ | L |
+| E30-1 | **Retrieval-Loop schließen:** Suchtreffer + Ask-/Digest-Quellen klickbar → öffnen die Notiz (`/notes?path=…`-Deep-Link). | 5 | 1 | 1 | 1 | 5 | 🟢 | L |
 | E30-2 | **Notiz-Lesemodus:** Markdown-Preview (gerendert, XSS-sicher) mit Edit-Toggle; klickbare `[[Wikilinks]]`; Speichern-Feedback statt stillem Erfolg. | 5 | 3 | 2 | 3 | 4 | ⚪ | L |
 | E30-3 | **Post-Setup-Onboarding:** Abschluss-Screen mit Neustart-Checkliste + CTA „Erste Notiz erfassen"; „Setup" verschwindet aus der Hauptnav, wenn abgeschlossen; Formular-Labels statt Env-Namen (`OBSIDIAN_VAULT_HOST_PATH` → „Vault-Ordner"). | 5 | 2 | 1 | 2 | 4 | ⚪ | L |
 | E30-4 | **Feedback-Layer:** Toasts/Modals statt `alert()`/`confirm()`; alle nutzerseitigen Fehlertexte deutsch (heute z. T. rohe EN-API-Details wie „Duplicate capture rejected"); Undo-Snackbar bzw. Papierkorb beim Löschen. | 4 | 3 | 1 | 2 | 4 | ⚪ | L |
@@ -899,7 +899,7 @@ Monetarisierung/Cloud:
 3. 🟢 **E27-3 + E27-4** — Sichere Defaults + Frontmatter-/Pfad-Härtung
 4. 🟢 **E28-5** — Retry-/Status-Semantik (klein, entlastet Debugging sofort)
 5. 🟢 **E29-1** — Dependencies pinnen + Dependabot (Quick Win)
-6. 🔵 **E30-1** — Klickbare Suchtreffer/Quellen (größter UX-Hebel, Aufwand S)
+6. 🟢 **E30-1** — Klickbare Suchtreffer/Quellen (größter UX-Hebel, Aufwand S)
 7. 🔵 **E28-2 + E28-3** — File-Locks + Capture-Kompensation
 8. 🔵 **E28-1** — Inkrementeller Index-Sync (Obsidian-Koexistenz-Versprechen)
 9. 🔵 **E29-2 + E29-3** — CI-Härtung + Release v0.3.0

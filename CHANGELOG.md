@@ -8,6 +8,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 
+### Added
+- **E30-1 Klickbare Suchtreffer/Quellen.** Suche, Ask- und Digest-Quellen
+  verlinken auf `/notes?path=…`; die Notiz-Seite öffnet den Deep-Link und
+  hält die URL beim Auswählen synchron.
+
 ### Security
 - **Dependabot gebündelt.** Wöchentliche Updates als wenige Gruppen-PRs
   (Patch/Minor zusammen); Major-Updates einzeln; `ruff>=0.16` ignoriert

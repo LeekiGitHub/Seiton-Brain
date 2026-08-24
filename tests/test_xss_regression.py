@@ -22,6 +22,8 @@ SAFE_INTERPOLATIONS = re.compile(
     r"\$\{"
     r"(?:"
     r"escapeHtml\(|"
+    r"noteLink\(|"  # builds escaped <a> via escapeHtml + encodeURIComponent
+    r"noteHref\(|"  # encodeURIComponent only — safe in href
     r"badge\(|"
     r"badge\}|"  # locally built HTML string variable
     r"formatDate\(|"
@@ -30,6 +32,8 @@ SAFE_INTERPOLATIONS = re.compile(
     r"idx\}|"  # numeric loop index
     r"rows\}|"
     r"links\}|"
+    r"label\}|"
+    r"path\}|"
     r"restore\}|"
     r"files\}|"
     r"parts\}|"
