@@ -27,6 +27,7 @@ def _db_with_pre_check_result(found: bool) -> MagicMock:
     pre_check.scalar_one_or_none.return_value = 1 if found else None
     db.execute = AsyncMock(return_value=pre_check)
     db.commit = AsyncMock()
+    db.flush = AsyncMock()
     db.refresh = AsyncMock(side_effect=_assign_entry_id)
     db.rollback = AsyncMock()
     db.add = MagicMock()
@@ -106,12 +107,14 @@ async def test_process_text_message_skips_duplicate_update(mock_provider, mock_g
 async def test_process_text_message_handles_integrity_error_race(
     mock_provider, mock_get_vault
 ):
+    """E28-3: UNIQUE-Claim per flush vor Vault-Write — bei Race kein Orphan."""
     llm = MagicMock()
     llm.classify = AsyncMock(return_value=_classification())
     mock_provider.return_value = llm
-    mock_get_vault.return_value = _mock_vault(write_rel="Notes/Test.md")
+    vault = _mock_vault(write_rel="Notes/Test.md")
+    mock_get_vault.return_value = vault
     db = _db_with_pre_check_result(found=False)
-    db.commit = AsyncMock(side_effect=IntegrityError("INSERT", {}, Exception("dup")))
+    db.flush = AsyncMock(side_effect=IntegrityError("INSERT", {}, Exception("dup")))
 
     result = await process_text_message(
         "Original text",
@@ -121,7 +124,71 @@ async def test_process_text_message_handles_integrity_error_race(
 
     assert result is None
     db.rollback.assert_awaited_once()
-    mock_get_vault.return_value.write_note.assert_called_once()
+    vault.write_note.assert_not_called()
+    vault.delete_note.assert_not_called()
+
+
+@pytest.mark.asyncio
+@patch("app.services.process_message.get_vault_backend")
+@patch("app.services.process_message.get_llm_provider")
+async def test_process_text_message_compensates_orphan_on_commit_failure(
+    mock_provider, mock_get_vault
+):
+    """E28-3: Create-Datei wird gelöscht, wenn Commit nach Write scheitert."""
+    llm = MagicMock()
+    llm.classify = AsyncMock(return_value=_classification())
+    mock_provider.return_value = llm
+    vault = _mock_vault(write_rel="Notes/Test.md")
+    vault.delete_note.return_value = True
+    mock_get_vault.return_value = vault
+    db = _db_with_pre_check_result(found=False)
+    db.commit = AsyncMock(side_effect=RuntimeError("db down"))
+
+    with pytest.raises(RuntimeError, match="db down"):
+        await process_text_message(
+            "Original text",
+            db,
+            telegram_update_id=5555,
+        )
+
+    vault.write_note.assert_called_once()
+    vault.delete_note.assert_called_once_with("Notes/Test.md")
+    db.rollback.assert_awaited()
+
+
+@pytest.mark.asyncio
+@patch("app.services.process_message._resolve_append_target", new_callable=AsyncMock)
+@patch("app.services.process_message.get_vault_backend")
+@patch("app.services.process_message.get_llm_provider")
+async def test_process_text_message_does_not_delete_on_append_commit_failure(
+    mock_provider, mock_get_vault, mock_resolve
+):
+    """Append darf bestehende Notizen bei Commit-Fehler nicht löschen."""
+    classification = ClassificationResult(
+        category="idea",
+        title="Workout log feature",
+        summary="Add daily log.",
+        action="append",
+        target_title="Fitness App",
+    )
+    llm = MagicMock()
+    llm.classify = AsyncMock(return_value=classification)
+    mock_provider.return_value = llm
+    mock_resolve.return_value = "Ideas/Fitness App.md"
+    vault = _mock_vault(append_rel="Ideas/Fitness App.md")
+    mock_get_vault.return_value = vault
+    db = _db_with_pre_check_result(found=False)
+    db.commit = AsyncMock(side_effect=RuntimeError("db down"))
+
+    with pytest.raises(RuntimeError, match="db down"):
+        await process_text_message(
+            "Add daily log",
+            db,
+            telegram_update_id=7002,
+        )
+
+    vault.append_to_note.assert_called_once()
+    vault.delete_note.assert_not_called()
 
 
 @pytest.mark.asyncio
@@ -140,6 +207,7 @@ async def test_process_text_message_without_update_id_skips_pre_check(
     db = MagicMock()
     db.execute = AsyncMock()
     db.commit = AsyncMock()
+    db.flush = AsyncMock()
     db.refresh = AsyncMock(side_effect=_assign_entry_id)
     db.add = MagicMock()
 

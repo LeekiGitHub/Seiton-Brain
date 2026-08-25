@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import tempfile
+from collections.abc import Iterator
 from datetime import date
 from pathlib import Path
 
@@ -17,10 +19,34 @@ from app.vault.templates import render_note_body
 
 FRONTMATTER_KEY_ORDER = ("title", "category", "created", "updated", "tags")
 
+try:
+    import fcntl
+except ImportError:  # Windows — kein prozessübergreifendes flock
+    fcntl = None  # type: ignore[assignment]
+
 
 def _sanitize_filename(title: str) -> str:
     name = re.sub(r'[\\/:*?"<>|]', "", title).strip()
     return name[:200] or "Untitled"
+
+
+@contextlib.contextmanager
+def _file_lock(lock_target: Path) -> Iterator[None]:
+    """Prozessübergreifendes Exclusive-Lock (E28-2).
+
+    Lock-Datei: ``.<name>.lock`` neben dem Ziel. Ohne ``fcntl`` (Windows)
+    greift kein Cross-Process-Lock — Single-Worker-Dev bleibt ok.
+    """
+    lock_path = lock_target.parent / f".{lock_target.name}.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(lock_path, "a+", encoding="utf-8") as fh:
+        if fcntl is not None:
+            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            if fcntl is not None:
+                fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
 
 
 def _sanitize_frontmatter_scalar(value: str) -> str:
@@ -211,19 +237,21 @@ class FilesystemVaultBackend:
         target_dir.mkdir(parents=True, exist_ok=True)
 
         base_name = _sanitize_filename(result.title)
-        filepath = _next_available_path(target_dir, base_name)
+        # Lock auf dem Basisnamen: Allocate + Write atomar gegen parallele Captures
+        with _file_lock(target_dir / f"{base_name}.md"):
+            filepath = _next_available_path(target_dir, base_name)
 
-        frontmatter = f"""---
+            frontmatter = f"""---
 title: {_sanitize_frontmatter_scalar(result.title)}
 category: {_sanitize_frontmatter_scalar(result.category)}
 created: {date.today().isoformat()}
 {_tags_frontmatter_line(result.tags)}---
 
 """
-        # Body via Notiz-Template (E26-1) — Default entspricht dem alten Layout.
-        content = frontmatter + render_note_body(result)
-        _atomic_write(filepath, content)
-        return _to_relative(filepath)
+            # Body via Notiz-Template (E26-1) — Default entspricht dem alten Layout.
+            content = frontmatter + render_note_body(result)
+            _atomic_write(filepath, content)
+            return _to_relative(filepath)
 
     def append_to_note(self, vault_path: str, result: ClassificationResult) -> str:
         """Haengt einen Update-Block an und pflegt Frontmatter (E3-3)."""
@@ -233,29 +261,30 @@ created: {date.today().isoformat()}
                 f"Cannot append to missing vault file: {vault_path}"
             )
 
-        existing = filepath.read_text(encoding="utf-8")
-        fm, body = _parse_frontmatter(existing)
+        with _file_lock(filepath):
+            existing = filepath.read_text(encoding="utf-8")
+            fm, body = _parse_frontmatter(existing)
 
-        if fm is not None:
-            fm["updated"] = date.today().isoformat()
-            existing_tags = fm.get("tags", [])
-            if not isinstance(existing_tags, list):
-                existing_tags = []
-            if result.tags or existing_tags:
-                fm["tags"] = merge_tags(existing_tags, result.tags)
-            rebuilt = _render_frontmatter(fm) + body
-        else:
-            rebuilt = existing
+            if fm is not None:
+                fm["updated"] = date.today().isoformat()
+                existing_tags = fm.get("tags", [])
+                if not isinstance(existing_tags, list):
+                    existing_tags = []
+                if result.tags or existing_tags:
+                    fm["tags"] = merge_tags(existing_tags, result.tags)
+                rebuilt = _render_frontmatter(fm) + body
+            else:
+                rebuilt = existing
 
-        if not rebuilt.endswith("\n"):
-            rebuilt += "\n"
+            if not rebuilt.endswith("\n"):
+                rebuilt += "\n"
 
-        block = f"\n## Update {date.today().isoformat()}\n\n{result.summary}\n"
-        if result.related:
-            block += _related_section(result.related).lstrip("\n") + "\n"
+            block = f"\n## Update {date.today().isoformat()}\n\n{result.summary}\n"
+            if result.related:
+                block += _related_section(result.related).lstrip("\n") + "\n"
 
-        _atomic_write(filepath, rebuilt + block)
-        return vault_path
+            _atomic_write(filepath, rebuilt + block)
+            return vault_path
 
     def save_note_content(self, vault_path: str, content: str) -> str:
         filepath = resolve_vault_file(vault_path)
