@@ -13,6 +13,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   verlinken auf `/notes?path=…`; die Notiz-Seite öffnet den Deep-Link und
   hält die URL beim Auswählen synchron.
 
+### Fixed
+- **E28-2/E28-3 Capture-Konsistenz.** `flock` bei Create/Append gegen Lost
+  Updates; bei `telegram_update_id` UNIQUE-Claim per `flush` *vor* Vault-Write;
+  neu angelegte Dateien werden bei DB-Fehler wieder gelöscht (keine Orphans).
+
 ### Security
 - **Dependabot gebündelt.** Wöchentliche Updates als wenige Gruppen-PRs
   (Patch/Minor zusammen); Major-Updates einzeln; `ruff>=0.16` ignoriert

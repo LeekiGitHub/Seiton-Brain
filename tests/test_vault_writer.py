@@ -500,3 +500,81 @@ def test_write_note_sanitizes_hostile_title(tmp_path, monkeypatch):
         line.startswith("script:") for line in fm_block.splitlines()
     )
     assert "tags: [ok, badtag, xy]" in fm_block
+
+
+def test_file_lock_serializes_create_path_allocation(tmp_path, monkeypatch):
+    """E28-2: parallele write_note mit gleichem Titel → unterschiedliche Dateien."""
+    import threading
+
+    from app.vault.filesystem import FilesystemVaultBackend
+
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    backend = FilesystemVaultBackend()
+    results: list[str] = []
+    errors: list[BaseException] = []
+
+    def worker():
+        try:
+            rel = backend.write_note(
+                ClassificationResult(
+                    category="note",
+                    title="Same Title",
+                    summary="Body.",
+                )
+            )
+            results.append(rel)
+        except BaseException as exc:  # noqa: BLE001 — Test sammelt alle Fehler
+            errors.append(exc)
+
+    threads = [threading.Thread(target=worker) for _ in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert not errors
+    assert len(results) == 8
+    assert len(set(results)) == 8
+    notes_dir = tmp_path / "Notes"
+    assert len(list(notes_dir.glob("Same Title*.md"))) == 8
+
+
+def test_file_lock_serializes_append(tmp_path, monkeypatch):
+    """E28-2: parallele Appends verlieren keine Update-Blöcke."""
+    import threading
+
+    from app.vault.filesystem import FilesystemVaultBackend
+
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    backend = FilesystemVaultBackend()
+    rel = backend.write_note(
+        ClassificationResult(category="note", title="Shared", summary="Start.")
+    )
+    errors: list[BaseException] = []
+
+    def worker(i: int):
+        try:
+            backend.append_to_note(
+                rel,
+                ClassificationResult(
+                    category="note",
+                    title="Shared",
+                    summary=f"Update {i}",
+                    action="append",
+                    target_title="Shared",
+                ),
+            )
+        except BaseException as exc:  # noqa: BLE001
+            errors.append(exc)
+
+    threads = [threading.Thread(target=worker, args=(i,)) for i in range(10)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert not errors
+    content = (tmp_path / rel).read_text(encoding="utf-8")
+    for i in range(10):
+        assert f"Update {i}" in content
+    assert content.count("## Update") == 10
