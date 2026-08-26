@@ -76,6 +76,18 @@
   </section>
 
   <section class="card">
+    <h2>Vault-Index</h2>
+    <p class="hint">
+      Externe Änderungen (z.&nbsp;B. in Obsidian) werden periodisch
+      nachgezogen. Hier kannst du den Index manuell neu aufbauen.
+    </p>
+    <div class="actions" style="margin-bottom:0.75rem">
+      <button type="button" class="primary" id="btn-reindex">Neu indexieren</button>
+    </div>
+    <div id="reindex-result" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
     <h2>Backup</h2>
     <div class="actions" style="margin-bottom:0.75rem">
       <button type="button" class="primary" id="btn-backup">Backup jetzt erstellen</button>

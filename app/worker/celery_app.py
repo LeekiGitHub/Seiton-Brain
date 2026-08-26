@@ -12,6 +12,17 @@ celery_app.conf.broker_url = settings.redis_url
 celery_app.conf.result_backend = settings.redis_url
 celery_app.conf.task_track_started = True
 
+# Celery Beat (E28-1): periodischer Vault-Index-Sync. Intervall 0 = aus.
+_sync_interval = settings.seiton_index_sync_interval_seconds
+if _sync_interval > 0:
+    celery_app.conf.beat_schedule = {
+        "sync-vault-index-incremental": {
+            "task": "sync_vault_index_incremental",
+            "schedule": float(_sync_interval),
+        },
+    }
+celery_app.conf.timezone = "UTC"
+
 
 @setup_logging.connect
 def _configure_celery_logging(**_kwargs) -> None:

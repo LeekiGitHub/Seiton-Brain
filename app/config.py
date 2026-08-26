@@ -162,6 +162,9 @@ class Settings(BaseSettings):
     # zerlegt; Embeddings und Keyword-Treffer laufen ueber vault_chunk.
     seiton_chunk_size: int = 1500
     seiton_chunk_overlap: int = 200
+    # Inkrementeller Vault-Index-Sync (E28-1). Intervall in Sekunden fuer
+    # Celery Beat; 0 = Beat-Task deaktiviert (nur manueller Reindex).
+    seiton_index_sync_interval_seconds: int = 60
 
     # OCR (E18-5). Optional: braucht System-Tesseract + pip extras
     # (requirements-ocr.txt). Bei False / fehlender Installation bleibt

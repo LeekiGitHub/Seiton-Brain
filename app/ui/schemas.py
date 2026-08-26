@@ -132,6 +132,14 @@ class BackupListResponse(BaseModel):
     items: list[BackupListItem]
 
 
+class ReindexResponse(BaseModel):
+    mode: str
+    indexed: int
+    skipped: int = 0
+    removed: int = 0
+    message: str = ""
+
+
 class SettingsViewResponse(BaseModel):
     complete: bool
     components: dict[str, bool]

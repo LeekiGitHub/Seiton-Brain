@@ -92,6 +92,25 @@ services:
       redis:
         condition: service_healthy
 
+  # Celery Beat (E28-1): periodischer Vault-Index-Sync. Ein Prozess reicht.
+  beat:
+    build: .
+    command: celery -A app.worker.celery_app beat --loglevel=info
+    healthcheck:
+      disable: true
+    env_file:
+      - .env
+    environment:
+      OBSIDIAN_VAULT_PATH: /vault
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - "${OBSIDIAN_VAULT_HOST_PATH}:/vault"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres-data:
   seiton-voice-cache:

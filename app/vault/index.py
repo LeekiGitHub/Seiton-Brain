@@ -59,6 +59,153 @@ def _index_body_snippet(content: str) -> str:
     return _body_snippet(content, limit=BODY_INDEX_CHARS)
 
 
+def _mtime_unchanged(disk_mtime: datetime, indexed_mtime: datetime) -> bool:
+    """True, wenn die Datei seit dem Indexieren nicht neuer ist (E28-1)."""
+    db_mtime = indexed_mtime
+    if db_mtime.tzinfo is None:
+        db_mtime = db_mtime.replace(tzinfo=UTC)
+    # Sekunden-Genauigkeit: Postgres/FS runden unterschiedlich auf µs.
+    return int(disk_mtime.timestamp()) <= int(db_mtime.timestamp())
+
+
+def _iter_indexable_vault_files(vault_path: Path):
+    """Yield indexierbare Vault-Dateien (ohne .hidden / _seiton)."""
+    for file in sorted(vault_path.rglob("*")):
+        if not file.is_file():
+            continue
+        rel_parts = file.relative_to(vault_path).parts
+        if any(part.startswith(".") for part in rel_parts):
+            continue
+        if rel_parts and rel_parts[0] == "_seiton":
+            continue
+        if get_extractor(file) is None:
+            continue
+        yield file
+
+
+@dataclass(frozen=True)
+class VaultIndexSyncResult:
+    """Ergebnis eines Vault-Index-Syncs (E28-1)."""
+
+    indexed: int = 0
+    skipped: int = 0
+    removed: int = 0
+    mode: str = "full"
+
+    @property
+    def total_seen(self) -> int:
+        return self.indexed + self.skipped
+
+
+async def _apply_index_payload(
+    db: AsyncSession,
+    *,
+    rel: str,
+    row: VaultNoteIndex,
+    full_text: str,
+) -> VaultNoteIndex:
+    existing = (
+        await db.execute(
+            select(VaultNoteIndex).where(VaultNoteIndex.vault_path == rel)
+        )
+    ).scalar_one_or_none()
+    if existing is None:
+        db.add(row)
+        await db.flush()
+        note = row
+    else:
+        existing.title = row.title
+        existing.category = row.category
+        existing.folder = row.folder
+        existing.doc_type = row.doc_type
+        existing.body_snippet = row.body_snippet
+        existing.mtime = row.mtime
+        existing.indexed_at = datetime.now(UTC)
+        note = existing
+    await _replace_chunks(db, note, full_text)
+    return note
+
+
+async def sync_vault_index_from_disk(db: AsyncSession) -> int:
+    """Voller Vault-Scan — Bootstrap oder Reparatur des Index."""
+    result = await sync_vault_index(db, incremental=False)
+    return result.indexed
+
+
+async def sync_vault_index_incremental(db: AsyncSession) -> VaultIndexSyncResult:
+    """mtime-basierter Sync: nur neue/geänderte Dateien (E28-1)."""
+    return await sync_vault_index(db, incremental=True)
+
+
+async def sync_vault_index(
+    db: AsyncSession, *, incremental: bool = True
+) -> VaultIndexSyncResult:
+    """Vault → Index. ``incremental=True`` überspringt unveränderte mtimes."""
+    vault_path = _vault_root()
+    if not vault_path.exists():
+        return VaultIndexSyncResult(mode="incremental" if incremental else "full")
+
+    found_paths: set[str] = set()
+    indexed = 0
+    skipped = 0
+
+    for file in _iter_indexable_vault_files(vault_path):
+        try:
+            rel = _relative_vault_path(file)
+            found_paths.add(rel)
+            disk_mtime = _file_mtime(file)
+
+            if incremental:
+                existing = (
+                    await db.execute(
+                        select(VaultNoteIndex).where(VaultNoteIndex.vault_path == rel)
+                    )
+                ).scalar_one_or_none()
+                if existing is not None and _mtime_unchanged(disk_mtime, existing.mtime):
+                    skipped += 1
+                    continue
+
+            payload = _file_to_index_payload(file)
+            if payload is None:
+                continue
+            row, full_text = payload
+            await _apply_index_payload(db, rel=rel, row=row, full_text=full_text)
+            indexed += 1
+        except OSError as exc:
+            logger.warning("Skipping unreadable vault file %s: %s", file, exc)
+
+    if found_paths:
+        delete_result = await db.execute(
+            delete(VaultNoteIndex).where(
+                VaultNoteIndex.vault_path.not_in(found_paths)
+            )
+        )
+    else:
+        delete_result = await db.execute(delete(VaultNoteIndex))
+    removed = delete_result.rowcount
+    if not isinstance(removed, int) or removed < 0:
+        removed = 0
+
+    await db.commit()
+    mode = "incremental" if incremental else "full"
+    logger.info(
+        "Vault index sync (%s): indexed=%d skipped=%d removed=%d",
+        mode,
+        indexed,
+        skipped,
+        removed,
+    )
+    return VaultIndexSyncResult(
+        indexed=indexed, skipped=skipped, removed=removed, mode=mode
+    )
+
+
+async def ensure_vault_index(db: AsyncSession) -> None:
+    total = (await db.execute(select(func.count()).select_from(VaultNoteIndex))).scalar_one()
+    if total == 0 and _vault_root().exists():
+        await sync_vault_index_from_disk(db)
+
+
 def parse_note_file(path: Path) -> VaultNote:
     content = path.read_text(encoding="utf-8")
     meta = _parse_frontmatter(content)
@@ -201,73 +348,6 @@ async def remove_vault_note_index(db: AsyncSession, vault_relative_path: str) ->
         delete(VaultNoteIndex).where(VaultNoteIndex.vault_path == vault_relative_path)
     )
     await db.commit()
-
-
-async def sync_vault_index_from_disk(db: AsyncSession) -> int:
-    """Voller Vault-Scan — Bootstrap oder Reparatur des Index."""
-    vault_path = _vault_root()
-    if not vault_path.exists():
-        return 0
-
-    found_paths: set[str] = set()
-    count = 0
-    for file in sorted(vault_path.rglob("*")):
-        if not file.is_file():
-            continue
-        rel_parts = file.relative_to(vault_path).parts
-        if any(part.startswith(".") for part in rel_parts):
-            continue  # versteckte Dateien/Ordner (.obsidian, .trash, …)
-        if rel_parts and rel_parts[0] == "_seiton":
-            continue  # reservierter Seiton-Ordner (Notiz-Templates, E26-1)
-        if get_extractor(file) is None:
-            continue  # nicht unterstuetzter Dateityp
-        try:
-            rel = _relative_vault_path(file)
-            payload = _file_to_index_payload(file)
-            if payload is None:
-                continue
-            row, full_text = payload
-            found_paths.add(rel)
-            existing = (
-                await db.execute(
-                    select(VaultNoteIndex).where(VaultNoteIndex.vault_path == rel)
-                )
-            ).scalar_one_or_none()
-            if existing is None:
-                db.add(row)
-                await db.flush()
-                note = row
-            else:
-                existing.title = row.title
-                existing.category = row.category
-                existing.folder = row.folder
-                existing.doc_type = row.doc_type
-                existing.body_snippet = row.body_snippet
-                existing.mtime = row.mtime
-                note = existing
-            await _replace_chunks(db, note, full_text)
-            count += 1
-        except OSError as exc:
-            logger.warning("Skipping unreadable vault file %s: %s", file, exc)
-
-    if found_paths:
-        await db.execute(
-            delete(VaultNoteIndex).where(
-                VaultNoteIndex.vault_path.not_in(found_paths)
-            )
-        )
-    else:
-        await db.execute(delete(VaultNoteIndex))
-
-    await db.commit()
-    logger.info("Vault index sync complete: %d files", count)
-    return count
-
-
-async def ensure_vault_index(db: AsyncSession) -> None:
-    total = (await db.execute(select(func.count()).select_from(VaultNoteIndex))).scalar_one()
-    if total == 0 and _vault_root().exists():
-        await sync_vault_index_from_disk(db)
 
 
 async def list_indexed_notes(db: AsyncSession, limit: int = LLM_NOTE_LIMIT) -> list[VaultNote]:

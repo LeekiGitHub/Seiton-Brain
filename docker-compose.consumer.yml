@@ -10,5 +10,7 @@ services:
     restart: unless-stopped
   worker:
     restart: unless-stopped
+  beat:
+    restart: unless-stopped
   poller:
     restart: unless-stopped
