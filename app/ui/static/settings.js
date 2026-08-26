@@ -118,6 +118,24 @@
     }
   });
 
+  document.getElementById("btn-reindex").addEventListener("click", async () => {
+    const btn = document.getElementById("btn-reindex");
+    const resultEl = document.getElementById("reindex-result");
+    btn.disabled = true;
+    resultEl.innerHTML = '<p class="empty">Indexiere Vault …</p>';
+    try {
+      const res = await fetch("/api/ui/reindex?full=true", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Indexierung fehlgeschlagen");
+      resultEl.innerHTML = `<p class="capture-ok"><span class="badge ok">ok</span>
+        ${escapeHtml(data.message)}</p>`;
+    } catch (err) {
+      resultEl.innerHTML = `<p class="capture-err">${escapeHtml(err.message)}</p>`;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
   function renderEdition(edition) {
     document.getElementById("edition-info").innerHTML = `
       <p><strong>${escapeHtml(edition.name)}</strong> — ${escapeHtml(edition.license)}</p>

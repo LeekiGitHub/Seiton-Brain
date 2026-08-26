@@ -38,6 +38,7 @@ from app.transcription.voice_limits import (
 )
 from app.transcription.whisper import transcribe_audio
 from app.vault.categories import folder_for_category
+from app.vault.index import sync_vault_index_incremental
 from app.worker.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
@@ -512,3 +513,28 @@ def process_voice_message_task(
             )
         )
         raise
+
+
+@celery_app.task(name="sync_vault_index_incremental")
+def sync_vault_index_incremental_task() -> dict[str, int | str]:
+    """Periodischer mtime-Sync (E28-1 / Celery Beat)."""
+    bind_log_context()
+    logger.info("sync_vault_index_incremental started")
+
+    async def _run_sync():
+        async with worker_session() as db:
+            return await sync_vault_index_incremental(db)
+
+    result = asyncio.run(_run_sync())
+    logger.info(
+        "sync_vault_index_incremental done indexed=%s skipped=%s removed=%s",
+        result.indexed,
+        result.skipped,
+        result.removed,
+    )
+    return {
+        "mode": result.mode,
+        "indexed": result.indexed,
+        "skipped": result.skipped,
+        "removed": result.removed,
+    }

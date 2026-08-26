@@ -59,6 +59,7 @@ from app.ui.schemas import (
     BackupCreateResponse,
     BackupListItem,
     BackupListResponse,
+    ReindexResponse,
     DashboardResponse,
     LicenseSaveRequest,
     LicenseStatusResponse,
@@ -78,7 +79,7 @@ from app.setup.schemas import SetupSaveResponse, SetupTestRequest, SetupTestResp
 from app.ui.service import load_dashboard
 from app.ui.license import license_status, save_license
 from app.ui.settings import load_settings_view, save_settings
-from app.vault.index import retrieve_vault_notes
+from app.vault.index import retrieve_vault_notes, sync_vault_index
 
 logger = logging.getLogger(__name__)
 
@@ -415,6 +416,27 @@ async def backup_create_api(
         directory=outcome.directory,
         files=outcome.files,
         warnings=outcome.warnings,
+    )
+
+
+@ui_api_router.post("/reindex", response_model=ReindexResponse)
+async def reindex_api(
+    full: bool = Query(True, description="True = Full-Sync, False = inkrementell"),
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(_ui_api_dep),
+) -> ReindexResponse:
+    """Vault neu indexieren (E28-1). Default: Full-Sync (Reparatur)."""
+    result = await sync_vault_index(db, incremental=not full)
+    mode_label = "Vollständig" if result.mode == "full" else "Inkrementell"
+    return ReindexResponse(
+        mode=result.mode,
+        indexed=result.indexed,
+        skipped=result.skipped,
+        removed=result.removed,
+        message=(
+            f"{mode_label}: {result.indexed} indexiert, "
+            f"{result.skipped} unverändert, {result.removed} entfernt."
+        ),
     )
 
 

@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -13,6 +14,7 @@ from app.vault.index import (
     search_vault_notes,
     semantic_search_vault_notes,
     sync_vault_index_from_disk,
+    sync_vault_index_incremental,
     upsert_vault_note_index,
 )
 
@@ -73,6 +75,92 @@ async def test_sync_vault_index_from_disk(tmp_path, monkeypatch):
     count = await sync_vault_index_from_disk(db)
     assert count == 1
     assert db.add.called
+    db.commit.assert_awaited()
+
+
+@pytest.mark.asyncio
+async def test_incremental_sync_skips_unchanged_mtime(tmp_path, monkeypatch):
+    """E28-1: unveränderte mtime → kein Re-Index / kein _replace_chunks."""
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    notes = tmp_path / "Notes"
+    notes.mkdir()
+    note = notes / "Hello.md"
+    note.write_text("---\ntitle: Hello\n---\n\nBody.", encoding="utf-8")
+    mtime = datetime.fromtimestamp(note.stat().st_mtime, tz=UTC)
+
+    existing = VaultNoteIndex(
+        vault_path="Notes/Hello.md",
+        title="Hello",
+        category="",
+        folder="Notes",
+        doc_type="markdown",
+        body_snippet="Body.",
+        mtime=mtime,
+    )
+
+    db = AsyncMock()
+    db.add = MagicMock()
+    db.commit = AsyncMock()
+    db.flush = AsyncMock()
+
+    # 1) select existing for mtime check → existing
+    # 2) delete orphans → rowcount 0
+    select_result = MagicMock()
+    select_result.scalar_one_or_none.return_value = existing
+    delete_result = MagicMock(rowcount=0)
+
+    db.execute = AsyncMock(side_effect=[select_result, delete_result])
+
+    with patch("app.vault.index._replace_chunks", new_callable=AsyncMock) as mock_chunks:
+        result = await sync_vault_index_incremental(db)
+
+    assert result.mode == "incremental"
+    assert result.indexed == 0
+    assert result.skipped == 1
+    mock_chunks.assert_not_awaited()
+    db.add.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_incremental_sync_indexes_when_mtime_newer(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
+    notes = tmp_path / "Notes"
+    notes.mkdir()
+    note = notes / "Hello.md"
+    note.write_text("---\ntitle: Hello\n---\n\nBody v1.", encoding="utf-8")
+
+    old_mtime = datetime.fromtimestamp(note.stat().st_mtime - 10, tz=UTC)
+    existing = VaultNoteIndex(
+        vault_path="Notes/Hello.md",
+        title="Hello",
+        category="",
+        folder="Notes",
+        doc_type="markdown",
+        body_snippet="old",
+        mtime=old_mtime,
+    )
+
+    note.write_text("---\ntitle: Hello\n---\n\nBody v2 changed.", encoding="utf-8")
+
+    db = AsyncMock()
+    db.add = MagicMock()
+    db.commit = AsyncMock()
+    db.flush = AsyncMock()
+
+    # mtime check → existing; apply_index select → existing; delete → 0
+    mtime_check = MagicMock(scalar_one_or_none=MagicMock(return_value=existing))
+    apply_select = MagicMock(scalar_one_or_none=MagicMock(return_value=existing))
+    delete_result = MagicMock(rowcount=0)
+    db.execute = AsyncMock(side_effect=[mtime_check, apply_select, delete_result])
+
+    with patch(
+        "app.vault.index._replace_chunks", new_callable=AsyncMock, return_value=(1, False)
+    ):
+        result = await sync_vault_index_incremental(db)
+
+    assert result.indexed == 1
+    assert result.skipped == 0
+    assert existing.body_snippet  # updated via apply
     db.commit.assert_awaited()
 
 

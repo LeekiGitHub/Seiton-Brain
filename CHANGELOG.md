@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E28-1 Inkrementeller Index-Sync.** mtime-basierter Sync (periodischer
+  Celery-Beat-Task, Intervall via `SEITON_INDEX_SYNC_INTERVAL_SECONDS`);
+  Compose-Service `beat`; Settings-Button „Neu indexieren“
+  (`POST /api/ui/reindex`). Obsidian-/Fremd-Edits landen damit im Such-/RAG-
+  Index ohne Full-Rescan bei jedem Tick.
 - **E30-1 Klickbare Suchtreffer/Quellen.** Suche, Ask- und Digest-Quellen
   verlinken auf `/notes?path=…`; die Notiz-Seite öffnet den Deep-Link und
   hält die URL beim Auswählen synchron.
