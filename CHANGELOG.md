@@ -8,7 +8,20 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 
+---
+
+## [0.3.0] — 2026-08-27 — Phase G–L Kern: Consumer, Knowledge, Launch-Härtung
+
+Erster Release-Schnitt seit 0.2.0: Packaging/Web-UI, Retrieval/RAG, Offline-
+Lizenz, Security-/Integritäts-Fixes und Ops-Grundlage (CI + Release-Prozess).
+Siehe [`docs/release.md`](docs/release.md).
+
 ### Added
+- **E29-2 CI-Härtung.** Docker-Build-Job; Alembic `upgrade head` gegen
+  Service-Container `pgvector/pgvector:pg16`; Smoke-Insert/kNN über
+  `scripts/ci_vector_smoke.py`.
+- **E29-3 Release-Prozess.** Leichte Checkliste in `docs/release.md`
+  (CHANGELOG schneiden → Tag → GitHub Release).
 - **E28-1 Inkrementeller Index-Sync.** mtime-basierter Sync (periodischer
   Celery-Beat-Task, Intervall via `SEITON_INDEX_SYNC_INTERVAL_SECONDS`);
   Compose-Service `beat`; Settings-Button „Neu indexieren“
@@ -675,6 +688,7 @@ Erste lauffähige Version (Epic 1–7). Persönliches Lern-/Portfolio-Projekt.
 - Vault-Bind-Mount über `OBSIDIAN_VAULT_HOST_PATH`
 - `.gitignore` mit Schutz gegen `vault/`- und `models/`-Pattern-Konflikte (Root-Only)
 
-[Unreleased]: https://github.com/LeekiGitHub/Seiton-Brain/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/LeekiGitHub/Seiton-Brain/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/LeekiGitHub/Seiton-Brain/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/LeekiGitHub/Seiton-Brain/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/LeekiGitHub/Seiton-Brain/releases/tag/v0.1.0
