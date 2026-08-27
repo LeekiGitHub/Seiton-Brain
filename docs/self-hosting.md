@@ -125,5 +125,6 @@ Mehr: [`troubleshooting.md`](troubleshooting.md) und `./scripts/doctor.sh`.
 - VPS: [`vps-deployment.md`](vps-deployment.md) (E20-2)
 - Remote-Zugang (TLS/Tunnel): [`remote-access.md`](remote-access.md) (E9-3)
 - Updates: [`packaging.md#updates`](packaging.md#updates-e20-4) (E20-4)
+- Releases (Tag/CHANGELOG): [`release.md`](release.md) (E29-3)
 - Lizenz (kommerzielle Edition): [`licensing.md`](licensing.md) (E21)
 - Architektur: [`ARCHITECTURE.md`](../ARCHITECTURE.md)
