@@ -63,6 +63,7 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgresql+asyncpg://user:pass@localhost:5432/seitonbrain
+      PYTHONPATH: ${{ github.workspace }}
       # Dummy-Werte, falls ein Import Settings anfasst (Alembic braucht sie nicht).
       OPENAI_API_KEY: ci-smoke-key
       OBSIDIAN_VAULT_PATH: /tmp/seiton-ci-vault
