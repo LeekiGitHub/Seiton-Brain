@@ -9,6 +9,16 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **Epic E47 Designsystem & UI/UX-Fundament.** UI-Inventar, expliziter STOP für
+  Design-Referenzen des Entwicklers, abgeleitetes Designsystem und schrittweise
+  Token-Angleichung — eingeordnet in Phase L **vor** den verbleibenden
+  E30-Stories ([`ROADMAP.md`](ROADMAP.md)).
+- **E45-13/14/15.** Roadmap- und Agent-Kontext-Hygiene (Archiv + `current-state`),
+  risikobasierte Definition of Done mit Mini-Handcheck und ein eng begrenzter
+  Visual-Smoke-PoC mit `pytest-playwright`.
+- **[`docs/PROJECT_CONTEXT_FOR_REVIEW.md`](docs/PROJECT_CONTEXT_FOR_REVIEW.md).**
+  Kompakter Projektüberblick für eine externe technische Zweitmeinung ohne
+  Repo-Zugriff.
 - **Epic E46 Production Operations & Maintenance.** Lebenszyklus nach Release
   (Releases, Hotfixes, Monitoring, Incidents, Rollback, Backups, Migrationen,
   Wartung) in [`docs/production-ops.md`](docs/production-ops.md); Phase Q in
@@ -16,6 +26,14 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 - **Epic E45 Solo-Developer Engineering (AI-Safe).** Ist-Analyse, Zielworkflow
   und kostenbewusste Tool-Roadmap in [`docs/engineering.md`](docs/engineering.md);
   Stories E45-1–E45-12 in [`ROADMAP.md`](ROADMAP.md) (parallel zu Phase L).
+
+### Changed
+- **[`docs/engineering.md`](docs/engineering.md)** um verifizierte Ist-Befunde
+  ergänzt (Branch Protection fehlt, Secret Scanning aktiv, Dependabot-Security-
+  Updates aus), dazu neue Abschnitte zu lokalem Start/Installer-Realität,
+  visueller Prüfung (Playwright-Bewertung inkl. Grenzen), risikobasierter
+  Definition of Done und Kontext-Hygiene; CodeRabbit-Abschnitt auf den
+  OSS-Plan konkretisiert.
 - **E30-3 Post-Setup-Onboarding.** Abschluss-Screen mit Neustart-Checkliste und
   CTA „Erste Notiz erfassen“ (`/dashboard#capture-card`); Setup-Link in der
   Nav nur bei unvollständiger Konfiguration; lesbare Formular-Labels im Wizard
