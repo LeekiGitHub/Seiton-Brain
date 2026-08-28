@@ -9,8 +9,10 @@ Portfolio-Repo (MIT)** mit geplanter kommerzieller Edition — siehe
 ## Bevor du startest
 
 1. **Roadmap prüfen:** [`ROADMAP.md`](ROADMAP.md) — gibt es schon eine Story?
-2. **Größere Änderungen:** kurz als Issue anlegen oder im PR referenzieren
-3. **Sicherheitslücken:** nicht als öffentliches Issue — siehe [`SECURITY.md`](SECURITY.md)
+2. **Engineering-Workflow:** [`docs/engineering.md`](docs/engineering.md) — Git, CI, Review, KI-Sicherheit (Epic E45)
+3. **Production Operations:** [`docs/production-ops.md`](docs/production-ops.md) — Betrieb nach Release (Epic E46)
+4. **Größere Änderungen:** kurz als Issue anlegen oder im PR referenzieren; vor Architektur-Änderungen [`ARCHITECTURE.md`](ARCHITECTURE.md) + relevante [`docs/adr/`](docs/adr/) lesen
+5. **Sicherheitslücken:** nicht als öffentliches Issue — siehe [`SECURITY.md`](SECURITY.md)
 
 Für reine Self-Hosting-Fragen (Setup, Docker): zuerst
 [`docs/self-hosting.md`](docs/self-hosting.md) und [`docs/setup.md`](docs/setup.md).

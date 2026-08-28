@@ -65,9 +65,12 @@ E26-3/4/6. 561 Tests (E27-2 XSS 🟢, E27-3/4 Defaults+Frontmatter 🟢, E28-5 R
 - **`ARCHITECTURE.md`** — Diagramm, Modul-Map
 - **`CHANGELOG.md`** — Keep-a-Changelog
 - **`docs/adr/`** — ADRs (0001–0007; 0007 = Cloud/Abo, Proposed)
+- **`docs/engineering.md`** — Solo-Dev-Workflow, CI/Review/Monitoring-Plan (E45)
+- **`docs/production-ops.md`** — Production Ops nach Release (E46)
 - **`docs/integrations/`** — n8n (REST-only), MCP, knowledge-retrieval
 
 Bei neuen Features: zuerst ROADMAP-Eintrag und/oder Issue, dann Code.
+Vor größeren Architektur-Änderungen: `ARCHITECTURE.md` + relevante ADRs lesen (E45-2).
 
 ## Conventions
 

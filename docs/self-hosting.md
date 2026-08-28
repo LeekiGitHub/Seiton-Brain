@@ -126,5 +126,6 @@ Mehr: [`troubleshooting.md`](troubleshooting.md) und `./scripts/doctor.sh`.
 - Remote-Zugang (TLS/Tunnel): [`remote-access.md`](remote-access.md) (E9-3)
 - Updates: [`packaging.md#updates`](packaging.md#updates-e20-4) (E20-4)
 - Releases (Tag/CHANGELOG): [`release.md`](release.md) (E29-3)
+- Production Operations: [`production-ops.md`](production-ops.md) (E46)
 - Lizenz (kommerzielle Edition): [`licensing.md`](licensing.md) (E21)
 - Architektur: [`ARCHITECTURE.md`](../ARCHITECTURE.md)
