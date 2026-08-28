@@ -87,3 +87,29 @@ def test_missing_setup_fields_when_placeholders(_mock):
 @patch("app.setup.status.missing_setup_fields", return_value=[])
 def test_setup_complete_when_nothing_missing(_mock):
     assert is_setup_complete() is True
+
+
+def test_setup_page_uses_human_readable_labels():
+    response = client.get("/setup")
+    assert response.status_code == 200
+    text = response.text
+    assert "Vault-Ordner auf deinem Rechner" in text
+    assert "OpenAI API-Schlüssel" in text
+    assert "OBSIDIAN_VAULT_HOST_PATH" not in text
+    assert "OPENAI_API_KEY" not in text
+    assert "TELEGRAM_BOT_TOKEN" not in text
+
+
+def test_setup_page_has_onboarding_completion_screen():
+    response = client.get("/setup")
+    assert response.status_code == 200
+    assert 'data-step="5"' in response.text
+    assert "Erste Notiz erfassen" in response.text
+    assert "/dashboard#capture-card" in response.text
+
+
+@patch("app.ui.router.is_setup_complete", return_value=True)
+def test_setup_page_opens_completion_when_already_complete(_mock):
+    response = client.get("/setup")
+    assert response.status_code == 200
+    assert 'data-complete="1"' in response.text

@@ -585,7 +585,7 @@ Vom „fähigen Admin-Tool" zum kaufbaren Produkt (UI-Audit: die Kern-Journey
 |----|-------|---|---|---|---|---|--------|-------|
 | E30-1 | **Retrieval-Loop schließen:** Suchtreffer + Ask-/Digest-Quellen klickbar → öffnen die Notiz (`/notes?path=…`-Deep-Link). | 5 | 1 | 1 | 1 | 5 | 🟢 | L |
 | E30-2 | **Notiz-Lesemodus:** Markdown-Preview (gerendert, XSS-sicher) mit Edit-Toggle; klickbare `[[Wikilinks]]`; Speichern-Feedback statt stillem Erfolg. | 5 | 3 | 2 | 3 | 4 | ⚪ | L |
-| E30-3 | **Post-Setup-Onboarding:** Abschluss-Screen mit Neustart-Checkliste + CTA „Erste Notiz erfassen"; „Setup" verschwindet aus der Hauptnav, wenn abgeschlossen; Formular-Labels statt Env-Namen (`OBSIDIAN_VAULT_HOST_PATH` → „Vault-Ordner"). | 5 | 2 | 1 | 2 | 4 | ⚪ | L |
+| E30-3 | **Post-Setup-Onboarding:** Abschluss-Screen mit Neustart-Checkliste + CTA „Erste Notiz erfassen"; „Setup" verschwindet aus der Hauptnav, wenn abgeschlossen; Formular-Labels statt Env-Namen (`OBSIDIAN_VAULT_HOST_PATH` → „Vault-Ordner"). | 5 | 2 | 1 | 2 | 4 | 🟢 | L |
 | E30-4 | **Feedback-Layer:** Toasts/Modals statt `alert()`/`confirm()`; alle nutzerseitigen Fehlertexte deutsch (heute z. T. rohe EN-API-Details wie „Duplicate capture rejected"); Undo-Snackbar bzw. Papierkorb beim Löschen. | 4 | 3 | 1 | 2 | 4 | ⚪ | L |
 | E30-5 | **Terminologie- & Status-Pass:** eine Nutzersprache (keine „Entries", Status-Rohwerte `appended`/`failed`, „E26"-Codes oder Container-Pfade in Primär-UI); Empty-States mit CTA. | 3 | 2 | 1 | 1 | 3 | ⚪ | L |
 | E30-6 | **Mobile-Politur:** Topnav umbrechen/Hamburger, Touch-Targets ≥ 44 px, Fokus-Styles auf Buttons, `aria-current`, `<main>`-Landmark (A11y-AA-Basis). | 3 | 2 | 1 | 2 | 3 | ⚪ | L |
@@ -903,9 +903,10 @@ Monetarisierung/Cloud:
 7. 🟢 **E28-2 + E28-3** — File-Locks + Capture-Kompensation
 8. 🟢 **E28-1** — Inkrementeller Index-Sync (Obsidian-Koexistenz-Versprechen)
 9. 🟢 **E29-2 + E29-3** — CI-Härtung + Release v0.3.0
-10. 🔵 **E30-3 + E30-4** — Onboarding + Feedback-Layer
-11. 🔵 **E31-1 + E31-3** — Voll-Löschung + Log-Hygiene
-12. Danach: restliche E29/E30/E31-Stories, dann **Phase M** (Ecosystem &
+10. 🟢 **E30-3** — Post-Setup-Onboarding
+11. 🔵 **E30-4** — Feedback-Layer
+12. 🔵 **E31-1 + E31-3** — Voll-Löschung + Log-Hygiene
+13. Danach: restliche E29/E30/E31-Stories, dann **Phase M** (Ecosystem &
     Interoperability, E32–E36 + E22-5/E23-4), danach **Phase N**
     (Privacy-First Knowledge AI, E37–E40; E37-2 ggf. mit E28-1 vorziehen),
     danach **Phase O** (Shared Knowledge & Small Teams, E41–E44) und

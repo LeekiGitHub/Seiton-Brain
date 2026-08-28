@@ -153,3 +153,47 @@ button:disabled {
   background: rgba(91, 159, 212, 0.2);
   color: var(--accent);
 }
+
+.hint-inline {
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+.onboarding-checklist {
+  margin: 0 0 1.25rem 1.1rem;
+  padding: 0;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.onboarding-checklist li {
+  margin-bottom: 0.65rem;
+}
+
+.onboarding-checklist code {
+  font-size: 0.88em;
+}
+
+a.button {
+  display: inline-block;
+  padding: 0.55rem 1.1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  text-decoration: none;
+  text-align: center;
+}
+
+a.button.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+a.button.primary:hover {
+  background: var(--accent-hover);
+}
+
+a.button.secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}

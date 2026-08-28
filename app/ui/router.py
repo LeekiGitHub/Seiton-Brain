@@ -86,6 +86,7 @@ logger = logging.getLogger(__name__)
 UI_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(UI_DIR / "templates"))
 templates.env.globals["ui_auth_enabled"] = ui_auth_enabled
+templates.env.globals["is_setup_complete"] = lambda: is_setup_complete()
 
 router = APIRouter(tags=["ui"])
 ui_api_router = APIRouter(prefix="/api/ui", tags=["ui-api"])
