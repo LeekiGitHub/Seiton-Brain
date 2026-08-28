@@ -80,7 +80,7 @@ Integrations-Details: [`docs/integrations/`](./docs/integrations/).
 | **G — Produktisierung (kommerziell)** | UI/Dashboard, Packaging/Installer, Lizenzierung. Offen: Verkaufskanal (**E21-2**); native App (**E20-3/5**) kein Nahziel. | 🔵 |
 | **H — Capture überall & Mobile** | UI-Capture, Telegram-Uploads, PWA/Companion, UI-Auth, Notiz-Templates, Betriebs-Polish. Epics **E22/E23/E25/E26**. | 🔵 |
 | **I — Cloud-Edition (Abo)** | Hosted-Instanzen + Managed LLM für Nicht-Selfhoster. Gated auf **ADR 0007** (Proposed). Epic **E24**. | ⚪ |
-| **L — Launch-Härtung** | Security, Datenintegrität, Release/Ops, UX Consumer-Pass, Privacy-Basis vor Verkauf. Epics **E27–E31**. | 🔵 aktiv |
+| **L — Launch-Härtung** | Security, Datenintegrität, Release/Ops, UX Consumer-Pass, Privacy-Basis vor Verkauf. Epics **E27–E31** + **E47** (Designsystem-Fundament vor weiterem UI-Ausbau). | 🔵 aktiv |
 | **P — Engineering (Solo + AI)** | Schlanke DevOps-/Quality-Prozesse für Solo-Entwicklung mit KI: Git/CI/Review/Monitoring — **parallel** zur Produktarbeit, kein Enterprise-Overhead. Epic **E45**. | 🔵 |
 | **Q — Production Operations** | Langfristiger Produktbetrieb nach Release: Updates, Monitoring, Incidents, Recovery, Wartung — Solo-tauglich, schrittweise vor Beta/Launch/Verkauf. Epic **E46**. | ⚪ geplant |
 
@@ -636,13 +636,17 @@ nicht aus einem einzigen KI-Agenten.
 | E45-10 | **Product Analytics evaluieren:** z. B. PostHog Free/Self-Hosted — Feature-Nutzung, Funnels; erst ab Beta/Launch sinnvoll; Paid ab Nov 2026 nur bei Bedarf. | 3 | 2 | 1 | 2 | 2 | ⚪ | P | Beta/Launch · Free |
 | E45-11 | **Linear evaluieren (optional):** nur wenn GitHub Issues/ROADMAP-Kontext unübersichtlich werden; Produkt/Roadmap in Linear, Code/CI in GitHub; MCP nur bei echtem Mehrwert; Paid ab Nov 2026. | 2 | 2 | 1 | 1 | 1 | ⚪ | P | bewusst zurückgestellt |
 | E45-12 | **Dependabot-Prozess:** grouped PRs durch dieselben Quality Gates wie Feature-PRs; Merge-Policy in `docs/engineering.md` (Ergänzung zu E29-1). | 2 | 1 | 1 | 1 | 3 | 🟡 | P | jetzt · kostenlos |
+| E45-13 | **Roadmap-/Agent-Kontext-Hygiene:** ROADMAP ist auf 1015 Zeilen (~80 KB, 210 Stories, davon 144 🟢) gewachsen und mischt Zukunftsplanung mit abgeschlossener Historie — jede Agent-Aufgabe zahlt das mit. Abgeschlossene Phasen A–H **verlustfrei** nach `docs/archive/roadmap-phases-a-h.md` auslagern (Verweis statt Löschung), Sprint-Historie mitnehmen, kompakte `docs/current-state.md` als Einstiegspunkt für Agents anlegen, Cursor-Rule darauf zeigen lassen. Ziel: aktive ROADMAP ≲ 400 Zeilen. AK: kein Wissensverlust (nur verschoben + verlinkt), Tests/Doku-Links grün. | 4 | 2 | 2 | 2 | 5 | ⚪ | P | als Nächstes · kostenlos |
+| E45-14 | **Risikobasierte Definition of Done:** heutige DoD ist Telegram-zentriert („Manuell getestet: Telegram → Vault"). Ersetzen durch Matrix nach Change-Typ (Doku / Backend / UI / Migration / Security) mit je zutreffenden Gates (Lint, Tests, CI, CHANGELOG, ROADMAP, Visual-Smoke, **Mini-Handcheck**). Agent meldet nach jeder Story eine 3-Punkte-Checkliste für den Menschen (≈ 2 Min.), bei rein technischen Änderungen entfällt sie. Umsetzung in ROADMAP-DoD + `CONTRIBUTING.md` + PR-Template. | 4 | 1 | 1 | 2 | 4 | ⚪ | P | nach E45-15 · kostenlos |
+| E45-15 | **Visual-Smoke-PoC (Playwright, eng begrenzt):** `pytest-playwright` (Apache-2.0, Python-nativ — kein Node-Toolchain im Repo nötig) gegen die lokale Web-UI: **ein** Happy-Path (Login → Dashboard → Capture → Ask → Notiz öffnen), Screenshot je Screen als Artefakt für die Agent-Sichtprüfung, Abbruch bei Console-Errors/4xx-5xx-Requests. Läuft lokal gegen `docker compose`; CI-Job optional als Folge-Story auf Basis der vorhandenen `migrate-and-vector-smoke`-Service-Container. **Abgrenzung:** kein breites E2E-Regressions-Framework (bleibt gestrichen), kein Ersatz für Unit-/API-Tests, kein Desktop-Testing (es gibt keine Desktop-App — siehe E20-3/5). AK: ein Befehl erzeugt Screenshots + Fehlerreport; PoC-Bewertung dokumentiert (behalten / verwerfen). | 4 | 3 | 2 | 4 | 4 | ⚪ | P | nach E47-2 · Free/OSS |
 
-Reihenfolge (parallel zur Produktarbeit, blockiert Phase L nicht): E45-2 → E45-1 →
-E45-3/E45-4 → E45-12 → (Produkt weiter) → E45-5 wenn PR-Rhythmus stabil →
+Reihenfolge (parallel zur Produktarbeit, blockiert Phase L nicht): E45-2 → **E45-13**
+(macht alle folgenden Agent-Tage billiger) → E45-1 → E45-3/E45-4 → E45-12 → E45-5
+(nach Branch Protection) → **E45-15** → **E45-14** → (Produkt weiter) →
 E45-8/E45-9 vor Verkauf → E45-10 ab Beta → E45-6/E45-7 bei Bedarf → E45-11 nur
 bei Schmerz mit GitHub Issues.
 
-Synergien: **E29-5** (Doku-Sync) · **E29-6** (Logs/Health) · **E31-3** (Log-Hygiene) · **E46** (Production Ops).
+Synergien: **E29-5** (Doku-Sync) · **E29-6** (Logs/Health) · **E31-3** (Log-Hygiene) · **E46** (Production Ops) · **E47** (Designsystem — E45-15 liefert reproduzierbare Screenshots für den späteren Ist-/Soll-Abgleich).
 
 ### E46 — Production Operations & Maintenance · `epic:production-ops` · **P1 (Lebenszyklus)**
 
@@ -678,12 +682,48 @@ Evaluierung) bleiben in E45; Umsetzung/Runbooks in E46.
 
 Synergien: **E29-3/4/6** · **E25-1** (Backup UI) · **E45** (Engineering) · **E31-3** (Logs).
 
+### E47 — Designsystem & UI/UX-Fundament · `epic:design-system` · **P1 (vor weiterem UI-Ausbau)**
+
+Bisher entstand die UI **implementierungsgetrieben** (jede Story hat ihren Screen
+mitgebracht). Der Ist-Stand ist klein genug, um das jetzt einmalig zu ordnen,
+und groß genug, dass es sich lohnt: 7 Jinja2-Templates (`login`, `setup`,
+`dashboard`, `ask`, `notes`, `settings`, `base`), Vanilla JS, **kein** UI-/
+Component-Framework, `app/ui/static/app.css` (609 Zeilen) mit einem
+Dark-Theme-Token-Ansatz (`--bg`, `--surface`, `--accent`, `--radius`) — aber
+**ohne** dokumentierte Typo-/Spacing-Skala, ohne Komponentenkatalog und ohne
+verbindliche Regeln für Agents.
+
+**Zweck:** E30 (UX Consumer-Pass) baut sonst weiter Screens ohne gemeinsame
+Sprache. Besonders **E30-2** (Lesemodus), **E30-4** (Toasts/Modals) und **E30-5**
+(Empty States) sind genau die Bausteine, die ein Designsystem definieren muss —
+E47 kommt deshalb **vor** diesen Stories.
+
+**Menschlicher Input ist Pflicht:** E47-2 endet bewusst mit einem STOP. Kein Agent
+wählt hier eigenmächtig einen visuellen Stil.
+
+| ID | Story | N | S | R | L | P | Status | Phase |
+|----|-------|---|---|---|---|---|--------|-------|
+| E47-1 | **UI-Inventar & Ist-Aufnahme:** alle vorhandenen Screens, Komponenten, Zustände (Empty/Loading/Error) und die faktisch benutzten CSS-Tokens aus `app.css` erfassen; Inkonsistenzen und Lücken benennen (fehlende Empty-/Loading-States, `alert()`/`confirm()`, Mobile-Verhalten, Fokus-Styles). Ergebnis: `docs/ui-inventory.md` + Screenshot-Satz. Erste Gelegenheit, bei der der Entwickler die Anwendung bewusst selbst startet und ansieht. | 4 | 2 | 1 | 3 | 5 | ⚪ | L |
+| E47-2 | **STOP — UI-Referenzen vom Entwickler einholen:** aus E47-1 eine kompakte „UI Reference Request"-Liste (max. ~6 Bereiche) erzeugen — je Bereich: Zweck im Produkt, benötigte Elemente, wichtige Interaktionen, Plattform (Web/PWA), Suchbegriffe für Mobbin & Co., gewünschte Rückgabe (2–4 Screenshots/Links). **Der Agent wählt hier keinen Stil aus und arbeitet nicht weiter am Designsystem, bis Referenzen vorliegen** — stattdessen wird auf eine unabhängige Story gewechselt. | 5 | 1 | 1 | 2 | 5 | ⚪ | L |
+| E47-3 | **Designsystem ableiten & verbindlich machen:** aus den gelieferten Referenzen eine **eigene** Designsprache formulieren (kein Klon): Design-Prinzipien, Farbpalette inkl. Semantik, Typo-Skala, Spacing, Radius, Shadows/Surfaces, Navigation, Buttons/Inputs/Cards/Dialogs/Toasts, Empty-/Loading-/Error-States, Responsive-Regeln (Desktop-Browser ↔ PWA/Mobile). Ergebnis: `docs/design-system.md` + Cursor-Rule, die es für UI-Änderungen verpflichtend macht. Nur Tokens/Doku — **kein** Redesign in dieser Story. | 5 | 3 | 2 | 4 | 5 | ⚪ | L |
+| E47-4 | **Token-Angleichung (schrittweise):** `app.css` und `setup.css` auf die beschlossenen Tokens ziehen (Skalen statt Einzelwerte, doppelte Definitionen zusammenführen), ohne Screens funktional umzubauen; Rest folgt jeweils in der Story, die den Screen ohnehin anfasst (E30-2/4/5/6). | 3 | 3 | 2 | 2 | 3 | ⚪ | L+ |
+| E47-5 | **Design-Reifegrad für Verkauf:** vor **E21-2** einmal prüfen, ob Screens, Icons, Leerzustände und Marketing-Screenshots verkaufsfähig wirken; ggf. Restarbeiten als eigene Stories. Kein Vorratsprojekt. | 3 | 2 | 1 | 2 | 2 | ⚪ | L+ |
+
+Reihenfolge: E47-1 → E47-2 (**STOP, Input**) → E47-3 → E47-4 → E47-5.
+Zwischen E47-2 und E47-3 laufen unabhängige Stories weiter (z. B. E45-15, E31).
+
+**Bewusst nicht:** Figma-Abo oder Design-Tool-Lizenz vor Nov 2026 (Doku + Tokens
+im Repo reichen), Component-Framework-Migration (React/Tailwind) — Jinja2 +
+Vanilla JS trägt die aktuelle UI-Größe; Neubewertung erst wenn Screens/Interaktivität
+deutlich wachsen (z. B. **E40** Knowledge Chat).
+
 ### Bewusst NICHT aufgenommen (Challenge-Ergebnis, siehe Audit-Bericht)
 
 - **Multi-User/Rollen** — ADR 0004: Single-User; Cloud-Edition = eigene Instanzen.
 - **ANN-Index (HNSW)** — erst bei großen Vaults/Cloud relevant, exakter kNN reicht.
 - **i18n-Umsetzung** — erst bei EN-Markteintritt; E30-4 (zentrale Fehlertexte) bereitet vor.
-- **Daily Notes, Feature-Flags, Prometheus-Stack, breite E2E-Browser-Tests** — Aufwand/Nutzen für Self-Hosted-Single-User nicht gerechtfertigt.
+- **Daily Notes, Feature-Flags, Prometheus-Stack, breite E2E-Browser-Tests** — Aufwand/Nutzen für Self-Hosted-Single-User nicht gerechtfertigt. *Präzisierung 2026-08-29:* ein **schmaler** Visual-Smoke (ein Happy-Path + Screenshots, **E45-15**) bleibt erlaubt und ersetzt keine Unit-/API-Tests; ein breites E2E-Regressionsnetz bleibt gestrichen.
+- **Desktop-/Installer-UI-Automatisierung** — es gibt keine Desktop-App (E20-3/5 kein Nahziel); der „Installer" ist ein Shell-/PowerShell-Skript + Docker Compose + Web-Setup-Wizard. Installer-Prüfung bleibt Skript-Syntax-Check (`tests/test_scripts.py`) + `doctor.sh`; der Wizard wird über den Web-Smoke (E45-15) mit abgedeckt.
 - **Scrum-Zeremonien, Story Points, Sprint-Simulation** — Solo-Dev; Organisation über ROADMAP + Issues (E45).
 - **Linear / CodeRabbit / Analytics jetzt paid** — Free Tier zuerst; Paid frühestens ab Nov 2026 (E45).
 - **Zwei Monitoring- oder Analytics-Tools parallel** — eine Lösung pro Problem (E45-9/10).
@@ -968,13 +1008,13 @@ E19/E20-1/2/4/E21-1/3 🟢; offen **E21-2** (Verkaufskanal); **E20-3/5** kein Na
 Offen aus H (nach Phase L wieder aufnehmen): E22-5/6, E23-3/4, E25-2/4,
 E26-3/4/6.
 
-## Nächster Sprint (Phase L — Launch-Härtung, Reihenfolge nach Risiko/Nutzen)
+## Sprint Phase L — Launch-Härtung (Reihenfolge nach Risiko/Nutzen)
 
 Ergebnis Audit 2026-08 (**GO WITH CONDITIONS**) — diese Punkte kommen vor
-Monetarisierung/Cloud:
+Monetarisierung/Cloud. Positionen 1–10 sind abgearbeitet:
 
-1. 🔵 **E27-1** — P0: Proxy-sichere Zugriffskontrolle (`/setup` remote dicht)
-2. 🔵 **E27-2** — XSS-Fix Dashboard/Login/Setup (Quick Win, hohes Risiko)
+1. 🟢 **E27-1** — P0: Proxy-sichere Zugriffskontrolle (`/setup` remote dicht)
+2. 🟢 **E27-2** — XSS-Fix Dashboard/Login/Setup (Quick Win, hohes Risiko)
 3. 🟢 **E27-3 + E27-4** — Sichere Defaults + Frontmatter-/Pfad-Härtung
 4. 🟢 **E28-5** — Retry-/Status-Semantik (klein, entlastet Debugging sofort)
 5. 🟢 **E29-1** — Dependencies pinnen + Dependabot (Quick Win)
@@ -983,16 +1023,31 @@ Monetarisierung/Cloud:
 8. 🟢 **E28-1** — Inkrementeller Index-Sync (Obsidian-Koexistenz-Versprechen)
 9. 🟢 **E29-2 + E29-3** — CI-Härtung + Release v0.3.0
 10. 🟢 **E30-3** — Post-Setup-Onboarding
-11. 🔵 **E30-4** — Feedback-Layer
-12. 🔵 **E31-1 + E31-3** — Voll-Löschung + Log-Hygiene
-13. **Parallel (Epic E45, kostenlos):** E45-1 Branch Protection · E45-3 Issue-AC · E45-4 Security-Basics
-14. Danach: restliche E29/E30/E31-Stories, **E45-5** CodeRabbit (Free), **E46** vor
-    **E21-2** (Monitoring/Backup/Rollback), dann **Phase M** (Ecosystem &
-    Interoperability, E32–E36 + E22-5/E23-4), danach **Phase N**
-    (Privacy-First Knowledge AI, E37–E40; E37-2 ggf. mit E28-1 vorziehen),
-    danach **Phase O** (Shared Knowledge & Small Teams, E41–E44) und
-    parallel **E24-1** (ADR 0007 Cloud/Abo) und **E21-2** (Verkaufskanal)
-    auf gehärteter Basis
+
+### Nächste Arbeitspakete (ein Paket ≈ ein Tag, Stand 2026-08-29)
+
+Reihenfolge nach dem Prinzip „erst den Arbeitsplatz aufräumen, dann die Leitplanken,
+dann das UI-Fundament" — Engineering-Pakete sind bewusst klein gehalten und durch
+Produktarbeit unterbrochen.
+
+| # | Paket | Warum jetzt |
+|---|-------|-------------|
+| 1 | **E45-13** — Roadmap-/Agent-Kontext-Hygiene | Senkt die Kosten jedes folgenden Tages; je später, desto mehr Historie muss verschoben werden |
+| 2 | **E45-1 + E45-4** — Branch Protection + GitHub-Security-Rest | Klein, kostenlos; `main` ist heute ungeschützt (verifiziert). Secret Scanning/Push Protection sind bereits aktiv — offen sind Dependabot **Security** Updates und optional CodeQL |
+| 3 | **E45-5** — CodeRabbit (OSS-Plan, kostenlos) | Braucht PR-Pflicht aus #2, um im Merge-Pfad zu greifen |
+| 4 | **E47-1 + E47-2** — UI-Inventar + **STOP: UI-Referenzen** | Muss vor E30-2/4/5 liegen; startet die Referenz-Sammlung des Entwicklers früh, weil sie asynchron läuft |
+| 5 | **E45-15** — Visual-Smoke-PoC (Playwright) | Läuft, während die Referenzen gesammelt werden; liefert Screenshots für E47-3 |
+| 6 | **E45-14** — Risikobasierte Definition of Done | Erst sinnvoll, wenn feststeht, was der Visual-Smoke tatsächlich leistet |
+| 7 | **E31-3 (+ E31-1)** — Log-Hygiene / Voll-Löschung | Produktarbeit ohne UI-Abhängigkeit — Puffer, falls Referenzen noch fehlen |
+| 8 | **E47-3** — Designsystem ableiten | Sobald Referenzen vorliegen |
+| 9 | **E30-4 → E30-2 → E30-5/6** | UX-Pass jetzt auf gemeinsamer Designsprache |
+
+Danach: restliche E29-Stories (**E29-5** Doku-Sync mit E45-13 zusammen denken),
+**E27-5**, **E46** vor **E21-2** (Monitoring/Backup/Rollback), dann **Phase M**
+(Ecosystem & Interoperability, E32–E36 + E22-5/E23-4), danach **Phase N**
+(Privacy-First Knowledge AI, E37–E40; E37-2 ggf. mit E28-1 vorziehen), danach
+**Phase O** (Shared Knowledge & Small Teams, E41–E44) und parallel **E24-1**
+(ADR 0007 Cloud/Abo) und **E21-2** (Verkaufskanal) auf gehärteter Basis.
 
 ## Verbleibender Backlog (übrig aus Phase G)
 
@@ -1012,4 +1067,8 @@ Integrations-Vision und Szenarien: [`docs/integrations/`](./docs/integrations/).
 - [ ] `ruff check` und `pytest` grün
 - [ ] CHANGELOG-Eintrag unter `[Unreleased]`
 - [ ] ROADMAP-Status aktualisiert
-- [ ] Manuell getestet: Telegram → Vault → Datei sichtbar
+- [ ] Manuell getestet, wenn sich sichtbares Verhalten ändert (Telegram → Vault, UI, API)
+
+Diese Liste gilt heute für **jede** Story gleich. Der Ausbau zu einer
+**risikobasierten** DoD (Gates je nach Change-Typ, plus kurzer Handcheck des
+Entwicklers bei UI-Änderungen) ist als **E45-14** eingeplant.
