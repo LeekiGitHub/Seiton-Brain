@@ -4,8 +4,12 @@ Schlanke Entwicklungspraxis für **einen** Maintainer mit starker Cursor/KI-
 Unterstützung — Zielbild für ein professionelles, öffentliches und später
 kostenpflichtiges Self-Hosted-Produkt.
 
-**Roadmap:** Epic **E45** in [`ROADMAP.md`](../ROADMAP.md) · **Budget bis
-31.10.2026:** keine neuen laufenden Tool-Kosten (Free Tiers / GitHub / OSS).
+**Roadmap:** Epics **E45** (Entwicklung) und **E46** (Production Ops) in
+[`ROADMAP.md`](../ROADMAP.md) · **Budget bis 31.10.2026:** keine neuen laufenden
+Tool-Kosten (Free Tiers / GitHub / OSS).
+
+**Production-Betrieb nach Release:** [`docs/production-ops.md`](production-ops.md)
+(Releases, Monitoring, Incidents, Recovery, Wartung).
 
 ---
 
@@ -22,8 +26,9 @@ Idea / Feature
   → unabhängiges Review (Mensch und/oder CodeRabbit)
   → manueller Check bei UI/Deploy-relevanten Änderungen
   → Merge nach main
-  → Release / Production beim Betreiber
-  → Monitoring (später, vor Verkauf)
+  → Release (Tag, CHANGELOG — siehe production-ops.md)
+  → Production / Update beim Betreiber
+  → Monitoring → Maintenance → Incidents → Recovery
 ```
 
 **GitHub** bleibt Source of Truth für Code, Branches, PRs und CI. Issues für
@@ -246,3 +251,12 @@ Bis **31.10.2026:**
 Ab **Nov 2026** optional Paid, wenn klarer Gewinn: CodeRabbit, Linear, Monitoring-Upgrades, Analytics.
 
 **Keine Architekturentscheidung** darf vor November von einem Paid-Plan abhängen.
+
+---
+
+## Production Operations (nach Release)
+
+Entwicklung endet nicht mit dem ersten Release. Langfristiger Betrieb
+(Monitoring, Incidents, Rollback, Backup-Verifikation, Hotfixes) ist in
+[`production-ops.md`](production-ops.md) und Epic **E46** in der ROADMAP
+beschrieben — schrittweise vor Beta, Launch und **E21-2** Verkauf.

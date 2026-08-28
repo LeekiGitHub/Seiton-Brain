@@ -82,6 +82,7 @@ Integrations-Details: [`docs/integrations/`](./docs/integrations/).
 | **I — Cloud-Edition (Abo)** | Hosted-Instanzen + Managed LLM für Nicht-Selfhoster. Gated auf **ADR 0007** (Proposed). Epic **E24**. | ⚪ |
 | **L — Launch-Härtung** | Security, Datenintegrität, Release/Ops, UX Consumer-Pass, Privacy-Basis vor Verkauf. Epics **E27–E31**. | 🔵 aktiv |
 | **P — Engineering (Solo + AI)** | Schlanke DevOps-/Quality-Prozesse für Solo-Entwicklung mit KI: Git/CI/Review/Monitoring — **parallel** zur Produktarbeit, kein Enterprise-Overhead. Epic **E45**. | 🔵 |
+| **Q — Production Operations** | Langfristiger Produktbetrieb nach Release: Updates, Monitoring, Incidents, Recovery, Wartung — Solo-tauglich, schrittweise vor Beta/Launch/Verkauf. Epic **E46**. | ⚪ geplant |
 
 > **Hinweis (ADR 0004):** Phase **G** ist bis auf Verkaufskanal (E21-2) und die
 > bewusst zurückgestellte native App weitgehend fertig. Formelles **v1.0**-Tag
@@ -641,7 +642,41 @@ E45-3/E45-4 → E45-12 → (Produkt weiter) → E45-5 wenn PR-Rhythmus stabil �
 E45-8/E45-9 vor Verkauf → E45-10 ab Beta → E45-6/E45-7 bei Bedarf → E45-11 nur
 bei Schmerz mit GitHub Issues.
 
-Synergien: **E29-5** (Doku-Sync) · **E29-6** (Logs/Health) · **E31-3** (Log-Hygiene).
+Synergien: **E29-5** (Doku-Sync) · **E29-6** (Logs/Health) · **E31-3** (Log-Hygiene) · **E46** (Production Ops).
+
+### E46 — Production Operations & Maintenance · `epic:production-ops` · **P1 (Lebenszyklus)**
+
+Betrieb und Wartung **nach** dem ersten Release — das Produkt endet nicht mit
+`v1.0`. Ziel: ein Solo-Entwickler kann aktive (ggf. zahlende) Nutzer zuverlässig
+bedienen, ohne Enterprise-Ops.
+
+**Self-Hosted-Kontext (ADR 0004):** Jeder Kunde betreibt seine Instanz selbst;
+unsere Ops-Stories betreffen primär **Referenz-Deployment/Dogfooding**, Release-
+Qualität, dokumentierte Betreiber-Runbooks und (später Cloud **E24**) managed
+Betrieb. Kein Paid-Ops-Stack vor November 2026.
+
+Runbook-Zielbild: [`docs/production-ops.md`](./docs/production-ops.md) (Epic **E46**,
+ergänzt [`docs/engineering.md`](./docs/engineering.md) und [`docs/release.md`](./docs/release.md)).
+
+| ID | Story | N | S | R | L | P | Status | Phase | Zeitfenster |
+|----|-------|---|---|---|---|---|--------|-------|-------------|
+| E46-1 | **Release- & Update-Prozess:** End-to-End Feature/Bugfix→Branch→PR→CI→Review→Staging→Merge→Release→Deploy dokumentieren; SemVer + CHANGELOG + GitHub Release (Synergie E29-3); kontrollierte Releases via Tag/`update.sh`; automatisierte Deployments erst mit **E24**; Feature Flags nur bei echtem Rollout-Risiko (Cloud), nicht Standard Self-Host. | 5 | 2 | 2 | 2 | 4 | 🟡 | Q | vor Beta · Doku |
+| E46-2 | **Hotfix-Prozess:** vereinfachter Pfad für P0-Production-Bugs (Issue/Incident → Hotfix-Branch → gezielte Tests + CI → schneller Review → Deploy → Monitoring); Quality Gates bleiben, nur Scope schlanker. | 4 | 1 | 2 | 2 | 4 | ⚪ | Q | vor Launch |
+| E46-3 | **Monitoring & Alerting (Minimum):** Uptime, Error Tracking, Health, sinnvolle Alerts (API down, Error-Rate-Spike, Kernflows, Worker/Celery, DB) — **kein Alert-Spam**; Umsetzung Synergie **E45-9** + **E29-6**; Free Tier; Paid ab Nov 2026. | 5 | 2 | 3 | 2 | 5 | ⚪ | Q | vor öff. Launch |
+| E46-4 | **Incident Management (Solo):** Runbook Alert→Bestätigen→Impact→Logs→Rollback/Fix→Restore→Follow-up-Issue; kein PagerDuty-Enterprise. | 4 | 1 | 2 | 2 | 4 | ⚪ | Q | vor Launch |
+| E46-5 | **Rollback & Recovery:** Runbook Deployment-Rollback (Git-Tag/`update.sh`/Compose-Image), fehlerhafte Migrationen, rückwärtskompatible Releases — vor Launch verifiziert. | 5 | 2 | 3 | 3 | 5 | ⚪ | Q | vor Launch |
+| E46-6 | **Backup & Restore-Verifikation:** Was/wie oft/Retention/automatisiert/Restore-Test — erweitert **E29-4** + UI-Backup **E25-1**; Restore-Roundtrip vor **E21-2** Verkauf. | 5 | 2 | 3 | 2 | 5 | ⚪ | Q | vor kostenpflichtig |
+| E46-7 | **Sicherer DB-Migrations-Prozess:** Alembic-Review-Checklist (bes. KI-Migrationen), expand/contract wo nötig, Rollback-Grenzen, Datenmigrationen; CI-Smoke **E29-2** bleibt Gate. | 4 | 2 | 3 | 3 | 4 | ⚪ | Q | vor Launch |
+| E46-8 | **Laufende Security-/Dependency-Wartung:** Cadence für Dependabot/CVEs/EOL/Python-Runtime; security-kritisch priorisiert, nicht jedes Patch sofort Prod — Synergie **E29-1**, **E45-12**. | 4 | 1 | 2 | 2 | 4 | 🟡 | Q | laufend · Free |
+| E46-9 | **Production-Bug-Flow:** Report→Issue→Priorisierung→Repro→Fix→Regression→PR→Deploy→Verify; Bug-Issue-Template mit Severity (Synergie **E45-3**). | 4 | 1 | 2 | 2 | 4 | ⚪ | Q | vor Beta |
+| E46-10 | **Post-Incident Learning:** leichtes Postmortem-Template (nur relevante Incidents): Was/Warum/Schutzmechanismen/Erkennung/Fix/Prävention → Issues/Tests/Alerts. | 3 | 1 | 1 | 2 | 3 | ⚪ | Q | vor Launch |
+
+Reihenfolge (Gate vor Monetarisierung): **E46-1** (Doku) parallel zu Phase L →
+**E46-9** vor Beta → **E46-3/4/5/7/10** vor öffentlichem Launch → **E46-6** vor
+**E21-2** → **E46-2/8** laufend. **E45-8** (Staging) und **E45-9/10** (Tool-
+Evaluierung) bleiben in E45; Umsetzung/Runbooks in E46.
+
+Synergien: **E29-3/4/6** · **E25-1** (Backup UI) · **E45** (Engineering) · **E31-3** (Logs).
 
 ### Bewusst NICHT aufgenommen (Challenge-Ergebnis, siehe Audit-Bericht)
 
@@ -653,6 +688,9 @@ Synergien: **E29-5** (Doku-Sync) · **E29-6** (Logs/Health) · **E31-3** (Log-Hy
 - **Linear / CodeRabbit / Analytics jetzt paid** — Free Tier zuerst; Paid frühestens ab Nov 2026 (E45).
 - **Zwei Monitoring- oder Analytics-Tools parallel** — eine Lösung pro Problem (E45-9/10).
 - **100 %-Coverage-Zwang** — risikobasierte Tests statt Coverage-Gaming (E45, CONTRIBUTING).
+- **Enterprise Incident/ITSM** (PagerDuty-On-Call-Rotationen, Statuspage-Pflicht) — Solo-Runbook reicht (E46-4).
+- **Feature-Flags als Standard** — Self-Hosted Single-User; erst bei Cloud/Rollout-Risiko (E24/E46-1).
+- **Automatisiertes Production-Deploy ohne Cloud** — Kunden nutzen `update.sh`; CI-Deploy erst E24.
 
 ---
 
@@ -948,7 +986,8 @@ Monetarisierung/Cloud:
 11. 🔵 **E30-4** — Feedback-Layer
 12. 🔵 **E31-1 + E31-3** — Voll-Löschung + Log-Hygiene
 13. **Parallel (Epic E45, kostenlos):** E45-1 Branch Protection · E45-3 Issue-AC · E45-4 Security-Basics
-14. Danach: restliche E29/E30/E31-Stories, **E45-5** CodeRabbit (Free), dann **Phase M** (Ecosystem &
+14. Danach: restliche E29/E30/E31-Stories, **E45-5** CodeRabbit (Free), **E46** vor
+    **E21-2** (Monitoring/Backup/Rollback), dann **Phase M** (Ecosystem &
     Interoperability, E32–E36 + E22-5/E23-4), danach **Phase N**
     (Privacy-First Knowledge AI, E37–E40; E37-2 ggf. mit E28-1 vorziehen),
     danach **Phase O** (Shared Knowledge & Small Teams, E41–E44) und

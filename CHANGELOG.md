@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **Epic E46 Production Operations & Maintenance.** Lebenszyklus nach Release
+  (Releases, Hotfixes, Monitoring, Incidents, Rollback, Backups, Migrationen,
+  Wartung) in [`docs/production-ops.md`](docs/production-ops.md); Phase Q in
+  [`ROADMAP.md`](ROADMAP.md).
 - **Epic E45 Solo-Developer Engineering (AI-Safe).** Ist-Analyse, Zielworkflow
   und kostenbewusste Tool-Roadmap in [`docs/engineering.md`](docs/engineering.md);
   Stories E45-1–E45-12 in [`ROADMAP.md`](ROADMAP.md) (parallel zu Phase L).
