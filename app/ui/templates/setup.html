@@ -15,12 +15,13 @@
   {% endif %}
 </header>
 
-<div class="steps" id="steps-bar">
+<div class="steps" id="steps-bar" data-complete="{% if complete %}1{% else %}0{% endif %}">
   <div class="step-dot active" data-step="0"></div>
   <div class="step-dot" data-step="1"></div>
   <div class="step-dot" data-step="2"></div>
   <div class="step-dot" data-step="3"></div>
   <div class="step-dot" data-step="4"></div>
+  <div class="step-dot" data-step="5"></div>
 </div>
 
 <section class="card step-panel" data-step="0">
@@ -42,7 +43,7 @@
     <code>/vault</code> gemountet). Jeder Markdown-Ordner reicht — Obsidian optional.
   </p>
   <label>
-    <span>OBSIDIAN_VAULT_HOST_PATH</span>
+    <span>Vault-Ordner auf deinem Rechner</span>
     <input type="text" id="vault-path" placeholder="/Users/du/Obsidian/Seiton" autocomplete="off" />
   </label>
   <div class="actions">
@@ -57,12 +58,12 @@
   <h2>OpenAI</h2>
   <p class="hint">Bring-your-own-Key — Kosten laufen über dein OpenAI-Konto.</p>
   <label>
-    <span>OPENAI_API_KEY</span>
+    <span>OpenAI API-Schlüssel</span>
     <input type="password" id="openai-key" placeholder="sk-…" autocomplete="off" />
   </label>
   <label class="checkbox">
     <input type="checkbox" id="embeddings-enabled" />
-    <span>Semantische Suche aktivieren (EMBEDDINGS_ENABLED — mehr API-Kosten)</span>
+    <span>Semantische Suche aktivieren (mehr API-Kosten)</span>
   </label>
   <div class="actions">
     <button type="button" class="secondary btn-back">Zurück</button>
@@ -84,15 +85,15 @@
   </label>
   <div id="telegram-fields" class="hidden">
     <label>
-      <span>TELEGRAM_BOT_TOKEN</span>
+      <span>Bot-Token</span>
       <input type="password" id="telegram-token" placeholder="von @BotFather" autocomplete="off" />
     </label>
     <label>
-      <span>TELEGRAM_WEBHOOK_SECRET (leer = wird generiert)</span>
+      <span>Webhook-Geheimnis <small class="hint-inline">(leer = wird generiert)</small></span>
       <input type="text" id="telegram-secret" autocomplete="off" />
     </label>
     <label>
-      <span>TELEGRAM_ALLOWED_USER_IDS (kommagetrennt, stark empfohlen)</span>
+      <span>Erlaubte Telegram-User-IDs <small class="hint-inline">(kommagetrennt, empfohlen)</small></span>
       <input type="text" id="telegram-allowlist" placeholder="12345678" autocomplete="off" />
     </label>
     <p id="allowlist-warning" class="hint capture-err hidden">
@@ -121,6 +122,25 @@
     <button type="button" class="primary" id="btn-save">Speichern</button>
   </div>
   <div id="result-save" class="result hidden"></div>
+</section>
+
+<section class="card step-panel hidden" data-step="5">
+  <h2>Fertig — fast geschafft!</h2>
+  <p class="hint">
+    Deine Konfiguration wurde gespeichert. Starte die Container neu, damit die
+  Werte aus der <code>.env</code> geladen werden.
+  </p>
+  <ol class="onboarding-checklist">
+    <li>Container neu starten: <code>docker compose up -d</code>
+      <span class="hint-inline">(Consumer: siehe <code>docs/packaging.md</code>)</span></li>
+    <li>Dashboard öffnen und prüfen, ob alles grün ist</li>
+    <li>Erste Notiz erfassen — Text, Sprache oder Telegram</li>
+  </ol>
+  <div class="actions">
+    <a href="/dashboard#capture-card" class="button primary" id="btn-first-note">Erste Notiz erfassen</a>
+    <a href="/dashboard" class="button secondary">Zum Dashboard</a>
+    <button type="button" class="secondary" id="btn-edit-setup">Einrichtung anpassen</button>
+  </div>
 </section>
 
 <p class="trust">

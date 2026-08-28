@@ -20,7 +20,9 @@
       <a href="/ask" class="{% if active == 'ask' %}active{% endif %}">Suchen &amp; Fragen</a>
       <a href="/notes" class="{% if active == 'notes' %}active{% endif %}">Notizen</a>
       <a href="/settings" class="{% if active == 'settings' %}active{% endif %}">Einstellungen</a>
+      {% if not is_setup_complete() %}
       <a href="/setup" class="{% if active == 'setup' %}active{% endif %}">Setup</a>
+      {% endif %}
       {% if ui_auth_enabled() %}
       <form method="post" action="/logout" class="logout-form">
         <button type="submit" class="logout-link">Abmelden</button>

@@ -1,7 +1,9 @@
 (() => {
+  const MAX_STEP = 5;
   let currentStep = 0;
   const panels = document.querySelectorAll(".step-panel");
   const dots = document.querySelectorAll(".step-dot");
+  const stepsBar = document.getElementById("steps-bar");
 
   function showStep(n) {
     currentStep = n;
@@ -107,7 +109,7 @@
     if (!enabled || !empty) return true;
     return window.confirm(
       "Telegram ohne Allowlist speichern?\n\n" +
-        "Ohne TELEGRAM_ALLOWED_USER_IDS akzeptiert der Bot Nachrichten von jedem. " +
+        "Ohne erlaubte User-IDs akzeptiert der Bot Nachrichten von jedem. " +
         "Das ist bei Webhook besonders riskant. Fortfahren?"
     );
   }
@@ -173,6 +175,8 @@
         body: JSON.stringify(payload()),
       });
       showResult(el, true, data.message + "\nDatei: " + (data.env_file || ""));
+      if (stepsBar) stepsBar.dataset.complete = "1";
+      showStep(5);
     } catch (err) {
       showResult(el, false, String(err.message));
     } finally {
@@ -180,5 +184,13 @@
     }
   });
 
+  const editBtn = document.getElementById("btn-edit-setup");
+  if (editBtn) {
+    editBtn.addEventListener("click", () => showStep(1));
+  }
+
   loadStatus();
+  if (stepsBar?.dataset.complete === "1") {
+    showStep(5);
+  }
 })();

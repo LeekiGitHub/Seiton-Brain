@@ -8,6 +8,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 
+### Added
+- **E30-3 Post-Setup-Onboarding.** Abschluss-Screen mit Neustart-Checkliste und
+  CTA „Erste Notiz erfassen“ (`/dashboard#capture-card`); Setup-Link in der
+  Nav nur bei unvollständiger Konfiguration; lesbare Formular-Labels im Wizard
+  und Settings (statt Env-Namen).
+
 ---
 
 ## [0.3.0] — 2026-08-27 — Phase G–L Kern: Consumer, Knowledge, Launch-Härtung

@@ -35,7 +35,20 @@ def test_dashboard_page_renders():
     assert response.status_code == 200
     assert "Dashboard" in response.text
     assert "dashboard.js" in response.text
+
+
+@patch("app.ui.router.is_setup_complete", return_value=False)
+def test_dashboard_shows_setup_nav_when_incomplete(_mock_complete):
+    response = client.get("/dashboard")
+    assert response.status_code == 200
     assert 'href="/setup"' in response.text
+
+
+@patch("app.ui.router.is_setup_complete", return_value=True)
+def test_dashboard_hides_setup_nav_when_complete(_mock_complete):
+    response = client.get("/dashboard")
+    assert response.status_code == 200
+    assert 'href="/setup"' not in response.text
 
 
 @patch("app.ui.router.load_dashboard", new_callable=AsyncMock)
