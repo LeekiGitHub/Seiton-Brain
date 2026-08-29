@@ -8,7 +8,9 @@ Portfolio-Repo (MIT)** mit geplanter kommerzieller Edition — siehe
 
 ## Bevor du startest
 
-1. **Roadmap prüfen:** [`ROADMAP.md`](ROADMAP.md) — gibt es schon eine Story?
+1. **Kurzstand:** [`docs/current-state.md`](docs/current-state.md)
+2. **Roadmap prüfen:** [`ROADMAP.md`](ROADMAP.md) — gibt es schon eine Story?
+   Historie A–H: [`docs/archive/roadmap-phases-a-h.md`](docs/archive/roadmap-phases-a-h.md)
 2. **Engineering-Workflow:** [`docs/engineering.md`](docs/engineering.md) — Git, CI, Review, KI-Sicherheit (Epic E45)
 3. **Production Operations:** [`docs/production-ops.md`](docs/production-ops.md) — Betrieb nach Release (Epic E46)
 4. **Größere Änderungen:** kurz als Issue anlegen oder im PR referenzieren; vor Architektur-Änderungen [`ARCHITECTURE.md`](ARCHITECTURE.md) + relevante [`docs/adr/`](docs/adr/) lesen

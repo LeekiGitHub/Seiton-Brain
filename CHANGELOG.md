@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E45-13 Roadmap-/Agent-Kontext-Hygiene.** Abgeschlossene Phasen A–H nach
+  [`docs/archive/roadmap-phases-a-h.md`](docs/archive/roadmap-phases-a-h.md);
+  Phasen-M–O-Detail nach [`docs/roadmap-phases-m-o.md`](docs/roadmap-phases-m-o.md);
+  Agent-Einstieg [`docs/current-state.md`](docs/current-state.md); aktive
+  [`ROADMAP.md`](ROADMAP.md) geschrumpft; Cursor-Rule zeigt auf den Kurzstand.
 - **Epic E47 Designsystem & UI/UX-Fundament.** UI-Inventar, expliziter STOP für
   Design-Referenzen des Entwicklers, abgeleitetes Designsystem und schrittweise
   Token-Angleichung — eingeordnet in Phase L **vor** den verbleibenden

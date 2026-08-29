@@ -13,6 +13,9 @@ Consumer-Edition — [ADR 0004](docs/adr/0004-commercial-consumer-product.md),
 [ADR 0005](docs/adr/0005-repo-and-license-strategy.md),
 [ADR 0006](docs/adr/0006-consumer-stack-no-sqlite-fork.md) (ein Stack). Name from **Seiton** (整頓).
 
+**Aktueller Stand (lesen zuerst):** [`docs/current-state.md`](docs/current-state.md) —
+nicht die gesamte historische Roadmap.
+
 ## Flow
 
 ```
@@ -41,36 +44,29 @@ FastAPI · PostgreSQL + SQLAlchemy (async) + Alembic · Celery + Redis · OpenAI
 - `examples/n8n/` — Power-user workflow JSONs (no custom node)
 - `prompts/` — versioned LLM prompts
 
-## Status (v0.2.x — Phasen A–H Kern done, L aktiv)
+## Status
 
-Core pipeline + REST + retrieval + Web-UI + Packaging + offline-Lizenz +
-UI-Auth/PWA/Uploads/MCP-Capture/Templates 🟢. **Phase L (aktiv):** Launch-
-Härtung nach Audit 2026-08 (GO WITH CONDITIONS,
-`docs/audit-2026-08-product-readiness.md`) — E27 Security (P0: Proxy-Guard,
-XSS), E28 Datenintegrität/Index-Sync, E29 Release/Ops, E30 UX Consumer-Pass,
-E31 Privacy/DSGVO — **vor** E24 Cloud/Abo (ADR 0007) und E21-2
-Verkaufskanal (E27-1 🟢). **Phase M (geplant,
-`docs/audit-2026-08-integrations.md`):** E32 Vault-Interop, E33 Universal
-Capture, E34 Git-Backup, E35 Automation, E36 AI-Access. **Phase N (geplant,
-`docs/audit-2026-08-private-knowledge-ai.md`):** E37 Retrieval (Hybrid/RRF),
-E38 Permission-Layer `ai_access`, E39 Local AI, E40 Knowledge Chat.
-**Phase O (geplant, `docs/audit-2026-08-team-collaboration.md`):** Small
-Teams via Shared Instance — E41 Identity, E42 Rollen/Sichtbarkeit, E43
-Team-Gedächtnis, E44 Team-AI. Offen aus H: E22-5/6, E23-3/4, E25-2/4,
-E26-3/4/6. 561 Tests (E27-2 XSS 🟢, E27-3/4 Defaults+Frontmatter 🟢, E28-5 Retry/Status 🟢, E30-1 Deep-Links 🟢, E28-2/3 Locks+Kompensation 🟢, E28-1 Index-Sync 🟢, E29-2/3 CI+Release 🟢, E30-3 Onboarding 🟢).
+v0.3.0. Phasen A–H Kern 🟢. **Aktiv: Phase L** (Launch-Härtung) + E45 Engineering.
+Details und nächstes Paket: [`docs/current-state.md`](docs/current-state.md) und
+[`ROADMAP.md`](ROADMAP.md). Erledigte Epics E1–E26:
+[`docs/archive/roadmap-phases-a-h.md`](docs/archive/roadmap-phases-a-h.md).
+Phasen M–O Detail: [`docs/roadmap-phases-m-o.md`](docs/roadmap-phases-m-o.md).
 
 ## Roadmap & Backlog
 
-- **`ROADMAP.md`** — Epics, Stories, Phasen
+- **`docs/current-state.md`** — Kurzstand (Agent-Einstieg)
+- **`ROADMAP.md`** — aktive Planung (≲ ~400 Zeilen)
+- **`docs/archive/`** — abgeschlossene Roadmap-Historie
 - **`ARCHITECTURE.md`** — Diagramm, Modul-Map
 - **`CHANGELOG.md`** — Keep-a-Changelog
 - **`docs/adr/`** — ADRs (0001–0007; 0007 = Cloud/Abo, Proposed)
-- **`docs/engineering.md`** — Solo-Dev-Workflow, CI/Review/Monitoring-Plan (E45)
-- **`docs/production-ops.md`** — Production Ops nach Release (E46)
+- **`docs/engineering.md`** — Solo-Dev-Workflow (E45)
+- **`docs/production-ops.md`** — Production Ops (E46)
 - **`docs/integrations/`** — n8n (REST-only), MCP, knowledge-retrieval
 
 Bei neuen Features: zuerst ROADMAP-Eintrag und/oder Issue, dann Code.
 Vor größeren Architektur-Änderungen: `ARCHITECTURE.md` + relevante ADRs lesen (E45-2).
+UI: bis E47-3 kein eigenmächtiges Redesign; danach `docs/design-system.md` befolgen.
 
 ## Conventions
 
