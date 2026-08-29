@@ -69,7 +69,7 @@ Epics/Phasen und Priorisierung.
 | **Dependabot Security Updates** | **Verifiziert:** `dependabot_security_updates: disabled` — Version-Updates laufen, automatische Security-Fixes nicht | hoch · E45-4 |
 | **CodeQL** | Nicht eingerichtet (für Public Repo kostenlos) | mittel · E45-4 |
 | **GitHub Issues** | Faktisch seit Juni 2026 nicht mehr genutzt (letztes Issue #77, 0 offen) — der reale Prozess läuft über ROADMAP-Story → Branch → PR | Prozess an Realität anpassen · E45-3 |
-| **Agent-Kontext** | ROADMAP 1015 Zeilen / ~80 KB / 210 Stories (144 🟢), CHANGELOG 707 Zeilen, 4 Audit-Dokumente à 16–35 KB, kein `docs/archive/` | hoch · **E45-13** |
+| **Agent-Kontext** | ROADMAP geschrumpft (E45-13); Archiv A–H + `docs/current-state.md` + Phasen-M–O-Detail | 🟢 E45-13 |
 | **Visuelle Prüfung** | Keine Browser-/Screenshot-Prüfung; 66 Testdateien laufen ausschließlich headless über den FastAPI-TestClient. Kein Node, kein Playwright im Repo | mittel · **E45-15** |
 | **Designsystem** | CSS-Variablen in `app/ui/static/app.css`, aber keine dokumentierte Designsprache; UI entstand implementierungsgetrieben | mittel · **Epic E47** |
 | **Definition of Done** | Vorhanden, aber pauschal und Telegram-zentriert — nicht risikobasiert | mittel · **E45-14** |
@@ -254,7 +254,9 @@ Visual-Regression-SaaS (Percy/Chromatic — kostenpflichtig, ADR-widrig vor Nov 
 | [`ARCHITECTURE.md`](../ARCHITECTURE.md) | Systemüberblick, Module, Datenflüsse |
 | [`docs/adr/`](adr/) | Entscheidungen mit langfristiger Wirkung (nicht für jede Kleinigkeit) |
 | [`SECURITY.md`](../SECURITY.md) | Threat Model, Meldewege |
-| [`ROADMAP.md`](../ROADMAP.md) | Was wann gebaut wird |
+| [`ROADMAP.md`](../ROADMAP.md) | Was als Nächstes gebaut wird (aktiv, kompakt) |
+| [`docs/current-state.md`](current-state.md) | Kurzstand für Agents |
+| [`docs/archive/`](archive/) | Abgeschlossene Roadmap-Historie |
 
 **Für Cursor/Agents vor größeren Änderungen:**
 
@@ -274,15 +276,12 @@ Arbeitsteilung, an der sich künftig entschieden wird, wohin eine Information ge
 | Was war früher geplant und ist erledigt? | `docs/archive/` |
 | Wo steht das Projekt gerade? | `docs/current-state.md` (Einstieg für Agents) |
 
-**Messbares Problem heute:** `ROADMAP.md` ist auf 1015 Zeilen (~80 KB) mit 210
-Stories gewachsen, davon 144 abgeschlossen — rund zwei Drittel des Dokuments sind
-Historie, die bei jeder Agent-Aufgabe mitgelesen wird. Dazu kommen 707 Zeilen
-CHANGELOG und vier Audit-Berichte (16–35 KB), die die Epics E27–E44 begründen.
-
-**Regel beim Aufräumen:** nichts löschen. Abgeschlossene Phasen wandern samt
-Bewertungen ins Archiv und werden aus der aktiven ROADMAP heraus verlinkt. Ein Epic
-gilt als archivierbar, wenn alle Stories 🟢 oder ⚫ sind und keine offene Story darauf
-verweist.
+**Messbares Problem (gelöst E45-13):** `ROADMAP.md` war auf 1015 Zeilen mit 210
+Stories gewachsen. Abgeschlossene Phasen A–H liegen unter
+[`docs/archive/roadmap-phases-a-h.md`](archive/roadmap-phases-a-h.md);
+Phasen M–O-Detail unter [`docs/roadmap-phases-m-o.md`](roadmap-phases-m-o.md);
+Agent-Einstieg: [`docs/current-state.md`](current-state.md). Aktive ROADMAP
+zielt auf ≲ 400 Zeilen.
 
 Geplante Doku-Splits (nur bei Bedarf, nicht proaktiv alles anlegen): `docs/deployment.md` existiert de facto über `self-hosting.md` / `vps-deployment.md`; separates `docs/database.md` erst wenn Schema/Chunks-Komplexität es rechtfertigt (**E29-5** deckt Sync ab).
 
