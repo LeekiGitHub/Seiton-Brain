@@ -1,8 +1,12 @@
 # Multi-Plattform Self-Hosting (E9-2)
 
-Seiton Brain läuft **self-hosted** auf deiner Hardware — ohne dass wir Server
-betreiben (ADR 0004). Diese Seite ist der **Einstieg**: welcher Weg passt zu
-deiner Plattform, und welche Compose-Profile/Skripte du nutzt.
+Seiton Brain läuft **self-hosted** auf deiner Hardware — du behältst Daten, Keys
+und Vault vollständig ([ADR 0004](adr/0004-commercial-consumer-product.md)). Das
+ist die zuerst ausgelieferte Betriebsform; eine Managed Seiton Cloud ist
+langfristig geplant, aber kein Ersatz für diesen Weg
+([ADR 0008](adr/0008-deployment-models-self-hosted-first.md)). Diese Seite ist
+der **Einstieg**: welcher Weg passt zu deiner Plattform, und welche
+Compose-Profile/Skripte du nutzt.
 
 > **Entwickler-Setup** (Webhook, ngrok, eigener Vault): [`docs/setup.md`](setup.md)
 

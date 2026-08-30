@@ -4,6 +4,12 @@
 > **kommerzielle Consumer-Edition** (self-hosted, buy-once, BYO-Key) — siehe
 > [ADR 0004](docs/adr/0004-commercial-consumer-product.md) und
 > [ADR 0005](docs/adr/0005-repo-and-license-strategy.md).
+>
+> Seiton Brain ist ein persönliches AI-Second-Brain. **Self-hosting ist die
+> zuerst ausgelieferte Betriebsform** und ein starkes Privacy-/Control-Angebot —
+> nicht die Produktidentität. Eine **Managed Seiton Cloud** für nicht-technische
+> Nutzer ist langfristig Teil der Vision, kommt aber erst nach stabilem Core und
+> realem Nutzerfeedback ([ADR 0008](docs/adr/0008-deployment-models-self-hosted-first.md)).
 
 Ziel:
 
@@ -103,6 +109,12 @@ Eine spätere **kommerzielle Edition** wird separat lizenziert; siehe
 > consumer edition** (self-hosted, buy-once, BYO-key) is planned — see
 > [ADR 0004](docs/adr/0004-commercial-consumer-product.md) and
 > [ADR 0005](docs/adr/0005-repo-and-license-strategy.md).
+>
+> Seiton Brain is a personal AI second brain. **Self-hosting is the deployment
+> model we ship first** and a strong privacy/control offering — it is not the
+> product's identity. A **managed Seiton cloud** for non-technical users is
+> explicitly part of the long-term vision, but only after a stable core and real
+> user feedback ([ADR 0008](docs/adr/0008-deployment-models-self-hosted-first.md)).
 
 Goal:
 

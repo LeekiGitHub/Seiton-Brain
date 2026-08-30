@@ -1,10 +1,18 @@
 # ADR 0007: Cloud-Edition mit Abo (Hosted + Managed LLM) — Vorschlag
 
-- **Status:** Proposed (Entscheidung offen)
-- **Datum:** 2026-08-08
+- **Status:** Proposed (Geschäfts-/Betriebsentscheidung offen)
+- **Datum:** 2026-08-08 · Rahmen präzisiert 2026-08-30
 - **Entscheider:** Yannik
-- **Bezug:** revidiert bei Annahme Teile von [ADR 0004](./0004-commercial-consumer-product.md)
-  („SaaS bewusst verworfen", „kein Abo")
+- **Bezug:** [ADR 0008](./0008-deployment-models-self-hosted-first.md) hat die
+  Positionierung entschieden · Teile von [ADR 0004](./0004-commercial-consumer-product.md)
+  („SaaS bewusst verworfen", „kein Abo") sind dadurch bereits aufgehoben
+
+> **Was hier noch offen ist.** Seit [ADR 0008](./0008-deployment-models-self-hosted-first.md)
+> ist entschieden, dass eine Managed Seiton Cloud **Teil der Produktvision** ist
+> und auf demselben Product Core aufsetzt. Diese ADR entscheidet weiterhin die
+> **Geschäfts- und Betriebsfrage**: Abo-Modell, Preis, DSGVO-Auftragsverarbeitung,
+> Betriebsverantwortung und Bereitschaft dazu. **Epic E24 bleibt gesperrt**, bis
+> das entschieden ist. Die Cloud ist ausdrücklich **kein V1-Blocker**.
 
 ## Kontext
 
@@ -22,8 +30,12 @@ Abo** anbieten — wir hosten die Instanz und liefern LLM-Zugang inklusive
 
 ## Spannungsfelder (Grund, warum das ein ADR braucht)
 
-| Punkt | ADR 0004 (heute) | Cloud-Edition (Vorschlag) |
-|-------|------------------|---------------------------|
+Die Spalte „self-hosted Edition" beschreibt den Stand von ADR 0004 **in der
+Fassung von ADR 0008** — sie gilt für die self-hosted Auslieferung, nicht mehr
+als Dauerprinzip für das gesamte Produkt.
+
+| Punkt | self-hosted Edition | Managed Cloud (offen) |
+|-------|---------------------|-----------------------|
 | Betrieb | „Wir betreiben nichts" | 24/7-Betrieb, Uptime-Verantwortung |
 | Daten | verlassen nie die Kundenmaschine | liegen bei uns → **DSGVO-Auftragsverarbeitung** (AVV, TOMs, Löschkonzept, EU-Hosting) |
 | Kosten | BYO-Key, keine Inferenzkosten | Inferenzkosten bei uns → **Quota/Metering zwingend** |

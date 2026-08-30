@@ -1,8 +1,11 @@
 # Sicherheit
 
-Seiton Brain ist **self-hosted**: Deine Daten, Keys und der Vault bleiben auf
-deiner Hardware. Es gibt keinen zentralen Seiton-Cloud-Dienst und keine
-Telemetrie.
+Seiton Brain wird heute **self-hosted** ausgeliefert: Deine Daten, Keys und der
+Vault bleiben auf deiner Hardware. Es gibt derzeit **keinen** Seiton-Cloud-Dienst
+und keine Telemetrie. Eine Managed Seiton Cloud ist langfristig geplant
+([ADR 0008](docs/adr/0008-deployment-models-self-hosted-first.md)); sie wäre eine
+zusätzliche Betriebsform mit eigenem Sicherheits- und Datenschutzmodell und
+ändert nichts an den Zusagen für die self-hosted Auslieferung.
 
 Diese Datei beschreibt, wie du Sicherheitslücken meldest und welche
 Bedrohungen das Projekt berücksichtigt.

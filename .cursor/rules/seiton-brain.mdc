@@ -13,6 +13,15 @@ Consumer-Edition — [ADR 0004](docs/adr/0004-commercial-consumer-product.md),
 [ADR 0005](docs/adr/0005-repo-and-license-strategy.md),
 [ADR 0006](docs/adr/0006-consumer-stack-no-sqlite-fork.md) (ein Stack). Name from **Seiton** (整頓).
 
+**Deployment (normativ, [ADR 0008](docs/adr/0008-deployment-models-self-hosted-first.md)):**
+Self-hosting ist ein Deployment-Modell, nicht die Produktidentität. Zuerst
+self-hosted; **Managed Cloud** ist Teil der Vision, aber später (Phase I / E24,
+gated auf ADR 0007) und **kein V1-Blocker**. Product Core bleibt deployment-neutral
+— keine Cloud-Abstraktionen, kein Multi-Tenant-Datenmodell, kein Billing auf
+Vorrat. Isolationsgrenze = die Instanz (heutiger Horizont, nicht irreversibel).
+Absolute Aussagen wie „wir betreiben nichts" / „SaaS verworfen" aus ADR 0004
+sind aufgehoben.
+
 **Aktueller Stand (lesen zuerst):** [`docs/current-state.md`](docs/current-state.md) —
 nicht die gesamte historische Roadmap.
 
@@ -59,7 +68,8 @@ Phasen M–O Detail: [`docs/roadmap-phases-m-o.md`](docs/roadmap-phases-m-o.md).
 - **`docs/archive/`** — abgeschlossene Roadmap-Historie
 - **`ARCHITECTURE.md`** — Diagramm, Modul-Map
 - **`CHANGELOG.md`** — Keep-a-Changelog
-- **`docs/adr/`** — ADRs (0001–0007; 0007 = Cloud/Abo, Proposed)
+- **`docs/adr/`** — ADRs (0001–0008; **0008 = Deployment-Modelle, normativ**;
+  0007 = Cloud-Abo/Betrieb, Proposed; 0004 dadurch teilweise präzisiert)
 - **`docs/engineering.md`** — Solo-Dev-Workflow (E45)
 - **`docs/production-ops.md`** — Production Ops (E46)
 - **`docs/integrations/`** — n8n (REST-only), MCP, knowledge-retrieval

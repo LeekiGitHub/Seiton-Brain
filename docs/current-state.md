@@ -15,9 +15,19 @@ Kurzer Einstieg für Agents und Menschen. Stand **2026-08-30**, Release **v0.3.0
 
 ## Produkt
 
-Self-hosted Second Brain: Capture → klassifizieren → Markdown-Vault; Retrieve via
-Suche, RAG, Digest, REST, MCP. **Kein** Native-Desktop — lokale **Web-UI** + PWA
-vom Always-on-Host des Kunden (ADR 0004). Buy-once, BYO-LLM-Key geplant.
+Persönliches AI-Second-Brain: Capture → klassifizieren → Markdown-Vault; Retrieve
+via Suche, RAG, Digest, REST, MCP. **Kein** Native-Desktop — lokale **Web-UI** +
+PWA vom Always-on-Host des Kunden (ADR 0004). Buy-once, BYO-LLM-Key geplant.
+
+**Deployment ([ADR 0008](adr/0008-deployment-models-self-hosted-first.md) — normativ):**
+Self-hosting ist ein Deployment-Modell, nicht die Produktidentität. Zuerst
+entwickelt und ausgeliefert wird **self-hosted**; eine **Managed Seiton Cloud**
+für nicht-technische Nutzer ist ausdrücklich Teil der Produktvision, kommt aber
+erst nach stabilem Core und realem Nutzerfeedback (Phase I / E24, gated auf
+ADR 0007). Der Product Core bleibt derselbe Code — Unterschiede nur in
+Provisionierung, Deployment, Identity, Billing, Secrets, Backup-Ops, Monitoring,
+Updates, Support. Isolationsgrenze ist heute die **Instanz**; keine
+Multi-Tenant-Architektur, aber auch keine irreversible Festlegung dagegen.
 
 ## Stack
 

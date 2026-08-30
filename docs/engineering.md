@@ -2,7 +2,8 @@
 
 Schlanke Entwicklungspraxis für **einen** Maintainer mit starker Cursor/KI-
 Unterstützung — Zielbild für ein professionelles, öffentliches und später
-kostenpflichtiges Self-Hosted-Produkt.
+kostenpflichtiges Produkt (zuerst self-hosted ausgeliefert,
+[ADR 0008](adr/0008-deployment-models-self-hosted-first.md)).
 
 **Roadmap:** Epics **E45** (Entwicklung) und **E46** (Production Ops) in
 [`ROADMAP.md`](../ROADMAP.md) · **Budget bis 31.10.2026:** keine neuen laufenden

@@ -59,6 +59,11 @@ produktisieren: geführtes Setup, externe Edits, Sichtbarkeit. Zusammen mit
 Backup-Rotation (E29-4) und Export (E31-2) wird „**Deine Daten, versioniert,
 für immer**" zum Marketing-Argument.
 
+E34-3 (Offsite-Rezept) ist bewusst das **Rezept**, nicht die Produktfähigkeit.
+Die Verallgemeinerung auf mehrere Ziele mit 3-2-1-Policy, Integritätsprüfung und
+Backup-Health ist **E48 Backup Guardian** ([`ROADMAP.md`](../ROADMAP.md)) — nach
+V1.5. Hier keine parallele Backup-Strategie aufbauen.
+
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
 | E34-1 | **Geführtes Git-Backup-Setup:** Settings-Karte — Repo-Status erkennen, `git init` anbieten, Remote/Deploy-Key-Anleitung (GitHub/GitLab/lokal), Test-Push, Statusanzeige (letzter Commit/Push, Fehler). | 4 | 3 | 2 | 2 | 4 | ⚪ | M |

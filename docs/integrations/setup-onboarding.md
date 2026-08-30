@@ -126,9 +126,14 @@ optional — jeder Markdown-Ordner reicht).
 
 Im README prominent:
 
-> **Deine Secrets bleiben bei dir.** Seiton Brain ist 100 % self-hosted. API-Keys
-> und Bot-Tokens werden nur in deiner lokalen `.env` gespeichert. Es gibt keinen
-> Telemetrie- oder Cloud-Setup-Dienst.
+> **Deine Secrets bleiben bei dir.** Deine Seiton-Installation läuft vollständig
+> auf deiner Hardware. API-Keys und Bot-Tokens werden nur in deiner lokalen
+> `.env` gespeichert. Es gibt keinen Telemetrie- oder Cloud-Setup-Dienst.
+
+Die Aussage beschreibt die **self-hosted Auslieferung** — die heute einzige
+verfügbare Betriebsform. Eine spätere Managed Seiton Cloud
+([ADR 0008](../adr/0008-deployment-models-self-hosted-first.md)) hätte ein
+eigenes Onboarding und eine eigene Vertrauensaussage; sie ersetzt diese nicht.
 
 Ergänzend: [`SECURITY.md`](../../SECURITY.md) (`E11-2` 🟢) — wo Schwachstellen melden, Threat-Model in
 Kürze (Bot privat halten, Allowlist, Vault-Rechte).

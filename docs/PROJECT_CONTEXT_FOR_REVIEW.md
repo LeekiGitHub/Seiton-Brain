@@ -3,6 +3,11 @@
 Kompakter Überblick für einen externen technischen Berater ohne Repo-Zugriff.
 Stand **2026-08-29**, Version **v0.3.0**. Keine Secrets, keine personenbezogenen Daten.
 
+> **Klassifikation: HISTORISCH** (Snapshot). Aktuelle Wahrheit:
+> [`docs/current-state.md`](current-state.md) und [`docs/adr/`](adr/) — für
+> Produktidentität und Deployment insbesondere
+> [ADR 0008](adr/0008-deployment-models-self-hosted-first.md).
+
 ---
 
 ## Product
