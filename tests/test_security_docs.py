@@ -18,5 +18,7 @@ def test_security_md_covers_reporting_and_threat_model():
         "SEITON_API_KEY",
         "localhost",
         "security/advisories",
+        "Dependabot",
+        "CodeQL",
     ):
         assert needle in text, f"missing in SECURITY.md: {needle}"

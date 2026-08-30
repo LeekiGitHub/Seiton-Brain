@@ -37,6 +37,13 @@ def test_roadmap_is_compact_and_links_archive():
     assert "### E19 —" not in text
 
 
+def test_engineering_docs_branch_protection():
+    text = (ROOT / "docs" / "engineering.md").read_text(encoding="utf-8")
+    assert "Protect main" in text
+    assert "Head-Branches nach Merge" in text
+    assert "lint-and-test" in text
+
+
 def test_phases_m_o_detail_file_exists():
     path = ROOT / "docs" / "roadmap-phases-m-o.md"
     assert path.is_file()
