@@ -323,8 +323,8 @@ Version History über Git (E43-2) · Templates pro Kategorie · Permission-Layer
 
 ### EXTENSIONS / CONNECTORS — echte Erweiterungen, unabhängig baubar
 
-**Read-only zuerst:** Web-/URL-Capture (E33-2) · E-Mail-Ingestion via IMAP
-(E22-5) · Kalender lesen (CalDAV/Google/Microsoft) · Notion lesen · lokale
+**Read-only zuerst:** Web-/URL-Capture (E33-2) · E-Mail-Ingestion (E22-5,
+Anbieter/Protokoll offen) · Kalender lesen (CalDAV/Google/Microsoft) · Notion lesen · lokale
 Ordner außerhalb des Vaults · Cloud-Storage über Ordnersync (kein eigenes
 OAuth). **Ausgehend:** Webhooks, MCP, REST — bereits vorhanden.
 
@@ -339,7 +339,8 @@ Managed AI · Native Mobile-App · Automatisierungsrezepte.
 Obsidian-Ersatz (Editor, Graph-View, Plugin-System) · Notion-Ersatz (Datenbanken,
 Boards, Formeln) · E-Mail-Client · Kalender-Anwendung · Projektmanagement mit
 Kanban/Sprints/Due-Dates · Dateisynchronisationsdienst · allgemeiner Chatbot ohne
-eigene Datenbasis · Multi-Tenant-SaaS-Plattform · unbeaufsichtigt schreibender
+eigene Datenbasis · mandantenfähige Datenarchitektur *(im aktuellen Horizont —
+siehe [Abschnitt 18](#18-deployment-models))* · unbeaufsichtigt schreibender
 Agent in fremden Systemen · eigenes Modell-Hosting/GPU-Betrieb · Custom-n8n-Node
 (bereits per ADR 0004 gestrichen).
 
@@ -682,7 +683,7 @@ eigenen Vault; verbunden liest es zusätzlich aus fremden Quellen.**
 │ Connector  │  Deklaration: id, Typ, Fähigkeiten (read|write), Trust-Klasse
 └─────┬──────┘
       ▼
-  Authentication   IMAP-Passwort | OAuth | Dateipfad
+  Authentication   Passwort/App-Passwort | OAuth | Dateipfad
       ▼            → Tokens verschlüsselt, getrennt von .env, widerrufbar
   Permissions      Scopes beim Verbinden; Default read-only; fail-closed
       ▼
@@ -710,11 +711,22 @@ andere entsteht mit dem ersten realen Connector — vorher fehlen die
 Anforderungen. Ein Connector-Framework auf Vorrat wäre exakt der
 Overengineering-Fall, den das Integrations-Audit bereits ausgeschlossen hat.
 
-**Empfohlener erster Connector:** **E-Mail read-only via IMAP** (E22-5).
-Begründung: keine OAuth-Infrastruktur nötig, sofortiger Alltagsnutzen
-(„Wann habe ich mich bei Firma X beworben?"), und er erzwingt genau die drei
-Fähigkeiten, die alle späteren Connectoren brauchen — Sync-State, Provenance und
-Umgang mit untrusted content. Google/Microsoft-OAuth erst danach.
+**Erster Connector — Kategorie ja, Technologie noch offen.** Ein **read-only
+E-Mail-Connector** ist der überzeugendste Kandidat für V2: sofortiger
+Alltagsnutzen („Wann habe ich mich bei Firma X beworben?"), und er erzwingt genau
+die drei Fähigkeiten, die alle späteren Connectoren brauchen — Sync-State,
+Provenance und Umgang mit untrusted content.
+
+**Anbieter und Protokoll werden hier ausdrücklich nicht festgelegt.** Generisches
+IMAP ist für manche Anbieter der einfachste Weg, aber die verbreitete Annahme
+„IMAP spart OAuth" gilt für die größten Anbieter nicht: Gmail und Microsoft
+verlangen für IMAP-Zugriff in der Regel OAuth beziehungsweise
+anbieterspezifische Authentifizierung, teils mit eigenem Freigabeprozess. Die
+Wahl zwischen Gmail, Microsoft, generischem IMAP oder etwas anderem sollte
+deshalb **anhand der Anbieter realer Beta-Nutzer** getroffen werden, nicht
+vorab am Schreibtisch. Bis dahin gilt: Credential-Speicher und Sync-State so
+entwerfen, dass sowohl Passwort- als auch OAuth-Authentifizierung möglich
+bleiben.
 
 ---
 
@@ -970,22 +982,33 @@ jetzt festgeschrieben (siehe Abschnitt 32).
 | DSGVO-Last | keine | keine | **Auftragsverarbeitung** | gering (Weiterleitung) |
 | Erlösmodell | buy-once | buy-once | Abo | Abo/Nutzung |
 
-### Der entscheidende Architektursatz
+### Der tragende Architektursatz — bewusst zeitlich begrenzt
 
-> **Die Instanz ist die Isolationsgrenze. Es wird nie eine `user_id` als
-> Mandantenschlüssel durch die Datenmodelle gezogen.**
+> **Für die heutige Architektur ist eine Seiton-Instanz die Sicherheits- und
+> Isolationsgrenze. Wir führen jetzt keine mandantenfähige Datenarchitektur und
+> keinen `user_id`-Mandantenschlüssel ein.**
 
 Wenn das jetzt festgeschrieben wird, gilt:
 
-- Managed Cloud = **Single-Tenant-Provisionierung** derselben Compose-Stacks. Es
-  entsteht kein zweites Produkt, nur Betriebsautomatisierung.
-- Teams (Phase O) = **Shared Instance** mit Nutzerkonten *innerhalb* der Grenze —
-  Nutzer für Attribution und Sichtbarkeit, nicht für Mandantentrennung.
-- Ein Multi-Tenant-Umbau wird niemals nötig, und niemand muss ihn verhindern.
+- Managed Cloud in einer ersten Variante = **Single-Tenant-Provisionierung**
+  derselben Compose-Stacks. Es entsteht kein zweites Produkt, nur
+  Betriebsautomatisierung.
+- Teams (Phase O) = **Shared Instance** mit Nutzerkonten *innerhalb* der Grenze.
+  Nutzerkonten dürfen und sollen für Authentifizierung, Attribution und
+  Berechtigungen existieren — nur nicht als Mandantenschlüssel.
+- Solange diese Annahme gilt, ist kein Multi-Tenant-Umbau nötig.
 
-Diese Entscheidung kostet heute nichts und verhindert die teuerste denkbare
-spätere Migration. Sie steht implizit bereits in Phase O und ADR 0007 Option 1 —
-sie sollte explizit werden.
+**Was das ausdrücklich nicht ist:** eine irreversible Festlegung für alle
+künftigen Cloud-Szenarien. Ob eine spätere Cloud eine andere
+Isolationsarchitektur braucht — etwa wegen Betriebskosten pro Instanz,
+Skalierung oder einer anderen Zielgruppe —, ist eine **bewusste zukünftige
+Entscheidung bei nachgewiesenem Bedarf**, kein heute auszuschließender Fall.
+
+Der Wert der Entscheidung liegt darin, dass sie heute nichts kostet und
+verhindert, dass beim Einstieg in Teams oder Cloud beiläufig ein
+Mandantenmodell in die Datenmodelle wandert, das niemand entschieden hat. Sie
+steht implizit bereits in Phase O und ADR 0007 Option 1 — sie sollte explizit
+und mit dieser Befristung festgehalten werden.
 
 ---
 
@@ -1267,6 +1290,40 @@ Das lässt sich mit einem Systemskript gegen `POST /v1/capture` in wenigen Zeile
 lösen — und gehört als Rezept in die Dokumentation, nicht als Produkt in die
 Roadmap. **E20-3 und E20-5 sind Streichkandidaten**, nicht nur „kein Nahziel".
 
+### Braucht Seiton eine native Mobile-App?
+
+**Heute nicht — und die Frage ist noch nicht entschieden.** PWA und Web bleiben
+der erste und aktuelle Mobile-Ansatz; eine native App wird jetzt weder geplant
+noch gebaut. Das ist bewusst **keine** Aussage darüber, dass sie nie sinnvoll
+sein wird.
+
+Der Grund für das Zurückstellen ist Erkenntnisstand, nicht Ablehnung: Die PWA
+ist heute minimal (nur Asset-Cache, kein Share-Target, kein Offline-Capture,
+kein Push), und die mobile Erfassung läuft faktisch über Telegram. Solange das
+so ist, gibt es schlicht keine Messung, an der sich beurteilen ließe, ob eine
+PWA ausreicht.
+
+**Vorgehen:** Zuerst die PWA auf das machbare Niveau bringen (Share-Target auf
+Android, iOS-Shortcut, Mikrofon, Upload, Offline-Warteschlange) und real
+benutzen. Danach anhand der Nutzung neu bewerten.
+
+**Mögliche Auslöser für eine Neubewertung** — jeweils nur, wenn sie sich in
+realer Nutzung als relevante Hürde zeigen:
+
+| Auslöser | Warum die Plattform hier begrenzt |
+|---|---|
+| Share Sheet | Auf iOS gibt es kein PWA-Share-Target; ein Shortcut ist ein Umweg |
+| Sprach-/Kamera-UX | Aufnahme im Browser ist möglich, aber weniger direkt als eine native Erfassung |
+| Push-Benachrichtigungen | Auf iOS an die Installation als Web-App gebunden und eingeschränkt |
+| Offline-Capture | Im Browser über Service Worker machbar, mit Einschränkungen bei Speicherlebensdauer |
+| Hintergrund-Upload | Größere Dateien und Sprachaufnahmen ohne geöffnete App |
+| Biometrische Entsperrung | Im Web nur eingeschränkt verfügbar |
+
+Native Mobile ist damit **DEFER mit definiertem Auslöserkatalog**, nicht
+„unwahrscheinlich". Native Desktop bleibt davon unberührt ein Streichkandidat —
+dort fehlt anders als bei Mobile jede Plattformfähigkeit, die die Web-UI nicht
+ohnehin hätte.
+
 ---
 
 ## 26. LLM Strategy
@@ -1422,7 +1479,7 @@ E34 Git-Backup · E35-1/2 REST + Webhooks.
 | **E40-1** Chat-Seite | **Aufteilen.** Der Teil „Kontext = voller Treffer-Chunk + Nachbarn" ist eine reine Retrieval-Korrektur und sollte sofort passieren; die Chat-Oberfläche kann warten. |
 | **E37-4** Ähnliche Notizen | **Vorziehen und erweitern** auf den Capture-Pfad: kNN statt Token-Overlap bei der Kandidatensuche. Größter Qualitätshebel im Bestand. |
 | **E36-1** Scoped API-Keys | **Vorziehen.** Heute kann jeder MCP-Client mit dem Lese-Key schreiben. |
-| **E22-5** E-Mail-Ingestion | Beibehalten, aber als **erster Connector** mit vollem Sync-State/Provenance/Injection-Modell führen — nicht als weiterer Capture-Kanal. |
+| **E22-5** E-Mail-Ingestion | Beibehalten, aber als **erster echter Connector** mit vollem Sync-State/Provenance/Injection-Modell führen — nicht als weiterer Capture-Kanal. **Anbieter und Protokoll offen lassen** (Gmail / Microsoft / generisches IMAP), Entscheidung erst anhand realer Beta-Nutzer. |
 | **E23-4** Share-Target | Nach Plattform trennen: Android über Web Share Target; iOS **nur** über Shortcut — dort gibt es kein PWA-Share-Sheet. |
 | **E40-4** Injection-Härtung | Die Prompt-Trennung (system/data, Delimiter) **vorziehen**, bevor externe Inhalte verarbeitet werden. |
 
@@ -1431,14 +1488,15 @@ E34 Git-Backup · E35-1/2 REST + Webhooks.
 Phase O komplett (E41–E44, Teams) — bis mindestens fünf Einzelnutzer das Produkt
 regelmäßig verwenden · E24 Cloud (bereits durch ADR 0007 gesperrt — Sperre
 beibehalten) · E30-7 Ask-Verlauf (geht in E40-1 auf) · E26-5/E26-6
-Template-Builder · E25-4 Systemgesundheit-Dashboard.
+Template-Builder · E25-4 Systemgesundheit-Dashboard · **E23-5 nativer
+Mobile-Wrapper** — Teil der offenen Native-Mobile-Frage, erst nach realer
+PWA-Nutzung bewerten (Abschnitt 25); heute weder planen noch streichen.
 
 ### REMOVE CANDIDATE — Streichung zur Diskussion
 
 | ID | Begründung |
 |---|---|
 | **E20-3 / E20-5** Native Desktop-App + Code-Signing | Kein Anwendungsfall, den die Web-UI nicht abdeckt (Abschnitt 25). Konsequent streichen statt „kein Nahziel". |
-| **E23-5** Nativer Wrapper (Capacitor) | Ein Wrapper um dieselbe Web-UI löst weder Share Sheet auf iOS noch Offline-Betrieb sinnvoll. Falls je nativ, dann wegen Hintergrundverarbeitung und Push — dafür genügt ein Wrapper nicht. |
 | **E15-5** Notion-Anbindung evaluieren | Der reale Bedarf ist Migration, nicht Synchronisation — und den deckt E32-3 (ZIP-Import) ab. Als eigenständige Evaluierung entbehrlich. |
 | **E43-4** Aufgaben-Ansicht | Beginn eines Projektmanagement-Nachbaus; das Audit schließt PM bereits aus. |
 | **E45-11** Linear | Bereits zurückgestellt; bei einem Solo-Entwickler mit GitHub Issues dauerhaft entbehrlich. |
@@ -1448,7 +1506,8 @@ Template-Builder · E25-4 Systemgesundheit-Dashboard.
 Kanalparität (Voice und Upload außerhalb Telegrams) — **neu, nicht in der
 Roadmap** · Ablagestruktur flach vs. hierarchisch — **neu, nicht in der
 Roadmap** · Originaldateien behalten — **neu** · Embeddings-Standardwert ·
-Isolationsgrenze = Instanz (schriftlich festhalten) · ADR 0007 Cloud · E21-2
+Isolationsgrenze = Instanz für den aktuellen Horizont (schriftlich festhalten,
+ohne Festlegung für spätere Cloud-Szenarien) · ADR 0007 Cloud · E21-2
 Verkaufskanal · Rolle von Telegram langfristig.
 
 ### Struktureller Befund
@@ -1498,8 +1557,8 @@ Embedding-Metadaten · Ablagestruktur · Isolationsgrenze · Prompt-Trennung
 system/data · Provenance im Frontmatter.
 
 **Später (weil später gleich teuer):** Frontend-Framework · Connector-Framework ·
-Aktionsmodell · Multi-Tenancy (nie) · Abrechnung · Reranker · ANN-Index ·
-Modellwahl pro Rolle.
+Aktionsmodell · Cloud-Isolationsarchitektur jenseits der Einzelinstanz ·
+Abrechnung · Reranker · ANN-Index · Modellwahl pro Rolle.
 
 Die erste Liste ist kurz und billig. Genau darin liegt die Empfehlung dieses
 Reviews: **wenige, günstige Fundamententscheidungen jetzt — alles andere nach
@@ -1545,8 +1604,9 @@ Verlauf, lokale Embeddings, Berechtigungsschicht.
 
 ### V2 — „Nicht nur meine Notizen" (Erweiterung)
 
-- **Ein** Connector produktreif: E-Mail read-only (E22-5), inklusive
-  Sync-State, Provenance, Injection-Härtung
+- **Ein** Connector produktreif: E-Mail read-only (E22-5) als Kandidat, inklusive
+  Sync-State, Provenance, Injection-Härtung — Anbieter und Protokoll werden erst
+  anhand der Beta-Nutzer festgelegt
 - Kalender read-only, wenn E-Mail sich bewährt hat
 - Assist: Zusammenstellen, Zusammenfassen, Entwürfe — **ohne** Senden
 - Anschließend **entweder** Teams (Phase O) **oder** Cloud (E24), nicht beides
@@ -1601,16 +1661,23 @@ beworbene ist.
 *Empfehlung:* **Ja, aktiv** — mit einer ehrlichen Kostenangabe im Setup und
 einem Ausschalter. Ein Second Brain ohne semantische Suche ist eine Dateiablage.
 
-### D5 — Ist die Instanz die Isolationsgrenze, dauerhaft?
+### D5 — Ist die Instanz für den aktuellen Horizont die Isolationsgrenze?
 
-*Warum jetzt:* Weil die Antwort „ja" verhindert, dass jemals ein
-Multi-Tenant-Umbau erwogen wird — und weil Phase O und ADR 0007 diese Annahme
-bereits stillschweigend treffen, ohne sie festzuschreiben.
+*Warum jetzt:* Weil Phase O und ADR 0007 diese Annahme bereits stillschweigend
+treffen, ohne sie festzuschreiben — und weil ein beiläufig eingeführter
+Mandantenschlüssel die teuerste Art wäre, diese Entscheidung nicht zu treffen.
 *Kosten des Wartens:* Gering, solange niemand anfängt, `user_id` in Datenmodelle
 zu ziehen. Genau das ist aber der wahrscheinliche Fehler beim Einstieg in Teams
 oder Cloud.
-*Empfehlung:* **Ja, als ADR festhalten.** Nutzerkonten dienen Attribution und
-Sichtbarkeit innerhalb einer Instanz, niemals der Mandantentrennung.
+*Empfehlung:* **Ja, für den aktuellen Horizont, als ADR festhalten.** Für die
+heutige Self-hosted-Architektur und eine mögliche erste Managed-Cloud-Variante
+(Single-Tenant-Provisionierung) ist die Instanz die Isolationsgrenze; eine
+mandantenfähige Datenarchitektur wird jetzt nicht eingeführt. Nutzerkonten
+innerhalb einer Instanz sind für Authentifizierung, Attribution und
+Berechtigungen ausdrücklich vorgesehen, dienen aber nicht der Mandantentrennung.
+**Keine irreversible Festlegung:** Ob eine spätere Cloud eine andere
+Isolationsarchitektur benötigt, wird bei nachgewiesenem Bedarf bewusst neu
+bewertet.
 
 ---
 
@@ -1621,8 +1688,8 @@ Sichtbarkeit innerhalb einer Instanz, niemals der Mandantentrennung.
 | **Frontend-Framework** | Wenn zwei der drei Auslöser aus Abschnitt 23 eintreten | Die UI ist klein und wird ohnehin neu geschrieben, wenn sie migriert wird — Warten kostet nichts |
 | **Cloud-Edition (ADR 0007)** | Nach V1.5 und nach einer persönlichen Bereitschaftsentscheidung | Single-Tenant-Provisionierung erfordert keinen Codeumbau; die Entscheidung ist betrieblich, nicht technisch |
 | **Managed AI und Preisgrenzen** | Nach E39-2 (freie `base_url`) | Die technische Vorarbeit ist ohnehin für lokale Modelle nötig |
-| **Native Mobile-App** | Nur wenn PWA plus Shortcut nachweislich scheitern | Kein Weg zurück, hohe laufende Kosten, App-Store-Abhängigkeit |
-| **Konkrete Connector-Auswahl und Aktionsmodell** | Nach dem ersten Connector (E-Mail read-only) | Anforderungen an ein Framework kennt man erst nach der ersten Implementierung |
+| **Native Mobile-App** | Nach realer PWA-Nutzung, anhand der Auslöser aus Abschnitt 25 | Die PWA ist heute minimal ausgebaut — es fehlt schlicht die Messung, an der sich die Frage entscheiden ließe |
+| **Konkrete Connector-Auswahl (Anbieter/Protokoll) und Aktionsmodell** | Anhand der Anbieter realer Beta-Nutzer | Ohne zu wissen, welche Postfächer und Kalender die Nutzer tatsächlich haben, wäre die Wahl geraten — und Framework-Anforderungen kennt man erst nach der ersten Implementierung |
 | **Reranker, ANN-Index, Modellwahl pro Rolle** | Nach dem Eval-Harness (E37-3) | Ohne Messung wäre es Meinung |
 | **Teams (Phase O)** | Nach nachgewiesener Einzelnutzung | Baut auf E38 auf, das ohnehin zuerst kommt |
 | **WhatsApp und weitere Messenger** | Vermutlich nie | Erfordert die WhatsApp Business API von Meta: kostenpflichtig, nicht self-hostbar, Genehmigungsprozess — widerspricht dem Produktversprechen |
@@ -1671,14 +1738,14 @@ Sichtbarkeit innerhalb einer Instanz, niemals der Mandantentrennung.
 | **React/TypeScript** | nicht vorhanden | **LATER** — nur dynamische Flächen | bei Auslöser (frühestens E40) | nein — additiv |
 | **Web-UI** | sechs Screens | **KEEP + ausbauen** (Upload, Mikrofon) | V1 | nein |
 | **PWA** | installierbar, nur Asset-Cache | **EVOLVE** — Share-Target (Android), Offline-Queue | V1/V1.5 | nein |
-| **Native Mobile** | nicht vorhanden | **LATER**, wahrscheinlich nie | nur bei nachgewiesenem PWA-Scheitern | — |
+| **Native Mobile** | nicht vorhanden | **DEFER** — PWA/Web zuerst; Neubewertung anhand definierter Auslöser | nach realer PWA-Nutzung | — |
 | **Native Desktop** | nicht vorhanden | **REMOVE** (E20-3/E20-5 streichen) | — | — |
 | **Telegram** | einziger Kanal für Voice/Datei | **KEEP als erstklassiger optionaler Kanal**; Parität herstellen | V1 | nein |
 | **Obsidian-Vault** | Source of Truth für Notizen | **KEEP** — Modell C, vertraglich präzisieren | dauerhaft | nein |
 | **Seiton Knowledge Model** | implizit, dateigebunden | **EVOLVE** — `source`/`source_id` + UNIQUE | **jetzt** | nein — 3 Spalten |
 | **Notion** | nicht angebunden | **LATER** — Migration über ZIP-Import (E32-3); Sync nein | nach V2 | nein |
 | **File-Connectoren** | Vault-Ordner + Telegram-Upload | **EVOLVE** — Upload in UI/REST; externe Ordner später | V1 / V2 | nein |
-| **Email-Connectoren** | nicht vorhanden | **LATER** — IMAP read-only als **erster** Connector | V2 | nein |
+| **Email-Connectoren** | nicht vorhanden | **LATER** — read-only als Kandidat für den ersten Connector; Anbieter/Protokoll offen (Gmail · Microsoft · IMAP) | V2, Auswahl nach Beta-Nutzern | nein |
 | **Calendar-Connectoren** | nicht vorhanden | **LATER** — nach E-Mail | nach V2 | nein |
 | **RAG** | Top-5 Notizen × 400 Zeichen | **EVOLVE** — Chunk-Kontext, Hybrid, Eval | V1 | nein |
 | **LLM-Provider-Layer** | ABC ungenutzt, Ollama erbt von OpenAI | **EVOLVE** — ABC durchsetzen, `openai_compatible` | V1/V1.5 | nein |
@@ -1723,7 +1790,7 @@ Sichtbarkeit innerhalb einer Instanz, niemals der Mandantentrennung.
 | Lokale Modelle (LLM, STT, Embeddings) | | ✅ | | | Vervollständigt Local-Only |
 | Ähnliche Notizen / Duplikatwarnung | | ✅ | | | Kleiner Aufwand, täglicher Nutzen |
 | URL-/Web-Capture | | ✅ | | | Erweitert Capture ohne neue Quelle |
-| E-Mail lesen (IMAP) | | | ✅ | | Erster echter Connector, V2 |
+| E-Mail lesen (read-only) | | | ✅ | | Kandidat für den ersten echten Connector, V2; Anbieter/Protokoll offen |
 | Kalender lesen | | | ✅ | | Nach E-Mail |
 | Notion lesen | | | ✅ | | Migration statt Sync bevorzugen |
 | Externe Ordner indexieren | | | ✅ | | Nach quellenneutraler Identität |
@@ -1732,7 +1799,7 @@ Sichtbarkeit innerhalb einer Instanz, niemals der Mandantentrennung.
 | Teams / Shared Instance | | | ✅ | | Nach nachgewiesener Einzelnutzung |
 | Managed Cloud | | | ✅ | | Betriebliche, nicht technische Entscheidung |
 | Managed AI | | | ✅ | | Risikoärmste Monetarisierungsachse |
-| Native Mobile-App | | | ✅ | | Nur bei nachgewiesenem PWA-Scheitern |
+| Native Mobile-App | | | ✅ | | PWA/Web zuerst; Neubewertung anhand der Auslöser in Abschnitt 25 |
 | Native Desktop-App | | | | ❌ | Kein Vorteil gegenüber der Web-UI |
 | Obsidian-Ersatz (Editor, Graph, Plugins) | | | | ❌ | Direkter Wettbewerb mit dem eigenen Speicherformat |
 | Notion-Ersatz (Datenbanken, Boards) | | | | ❌ | Anderes Produkt |
@@ -1741,7 +1808,7 @@ Sichtbarkeit innerhalb einer Instanz, niemals der Mandantentrennung.
 | Projektmanagement (Kanban, Sprints) | | | | ❌ | Über REST an bestehende Tools |
 | Dateisynchronisation | | | | ❌ | Syncthing, iCloud, rclone existieren |
 | Allgemeiner Chatbot ohne eigene Daten | | | | ❌ | Kein Alleinstellungsmerkmal |
-| Multi-Tenant-SaaS-Plattform | | | | ❌ | Instanz bleibt die Isolationsgrenze |
+| Mandantenfähige Datenarchitektur | | | | ❌ *(aktueller Horizont)* | Instanz ist die Isolationsgrenze; bei nachgewiesenem Cloud-Bedarf neu zu bewerten |
 | Autonomer schreibender Agent | | | | ❌ | Unvereinbar mit dem Sicherheitsmodell |
 | Eigenes Modell-/GPU-Hosting | | | | ❌ | Managed AI braucht das nicht |
 | WhatsApp-Integration | | | | ❌ | Meta-Business-API: kostenpflichtig, nicht self-hostbar |
@@ -1782,7 +1849,7 @@ Sichtbarkeit innerhalb einer Instanz, niemals der Mandantentrennung.
          ▲ read-only
    ┌─────┴─────────────────────────────────────────────────────┐
    │  EXTERNE CONNECTOREN  (später, unabhängig, read-only)     │
-   │  Email(IMAP) · Kalender · Notion · externe Ordner · Web   │
+   │  Email · Kalender · Notion · externe Ordner · Web         │
    │  Auth → Scopes → Sync-State → Normalisierung              │
    └───────────────────────────────────────────────────────────┘
                                │
@@ -1818,8 +1885,11 @@ Sichtbarkeit innerhalb einer Instanz, niemals der Mandantentrennung.
  ──────────────────┴─────────────────┴────────────────────────
    Unterschiede NUR in: Deployment · Identität · Abrechnung ·
    Betrieb · Provisionierung
-   INVARIANTE: Die Instanz ist die Isolationsgrenze.
-               Keine user_id als Mandantenschlüssel — niemals.
+   ANNAHME (aktueller Horizont, nicht endgueltig):
+     Die Instanz ist die Isolationsgrenze; erste Cloud = Single-Tenant.
+     Heute kein user_id als Mandantenschluessel. Nutzerkonten INNERHALB
+     einer Instanz sind fuer Auth/Attribution/Berechtigungen vorgesehen.
+     Andere Cloud-Isolationsarchitektur: bei Bedarf bewusst neu bewerten.
 ```
 
 ---
