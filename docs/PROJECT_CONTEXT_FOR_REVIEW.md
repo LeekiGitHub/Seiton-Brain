@@ -101,19 +101,21 @@ ROADMAP-Story → Agent analysiert → Feature-Branch → Implementierung + Test
 → Commit (Conventional Commits) → Push → PR → CI → Mensch merged auf GitHub
 ```
 
-- **Branches:** `feat/…`, `fix/…`, `chore/…`, `docs/…`; eine Story = ein PR (157 PRs bisher)
+- **Branches:** `feat/…`, `fix/…`, `chore/…`, `docs/…`; eine Story = ein PR.
+  `main` ist per Ruleset geschützt (PR + CI). Head-Branches werden nach Merge
+  gelöscht. Kein `develop`/`staging`/`production`.
 - **GitHub Issues:** existieren mit Templates, werden faktisch seit Juni 2026 nicht
   mehr genutzt — die ROADMAP ist der Ticket-Ersatz
 - **CI (3 Jobs, Push + PR auf `main`):** `pip-audit` → `ruff` → `pytest` →
   MCP-Client-Tests · `docker build` · Alembic `upgrade head` gegen echten
   pgvector-Service-Container + Vector-Smoke-Insert
-- **Dependabot:** wöchentlich, Patch/Minor gruppiert, Major einzeln
+- **Dependabot:** wöchentlich Patch/Minor gruppiert; **Security Updates** aktiv;
+  CodeQL Default Setup aktiv
 - **Agent-Regeln:** zwei Cursor-Rules (Projektkontext + „stille" Guardrails zu
   Config/Secrets, Lizenzen, DSGVO, Wartbarkeit); kein `AGENTS.md`
 
-**Bekannte Prozesslücken:** `main` ist **nicht** branch-protected (Merge ohne
-grüne CI wäre möglich), kein unabhängiges Code-Review, kein Type-Checking,
-kein Staging/Preview, keine Browser-/UI-Prüfung.
+**Bekannte Prozesslücken:** kein unabhängiges Code-Review (als Nächstes CodeRabbit),
+kein Type-Checking, kein Staging/Preview, keine Browser-/UI-Prüfung.
 
 ---
 
@@ -147,21 +149,21 @@ Der Maintainer hat die Anwendung bisher kaum selbst visuell geprüft.
 
 **Vorhanden:** ~561 Tests (Unit, API, UI-Regression, Doku-Konsistenz, Shell-Syntax);
 Ruff; `pip-audit` in CI; Docker-Build und Migrations-Smoke in CI; Secret Scanning
-**und** Push Protection auf GitHub aktiv; `SECURITY.md` mit Threat Model und
+**und** Push Protection; Dependabot Security Updates; CodeQL Default Setup;
+Ruleset *Protect main* (PR + required CI); `SECURITY.md` mit Threat Model und
 privatem Meldeweg; API-Key-Auth; Session-Auth für die UI; proxy-sichere
 localhost-Guards für `/setup` und `/docs`; XSS-Härtung mit Regressionstest;
 Pfad-Traversal-Schutz für Vault-Pfade; File-Locks und Kompensation im Schreibpfad;
 gepinnte Dependencies.
 
 **Bekannte Lücken:**
-- `main` ohne Branch Protection (verifiziert per API)
-- Dependabot **Security** Updates deaktiviert; CodeQL nicht eingerichtet
 - Kein Type-Checking (mypy/pyright)
 - Rate-Limits/Brute-Force-Schutz noch offen (eingeplant als E27-5)
 - Keine Browser-/Visual-Prüfung, kein Integrationstest mit Redis/Celery in CI
 - Kein Monitoring/Error-Tracking (vor Verkauf eingeplant)
 - DSGVO-Basis (Voll-Löschung, Export, Log-Hygiene) noch offen
 - `ARCHITECTURE.md` veraltet
+- Unabhängiges PR-Review (CodeRabbit, E45-5) noch nicht eingerichtet
 
 ---
 
@@ -176,11 +178,10 @@ Größe: 210 Stories über 47 Epics, davon 144 abgeschlossen. Spätere Phasen si
 bereits geschnitten: M (Interoperabilität), N (Privacy-First Knowledge AI),
 O (kleine Teams), I (Cloud/Abo, gated).
 
-**Nächste ~9 Arbeitspakete (je ≈ ein Tag), Stand 2026-08-29:**
+**Nächste ~9 Arbeitspakete (je ≈ ein Tag), Stand 2026-08-30:**
 
-1. **E45-13** Roadmap-/Agent-Kontext-Hygiene — abgeschlossene Phasen nach
-   `docs/archive/` auslagern, `docs/current-state.md` als Agent-Einstieg
-2. **E45-1 + E45-4** Branch Protection + restliche GitHub-Security-Settings
+1. ~~**E45-13**~~ Roadmap-Hygiene 🟢
+2. ~~**E45-1 + E45-4**~~ Branch Protection + GitHub-Security 🟢
 3. **E45-5** CodeRabbit einrichten (Open-Source-Plan, kostenlos)
 4. **E47-1 + E47-2** UI-Inventar, dann **STOP**: UI-Referenzen vom Entwickler
 5. **E45-15** Visual-Smoke-PoC mit `pytest-playwright` (ein Happy-Path + Screenshots)

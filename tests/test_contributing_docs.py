@@ -21,6 +21,8 @@ def test_contributing_covers_workflow():
         "ROADMAP.md",
         "worker_session",
         "SECURITY.md",
+        "kurzlebig",
+        "Protect main",
     ):
         assert needle in text, f"missing in CONTRIBUTING.md: {needle}"
 

@@ -1,6 +1,6 @@
 # Current State — Seiton Brain
 
-Kurzer Einstieg für Agents und Menschen. Stand **2026-08-29**, Release **v0.3.0**.
+Kurzer Einstieg für Agents und Menschen. Stand **2026-08-30**, Release **v0.3.0**.
 
 | Frage | Ort |
 |-------|-----|
@@ -37,8 +37,8 @@ Installer: `scripts/install.sh` / `install.ps1`
 
 **Phase L** (Launch-Härtung) + parallel **E45** Engineering.
 
-Nächstes Paket nach E45-13: **E45-1 + E45-4** (Branch Protection + GitHub-Security-Rest),
-dann CodeRabbit, dann **E47** UI-Inventar (**STOP** für Design-Referenzen).
+Nächstes Paket: **E45-5** CodeRabbit (OSS-Plan, kostenlos), danach **E47**
+UI-Inventar (**STOP** für Design-Referenzen).
 
 Offen aus G/H (Auswahl): E21-2 Verkaufskanal, E22-5/6, E23-3/4, E26-3…, E20-3/5 kein Nahziel.
 

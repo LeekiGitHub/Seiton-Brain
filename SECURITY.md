@@ -123,3 +123,12 @@ Remote: [`docs/remote-access.md`](docs/remote-access.md)
 
 Wir nutzen `pip`/`requirements.txt` mit gepinnten Versionen wo sinnvoll.
 Bei bekannten CVEs in Dependencies: Issue oder Advisory wie oben melden.
+
+## GitHub-Repo (Maintainer)
+
+Kostenlose Public-Repo-Funktionen (E45-4), Stand 2026-08-30:
+
+- Dependabot **Alerts** und **Security Updates**
+- Secret Scanning + Push Protection
+- CodeQL Default Setup
+- Branch-Schutz auf `main` (PR + CI) — siehe [`docs/engineering.md`](docs/engineering.md)

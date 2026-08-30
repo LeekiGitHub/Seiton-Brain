@@ -54,7 +54,8 @@ Epics/Phasen und Priorisierung.
 | **Linting** | Ruff (gepinnt 0.15.x; Dependabot ignoriert 0.16+) |
 | **Tests** | Breite Unit-/API-/UI-Regression-Suite unter `tests/`; Shell-Syntax-Checks |
 | **Dependabot** | Wöchentlich, gruppierte Patch/Minor-PRs, separate MCP- und Actions-Updates |
-| **Security (Basis)** | [`SECURITY.md`](../SECURITY.md), pip-audit in CI, Threat Model, Private Advisories; **verifiziert 2026-08-29:** Secret Scanning **und** Push Protection sind auf GitHub aktiv |
+| **Security (Basis)** | [`SECURITY.md`](../SECURITY.md), pip-audit in CI, Threat Model, Private Advisories; Secret Scanning + Push Protection; Dependabot Alerts + Security Updates; CodeQL Default Setup (E45-4) |
+| **Branch Protection** | Ruleset *Protect main*: PR-Pflicht, required CI, kein Force-Push; Head-Branches nach Merge auto-löschen (E45-1) |
 | **Deployment** | Self-hosted Docker Compose (Consumer/VPS/Dev), `scripts/install.sh`, `update.sh`, `deploy-vps.sh`, [`docs/release.md`](release.md) |
 | **Release** | Keep a Changelog, v0.3.0-Schnitt, Tag/Release-Prozess dokumentiert |
 | **Architektur-Doku** | [`ARCHITECTURE.md`](../ARCHITECTURE.md), 7 ADRs in [`docs/adr/`](adr/) |
@@ -65,9 +66,6 @@ Epics/Phasen und Priorisierung.
 
 | Bereich | Gap | Priorität |
 |---------|-----|-----------|
-| **Branch Protection** | **Verifiziert 2026-08-29:** `main` hat *keinen* Schutz (`branches/main/protection` → 404). Direkter Push und Merge ohne grüne CI sind möglich | hoch · E45-1 |
-| **Dependabot Security Updates** | **Verifiziert:** `dependabot_security_updates: disabled` — Version-Updates laufen, automatische Security-Fixes nicht | hoch · E45-4 |
-| **CodeQL** | Nicht eingerichtet (für Public Repo kostenlos) | mittel · E45-4 |
 | **GitHub Issues** | Faktisch seit Juni 2026 nicht mehr genutzt (letztes Issue #77, 0 offen) — der reale Prozess läuft über ROADMAP-Story → Branch → PR | Prozess an Realität anpassen · E45-3 |
 | **Agent-Kontext** | ROADMAP geschrumpft (E45-13); Archiv A–H + `docs/current-state.md` + Phasen-M–O-Detail | 🟢 E45-13 |
 | **Visuelle Prüfung** | Keine Browser-/Screenshot-Prüfung; 66 Testdateien laufen ausschließlich headless über den FastAPI-TestClient. Kein Node, kein Playwright im Repo | mittel · **E45-15** |
@@ -81,7 +79,6 @@ Epics/Phasen und Priorisierung.
 | **Preview/Staging** | Kein automatisches PR-Preview; manuelles `docker compose` auf Branch | akzeptabel bis Cloud · E45-8 |
 | **Monitoring** | Kein Sentry/Better Stack/Uptime — `/health` nur Basis | vor Verkauf · E45-9 |
 | **Product Analytics** | Kein PostHog o. Ä. | ab Beta · E45-10 |
-| **Secret Scanning** | GitHub native Features nicht als Checkliste dokumentiert/aktiviert | hoch · E45-4 |
 | **Coverage-Gate** | Kein Coverage-Reporting (bewusst ok — risikobasiert testen) | — |
 
 ### Aktuell Overengineering / nicht jetzt
@@ -100,13 +97,37 @@ Epics/Phasen und Priorisierung.
 
 ## Git & GitHub
 
-### Empfohlene Regeln (E45-1)
+### Branching-Strategie (Trunk / PR)
 
-Auf `main` in GitHub (Settings → Branches):
+**Modell:** ein langlebiger Branch — `main`. Arbeit läuft auf **kurzlebigen**
+Branches (`feat/…`, `fix/…`, `chore/…`, `docs/…`) → Pull Request → CI → Merge.
 
-- Require pull request before merging
-- Require status checks: `lint-and-test`, `docker-build`, `migrate-and-vector-smoke`
-- Keine Force-Pushes / kein direktes Pushen für den Alltag (Notfall: Maintainer)
+**Kein** `develop`, `staging` oder `production` nur aus Konvention. Releases sind
+**Git-Tags auf `main`** (`docs/release.md`); Self-Host-Updates ziehen `main` bzw.
+einen Tag (`scripts/update.sh`). Es gibt keine zweite Deploy-Pipeline, die einen
+zweiten langlebigen Branch bräuchte.
+
+**Umgebungen ≠ Branches:** Preview/Staging/Production (wenn später, z. B. E24/E45-8)
+sind Deployments eines Commits/Tags — nicht eigene Git-Linien.
+
+**Hotfixes (E46-2):** gleicher Pfad, nur schmalerer Scope; kein dauerhafter
+`hotfix/`-Trunk.
+
+### Branch Protection (E45-1)
+
+Ruleset [Protect main](https://github.com/LeekiGitHub/Seiton-Brain/rules/21859080):
+
+- Pull Request vor Merge (0 Reviewer — Solo-Maintainer merged selbst)
+- Required status checks, branch muss aktuell sein: `lint-and-test`,
+  `docker-build`, `migrate-and-vector-smoke`
+- Kein Force-Push (`non_fast_forward`), `main` nicht löschbar
+- Notfall: Ruleset kurz auf *Evaluate* oder Bypass — nicht alltäglich direkt pushen
+
+### Head-Branches nach Merge löschen
+
+**Aktiviert** (`delete_branch_on_merge`): GitHub löscht den PR-Head-Branch nach
+Merge. Passt zum kurzlebigen-Branch-Workflow; verhindert die bisherige
+Remote-Leiche. Lokale Kopien: `git fetch --prune` und bei Bedarf `git branch -d`.
 
 ### PR-Größe
 
@@ -370,12 +391,14 @@ Z. B. PostHog (Cloud Free oder Self-Hosted) — Feature-Nutzung, Funnels, Retent
 
 ## Security-Checkliste (E45-4)
 
-GitHub (Repository → Settings → Security):
+GitHub (Repository → Settings → Security), Stand 2026-08-30:
 
-- [ ] Dependabot alerts aktiv
-- [ ] Secret scanning (public repo)
-- [ ] Push protection für Secrets (falls verfügbar)
-- [ ] Optional: CodeQL Analysis (kostenlos für public)
+- [x] Dependabot alerts
+- [x] Dependabot security updates
+- [x] Secret scanning (public repo)
+- [x] Push protection für Secrets
+- [x] CodeQL default setup (kostenlos für public)
+- [ ] Optional später: Secret scanning *validity checks* / non-provider patterns
 
 Bereits im Produkt/CI: pip-audit, SECURITY.md, API-Key-Auth, localhost-Guards (E27).
 

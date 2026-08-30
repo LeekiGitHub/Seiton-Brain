@@ -9,6 +9,11 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E45-1 / E45-4 Branch Protection und GitHub-Security.** Ruleset *Protect main*
+  (PR-Pflicht, CI-Checks, kein Force-Push); Dependabot-Alerts + Security Updates;
+  CodeQL Default Setup; Head-Branches werden nach Merge automatisch gelöscht.
+  Branching-Strategie (Trunk + kurzlebige Branches, kein `develop`/`staging`) in
+  [`docs/engineering.md`](docs/engineering.md) und [`CONTRIBUTING.md`](CONTRIBUTING.md).
 - **E45-13 Roadmap-/Agent-Kontext-Hygiene.** Abgeschlossene Phasen A–H nach
   [`docs/archive/roadmap-phases-a-h.md`](docs/archive/roadmap-phases-a-h.md);
   Phasen-M–O-Detail nach [`docs/roadmap-phases-m-o.md`](docs/roadmap-phases-m-o.md);

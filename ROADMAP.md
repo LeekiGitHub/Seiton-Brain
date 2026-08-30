@@ -139,10 +139,10 @@ Zielbild: [`docs/engineering.md`](./docs/engineering.md). Budget: keine neuen la
 
 | ID | Story | Status | Zeitfenster |
 |----|-------|--------|-------------|
-| E45-1 | Branch Protection `main` (PR + required CI) | ⚪ | jetzt |
+| E45-1 | Branch Protection `main` (PR + required CI) | 🟢 | jetzt |
 | E45-2 | Solo-Workflow in engineering.md + ADR-Lesen vor großen Änderungen | 🟡 | jetzt |
 | E45-3 | Issue-Templates: Acceptance Criteria | ⚪ | jetzt |
-| E45-4 | GitHub Security Rest (Dependabot Security Updates, optional CodeQL) | ⚪ | jetzt |
+| E45-4 | GitHub Security Rest (Dependabot Security Updates, optional CodeQL) | 🟢 | jetzt |
 | E45-5 | CodeRabbit evaluieren (OSS-Plan) | ⚪ | nach E45-1 |
 | E45-6 | Typ-Checking schrittweise (mypy/pyright) | ⚪ | später |
 | E45-7 | CI Integration-Smoke (Redis/API) | ⚪ | später |
@@ -211,8 +211,8 @@ Stand 2026-08-29. Engineering unterbricht Produktarbeit gezielt.
 | # | Paket | Warum jetzt |
 |---|-------|-------------|
 | 1 | ~~**E45-13**~~ Roadmap-Hygiene | 🟢 erledigt |
-| 2 | **E45-1 + E45-4** Branch Protection + GitHub-Security-Rest | `main` ungeschützt; Secret Scanning schon aktiv |
-| 3 | **E45-5** CodeRabbit (OSS, kostenlos) | braucht PR-Pflicht aus #2 |
+| 2 | ~~**E45-1 + E45-4**~~ Branch Protection + GitHub-Security | 🟢 erledigt |
+| 3 | **E45-5** CodeRabbit (OSS, kostenlos) | PR-Pflicht auf `main` ist aktiv |
 | 4 | **E47-1 + E47-2** UI-Inventar + **STOP: Referenzen** | vor E30-2/4/5; asynchrone Input-Sammlung |
 | 5 | **E45-15** Visual-Smoke-PoC | parallel zu Referenz-Sammlung |
 | 6 | **E45-14** Risikobasierte DoD | nach Smoke-Klarheit |

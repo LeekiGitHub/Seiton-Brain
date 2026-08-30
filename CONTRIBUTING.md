@@ -11,10 +11,10 @@ Portfolio-Repo (MIT)** mit geplanter kommerzieller Edition — siehe
 1. **Kurzstand:** [`docs/current-state.md`](docs/current-state.md)
 2. **Roadmap prüfen:** [`ROADMAP.md`](ROADMAP.md) — gibt es schon eine Story?
    Historie A–H: [`docs/archive/roadmap-phases-a-h.md`](docs/archive/roadmap-phases-a-h.md)
-2. **Engineering-Workflow:** [`docs/engineering.md`](docs/engineering.md) — Git, CI, Review, KI-Sicherheit (Epic E45)
-3. **Production Operations:** [`docs/production-ops.md`](docs/production-ops.md) — Betrieb nach Release (Epic E46)
-4. **Größere Änderungen:** kurz als Issue anlegen oder im PR referenzieren; vor Architektur-Änderungen [`ARCHITECTURE.md`](ARCHITECTURE.md) + relevante [`docs/adr/`](docs/adr/) lesen
-5. **Sicherheitslücken:** nicht als öffentliches Issue — siehe [`SECURITY.md`](SECURITY.md)
+3. **Engineering-Workflow:** [`docs/engineering.md`](docs/engineering.md) — Git, CI, Review, KI-Sicherheit (Epic E45)
+4. **Production Operations:** [`docs/production-ops.md`](docs/production-ops.md) — Betrieb nach Release (Epic E46)
+5. **Größere Änderungen:** kurz als Issue anlegen oder im PR referenzieren; vor Architektur-Änderungen [`ARCHITECTURE.md`](ARCHITECTURE.md) + relevante [`docs/adr/`](docs/adr/) lesen
+6. **Sicherheitslücken:** nicht als öffentliches Issue — siehe [`SECURITY.md`](SECURITY.md)
 
 Für reine Self-Hosting-Fragen (Setup, Docker): zuerst
 [`docs/self-hosting.md`](docs/self-hosting.md) und [`docs/setup.md`](docs/setup.md).
@@ -41,6 +41,24 @@ ruff check app tests
 Optional mit Docker: [`docs/setup.md`](docs/setup.md).
 
 ---
+
+## Branches
+
+Trunk-basiertes Modell: **`main` ist geschützt** (Ruleset *Protect main*: PR + CI-Checks). Arbeit auf
+kurzlebigen Branches:
+
+| Präfix | Verwendung |
+|--------|------------|
+| `feat/` | neues Verhalten |
+| `fix/` | Bugfix |
+| `chore/` | Tooling, Deps, Hygiene |
+| `docs/` | nur Dokumentation |
+
+Eine Story → ein Branch → ein PR. GitHub löscht den Head-Branch nach Merge.
+Es gibt **kein** `develop` / `staging` / `production` — Releases sind Tags auf
+`main`. Deploy-Umgebungen (später Preview/Staging) sind unabhängig von Git-Linien.
+
+Details: [`docs/engineering.md`](docs/engineering.md) (E45-1).
 
 ## Pull Requests
 
