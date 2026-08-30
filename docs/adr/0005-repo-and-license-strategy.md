@@ -9,7 +9,10 @@
 
 Seiton Brain startete als **öffentliches GitHub-Repo (MIT)** — sinnvoll für
 Portfolio, Bewerbungen und sichtbare Entwicklung. Parallel gilt [ADR 0004]:
-langfristig **kommerzielles, self-hosted Consumer-Produkt** (buy-once, BYO-Key).
+langfristig **kommerzielles Consumer-Produkt** (buy-once, BYO-Key), zuerst
+self-hosted ausgeliefert — eine Managed Cloud ist eine spätere zusätzliche
+Betriebsform ([ADR 0008](./0008-deployment-models-self-hosted-first.md)) und
+ändert an dieser Repo-/Lizenzstrategie nichts.
 
 Die Frage: Wann und wie vom öffentlichen Entwicklungsrepo zur verkaufsfertigen
 Edition wechseln, ohne Portfolio-Wert zu verlieren?

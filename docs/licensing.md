@@ -21,7 +21,10 @@ Was im Kauf enthalten ist (Consumer-Edition, Stand Planung):
 
 **Nicht** im Scope der Consumer-Edition (ADR 0004/0005):
 
-- Gehosteter Betrieb durch uns
+- Gehosteter Betrieb durch uns — die self-hosted Edition läuft bewusst ohne
+  unseren Server. Eine Managed Seiton Cloud ist eine **separate spätere
+  Betriebsform** ([ADR 0008](adr/0008-deployment-models-self-hosted-first.md),
+  Erlösmodell offen in [ADR 0007](adr/0007-cloud-edition-subscription.md))
 - Custom-n8n-Node (REST-API + Beispiele reichen)
 - Verkaufs-/Payment-Shop (Story **E21-2**, später)
 

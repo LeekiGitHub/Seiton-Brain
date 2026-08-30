@@ -11,16 +11,27 @@ Status-Legende: 🟢 Done · 🟡 In Progress · 🔵 Ready · ⚪ Backlog · �
 
 ## Vision (kurz)
 
-Self-hosted Second-Brain-Engine: Capture (Telegram/UI/API/MCP) → LLM-Klassifikation
+Persönliches AI-Second-Brain: Capture (Telegram/UI/API/MCP) → LLM-Klassifikation
 → Markdown im Obsidian-kompatiblen Vault; Retrieve via Suche, RAG (`/ask`), Digest,
 REST, MCP. Obsidian = Default-Vault, Telegram = optionaler Eingang.
 
 **Produktstrategie (ADR 0004):** Buy-once, Kunde hostet selbst, BYO-LLM-Key.
 UI-first als lokale Web-UI (kein Native-Desktop-Nahziel). Privacy = Verkaufsargument.
 n8n-Custom-Node entfällt; REST + `examples/n8n/` für Power-User.
+
+**Deployment (ADR 0008 — normativ):** Self-hosting ist ein **Deployment-Modell**,
+nicht die Produktidentität. **Self-hosted zuerst** (V1 / private Beta); eine
+**Managed Seiton Cloud** ist Teil der Produktvision, aber später (Phase I / E24,
+gated auf ADR 0007) und **kein V1-Blocker**. Der Product Core bleibt
+deployment-neutral — Unterschiede nur in Provisionierung, Deployment, Identity,
+Billing, Secrets, Backup-Ops, Monitoring, Updates, Support. **Keine
+Cloud-Abstraktionen, kein Multi-Tenant-Datenmodell, kein Billing auf Vorrat.**
+Isolationsgrenze ist heute die Instanz (nicht irreversibel).
+
 ADRs: [0004](./docs/adr/0004-commercial-consumer-product.md),
 [0005](./docs/adr/0005-repo-and-license-strategy.md),
-[0006](./docs/adr/0006-consumer-stack-no-sqlite-fork.md).
+[0006](./docs/adr/0006-consumer-stack-no-sqlite-fork.md),
+[**0008**](./docs/adr/0008-deployment-models-self-hosted-first.md).
 
 ---
 
@@ -31,11 +42,12 @@ ADRs: [0004](./docs/adr/0004-commercial-consumer-product.md),
 | **A–F** | MVP → Public → Integrations → Retrieval | 🟢 done — [Archiv](./docs/archive/roadmap-phases-a-h.md) |
 | **G — Produktisierung** | UI, Packaging, Lizenz; offen: **E21-2**, E20-3/5 | 🔵 Kern done |
 | **H — Capture & Mobile** | UI-Capture, PWA, Templates; Rest-Stories offen | 🔵 Kern done |
-| **I — Cloud-Edition** | Hosted + Managed LLM (Abo). Gated **ADR 0007**. **E24** | ⚪ |
+| **I — Managed Cloud** | Hosted + Managed LLM. Positionierung geklärt (**ADR 0008**), Betrieb/Abo gated auf **ADR 0007**. **E24** — nach V1.5, kein V1-Blocker | ⚪ |
 | **L — Launch-Härtung** | Security, Integrität, Release, UX, Privacy, Designsystem (**E27–E31, E47**) | 🔵 **aktiv** |
 | **P — Engineering** | Solo+AI Quality (**E45**) — parallel | 🔵 |
 | **Q — Production Ops** | Betrieb nach Release (**E46**) | ⚪ |
 | **M / N / O** | Ecosystem · Knowledge AI · Small Teams | ⚪ geplant — [Detail](./docs/roadmap-phases-m-o.md) |
+| **E48 — Backup Guardian** | Data Protection (3-2-1) als Produktfähigkeit — nach V1.5 | ⚪ Idee |
 
 ---
 
@@ -62,11 +74,17 @@ Vollständige Epic-Tabellen inkl. erledigter Stories: [Archiv A–H](./docs/arch
 
 ---
 
-## Phase I — Cloud-Edition · E24 · `epic:cloud` · ⚠️ ADR 0007
+## Phase I — Managed Cloud · E24 · `epic:cloud` · ⚠️ ADR 0007
+
+Die **Positionierung** ist entschieden ([ADR 0008](./docs/adr/0008-deployment-models-self-hosted-first.md)):
+Die Cloud gehört zur Produktvision und setzt auf demselben Product Core auf.
+Offen bleibt die **Geschäfts-/Betriebsentscheidung** (Abo, Preis, DSGVO-AVV,
+Betriebsbereitschaft) — dafür bleibt **E24 gesperrt** bis E24-1. Start frühestens
+nach V1.5. Bis dahin wird **nichts** davon vorsorglich gebaut.
 
 | ID | Story | Status |
 |----|-------|--------|
-| E24-1 | ADR 0007 entscheiden (Single-/Multi-Tenant, Preis, DSGVO) | ⚪ |
+| E24-1 | ADR 0007 entscheiden (Betrieb/Abo/Preis/DSGVO; Single-Tenant als Startpunkt) | ⚪ |
 | E24-2 | Managed-LLM-Proxy + Quotas | ⚪ |
 | E24-3 | Provisioning-Blaupause (EU) | ⚪ |
 | E24-4 | Abo-Billing + Entitlements (mit E21-2) | ⚪ |
@@ -190,6 +208,11 @@ Breites E2E-Netz · Desktop-UI-Testing · Linear/CodeRabbit/Analytics paid vor N
 zwei Monitoring-Tools · 100 %-Coverage · Scrum · Feature-Flags als Self-Host-Standard ·
 React/Tailwind-Migration (Neubewertung bei E40). Details: Audit + `docs/engineering.md`.
 
+**Produkt/Deployment (ADR 0008):** allgemeiner Dateisync mit bidirektionaler
+Konfliktauflösung · eigene APIs für Storage-Anbieter statt etablierter
+Backup-Backends · eigene Backup-Kryptografie · Local Agent für Cloud→USB ·
+Kubernetes, Multi-Tenant-Datenmodell, Billing oder Cloud-Provisionierung auf Vorrat.
+
 ---
 
 ## Phasen M / N / O (Kurz)
@@ -204,23 +227,80 @@ Vollständige Stories: [`docs/roadmap-phases-m-o.md`](./docs/roadmap-phases-m-o.
 
 ---
 
+## E48 — Backup Guardian (Data Protection) · `epic:backup` · ⚪ Idee
+
+**Start: nach V1.5.** Nicht in V1, kein Beta-Blocker. Bewusst **ein** Epic-Eintrag
+ohne Story-Aufteilung — detailliert wird erst, wenn es dran ist.
+
+**Ziel:** Nutzer sollen ihre persönlichen Wissensdaten zuverlässig sichern können,
+orientiert an **3-2-1** (mehrere Kopien · unterschiedliche Medien/Ziele ·
+mindestens ein Offsite-Ziel).
+
+**Backup ist nicht Sync.** Seiton wird **kein** allgemeiner Dateisynchronisations-
+dienst und baut keine bidirektionale Konfliktauflösung zwischen Drive/Dropbox/NAS/
+iCloud. Backup heißt: historische Zustände, Wiederherstellbarkeit,
+Integritätsprüfung — nicht Spiegelung des aktuellen Zustands.
+
+```
+definierte Seiton-/Vault-Daten
+           │
+           ├── versioniertes Backup → Ziel A
+           ├── versioniertes Backup → Ziel B
+           └── versioniertes Backup → Offsite
+```
+
+**Mögliche Fähigkeiten (self-hosted):** lokaler Pfad, externe Festplatte,
+NAS/Network Mount, SFTP, S3-kompatibler Object Storage. **Build vs. Buy ist die
+erste offene Frage** — etablierte Backends (restic, rclone, borg o. Ä.) statt
+eigener Storage-APIs und **keine eigene Kryptografie**; Offsite-/Cloud-Ziele
+sollen verschlüsselt sein, sodass der Ziel-Anbieter den Klartext nicht braucht.
+Heute wird **keine Dependency** hinzugefügt.
+
+**Backup Health** als sichtbare Fähigkeit: letztes erfolgreiches Backup je Ziel,
+Backup-Alter, offline/fehlendes Ziel, Integritätsprüfung, 3-2-1-Status,
+Restore-Verifikation, Erinnerung an eine wieder anzuschließende Offline-Platte.
+**Restore gehört dazu** — ein Backup gilt nicht als gesund, nur weil Dateien
+geschrieben wurden.
+
+**Managed Cloud (viel später):** Betriebsverantwortung bei uns — automatisierte
+verschlüsselte Backups, versionierte Snapshots, Restore, optionaler Export auf
+kundeneigene Ziele. Ein lokales USB-/NAS-Ziel ist aus der Cloud **nicht**
+erreichbar; ein optionaler Local Agent wird heute **nicht** geplant.
+
+**Baut auf vorhandenen Stories auf — ersetzt sie nicht:** E29-4
+(Backup-Retention + Restore-Verifikation), E46-6 (Backup & Restore-Verifikation),
+E34-3 (Offsite-Rezept), E31-2 (Export). Diese bleiben die V1-Grundlage; E48
+verallgemeinert sie später zu mehreren Zielen mit Health-Sicht. **Keine zweite
+parallele Backup-Strategie anlegen.**
+
+**Monetarisierung: Hypothese, nicht entschieden.** Self-hosted mit eigenen Zielen ·
+Cloud mit Backup als Teil des Betriebs · optional Managed Offsite Storage. Heute
+**keine** Preis- oder Free/Premium-Grenze — und die Architektur wird nicht
+künstlich verschlechtert, um ein Premium-Feature zu erzeugen.
+
+---
+
 ## Nächste Arbeitspakete (≈ 1 Tag)
 
-Stand 2026-08-29. Engineering unterbricht Produktarbeit gezielt.
+Stand 2026-08-30. Engineering unterbricht Produktarbeit gezielt.
+Produkt-/Deployment-Konsolidierung ist abgeschlossen (ADR 0008) — **keine weitere
+Meta-Planung**; ab hier wieder ein Paket pro Tag: Branch → Code → Tests → PR → Merge.
 
 | # | Paket | Warum jetzt |
 |---|-------|-------------|
-| 1 | ~~**E45-13**~~ Roadmap-Hygiene | 🟢 erledigt |
-| 2 | ~~**E45-1 + E45-4**~~ Branch Protection + GitHub-Security | 🟢 erledigt |
-| 3 | **E45-5** CodeRabbit (OSS, kostenlos) | PR-Pflicht auf `main` ist aktiv |
-| 4 | **E47-1 + E47-2** UI-Inventar + **STOP: Referenzen** | vor E30-2/4/5; asynchrone Input-Sammlung |
-| 5 | **E45-15** Visual-Smoke-PoC | parallel zu Referenz-Sammlung |
-| 6 | **E45-14** Risikobasierte DoD | nach Smoke-Klarheit |
-| 7 | **E31-3 (+ E31-1)** Log-Hygiene / Voll-Löschung | Puffer ohne UI-Abhängigkeit |
-| 8 | **E47-3** Designsystem ableiten | sobald Referenzen da |
-| 9 | **E30-4 → E30-2 → E30-5/6** | UX auf gemeinsamer Sprache |
+| 1 | **E45-5** CodeRabbit (OSS, kostenlos) | PR-Pflicht auf `main` ist aktiv |
+| 2 | **E47-1 + E47-2** UI-Inventar + **STOP: Referenzen** | vor E30-2/4/5; Input-Sammlung läuft asynchron |
+| 3 | **E45-15** Visual-Smoke-PoC | parallel zur Referenz-Sammlung |
+| 4 | **E45-14** Risikobasierte DoD | nach Smoke-Klarheit |
+| 5 | **E31-3 (+ E31-1)** Log-Hygiene / Voll-Löschung | Puffer ohne UI-Abhängigkeit |
+| 6 | **E47-3** Designsystem ableiten | sobald Referenzen da |
+| 7 | **E30-4 → E30-2 → E30-5/6** | UX auf gemeinsamer Sprache |
 
-Danach: E29-4/5/6, E27-5, E46 vor E21-2, dann Phase M → N → O; parallel E24-1 / E21-2.
+Erledigt: ~~E45-13~~ Roadmap-Hygiene · ~~E45-1 + E45-4~~ Branch Protection + GitHub-Security.
+
+Danach: E29-4/5/6, E27-5, E46 vor E21-2, dann Phase M → N → O; parallel E21-2.
+**Nicht** in dieser Reihe: E24 (Managed Cloud, nach V1.5 und nach E24-1) und E48
+(Backup Guardian, nach V1.5).
 
 ---
 

@@ -1,5 +1,10 @@
 # Product Readiness & Optimization Audit — August 2026
 
+> **Klassifikation: HISTORISCH** (Snapshot August 2026). Nicht als geltende
+> Entscheidung lesen. Aktuelle Wahrheit: [`docs/current-state.md`](current-state.md)
+> und [`docs/adr/`](adr/) — für Produktidentität und Deployment insbesondere
+> [ADR 0008](adr/0008-deployment-models-self-hosted-first.md).
+
 Vollständiger Review vor Hosting/Cloud, Monetarisierung und Go-to-Market.
 Basis: Ist-Code auf `main` (Stand nach PR #125, 505 Tests), vier vertiefte
 Teil-Audits (Architektur/Backend, Security/Privacy, UI/UX, Tests/Ops/Doku)

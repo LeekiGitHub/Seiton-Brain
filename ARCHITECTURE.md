@@ -59,6 +59,13 @@ Volumes:
 **Lizenzierung (E21-1):** `app/licensing/` + `docs/licensing.md` — offline Ed25519-Keys,
 `SEITON_LICENSE_REQUIRED` für kommerzielle Distribution; Issuer `scripts/issue-license.py`.
 
+**Deployment-Modelle (ADR 0008):** Der hier beschriebene Product Core ist
+**deployment-neutral** — derselbe Code läuft self-hosted (heute ausgeliefert) und
+in einer späteren Managed Seiton Cloud. Unterschiede gehören ausschließlich in
+Provisionierung, Deployment, Identity, Billing, Secrets, Backup-Ops, Monitoring,
+Updates und Support — nicht in die Fachlogik. Isolationsgrenze ist die Instanz.
+Siehe [`docs/adr/0008-deployment-models-self-hosted-first.md`](docs/adr/0008-deployment-models-self-hosted-first.md).
+
 **Self-Hosting (E9-2):** `docs/self-hosting.md` — Plattform-Überblick, Compose-Modi  
 **Remote-Zugang VPS (E9-3):** `docs/remote-access.md` — Caddy / nginx / Cloudflare Tunnel / SSH
 (consumer/vps/dev), Verweise auf E20-Installer und VPS-Doku.

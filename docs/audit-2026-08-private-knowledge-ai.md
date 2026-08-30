@@ -1,5 +1,10 @@
 # Private Knowledge AI, RAG & Personal Assistant — Audit 2026-08
 
+> **Klassifikation: HISTORISCH** (Snapshot August 2026). Nicht als geltende
+> Entscheidung lesen. Aktuelle Wahrheit: [`docs/current-state.md`](current-state.md)
+> und [`docs/adr/`](adr/) — für Produktidentität und Deployment insbesondere
+> [ADR 0008](adr/0008-deployment-models-self-hosted-first.md).
+
 **Datum:** 2026-08-18 · **Scope:** Produkt-/Architektur-Analyse, **keine Implementierung**
 **Leitfrage:** Soll und kann Seiton Brain langfristig ein privates, durchsuchbares
 Wissenssystem werden, auf das ein persönlicher AI-Assistent **kontrolliert**

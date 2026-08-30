@@ -1,9 +1,20 @@
 # ADR 0004: Kommerzielles Produkt — self-hosted Consumer-App (buy-once, BYO-key)
 
-- **Status:** Accepted (Geschäftsmodell) · Detail-Architektur teils offen
+- **Status:** Accepted (Geschäftsmodell) · **teilweise präzisiert durch
+  [ADR 0008](./0008-deployment-models-self-hosted-first.md)** (2026-08-30)
 - **Datum:** 2026-06-21
 - **Entscheider:** Yannik
 - **Bezug:** ergänzt und überschreibt Teile von [ADR 0003](./0003-engine-and-adapters.md)
+
+> **⚠️ Teilweise überholt.** Die Aussagen *„Wir betreiben nichts"*, *„SaaS wurde
+> bewusst verworfen"*, *„kein Abo"* und *„kein Cloud-Dienst"* gelten seit
+> [ADR 0008](./0008-deployment-models-self-hosted-first.md) **nur noch für die
+> self-hosted Edition**, nicht mehr als Dauerprinzip. Eine Managed Seiton Cloud
+> ist ausdrücklich Teil der Produktvision — zeitlich nach einem stabilen Core
+> und realem Nutzerfeedback. Alles Übrige (self-hosted zuerst, buy-once,
+> BYO-Key, UI-first, Long-Polling, Offline-Lizenz, kein n8n-Node) bleibt gültig.
+> Die Geschäftsentscheidung zur Cloud ist weiterhin offen
+> ([ADR 0007](./0007-cloud-edition-subscription.md), *Proposed*).
 
 ## Kontext
 
@@ -20,6 +31,8 @@ Produkt** verkauft werden. Geschäftsmodell-Eckpunkte des Entscheiders:
 - **Bring-your-own-Key**: Kunde nutzt eigene LLM-/Whisper-Konten und API-Keys.
 - **Wir betreiben nichts**: keine fremden Daten, keine Inferenzkosten, keine
   Server-/Uptime-Verantwortung. Wir liefern Software + Bugfixes + Updates.
+  *(Gilt seit [ADR 0008](./0008-deployment-models-self-hosted-first.md) nur für
+  die self-hosted Edition.)*
 - **Zielgruppe: Privatpersonen** (Consumer), nicht Enterprise.
 - **Ziel: weitgehend passives Einkommen** über Produktverkauf.
 
@@ -28,6 +41,9 @@ Rechnungen, „zweites Gehirn"): „Deine Daten verlassen nie deine Maschine" wi
 zum **Verkaufsargument** statt zur Haftungslast. SaaS wurde bewusst verworfen
 (DSGVO-Auftragsverarbeitung für hochsensible Daten, Inferenzkosten-Risiko,
 24/7-Betrieb — siehe „Alternativen").
+*(Seit [ADR 0008](./0008-deployment-models-self-hosted-first.md) aufgehoben: Die
+Managed Cloud ist Teil der Produktvision, nur zeitlich nachgelagert. Die
+genannten Herausforderungen bleiben gültig und sind in ADR 0007 zu entscheiden.)*
 
 ## Zentrale Spannung
 
@@ -49,7 +65,7 @@ Produkts ist Distribution & Einrichtung, nicht der Funktionsumfang.**
    passt zur Always-on-Realität, während eine native Desktop-App auf einem
    nicht-24/7-Laptop dem Anspruch widerspricht. **Datenschutz:** an localhost/LAN
    gebunden, Fernzugriff über privates Netz (Tailscale o. Ä.) — Daten verlassen
-   die Box nie, kein Cloud-Dienst. Eine native Desktop-App ist damit **kein
+   die Box nie, kein Cloud-Dienst *(gilt für die self-hosted Edition; ADR 0008)*. Eine native Desktop-App ist damit **kein
    Nahziel** (evtl. ganz unnötig). **Telegram wird vom Default-Eingang zum
    optionalen Power-Feature** (mobiles Erfassen) — die ADR-0003-Annahme „Telegram
    = Default-Adapter" wird bewusst revidiert.
@@ -142,8 +158,8 @@ Produkts ist Distribution & Einrichtung, nicht der Funktionsumfang.**
 
 | Alternative | Warum nicht? |
 |-------------|--------------|
-| Hosted SaaS | DSGVO-Auftragsverarbeitung für hochsensible Daten, Inferenzkosten-Risiko, 24/7-Betrieb — widerspricht Ziel „passiv, keine fremden Daten" |
-| Abo-Modell | Entscheider will Einmal-Kauf; wir betreiben nichts Laufendes |
+| Hosted SaaS | DSGVO-Auftragsverarbeitung für hochsensible Daten, Inferenzkosten-Risiko, 24/7-Betrieb — widerspricht Ziel „passiv, keine fremden Daten" · **ab ADR 0008 nicht mehr ausgeschlossen, sondern zeitlich nachgelagert (ADR 0007)** |
+| Abo-Modell | Entscheider will Einmal-Kauf; wir betreiben nichts Laufendes · **ab ADR 0008 offen für die Cloud-Edition** |
 | Reines Open-Source ohne Verkauf | Bisheriger Stand; kein Einkommen |
 | n8n-Node bauen/pflegen | Kein Mehrwert für Privatkunden; Wartungslast (eigenes Repo, npm, n8n-Review) |
 | Enterprise-Fokus | Andere Zielgruppe, Vertrieb/Support-intensiv |
@@ -151,5 +167,7 @@ Produkts ist Distribution & Einrichtung, nicht der Funktionsumfang.**
 ## Referenzen
 
 - ADR 0003 (Engine + Adapter): [`0003-engine-and-adapters.md`](./0003-engine-and-adapters.md)
+- **ADR 0008 (Deployment-Modelle, präzisiert diese ADR):** [`0008-deployment-models-self-hosted-first.md`](./0008-deployment-models-self-hosted-first.md)
+- ADR 0007 (Cloud-Edition, Proposed): [`0007-cloud-edition-subscription.md`](./0007-cloud-edition-subscription.md)
 - Roadmap: [`ROADMAP.md`](../../ROADMAP.md)
 - Architektur: [`ARCHITECTURE.md`](../../ARCHITECTURE.md)

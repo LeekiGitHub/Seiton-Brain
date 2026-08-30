@@ -170,6 +170,11 @@ Kein Enterprise-ITSM. Kurzes Runbook:
 
 > Ein Backup zählt erst, wenn ein Restore einmal erfolgreich war.
 
+Dieser Abschnitt deckt den **Betrieb** ab (eine Instanz, ein Backup-Ziel). Die
+spätere nutzersichtbare Produktfähigkeit mit mehreren Zielen, 3-2-1-Policy und
+Backup-Health ist **E48 Backup Guardian** ([`ROADMAP.md`](../ROADMAP.md), nach
+V1.5) — sie baut hierauf auf und ersetzt es nicht.
+
 ---
 
 ## 7. Datenbank-Migrationen (E46-7)

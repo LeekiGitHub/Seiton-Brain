@@ -9,6 +9,20 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **[ADR 0008 — Deployment-Modelle](docs/adr/0008-deployment-models-self-hosted-first.md).**
+  Normative Auflösung des Widerspruchs zwischen ADR 0004 („wir betreiben nichts",
+  „SaaS bewusst verworfen") und ADR 0007 / Phase I: Self-hosting ist ein
+  **Deployment-Modell** und die zuerst ausgelieferte Betriebsform, nicht die
+  Produktidentität; eine Managed Seiton Cloud ist Teil der Produktvision, aber
+  nach V1.5 und **kein V1-Blocker**. Product Core bleibt deployment-neutral —
+  keine Cloud-Abstraktionen, kein Multi-Tenant-Datenmodell, kein Billing auf
+  Vorrat. Isolationsgrenze bleibt die Instanz (nicht irreversibel).
+- **Epic E48 Backup Guardian (Data Protection).** Ein Roadmap-Eintrag für
+  3-2-1-orientierte Datensicherung mit mehreren Zielen, Integritätsprüfung,
+  Backup-Health und Restore-Verifikation — **nach V1.5**, baut auf E29-4/E46-6/
+  E34-3/E31-2 auf. Ausdrücklich **kein** allgemeiner Dateisync und keine eigene
+  Backup-Kryptografie; Build-vs-Buy (restic/rclone/borg) bleibt offen
+  ([`ROADMAP.md`](ROADMAP.md)).
 - **E45-1 / E45-4 Branch Protection und GitHub-Security.** Ruleset *Protect main*
   (PR-Pflicht, CI-Checks, kein Force-Push); Dependabot-Alerts + Security Updates;
   CodeQL Default Setup; Head-Branches werden nach Merge automatisch gelöscht.
@@ -38,6 +52,15 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   Stories E45-1–E45-12 in [`ROADMAP.md`](ROADMAP.md) (parallel zu Phase L).
 
 ### Changed
+- **Produktpositionierung repositoryweit vereinheitlicht (ADR 0008).** README
+  (DE/EN), [`docs/current-state.md`](docs/current-state.md), `SECURITY.md`,
+  [`ROADMAP.md`](ROADMAP.md), `docs/self-hosting.md`, `docs/licensing.md`,
+  `docs/engineering.md`, `docs/integrations/setup-onboarding.md`, die
+  Cursor-Agent-Regel und der Setup-Abschlusstext sagen jetzt konsistent
+  „self-hosted zuerst, Managed Cloud später" statt „ausschließlich self-hosted".
+  ADR 0004 und ADR 0007 verweisen auf ADR 0008; die vier August-Audits sowie
+  `PRODUCT_ARCHITECTURE_REVIEW.md` und `PROJECT_CONTEXT_FOR_REVIEW.md` sind als
+  **HISTORISCH** markiert, damit Agents die aktuelle Quelle eindeutig erkennen.
 - **[`docs/engineering.md`](docs/engineering.md)** um verifizierte Ist-Befunde
   ergänzt (Branch Protection fehlt, Secret Scanning aktiv, Dependabot-Security-
   Updates aus), dazu neue Abschnitte zu lokalem Start/Installer-Realität,

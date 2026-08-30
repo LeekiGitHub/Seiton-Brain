@@ -1,5 +1,13 @@
 # Team Collaboration, Shared Knowledge & Professional Use — Audit 2026-08
 
+> **Klassifikation: HISTORISCH** (Snapshot August 2026). Nicht als geltende
+> Entscheidung lesen. Aktuelle Wahrheit: [`docs/current-state.md`](current-state.md)
+> und [`docs/adr/`](adr/) — für Produktidentität und Deployment insbesondere
+> [ADR 0008](adr/0008-deployment-models-self-hosted-first.md). Die hier
+> formulierte Aussage „Self-Hosting ist bereits das Produkt" ist durch ADR 0008
+> ersetzt: Self-hosting ist die **zuerst ausgelieferte Betriebsform**, nicht die
+> Produktidentität.
+
 **Datum:** 2026-08-18 · **Scope:** Strategie-/Architektur-Analyse + Roadmap-Update
 **Leitfrage:** Kann und sollte Seiton Brain neben persönlicher Nutzung auch für
 kleine Teams, Gruppen und professionelle Nutzung geeignet sein?

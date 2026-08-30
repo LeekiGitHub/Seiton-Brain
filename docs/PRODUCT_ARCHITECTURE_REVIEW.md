@@ -5,6 +5,15 @@
 > **Status:** Analyse und Empfehlung. **Nichts davon ist umgesetzt.** Roadmap,
 > ADRs und Code wurden für dieses Dokument **nicht** verändert.
 > **Zweck:** Grundlage für Produktentscheidungen und externe Zweitmeinung.
+>
+> **Nachtrag 2026-08-30 — teilweise entschieden.** Die Deployment- und
+> Positionierungsfrage aus Abschnitt 18–21 ist inzwischen normativ geklärt:
+> [**ADR 0008**](adr/0008-deployment-models-self-hosted-first.md). Self-hosting
+> ist ein Deployment-Modell und die zuerst ausgelieferte Betriebsform, **nicht**
+> die Produktidentität; eine Managed Seiton Cloud ist ausdrücklich Teil der
+> Produktvision. Formulierungen unten, die Self-Hosting als Produktdefinition
+> oder als „Bedingung" lesen (u. a. Abschnitt 5), sind dadurch überholt.
+> Bei Abweichungen gilt ADR 0008.
 
 Belege sind als `pfad:zeilen` notiert. Wo dieses Dokument von `ARCHITECTURE.md`
 abweicht, gilt der Code — siehe [Abschnitt 8](#8-current-gaps--misunderstandings).
@@ -247,6 +256,13 @@ laut Integrations-Audit bereits bewusst ausgeschlossen.
 ---
 
 ## 5. Product Identity
+
+> **Überholt durch [ADR 0008](adr/0008-deployment-models-self-hosted-first.md).**
+> Geltende Definition: *Seiton Brain ist ein persönliches AI-gestütztes Second
+> Brain. Self-hosting ist die zuerst ausgelieferte Betriebsform und ein starkes
+> Privacy-/Control-Angebot — nicht die Produktidentität. Eine Managed Seiton
+> Cloud ist Teil der Produktvision, kommt aber nach stabilem Core und realem
+> Nutzerfeedback.* Die Analyse unten bleibt als Herleitung erhalten.
 
 **Was ist Seiton?**
 Ein selbst betriebenes persönliches Wissenssystem, das Gedanken, Sprachnotizen
