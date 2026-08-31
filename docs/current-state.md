@@ -47,8 +47,9 @@ Installer: `scripts/install.sh` / `install.ps1`
 
 **Phase L** (Launch-Härtung) + parallel **E45** Engineering.
 
-Nächstes Paket: **E45-5** CodeRabbit (OSS-Plan, kostenlos), danach **E47**
-UI-Inventar (**STOP** für Design-Referenzen).
+Nächstes Paket: **E47-1 + E47-2** UI-Inventar (**STOP** für Design-Referenzen).
+CodeRabbit (E45-5) ist eingerichtet — Workflow triggert Reviews unter 10 Stars
+automatisch (`@coderabbitai full review`).
 
 Offen aus G/H (Auswahl): E21-2 Verkaufskanal, E22-5/6, E23-3/4, E26-3…, E20-3/5 kein Nahziel.
 

@@ -1,0 +1,73 @@
+# Bis das öffentliche Repo ≥ 10 Stars hat, verlangt CodeRabbit einen manuellen
+# Review-Trigger. Diese Action schreibt den Trigger-Kommentar automatisch,
+# damit Cursor-/Solo-PRs ohne Extra-Klick reviewed werden.
+#
+# Ab ≥ 10 Stars: no-op (CodeRabbit auto-reviewed dann selbst).
+# Opt-out: Draft-PR, Titel enthält WIP / [skip review], Label do-not-review.
+
+name: CodeRabbit trigger
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  trigger:
+    if: >
+      github.event.pull_request.draft == false &&
+      !contains(github.event.pull_request.title, 'WIP') &&
+      !contains(github.event.pull_request.title, '[skip review]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger CodeRabbit review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const labels = (pr.labels || []).map((l) => l.name);
+            if (labels.includes("do-not-review")) {
+              core.info("Label do-not-review — skip");
+              return;
+            }
+
+            const { data: repo } = await github.rest.repos.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            if (repo.stargazers_count >= 10) {
+              core.info(
+                `Repo has ${repo.stargazers_count} stars — CodeRabbit auto-reviews; skip trigger`,
+              );
+              return;
+            }
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+            const already = comments.some(
+              (c) =>
+                typeof c.body === "string" &&
+                c.body.includes("@coderabbitai") &&
+                /\breview\b/i.test(c.body),
+            );
+            if (already) {
+              core.info("CodeRabbit trigger already present — skip");
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body:
+                "@coderabbitai full review\n\n" +
+                "<!-- coderabbit-auto-trigger: posted because repo has < 10 stars -->",
+            });
+            core.info("Posted @coderabbitai full review");

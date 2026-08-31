@@ -1,0 +1,70 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# E45-5 — CodeRabbit OSS-Plan (öffentliches Repo, kostenlos).
+# Beratend, nie Merge-Voraussetzung. Gates bleiben: ruff, pytest, pip-audit,
+# Docker-Build, Migrations-Smoke (docs/engineering.md).
+
+language: de-DE
+early_access: false
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  review_details: false
+  collapse_walkthrough: true
+
+  # Öffentliches Repo mit < 10 Stars: CodeRabbit verlangt manuellen Trigger
+  # (`@coderabbitai review` / `full review`). auto_review bleibt an für den
+  # Tag, an dem Stars reichen — bis dahin bewusst kommentieren.
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: true
+    base_branches:
+      - main
+    ignore_title_keywords:
+      - WIP
+      - "[skip review]"
+    labels:
+      - "!do-not-review"
+
+  path_filters:
+    - "!docs/**"
+    - "!vault.example/**"
+    - "!**/*.md"
+    - "!.cursor/**"
+    - "!examples/n8n/**"
+
+  path_instructions:
+    - path: "app/**/*.py"
+      instructions: |
+        Fokus: Security, Logikfehler, Datenintegrität, Secrets in Logs,
+        AuthZ/AuthN, Prompt-Injection-Risiken bei LLM-Eingaben, idempotente
+        Worker-Pfade. Keine Stil-Nits (Ruff läuft in CI). Keine Rewrite-
+        Vorschläge ohne konkreten Bug. Konfig nur über app/config.py / .env.
+    - path: "app/ui/**"
+      instructions: |
+        XSS, Cookie-/Session-Sicherheit, CSRF bei state-changing Routes,
+        keine Secrets in Templates/Static. UI-Redesign nur wenn der PR das
+        ausdrücklich will.
+    - path: "alembic/**"
+      instructions: |
+        Migrationen müssen forward-sicher und reviewbar sein. Keine
+        destruktiven Defaults ohne Rollback-Hinweis.
+    - path: "tests/**/*.py"
+      instructions: |
+        Prüfe, ob kritische Pfade (Auth, Capture, Vault-Schreiben) abgedeckt
+        sind. Keine Secrets in Fixtures.
+
+  tools:
+    # CI führt bereits `ruff check` aus — CodeRabbit überspringt Ruff dann
+    # automatisch. Explizit an, falls CI-Skip ausfällt; nie Merge-Gate.
+    ruff:
+      enabled: true
+    trufflehog:
+      enabled: true
+
+chat:
+  auto_reply: true

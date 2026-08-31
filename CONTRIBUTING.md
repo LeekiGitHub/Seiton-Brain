@@ -86,6 +86,9 @@ docs(security): E11-2 SECURITY.md
 - [ ] [`ROADMAP.md`](ROADMAP.md) Status aktualisiert (🟢 wenn Story fertig)
 - [ ] Bei Architektur-Entscheidungen: ADR in `docs/adr/` erwägen
 - [ ] Manuell getestet, wenn Verhalten sichtbar ändert (Telegram, UI, API)
+- [ ] CodeRabbit: Workflow triggert automatisch (< 10 Stars); Findings nur bei
+      Security/Logik umsetzen — nie als Merge-Blocker
+      ([`docs/engineering.md`](docs/engineering.md))
 
 GitHub füllt beim PR-Erstellen eine Template-Checkliste vor
 ([`.github/pull_request_template.md`](.github/pull_request_template.md)).

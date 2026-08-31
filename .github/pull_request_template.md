@@ -9,3 +9,4 @@
 - [ ] CHANGELOG unter `[Unreleased]` ergänzt
 - [ ] ROADMAP-Status aktualisiert (falls Story)
 - [ ] Manuell getestet: <!-- z. B. Telegram → Vault, /setup, /v1/capture -->
+- [ ] CodeRabbit-Review abwarten (Auto-Trigger-Workflow bzw. ab ≥10 Stars nativ)

@@ -168,36 +168,64 @@ Remote-Leiche. Lokale Kopien: `git fetch --prune` und bei Bedarf `git branch -d`
 
 ---
 
-## CodeRabbit (Evaluation, E45-5)
+## CodeRabbit (E45-5)
 
 **Ziel:** Zweite, vom Implementierungs-Agenten unabhängige Instanz für
 KI-generierten Code — ergänzt, ersetzt nicht Ruff/pytest.
 
-**Eignung (geprüft 2026-08-29):** Das Repo ist öffentlich (MIT) → **Open-Source-Plan**,
-dauerhaft kostenlos, kein Paid-Bedarf vor November 2026. Python wird unterstützt;
-Ruff kann als bereits vorhandener Linter angebunden werden statt dupliziert zu werden.
+**Status (2026-08-31):** Config im Repo (`.coderabbit.yaml`). GitHub App muss
+vom Repo-Owner einmalig freigegeben sein. Open-Source-Plan (öffentliches MIT-Repo),
+dauerhaft kostenlos — kein Paid vor Nov 2026.
 
-**Einschränkung:** Für öffentliche Repos mit **< 10 Stars** verlangt CodeRabbit einen
-**manuellen Review-Trigger** (`@coderabbitai review` im PR). Das Repo hat aktuell 0 Stars
-— Reviews sind also kein Automatismus, sondern ein bewusster Schritt im PR. Für einen
-Solo-Rhythmus von ~1 PR/Tag ist das tragbar.
+**Einschränkung:** Öffentliche Repos mit **< 10 Stars** brauchen einen
+Review-Trigger. Dafür postet [`.github/workflows/coderabbit-trigger.yml`](../.github/workflows/coderabbit-trigger.yml)
+bei `opened` / `ready_for_review` automatisch `@coderabbitai full review`
+(überspringt Drafts, `WIP` / `[skip review]` im Titel, Label `do-not-review`,
+und no-op ab ≥ 10 Stars). Du musst den Trigger nicht mehr selbst tippen.
 
-**Vorgehen:**
+### Einrichtung (einmalig)
 
-1. App auf dem Repo installieren, `.coderabbit.yaml` mit engem Scope (Sprache Deutsch,
-   Fokus Security/Logik/Datenintegrität, Ruff als bestehender Linter, Pfad-Ignores für
-   `docs/`, `vault.example/`)
-2. 5–10 PRs mitlaufen lassen, Signal/Rauschen bewerten
-3. Nur sinnvolle Findings umsetzen (Security, Logik, Regression)
-4. Entscheidung dokumentieren: behalten oder abschalten
+1. [app.coderabbit.ai/login](https://app.coderabbit.ai/login) → **Login with GitHub**
+2. Organisation/Account wählen → Repo **`Seiton-Brain`** freigeben
+   (nur dieses Repo reicht; nicht „All repositories“, falls du das nicht willst)
+3. Fertig. Config kommt aus `.coderabbit.yaml` auf dem Branch unter Review.
+
+Installations-URL (GitHub App direkt):
+https://github.com/apps/coderabbitai
+
+### Pro PR
+
+| Situation | Aktion |
+|-----------|--------|
+| < 10 Stars | Workflow `CodeRabbit trigger` kommentiert automatisch `@coderabbitai full review` |
+| ≥ 10 Stars | CodeRabbit Auto-Review; Workflow ist no-op |
+| Lärm vermeiden | Label `do-not-review`, Titel `WIP` / `[skip review]`, oder Draft |
+| Nachschieben | Bei Bedarf selbst `@coderabbitai review` (inkrementell) oder `full review` |
+
+### Scope der Config
+
+- Sprache **de-DE**, Profil **chill**, kein Poem, kein Request-Changes-Workflow
+- Fokus-Instruktionen für `app/`, UI, Alembic, Tests (Security/Logik/Integrität)
+- Pfad-Ignores: `docs/`, `vault.example/`, Markdown, `.cursor/`, `examples/n8n/`
+- Ruff bleibt an; CodeRabbit überspringt es, wenn CI Ruff schon fährt
+- TruffleHog an (Secret-Scan)
+
+### Evaluation (nächste 5–10 PRs)
+
+1. Mitlaufen lassen, Signal/Rauschen notieren
+2. Nur sinnvolle Findings umsetzen (Security, Logik, Regression)
+3. Entscheidung in diesem Abschnitt dokumentieren: **behalten** oder **abschalten**
+
+**Entscheidung:** _offen — nach 5–10 PRs hier eintragen._
 
 **Darf nichts ersetzen:** `ruff`, `pytest`, `pip-audit`, Docker-Build und
 Migrations-Smoke bleiben die verbindlichen Gates — CodeRabbit ist beratend, nie
-Merge-Voraussetzung. Ebenso wenig ersetzt es die menschliche Produktprüfung.
+Merge-Voraussetzung und kein required Check. Ebenso wenig ersetzt es die
+menschliche Produktprüfung.
 
 **Datenschutz:** Der Dienst sieht Code eines ohnehin öffentlichen Repos — kein
-zusätzliches Risiko. Vor einem etwaigen Wechsel auf **privat** neu bewerten
-(dann Paid-Frage, frühestens Nov 2026).
+zusätzliches Risiko. Vor einem Wechsel auf **privat** neu bewerten (dann
+Paid-Frage, frühestens Nov 2026).
 
 ---
 
