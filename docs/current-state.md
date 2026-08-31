@@ -48,8 +48,8 @@ Installer: `scripts/install.sh` / `install.ps1`
 **Phase L** (Launch-Härtung) + parallel **E45** Engineering.
 
 Nächstes Paket: **E47-1 + E47-2** UI-Inventar (**STOP** für Design-Referenzen).
-CodeRabbit (E45-5) ist eingerichtet — bei PRs mit Code bis ≥10 Stars manuell
-`@coderabbitai full review` triggern.
+CodeRabbit (E45-5) ist eingerichtet — Workflow triggert Reviews unter 10 Stars
+automatisch (`@coderabbitai full review`).
 
 Offen aus G/H (Auswahl): E21-2 Verkaufskanal, E22-5/6, E23-3/4, E26-3…, E20-3/5 kein Nahziel.
 

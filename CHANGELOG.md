@@ -11,8 +11,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ### Added
 - **E45-5 CodeRabbit (OSS-Plan).** `.coderabbit.yaml` (de-DE, chill, Security-/
   Logik-Fokus, Pfad-Ignores für Docs/Vault-Example; kein Request-Changes-
-  Workflow). Beratend, nie Merge-Gate. Bis ≥10 Stars manueller Trigger
-  `@coderabbitai review` / `full review` — Setup und Evaluation in
+  Workflow) plus Workflow
+  [`.github/workflows/coderabbit-trigger.yml`](.github/workflows/coderabbit-trigger.yml),
+  der bei PRs unter 10 Stars automatisch `@coderabbitai full review`
+  kommentiert. Beratend, nie Merge-Gate. Setup und Evaluation in
   [`docs/engineering.md`](docs/engineering.md).
 - **[ADR 0008 — Deployment-Modelle](docs/adr/0008-deployment-models-self-hosted-first.md).**
   Normative Auflösung des Widerspruchs zwischen ADR 0004 („wir betreiben nichts",

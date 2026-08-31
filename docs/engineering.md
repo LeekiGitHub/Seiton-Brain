@@ -177,9 +177,11 @@ KI-generierten Code — ergänzt, ersetzt nicht Ruff/pytest.
 vom Repo-Owner einmalig freigegeben sein. Open-Source-Plan (öffentliches MIT-Repo),
 dauerhaft kostenlos — kein Paid vor Nov 2026.
 
-**Einschränkung:** Öffentliche Repos mit **< 10 Stars** brauchen einen **manuellen
-Trigger**. Bis dahin ist Review ein bewusster PR-Schritt, kein Automatismus.
-Für ~1 PR/Tag ist das tragbar.
+**Einschränkung:** Öffentliche Repos mit **< 10 Stars** brauchen einen
+Review-Trigger. Dafür postet [`.github/workflows/coderabbit-trigger.yml`](../.github/workflows/coderabbit-trigger.yml)
+bei `opened` / `ready_for_review` automatisch `@coderabbitai full review`
+(überspringt Drafts, `WIP` / `[skip review]` im Titel, Label `do-not-review`,
+und no-op ab ≥ 10 Stars). Du musst den Trigger nicht mehr selbst tippen.
 
 ### Einrichtung (einmalig)
 
@@ -195,9 +197,10 @@ https://github.com/apps/coderabbitai
 
 | Situation | Aktion |
 |-----------|--------|
-| < 10 Stars (aktuell) | Im PR kommentieren: `@coderabbitai full review` (erster Lauf) bzw. `@coderabbitai review` (nur neue Commits) |
-| ≥ 10 Stars | Auto-Review auf `main`-PRs (Drafts und Titel mit `WIP` / `[skip review]` werden übersprungen) |
-| Lärm vermeiden | Label `do-not-review` oder Titel `WIP` |
+| < 10 Stars | Workflow `CodeRabbit trigger` kommentiert automatisch `@coderabbitai full review` |
+| ≥ 10 Stars | CodeRabbit Auto-Review; Workflow ist no-op |
+| Lärm vermeiden | Label `do-not-review`, Titel `WIP` / `[skip review]`, oder Draft |
+| Nachschieben | Bei Bedarf selbst `@coderabbitai review` (inkrementell) oder `full review` |
 
 ### Scope der Config
 
