@@ -9,3 +9,4 @@
 - [ ] CHANGELOG unter `[Unreleased]` ergänzt
 - [ ] ROADMAP-Status aktualisiert (falls Story)
 - [ ] Manuell getestet: <!-- z. B. Telegram → Vault, /setup, /v1/capture -->
+- [ ] CodeRabbit: `@coderabbitai full review` (bis ≥10 Stars manuell; optional bei reinen Docs-PRs)
