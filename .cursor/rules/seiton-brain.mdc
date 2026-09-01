@@ -8,7 +8,7 @@ alwaysApply: true
 Personal AI second brain: capture (Telegram/API) → classify → Obsidian vault;
 retrieve (search, RAG `/ask`, digest `/digest`, REST, MCP).
 
-**Produkt:** Öffentliche Entwicklung (MIT, Portfolio). Geplante kommerzielle
+**Produkt:** Öffentliche Entwicklung (MIT). Geplante kommerzielle
 Consumer-Edition — [ADR 0004](docs/adr/0004-commercial-consumer-product.md),
 [ADR 0005](docs/adr/0005-repo-and-license-strategy.md),
 [ADR 0006](docs/adr/0006-consumer-stack-no-sqlite-fork.md) (ein Stack). Name from **Seiton** (整頓).

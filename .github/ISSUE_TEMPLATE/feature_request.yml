@@ -1,49 +1,47 @@
-name: Feature / Story
-description: Neues Verhalten oder Verbesserungsvorschlag
+name: Feature / story
+description: New behavior or improvement suggestion
 title: "[Feature]: "
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Größere Features sollten zur [`ROADMAP.md`](../../ROADMAP.md) passen.
-        Bestehende Stories bitte referenzieren (z. B. `E12-3`).
+        Larger features should align with [ROADMAP.md](../../ROADMAP.md).
+        Reference an existing story when possible (e.g. `E47-1`).
 
   - type: textarea
     id: problem
     attributes:
-      label: Problem / Motivation
-      description: Welches Problem soll gelöst werden? Für wen?
-      placeholder: "Als Self-Hoster möchte ich …"
+      label: Problem / motivation
+      description: What problem should this solve? For whom?
+      placeholder: "As a self-hoster, I want to …"
     validations:
       required: true
 
   - type: textarea
     id: solution
     attributes:
-      label: Vorgeschlagene Lösung
-      description: Optional — wie könnte es umgesetzt werden?
+      label: Proposed solution
+      description: Optional — how might this be implemented?
     validations:
       required: false
 
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternativen
-      description: Was hast du schon erwogen?
+      label: Alternatives considered
     validations:
       required: false
 
   - type: dropdown
     id: phase
     attributes:
-      label: Ungefähre Phase (ROADMAP)
+      label: Rough roadmap area
       options:
-        - Unklar
-        - Phase D — Public Readiness / Doku
-        - Phase E — Ökosystem / Integrationen
-        - Phase F — Retrieval / Q&A
-        - Phase G — Produktisierung
-        - Nur Idee / Backlog
+        - Unclear
+        - Phase L — Launch hardening (E27–E31, E47)
+        - Phase M–O — Ecosystem / Knowledge AI / Teams
+        - Phase I — Managed cloud (future, ADR 0007)
+        - Idea / backlog only
     validations:
       required: false

@@ -1,135 +1,98 @@
-# Mitwirken
+# Contributing
 
-Danke für dein Interesse an Seiton Brain! Das Projekt ist ein **öffentliches
-Portfolio-Repo (MIT)** mit geplanter kommerzieller Edition — siehe
-[ADR 0005](docs/adr/0005-repo-and-license-strategy.md).
+Thanks for your interest in Seiton Brain.
 
----
-
-## Bevor du startest
-
-1. **Kurzstand:** [`docs/current-state.md`](docs/current-state.md)
-2. **Roadmap prüfen:** [`ROADMAP.md`](ROADMAP.md) — gibt es schon eine Story?
-   Historie A–H: [`docs/archive/roadmap-phases-a-h.md`](docs/archive/roadmap-phases-a-h.md)
-3. **Engineering-Workflow:** [`docs/engineering.md`](docs/engineering.md) — Git, CI, Review, KI-Sicherheit (Epic E45)
-4. **Production Operations:** [`docs/production-ops.md`](docs/production-ops.md) — Betrieb nach Release (Epic E46)
-5. **Größere Änderungen:** kurz als Issue anlegen oder im PR referenzieren; vor Architektur-Änderungen [`ARCHITECTURE.md`](ARCHITECTURE.md) + relevante [`docs/adr/`](docs/adr/) lesen
-6. **Sicherheitslücken:** nicht als öffentliches Issue — siehe [`SECURITY.md`](SECURITY.md)
-
-Für reine Self-Hosting-Fragen (Setup, Docker): zuerst
-[`docs/self-hosting.md`](docs/self-hosting.md) und [`docs/setup.md`](docs/setup.md).
+This is a **real product** under active development — not a demo or learning
+exercise. The repository is public under [MIT](LICENSE) while a commercial
+self-hosted edition is planned ([ADR 0005](docs/adr/0005-repo-and-license-strategy.md)).
 
 ---
 
-## Entwicklungsumgebung
+## Maintainer model
+
+Development is led by a **solo maintainer**. There is no large community governance
+layer. That means:
+
+- **Bug reports and small PRs** (docs, tests, clear fixes) are appreciated
+- **Large features** need a [ROADMAP](ROADMAP.md) story or an issue discussion first
+- **Response time** is best-effort, not SLA-backed
+- **Language for new GitHub artifacts:** English (issues, PR titles/descriptions, commit messages on new work)
+
+---
+
+## Before you start
+
+1. **Current state:** [docs/current-state.md](docs/current-state.md)
+2. **Roadmap:** [ROADMAP.md](ROADMAP.md) — is there already a story?
+3. **Engineering workflow:** [docs/engineering.md](docs/engineering.md) (CI, review, CodeRabbit)
+4. **Security issues:** **not** as public issues — see [SECURITY.md](SECURITY.md)
+5. **Architecture changes:** read [ARCHITECTURE.md](ARCHITECTURE.md) and relevant [ADRs](docs/adr/)
+
+Self-hosting questions: [docs/self-hosting.md](docs/self-hosting.md),
+[docs/setup.md](docs/setup.md).
+
+---
+
+## Development setup
 
 ```bash
 git clone https://github.com/LeekiGitHub/Seiton-Brain.git
 cd Seiton-Brain
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt -r requirements-dev.txt
-cp .env.example .env   # Werte für lokale Tests anpassen
-```
-
-Tests und Lint:
-
-```bash
+cp .env.example .env   # adjust for local testing
 pytest
 ruff check app tests
 ```
 
-Optional mit Docker: [`docs/setup.md`](docs/setup.md).
+Docker-based setup: [docs/setup.md](docs/setup.md).
 
 ---
 
-## Branches
+## Branches & pull requests
 
-Trunk-basiertes Modell: **`main` ist geschützt** (Ruleset *Protect main*: PR + CI-Checks). Arbeit auf
-kurzlebigen Branches:
+`main` is protected (PR + CI required). Use short-lived branches:
 
-| Präfix | Verwendung |
-|--------|------------|
-| `feat/` | neues Verhalten |
-| `fix/` | Bugfix |
-| `chore/` | Tooling, Deps, Hygiene |
-| `docs/` | nur Dokumentation |
+| Prefix | Use |
+|--------|-----|
+| `feat/` | new behavior |
+| `fix/` | bugfix |
+| `chore/` | tooling, deps |
+| `docs/` | documentation only |
 
-Eine Story → ein Branch → ein PR. GitHub löscht den Head-Branch nach Merge.
-Es gibt **kein** `develop` / `staging` / `production` — Releases sind Tags auf
-`main`. Deploy-Umgebungen (später Preview/Staging) sind unabhängig von Git-Linien.
+One roadmap story → one branch → one PR. Reference the story ID (e.g. `E47-1`)
+in the title or description.
 
-Details: [`docs/engineering.md`](docs/engineering.md) (E45-1).
+**Commit messages:** [Conventional Commits](https://www.conventionalcommits.org/)
+in English, e.g. `feat(ui): E30-4 toast feedback layer`.
 
-## Pull Requests
+### PR checklist
 
-### Scope
+- [ ] `ruff check app tests` and `pytest` pass
+- [ ] [CHANGELOG.md](CHANGELOG.md) updated under `[Unreleased]` when user-visible
+- [ ] [ROADMAP.md](ROADMAP.md) status updated if completing a story
+- [ ] ADR considered for non-obvious architecture decisions
+- [ ] Manually tested when behavior changes (Telegram, UI, API)
+- [ ] Wait for CodeRabbit review on code PRs (auto-triggered; advisory only)
 
-- **Eine Story → ein PR** (ROADMAP-ID im Titel oder Body nennen, z. B. `E11-3`)
-- Kleine, fokussierte Diffs — kein „Refactor nebenbei“
-- Neue Features: zuerst ROADMAP-Eintrag und/oder Issue, dann Code
-
-### Commit-Messages
-
-Conventional Commits, z. B.:
-
-```
-feat(ui): E19-2 Dashboard unter /dashboard
-fix(api): Path-Traversal bei vault_path
-docs(security): E11-2 SECURITY.md
-```
-
-### PR-Checkliste
-
-- [ ] `ruff check app tests` grün
-- [ ] `pytest` grün (CI führt dasselbe aus)
-- [ ] [`CHANGELOG.md`](CHANGELOG.md) unter `[Unreleased]` ergänzt
-- [ ] [`ROADMAP.md`](ROADMAP.md) Status aktualisiert (🟢 wenn Story fertig)
-- [ ] Bei Architektur-Entscheidungen: ADR in `docs/adr/` erwägen
-- [ ] Manuell getestet, wenn Verhalten sichtbar ändert (Telegram, UI, API)
-- [ ] CodeRabbit: Workflow triggert automatisch (< 10 Stars); Findings nur bei
-      Security/Logik umsetzen — nie als Merge-Blocker
-      ([`docs/engineering.md`](docs/engineering.md))
-
-GitHub füllt beim PR-Erstellen eine Template-Checkliste vor
-([`.github/pull_request_template.md`](.github/pull_request_template.md)).
+Template: [.github/pull_request_template.md](.github/pull_request_template.md).
 
 ---
 
-## Code-Konventionen
+## Code conventions
 
-| Thema | Regel |
-|-------|--------|
-| Config | Secrets nur via `app/config.py` / `.env` — nicht hartcodieren |
-| Celery/DB | Immer `worker_session()` in Tasks (ADR 0001) |
-| Vault-Pfade | `app/vault/paths.py` — Path-Traversal vermeiden |
-| Prompts | Versionierte Dateien unter `prompts/`, nicht inline |
-| Migrationen | Alembic unter `alembic/versions/` committen |
-| `.gitignore` | `/vault/` und `/models/` (root) — nie `app/vault/` ignorieren (ADR 0002) |
-| Sprache | Code/Kommentare oft DE; README DE+EN; User-facing Doku bevorzugt DE |
-
-Details: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`.cursor/rules/seiton-brain.mdc`](.cursor/rules/seiton-brain.mdc).
+| Topic | Rule |
+|-------|------|
+| Config / secrets | Only via `app/config.py` and `.env` — never hardcode |
+| Celery tasks | Use `worker_session()` ([ADR 0001](docs/adr/0001-async-engine-per-celery-task.md)) |
+| Vault paths | `app/vault/paths.py` — prevent path traversal |
+| Prompts | Versioned files under `prompts/` |
+| Migrations | Alembic under `alembic/versions/` |
+| `.gitignore` | `/vault/` and `/models/` at repo root only ([ADR 0002](docs/adr/0002-gitignore-vault-and-models-pitfall.md)) |
 
 ---
 
-## Tests
+## License
 
-- Tests liegen unter `tests/` und laufen **offline** (conftest setzt Test-Env)
-- Sinnvolle Tests für echtes Verhalten — keine trivialen Assert-True-Tests
-- Shell-Skripte: Syntax-Check in `tests/test_scripts.py`
-
----
-
-## Dokumentation
-
-Bei user-sichtbaren Änderungen mitdenken:
-
-- `docs/setup.md`, `docs/self-hosting.md`, `docs/packaging.md`
-- `ARCHITECTURE.md` bei Modul-/Datenfluss-Änderungen
-- `docs/adr/` bei nicht-offensichtlichen Entscheidungen
-
----
-
-## Lizenz
-
-Mit deinem Beitrag stimmst du zu, dass er unter der [MIT-Lizenz](LICENSE) des
-Repos veröffentlicht wird.
+By contributing, you agree that your contributions are licensed under the
+repository's [MIT License](LICENSE).

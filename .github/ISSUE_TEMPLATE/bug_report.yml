@@ -1,37 +1,37 @@
 name: Bug
-description: Etwas funktioniert nicht wie erwartet
+description: Something does not work as expected
 title: "[Bug]: "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Bitte keine **Secrets** (API-Keys, Bot-Token, `.env`-Inhalte) posten.
-        Sicherheitslücken: [`SECURITY.md`](../../SECURITY.md) — nicht hier melden.
+        Do **not** post secrets (API keys, bot tokens, `.env` contents).
+        Security vulnerabilities: see [SECURITY.md](../../SECURITY.md) — do not report here.
 
   - type: textarea
     id: description
     attributes:
-      label: Was ist passiert?
-      description: Kurz beschreiben, was schiefging.
-      placeholder: "Nach dem Senden einer Sprachnachricht bleibt der Worker hängen …"
+      label: What happened?
+      description: Brief description of the problem.
+      placeholder: "After sending a voice message, the worker stops processing …"
     validations:
       required: true
 
   - type: textarea
     id: expected
     attributes:
-      label: Was hast du erwartet?
+      label: What did you expect?
     validations:
       required: true
 
   - type: textarea
     id: steps
     attributes:
-      label: Schritte zur Reproduktion
+      label: Steps to reproduce
       placeholder: |
         1. docker compose up
-        2. Telegram-Nachricht senden
+        2. Send Telegram message
         3. …
     validations:
       required: true
@@ -39,28 +39,29 @@ body:
   - type: dropdown
     id: deploy_mode
     attributes:
-      label: Betriebsmodus
+      label: Deployment mode
       options:
-        - Entwicklung (docker compose)
-        - Consumer / Heim-Box (install.sh)
+        - Development (docker compose)
+        - Consumer / home box (install.sh)
         - VPS (deploy-vps.sh)
-        - Unbekannt / lokal ohne Docker
+        - Local without Docker
+        - Unknown
     validations:
       required: true
 
   - type: input
     id: version
     attributes:
-      label: Commit / Tag / Branch
-      placeholder: "main @ abc1234 oder v0.2.0"
+      label: Commit / tag / branch
+      placeholder: "main @ abc1234 or v0.3.0"
     validations:
       required: false
 
   - type: textarea
     id: logs
     attributes:
-      label: Relevante Logs
-      description: z. B. `docker compose logs worker --tail 50`
+      label: Relevant logs
+      description: e.g. `docker compose logs worker --tail 50`
       render: shell
     validations:
       required: false
@@ -68,7 +69,7 @@ body:
   - type: checkboxes
     id: docs
     attributes:
-      label: Checkliste
+      label: Checklist
       options:
-        - label: Ich habe docs/setup.md und docs/self-hosting.md gelesen
+        - label: I read docs/setup.md and docs/self-hosting.md
           required: false

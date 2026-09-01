@@ -1,6 +1,6 @@
 # Lizenzierung (E21)
 
-Seiton Brain ist aktuell ein **öffentliches MIT-Projekt** (Portfolio-Edition).
+Seiton Brain ist ein **öffentliches MIT-Projekt** (Open-Source-Edition auf GitHub).
 Für die geplante **kommerzielle Consumer-Edition** (buy-once, self-hosted, ADR
 0004) gibt es ein **offline-validierbares** Lizenzformat — **ohne Lizenz-Server**.
 
@@ -8,7 +8,7 @@ Für die geplante **kommerzielle Consumer-Edition** (buy-once, self-hosted, ADR
 
 | Edition | Repo / Default | Lizenz erforderlich |
 |---------|----------------|---------------------|
-| **Open Source / Portfolio** | Öffentliches GitHub-Repo, `SEITON_LICENSE_REQUIRED=false` | Nein (MIT) |
+| **Open Source (MIT)** | Öffentliches GitHub-Repo, `SEITON_LICENSE_REQUIRED=false` | Nein (MIT) |
 | **Consumer (kommerziell)** | Distribution mit Enforcement | Ja (`SEITON_LICENSE_REQUIRED=true`) |
 
 Was im Kauf enthalten ist (Consumer-Edition, Stand Planung):
