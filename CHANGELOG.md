@@ -63,6 +63,8 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   Stories E45-1–E45-12 in [`ROADMAP.md`](ROADMAP.md) (parallel zu Phase L).
 
 ### Changed
+- **Doc contract tests** (`test_contributing_docs`, `test_security_docs`) aligned with
+  English CONTRIBUTING/SECURITY after public presence audit.
 - **Produktpositionierung repositoryweit vereinheitlicht (ADR 0008).** README
   (DE/EN), [`docs/current-state.md`](docs/current-state.md), `SECURITY.md`,
   [`ROADMAP.md`](ROADMAP.md), `docs/self-hosting.md`, `docs/licensing.md`,

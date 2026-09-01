@@ -14,15 +14,15 @@ def test_contributing_md_exists():
 def test_contributing_covers_workflow():
     text = CONTRIBUTING.read_text(encoding="utf-8")
     for needle in (
-        "Pull Requests",
+        "pull requests",
         "pytest",
         "ruff check",
         "CHANGELOG.md",
         "ROADMAP.md",
         "worker_session",
         "SECURITY.md",
-        "kurzlebig",
-        "Protect main",
+        "short-lived",
+        "protected",
     ):
         assert needle in text, f"missing in CONTRIBUTING.md: {needle}"
 

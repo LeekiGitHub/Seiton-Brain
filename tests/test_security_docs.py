@@ -12,8 +12,8 @@ def test_security_md_exists():
 def test_security_md_covers_reporting_and_threat_model():
     text = SECURITY.read_text(encoding="utf-8")
     for needle in (
-        "Schwachstellen melden",
-        "Threat Model",
+        "Reporting a vulnerability",
+        "Threat model",
         "TELEGRAM_ALLOWED_USER_IDS",
         "SEITON_API_KEY",
         "localhost",
