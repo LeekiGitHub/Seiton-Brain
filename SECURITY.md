@@ -1,137 +1,132 @@
-# Sicherheit
+# Security
 
-Seiton Brain wird heute **self-hosted** ausgeliefert: Deine Daten, Keys und der
-Vault bleiben auf deiner Hardware. Es gibt derzeit **keinen** Seiton-Cloud-Dienst
-und keine Telemetrie. Eine Managed Seiton Cloud ist langfristig geplant
-([ADR 0008](docs/adr/0008-deployment-models-self-hosted-first.md)); sie wäre eine
-zusätzliche Betriebsform mit eigenem Sicherheits- und Datenschutzmodell und
-ändert nichts an den Zusagen für die self-hosted Auslieferung.
+Seiton Brain is **self-hosted today**: your data, API keys, and vault stay on
+your infrastructure. There is **no** Seiton-operated cloud service and no
+telemetry. A **managed Seiton Cloud** is planned for the future
+([ADR 0008](docs/adr/0008-deployment-models-self-hosted-first.md)); it would be
+a separate deployment model with its own security and privacy posture and does
+not change commitments for the self-hosted edition.
 
-Diese Datei beschreibt, wie du Sicherheitslücken meldest und welche
-Bedrohungen das Projekt berücksichtigt.
-
----
-
-## Unterstützte Versionen
-
-| Version | Unterstützt |
-|---------|-------------|
-| `main` (aktuell) | ✅ |
-| Ältere Tags | nur bei aktiver Nutzung — bitte auf `main` oder neuesten Tag updaten |
-
-Sicherheitsfixes landen auf `main` und werden im [`CHANGELOG.md`](CHANGELOG.md)
-unter `[Unreleased]` bzw. in Release-Tags dokumentiert.
+This document explains how to report vulnerabilities and what threats the project
+considers.
 
 ---
 
-## Schwachstellen melden
+## Supported versions
 
-**Bitte melde Sicherheitsprobleme nicht als öffentliches GitHub-Issue.**
+| Version | Supported |
+|---------|-----------|
+| `main` (current) | Yes |
+| Older tags | Best-effort — prefer `main` or the latest tag |
 
-1. **Bevorzugt:** [GitHub Security Advisory](https://github.com/LeekiGitHub/Seiton-Brain/security/advisories/new) (Private Meldung)
-2. **Alternativ:** Maintainer per GitHub kontaktieren (Profil-Link im Repo)
-
-Bitte gib an:
-
-- betroffene Version / Commit
-- Schritte zur Reproduktion
-- Auswirkung (z. B. Datenabfluss, RCE, Auth-Bypass)
-- ggf. Proof-of-Concept (vertraulich)
-
-**Ziel:** Erste Rückmeldung innerhalb von **7 Tagen**. Fix-Zeitplan hängt von
-Schweregrad und Komplexität ab — wir stimmen das mit dir ab.
-
-Öffentliche Anerkennung (Credit) nur mit deiner Zustimmung.
+Security fixes land on `main` and are noted in [CHANGELOG.md](CHANGELOG.md)
+under `[Unreleased]` or in release tags.
 
 ---
 
-## Threat Model (Kurz)
+## Reporting a vulnerability
 
-### Was wir schützen wollen
+**Please do not report security issues as public GitHub issues.**
 
-| Asset | Beschreibung |
-|-------|--------------|
-| **Vault-Inhalt** | Persönliche Markdown-Notizen auf Disk |
-| **DB** | Metadaten, Rohtexte, Embeddings (Postgres) |
-| **Secrets** | `.env`: API-Keys, Bot-Token, Webhook-Secret, Lizenzschlüssel |
-| **Telegram-Kanal** | Nur autorisierte Nutzer sollen Nachrichten senden können |
+1. **Preferred:** [GitHub Security Advisory](https://github.com/LeekiGitHub/Seiton-Brain/security/advisories/new) (private report)
+2. **Alternative:** contact the maintainer via GitHub (profile linked from the repo)
 
-### Vertrauensgrenzen
+Include:
+
+- affected version / commit
+- steps to reproduce
+- impact (e.g. data exposure, RCE, auth bypass)
+- proof-of-concept if available (keep it confidential)
+
+**Goal:** first response within **7 days**. Fix timeline depends on severity;
+we will coordinate with you.
+
+Public credit only with your consent.
+
+---
+
+## Threat model (summary)
+
+### Assets
+
+| Asset | Description |
+|-------|-------------|
+| **Vault** | Personal Markdown notes on disk |
+| **Database** | Metadata, raw text, embeddings (PostgreSQL) |
+| **Secrets** | `.env`: API keys, bot token, webhook secret, license key |
+| **Telegram channel** | Only authorized users should send messages |
+
+### Trust boundaries
 
 ```
-[Telegram] ──HTTPS──► [dein Host: API/Worker]
-[Browser localhost] ──► [Setup / Settings / OpenAPI]
-[REST-Client] ──API-Key──► [/v1/*]
-[OpenAI] ◄──HTTPS── [Worker]  (Klassifikation, Whisper, Embeddings)
+[Telegram] ──HTTPS──► [your host: API/worker]
+[Browser localhost] ──► [setup / settings / OpenAPI]
+[REST client] ──API key──► [/v1/*]
+[OpenAI / Ollama] ◄──HTTPS── [worker]  (classification, Whisper, embeddings)
 ```
 
-- **Du** betreibst Docker, Netzwerk, Backups und Reverse-Proxy (VPS).
-- **OpenAI** (oder später Ollama) sieht Prompt-Inhalte — BYO-Key, Daten fließen
-  dorthin nur bei aktivierter Nutzung.
-- **Kein** Seiton-Server für Betrieb oder Lizenzprüfung (offline Ed25519, E21).
+- **You** operate Docker, network, backups, and reverse proxy (VPS).
+- **LLM providers** see prompt content when enabled — BYO key; data flows only
+  when you use those features.
+- **No** Seiton server for operation or license checks (offline Ed25519, E21).
 
-### Implementierte Schutzmaßnahmen
+### Implemented controls
 
-| Bereich | Maßnahme |
-|---------|----------|
-| Telegram-Webhook | Header `X-Telegram-Bot-Api-Secret-Token` muss passen |
-| Telegram-Zugriff | Optionale Allowlist (`TELEGRAM_ALLOWED_USER_IDS`) |
-| Webhook-Body | Größenlimit (`TELEGRAM_WEBHOOK_MAX_BODY_BYTES`) |
-| REST-API `/v1/*` | Deaktiviert ohne `SEITON_API_KEY`; Header `X-Seiton-Api-Key` (timing-safe) |
-| Web-UI `/setup`, `/settings`, … | Nur **localhost**; mit `UI_PASSWORD` Login-Pflicht (Session-Cookie, HMAC-signiert, Brute-Force-Lockout) — `/setup` bleibt immer localhost (E23-1) |
-| Localhost-Guard | **Proxy-sicher, fail-closed** (E27-1): hinter einem lokalen Reverse-Proxy werden `X-Forwarded-For`/`X-Real-IP`/`Forwarded` ausgewertet — remote weitergeleitete Requests erhalten 403; Deploy-Beispiele blocken `/setup` + `/docs` zusätzlich im Proxy |
-| OpenAPI `/docs` | Nur bei gesetztem API-Key oder `SEITON_DEBUG`; nur **localhost** (proxy-sicher wie oben) |
-| Vault-Pfade | Path-Traversal-Schutz (`resolve_vault_file`) |
-| Vault-Schreiben | Atomare Writes (Tempfile + `os.replace`) |
-| Docker | Non-root User im Image (E9-1) |
-| VPS | API bindet auf `127.0.0.1:8000` — TLS via Reverse-Proxy oder Tunnel ([`docs/remote-access.md`](docs/remote-access.md)) |
-| Secrets in Logs | Keys werden nicht geloggt; UI maskiert gespeicherte Werte |
-| Idempotenz | Telegram-`update_id` verhindert Doppelverarbeitung |
+| Area | Measure |
+|------|---------|
+| Telegram webhook | `X-Telegram-Bot-Api-Secret-Token` required |
+| Telegram access | Optional allowlist (`TELEGRAM_ALLOWED_USER_IDS`) |
+| Webhook body | Size limit (`TELEGRAM_WEBHOOK_MAX_BODY_BYTES`) |
+| REST `/v1/*` | Disabled without `SEITON_API_KEY`; timing-safe header check |
+| Web UI | Localhost by default; optional `UI_PASSWORD` (session cookie, HMAC, lockout); `/setup` stays localhost-only |
+| Localhost guard | Proxy-aware, fail-closed (E27-1) |
+| OpenAPI `/docs` | API key or `SEITON_DEBUG`; localhost only |
+| Vault paths | Path traversal protection (`resolve_vault_file`) |
+| Vault writes | Atomic writes (temp file + `os.replace`) |
+| Docker image | Non-root user (E9-1) |
+| VPS | API binds `127.0.0.1:8000` — TLS via reverse proxy or tunnel |
+| Logging | Secrets not logged; UI masks stored values |
+| Idempotency | Telegram `update_id` deduplication |
 
-### Bekannte Grenzen / nicht im Scope
+### Known limits
 
-- **Self-hosted = deine Verantwortung:** Firewall, SSH-Härtung, Backups,
-  `.env`-Dateirechte, Docker-Socket-Zugriff.
-- **Öffentliches MIT-Repo:** Code ist einsehbar; kommerzielle Distribution
-  kann zusätzliche Härtung mitbringen (ADR 0005).
-- **LLM-Prompt-Injection:** Klassifikation/RAG können von bösartigem Input in
-  Nachrichten beeinflusst werden — kein vollständiger Sandbox-Schutz.
-- **Outbound-Webhooks:** URL in `.env` — nur vertrauenswürdige Ziele eintragen.
-- **MCP/n8n-Beispiele:** Externe Integrationen nutzen deinen API-Key lokal.
+- **Self-hosted = your responsibility:** firewall, SSH hardening, backups,
+  `.env` permissions, Docker socket access.
+- **Public MIT repository:** source is visible; commercial distribution may add
+  hardening ([ADR 0005](docs/adr/0005-repo-and-license-strategy.md)).
+- **LLM prompt injection:** classification/RAG can be influenced by malicious
+  user content — not a full sandbox.
+- **Outbound webhooks:** only configure trusted URLs in `.env`.
+- **MCP / n8n examples:** use your API key locally.
 
-Ausführlichere Architektur-Entscheidungen: [`docs/adr/`](docs/adr/).
-
----
-
-## Empfehlungen für Betreiber
-
-1. **`.env` schützen** — `chmod 600`, nicht committen, nicht in Backups unverschlüsselt teilen.
-   Optional At-Rest im OS-Keystore: [`docs/keyring.md`](docs/keyring.md) (E16-5).
-2. **Telegram-Allowlist setzen**, wenn der Webhook öffentlich erreichbar ist.
-3. **`SEITON_API_KEY`** lang und zufällig; API nur aktivieren, wenn nötig.
-4. **VPS:** API nicht direkt auf `0.0.0.0` exposen; Reverse-Proxy/Tunnel mit TLS
-   ([`docs/remote-access.md`](docs/remote-access.md)); Web-UI nur per SSH-Tunnel
-   oder mit `UI_PASSWORD` hinter TLS (E23-1);
-   öffentlich möglichst nur Webhook/Health, nicht Setup/OpenAPI.
-5. **Updates:** `./scripts/update.sh` für Patches.
-6. **Backups:** `./scripts/backup.sh` — Vault + DB enthalten persönliche Daten.
-
-Consumer-Setup: [`docs/self-hosting.md`](docs/self-hosting.md) ·
-VPS: [`docs/vps-deployment.md`](docs/vps-deployment.md) ·
-Remote: [`docs/remote-access.md`](docs/remote-access.md)
+More architecture decisions: [docs/adr/](docs/adr/).
 
 ---
 
-## Security-related Dependencies
+## Recommendations for operators
 
-Wir nutzen `pip`/`requirements.txt` mit gepinnten Versionen wo sinnvoll.
-Bei bekannten CVEs in Dependencies: Issue oder Advisory wie oben melden.
+1. **Protect `.env`** — `chmod 600`, never commit; avoid sharing unencrypted backups.
+   Optional OS keyring: [docs/keyring.md](docs/keyring.md).
+2. **Set Telegram allowlist** if the webhook is reachable from the internet.
+3. **Use a strong `SEITON_API_KEY`**; enable the REST API only when needed.
+4. **VPS:** do not expose the API on `0.0.0.0` without TLS; protect setup/OpenAPI
+   ([docs/remote-access.md](docs/remote-access.md)).
+5. **Updates:** `./scripts/update.sh` for patches.
+6. **Backups:** `./scripts/backup.sh` — vault and DB contain personal data.
 
-## GitHub-Repo (Maintainer)
+Guides: [Self-hosting](docs/self-hosting.md) · [VPS](docs/vps-deployment.md) ·
+[Remote access](docs/remote-access.md)
 
-Kostenlose Public-Repo-Funktionen (E45-4), Stand 2026-08-30:
+---
 
-- Dependabot **Alerts** und **Security Updates**
-- Secret Scanning + Push Protection
-- CodeQL Default Setup
-- Branch-Schutz auf `main` (PR + CI) — siehe [`docs/engineering.md`](docs/engineering.md)
+## Dependencies
+
+Pinned versions in `requirements.txt`; CI runs `pip-audit`. Report vulnerable
+dependencies via the advisory process above.
+
+---
+
+## Repository security features (maintainer)
+
+As of 2026-08-30: Dependabot alerts/updates, secret scanning + push protection,
+CodeQL, branch protection on `main` — see [docs/engineering.md](docs/engineering.md).

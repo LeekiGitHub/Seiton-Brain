@@ -4,9 +4,8 @@ Langfristige Integrations-Ideen für Seiton Brain — **Backlog / Vision**, nich
 alles sofort umsetzen. Architektur-Grundlage: [ADR 0003 — Engine + Adapter](../adr/0003-engine-and-adapters.md)
 und [ADR 0004 — Kommerzielles Produkt](../adr/0004-commercial-consumer-product.md).
 
-> ⚠️ **Produkt-Pivot (ADR 0004):** Seiton wird ein kommerzielles, self-hosted
-> Consumer-Produkt (buy-once, BYO-Key). Schwerpunkt: **UI** (E19), **Packaging**
-> (E20), **Lizenzierung** (E21). **Repo bleibt vorerst public** fürs Portfolio —
+> ⚠️ **Produkt (ADR 0004/0008):** Kommerzielles self-hosted Consumer-Produkt
+> (buy-once, BYO-Key); Managed Cloud später. **Repo bleibt public (MIT)** —
 > siehe [ADR 0005](../adr/0005-repo-and-license-strategy.md). n8n-Custom-Node
 > entfällt; REST-API + Beispiel-Workflows bleiben für Power-User.
 

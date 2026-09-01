@@ -5,6 +5,12 @@
 - **Entscheider:** Yannik
 - **Bezug:** [ADR 0004 — Kommerzielles Produkt](./0004-commercial-consumer-product.md)
 
+> **Öffentliche Kommunikation (2026-09):** README, CONTRIBUTING und SECURITY
+> verwenden nicht mehr das Portfolio-/Lernprojekt-Framing. Die **Lizenz- und
+> Repo-Strategie** in dieser ADR (MIT jetzt, kommerzielle Edition später) bleibt
+> gültig bis eine Product/Legal-Entscheidung sie ändert. Siehe
+> [PUBLIC_GITHUB_PRESENCE_AUDIT.md](../PUBLIC_GITHUB_PRESENCE_AUDIT.md).
+
 ## Kontext
 
 Seiton Brain startete als **öffentliches GitHub-Repo (MIT)** — sinnvoll für

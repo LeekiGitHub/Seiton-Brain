@@ -222,7 +222,7 @@ class Settings(BaseSettings):
     # Kommerzielle Lizenz (E21-1). Leer = keine Lizenz hinterlegt.
     # Format: SEITON1.<payload>.<signature> — siehe docs/licensing.md
     seiton_license_key: str = ""
-    # false = MIT/Portfolio (Default). true = Prozess startet nur mit gueltiger Lizenz.
+    # false = MIT/Open Source (Default). true = Prozess startet nur mit gueltiger Lizenz.
     seiton_license_required: bool = False
 
     # Debug-Modus: u. a. OpenAPI unter /docs auch ohne SEITON_API_KEY (E13-4).

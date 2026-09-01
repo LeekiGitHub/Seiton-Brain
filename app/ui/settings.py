@@ -15,8 +15,8 @@ EDITION_INFO = EditionInfo(
     name="Seiton Brain (Open Source)",
     license="MIT",
     description=(
-        "Öffentliche Entwicklung / Portfolio-Edition. Geplante kommerzielle "
-        "Consumer-Edition bei verkaufsfertigem Produkt (ADR 0004/0005)."
+        "Open-Source-Edition (MIT). Kommerzielle Consumer-Edition ist geplant "
+        "(ADR 0004/0005)."
     ),
 )
 

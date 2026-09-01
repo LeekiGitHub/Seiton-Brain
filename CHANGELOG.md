@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **Public GitHub presence audit** ([`docs/PUBLIC_GITHUB_PRESENCE_AUDIT.md`](docs/PUBLIC_GITHUB_PRESENCE_AUDIT.md)).
+  README, CONTRIBUTING, SECURITY, issue/PR templates, Settings-Edition-Text und
+  `docs/licensing.md` von Portfolio-/Lernprojekt-Framing auf Produktpositionierung
+  umgestellt (EN für öffentliche GitHub-Artefakte). Keine Lizenzänderung.
 - **E45-5 CodeRabbit (OSS-Plan).** `.coderabbit.yaml` (de-DE, chill, Security-/
   Logik-Fokus, Pfad-Ignores für Docs/Vault-Example; kein Request-Changes-
   Workflow) plus Workflow
