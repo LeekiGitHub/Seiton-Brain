@@ -307,16 +307,60 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 | | |
 |---|---|
-| **Zweck** | Wissen wiederfinden — Stichwort, semantisch, Frage-Antwort, Themensynthese |
-| **Screens heute** | `/ask` — Suchformular, Trefferliste, Digest, Chat-Log |
-| **Elemente** | Search hits, Chat-Bubbles (user/assistant), Ladezustand, Quellenliste |
-| **Interaktionen** | Semantik-Toggle, Digest-Zeitraum, scrollendes Chat-Log |
-| **Plattform** | Chat muss auf schmalen Viewports lesbar sein (E40-Vorläufer) |
-| **Suchbegriffe** | `AI chat sources`, `search results list dark`, `RAG citations UI`, `knowledge digest` |
+| **Zweck** | Wissen wiederfinden — über **einen Chat** (RAG, Digest, Suche als Intent) |
+| **Screens heute** | `/ask` — drei getrennte Karten (Suche, Digest, Chat) — **Soll: chat-first** |
+| **Zielbild** | ChatGPT-ähnlicher, cleaner Chat; **kein Pflicht-Vollbild**; global erreichbar |
+| **Plattform** | Desktop: Side-Panel (Cursor/VS Code Copilot) oder Floating; mobil: Vollbild ok |
+| **Suchbegriffe** | `AI chat sources`, `copilot side panel`, `RAG citations`, `collapsible chat drawer` |
 
 ### Deine Referenzen
 
-- [ ] *(noch offen)*
+- [x] Richtung festgehalten + ChatGPT-Referenz (2026-09-02)
+
+**Produkt-Richtung (Entwickler):**
+
+| Aspekt | Entscheidung |
+|--------|--------------|
+| **Paradigma** | **Chat-first** — Suche, Digest und `/ask` über denselben Chat (Intent oder Commands wie Telegram) |
+| **Chat-UI** | Clean wie **ChatGPT** (Nachrichten, Quellen, Aktionen) — **ohne** ChatGPT-Sidebar Pflicht |
+| **Eingabe unten** | Optionen/Modellwahl etc. am **Input-Bereich** (z. B. „Tools“, Modell-Dropdown) |
+| **Einbettung** | Chat **füllt nicht zwingend eine ganze Seite** — von **überall** auslösbar |
+| **Präferenz Layout** | **Side-Panel** (Cursor / VS Code Copilot): rechts/links andockbar, **einklappbar** |
+| **Alternativen** | Floating-Fenster oder Popup — Side-Panel ist Haupt-Vorbild |
+| **Backend** | Bestehende Pipelines (`/api/ui/search`, `/ask`, `/digest`) bleiben; UI vereinheitlichen |
+
+#### R1. ChatGPT — cleaner Chat (ohne Sidebar-Fokus)
+
+![ChatGPT Chat](../ui-references/04-search-chat/01-chatgpt-chat-clean.png)
+
+| | |
+|---|---|
+| **Quelle** | ChatGPT (Web) |
+| **Relevant für Seiton** | Aufgeräumter Chat-Verlauf, Willkommens-Card, Input unten mit „+“ / Tools |
+
+**Was gefällt / was übernehmen:**
+
+- **Cleaner Chat** — Fokus auf Verlauf + Eingabe, wenig Chrome.
+- **Input-Leiste unten** mit Platz für **Optionen** (Anhänge, Tools, später Modellwahl).
+- **Nicht übernehmen:** Pflicht-Sidebar mit Chat-Historie (optional später); volle Seitenbreite
+  als einziges Layout.
+- Nachrichten-Aktionen (Copy, Feedback) als Pattern ok, nicht zwingend V1.
+
+#### R2. Cursor / VS Code Copilot — Side-Panel (konzeptionell)
+
+| | |
+|---|---|
+| **Quelle** | Cursor / VS Code Copilot Chat (kein Screenshot — Nutzer-Referenz) |
+| **Relevant für Seiton** | Andockbares, einklappbares Chat-Panel neben der Haupt-UI |
+
+**Was gefällt / was übernehmen:**
+
+- Chat als **schmales Panel** links/rechts — Hauptinhalt (Dashboard, Notizen) bleibt sichtbar.
+- **Einklappbar** — ein Klick, Chat weg; globaler Trigger (Shortcut/Button) öffnet wieder.
+- Passt zu „von überall ausführbar“ ohne eigenen Vollbild-Screen `/ask`.
+- Umsetzung in Seiton-Dark; Anbindung an E40 Knowledge Chat langfristig.
+
+**Offen für E47-3:** Exakt Floating vs. Side-Panel vs. beides — Side-Panel ist **Präferenz**.
 
 ---
 
@@ -360,7 +404,7 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 - [ ] Bereich 1 — Referenzen
 - [x] Bereich 2 — Referenzen (4 Bilder + Notizen, 2026-09-02)
 - [x] Bereich 3 — Referenzen (Capture + Dashboard, 2026-09-02)
-- [ ] Bereich 4 — Referenzen
+- [x] Bereich 4 — Referenzen (Chat-first, Side-Panel, 2026-09-02)
 - [ ] Bereich 5 — Referenzen
 - [ ] Bereich 6 — Referenzen
 - [ ] PR oder Commit mit ausgefüllten Referenzen → **E47-2 erledigt** → E47-3 freigeben
