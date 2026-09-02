@@ -328,6 +328,8 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 | **Präferenz Layout** | **Side-Panel** (Cursor / VS Code Copilot): rechts/links andockbar, **einklappbar** |
 | **Alternativen** | Floating-Fenster oder Popup — Side-Panel ist Haupt-Vorbild |
 | **Backend** | Bestehende Pipelines (`/api/ui/search`, `/ask`, `/digest`) bleiben; UI vereinheitlichen |
+| **Chat-Historie** | **Keine** persistente, durchsuchbare Chat-History (kein ChatGPT-Sidebar-Archiv) |
+| **Export** | Optional: aktuellen Chat **speichern/exportieren** (z. B. Markdown) — kein Muss für V1 |
 
 #### R1. ChatGPT — cleaner Chat (ohne Sidebar-Fokus)
 
@@ -342,8 +344,8 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 - **Cleaner Chat** — Fokus auf Verlauf + Eingabe, wenig Chrome.
 - **Input-Leiste unten** mit Platz für **Optionen** (Anhänge, Tools, später Modellwahl).
-- **Nicht übernehmen:** Pflicht-Sidebar mit Chat-Historie (optional später); volle Seitenbreite
-  als einziges Layout.
+- **Nicht übernehmen:** Pflicht-Sidebar mit **persistenter Chat-Historie** — Session reicht;
+  optional später **Chat exportieren/speichern** (Markdown o. Ä.), nicht V1-Pflicht.
 - Nachrichten-Aktionen (Copy, Feedback) als Pattern ok, nicht zwingend V1.
 
 #### R2. Cursor / VS Code Copilot — Side-Panel (konzeptionell)
