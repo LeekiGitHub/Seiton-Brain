@@ -76,7 +76,8 @@ Phasen M–O Detail: [`docs/roadmap-phases-m-o.md`](docs/roadmap-phases-m-o.md).
 
 Bei neuen Features: zuerst ROADMAP-Eintrag und/oder Issue, dann Code.
 Vor größeren Architektur-Änderungen: `ARCHITECTURE.md` + relevante ADRs lesen (E45-2).
-UI: bis E47-3 kein eigenmächtiges Redesign; danach `docs/design-system.md` befolgen.
+UI: bis E47-3 kein eigenmächtiges Redesign; Ist-Stand `docs/ui-inventory.md`;
+STOP `docs/ui-reference-request.md`; danach `docs/design-system.md` befolgen.
 
 ## Conventions
 

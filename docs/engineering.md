@@ -12,8 +12,9 @@ Tool-Kosten (Free Tiers / GitHub / OSS).
 **Production-Betrieb nach Release:** [`docs/production-ops.md`](production-ops.md)
 (Releases, Monitoring, Incidents, Recovery, Wartung).
 
-**UI/UX & Designsystem:** Epic **E47** in der ROADMAP — `docs/ui-inventory.md`
-(E47-1) und `docs/design-system.md` (E47-3) entstehen dort und existieren noch nicht.
+**UI/UX & Designsystem:** Epic **E47** — [`docs/ui-inventory.md`](ui-inventory.md)
+(E47-1 🟢), [`docs/ui-reference-request.md`](ui-reference-request.md) (E47-2 STOP),
+`docs/design-system.md` (E47-3, noch nicht vorhanden).
 
 ---
 
