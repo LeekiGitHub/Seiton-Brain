@@ -13,6 +13,8 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   Komponenten, CSS-Tokens, Zustände, API-Oberfläche, Lücken (alert/confirm, keine Toasts).
 - **E47-2 Referenz-STOP** ([`docs/ui-reference-request.md`](docs/ui-reference-request.md)):
   sechs Bereiche mit Anfrage-Vorlage; kein Designsystem bis Entwickler-Input.
+  **Bereich 2 (Setup/Onboarding):** vier Referenz-Screenshots unter
+  `docs/ui-references/02-setup-onboarding/` inkl. Entwickler-Notizen.
 - **Public GitHub presence audit** ([`docs/PUBLIC_GITHUB_PRESENCE_AUDIT.md`](docs/PUBLIC_GITHUB_PRESENCE_AUDIT.md)).
   README, CONTRIBUTING, SECURITY, issue/PR templates, Settings-Edition-Text und
   `docs/licensing.md` von Portfolio-/Lernprojekt-Framing auf Produktpositionierung
@@ -67,7 +69,8 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   Stories E45-1–E45-12 in [`ROADMAP.md`](ROADMAP.md) (parallel zu Phase L).
 
 ### Changed
-- **Doc contract tests** (`test_contributing_docs`, `test_security_docs`) aligned with
+- **E47-2 Bereich 2 (Setup/Onboarding):** Vier Referenz-Screenshots mit
+  Entwickler-Notizen in `docs/ui-reference-request.md`. (`test_contributing_docs`, `test_security_docs`) aligned with
   English CONTRIBUTING/SECURITY after public presence audit.
 - **Produktpositionierung repositoryweit vereinheitlicht (ADR 0008).** README
   (DE/EN), [`docs/current-state.md`](docs/current-state.md), `SECURITY.md`,

@@ -70,7 +70,86 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 ### Deine Referenzen
 
-- [ ] *(noch offen)*
+- [x] Vier Referenzen mit Entwickler-Notizen (2026-09-02)
+
+#### 1. Bezi — Walkthrough + Onboarding-Checkliste
+
+![Bezi: Tooltip + Checkliste](../ui-references/02-setup-onboarding/01-bezi-walkthrough-checklist.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Bezi (Design-Tool) |
+| **Relevant für Seiton** | Kontextuelle Feature-Tooltips mit Spotlight (Hauptfläche abgedunkelt) |
+
+**Was gefällt / was übernehmen:**
+
+- **Tooltips am UI-Element** — Hauptseite leicht abgedunkeln, erklärten Bereich
+  hervorheben, Tooltip passend zum Seiton-Design. Nur **relevante** Features erklären,
+  nicht alles.
+- **Skip** ist Pflicht — jederzeit überspringbar.
+- **Checkliste** (wie unten rechts bei Bezi) ist nett, aber **kein Muss**.
+- **Timing:** Tutorial/Walkthrough **nach dem ersten Anlegen** eines Second Brains /
+  Projekts — **nicht** bei jedem neu erstellten Brain erneut.
+- Nicht übernehmen: aufdringliche Wiederholung bei jedem neuen Vault/Projekt.
+
+#### 2. Plattform-Auswahl — Kachel-Grid (Drittanbieter-Vorkonfiguration)
+
+![Plattform-Kacheln mit Progress](../ui-references/02-setup-onboarding/02-platform-tile-selector.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Referenz-Screenshot (App unbekannt) — nur Layout-Pattern |
+| **Relevant für Seiton** | Minimales Kachel-Grid zur optionalen Vorkonfiguration von Integrationen |
+
+**Was gefällt / was übernehmen:**
+
+- **Einfaches Kachel-Grid** — Nutzer wählt z. B. Google Kalender, Google Sheets, …;
+  im Second Brain wird die Verbindung **vorbereitet** (spätere Integrations-Stories).
+- Schritt muss **komplett skippbar** sein, wenn jemand alles manuell konfigurieren will.
+- Welche Kacheln sinnvoll sind, ist **produktseitig noch offen** (nicht alles auf einmal).
+- Referenz ist das **Pattern** (Kachel-Auswahl, minimalistisch), **nicht** das helle
+  Farbschema — Umsetzung im Seiton-Dark-Look.
+- Progress/Skip/Continue-Struktur aus dem Screenshot ist ok, Fokus liegt auf dem Grid.
+
+#### 3. Doppler — Solo vs. Gruppe (Projekt-Start)
+
+![Doppler: Use-Case-Auswahl](../ui-references/02-setup-onboarding/03-doppler-use-case-step.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Doppler (Secrets/Config) |
+| **Relevant für Seiton** | Eine Entscheidung pro Screen; Projekt-Modus Solo/Team |
+
+**Was gefällt / was übernehmen:**
+
+- **Eine Entscheidung pro Screen** — weniger überladen als lange Formular-Wizards.
+- **Kernidee (wichtiger als Doppler-Branding):** Beim Start eines neuen Projekts/
+  Second Brains wählen: **„Ich alleine“** vs. **„Gruppe/Team“**.
+- Bei **Gruppe:** Folgeschritt **Einladung** — andere einladen; Kooperation beeinflusst
+  Konfiguration im Brain (z. B. **Rechte**) — Anbindung an spätere Phase-O-Stories.
+- **Aufbau** (große Auswahl-Buttons, eine Frage) übernehmen; **Gradient-Hintergrund**
+  optional, kein Muss — Seiton-Design hat Vorrang.
+- Heutiger `/setup` ist instanzweit; Solo/Team ist **Produktvision** (nicht V1-Blocker),
+  aber als Referenz für künftigen Onboarding-Flow festhalten.
+
+#### 4. Lemni — Welcome + grobes Profil
+
+![Lemni: Welcome + Name](../ui-references/02-setup-onboarding/04-lemni-welcome-profile.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Lemni |
+| **Relevant für Seiton** | Welcome-Screen + minimales Profil + Step-Labels |
+
+**Was gefällt / was übernehmen:**
+
+- **Welcome-Screen** am Anfang — klarer Einstieg, nicht sofort technische Keys.
+- **Grobes Profil** (z. B. Name) — Felderanzahl **passend zum Thema**; viele Felder
+  **optional**, nicht alles Pflicht.
+- **Step-Labels** (unten: was noch kommt) — Prinzip übernehmen, **Labels müssen zu
+  Seiton passen** (nicht 1:1 „Workplace / Plan“ von Lemni).
+- Passt zu `/setup` Schritt 0 („Willkommen“) und ggf. erweitertem Erst-Profil vor
+  Vault/OpenAI-Konfiguration.
 
 ---
 
@@ -146,7 +225,7 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 - [ ] App einmal lokal gestartet und alle Screens angesehen (siehe Inventar §9)
 - [ ] Bereich 1 — Referenzen
-- [ ] Bereich 2 — Referenzen
+- [x] Bereich 2 — Referenzen (4 Bilder + Notizen, 2026-09-02)
 - [ ] Bereich 3 — Referenzen
 - [ ] Bereich 4 — Referenzen
 - [ ] Bereich 5 — Referenzen
