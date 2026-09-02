@@ -196,8 +196,8 @@ Vor E30-2/4/5. **E47-2 = STOP** — kein Agent wählt Stil ohne Entwickler-Refer
 
 | ID | Story | Status |
 |----|-------|--------|
-| E47-1 | UI-Inventar & Ist-Aufnahme → `docs/ui-inventory.md` | ⚪ |
-| E47-2 | **STOP — UI-Referenzen vom Entwickler** (~6 Bereiche) | ⚪ |
+| E47-1 | UI-Inventar & Ist-Aufnahme → `docs/ui-inventory.md` | 🟢 |
+| E47-2 | **STOP — UI-Referenzen vom Entwickler** (~6 Bereiche) | 🟡 |
 | E47-3 | Designsystem ableiten → `docs/design-system.md` + Cursor-Rule | ⚪ |
 | E47-4 | Token-Angleichung `app.css` / `setup.css` (schrittweise) | ⚪ |
 | E47-5 | Design-Reifegrad vor E21-2 | ⚪ |
@@ -288,14 +288,13 @@ Meta-Planung**; ab hier wieder ein Paket pro Tag: Branch → Code → Tests → 
 
 | # | Paket | Warum jetzt |
 |---|-------|-------------|
-| 1 | **E47-1 + E47-2** UI-Inventar + **STOP: Referenzen** | vor E30-2/4/5; Input-Sammlung läuft asynchron |
-| 2 | **E45-15** Visual-Smoke-PoC | parallel zur Referenz-Sammlung |
-| 3 | **E45-14** Risikobasierte DoD | nach Smoke-Klarheit |
-| 4 | **E31-3 (+ E31-1)** Log-Hygiene / Voll-Löschung | Puffer ohne UI-Abhängigkeit |
-| 5 | **E47-3** Designsystem ableiten | sobald Referenzen da |
-| 6 | **E30-4 → E30-2 → E30-5/6** | UX auf gemeinsamer Sprache |
+| 1 | **E45-15** Visual-Smoke-PoC | parallel zur Referenz-Sammlung (E47-2) |
+| 2 | **E45-14** Risikobasierte DoD | nach Smoke-Klarheit |
+| 3 | **E31-3 (+ E31-1)** Log-Hygiene / Voll-Löschung | Puffer ohne UI-Abhängigkeit |
+| 4 | **E47-2 → E47-3** Referenzen liefern, dann Designsystem | E47-1 🟢; STOP bis Input in `docs/ui-reference-request.md` |
+| 5 | **E30-4 → E30-2 → E30-5/6** | UX auf gemeinsamer Sprache |
 
-Erledigt: ~~E45-13~~ Roadmap-Hygiene · ~~E45-1 + E45-4~~ Branch Protection + GitHub-Security · ~~E45-5~~ CodeRabbit.
+Erledigt: ~~E45-13~~ Roadmap-Hygiene · ~~E45-1 + E45-4~~ Branch Protection + GitHub-Security · ~~E45-5~~ CodeRabbit · ~~E47-1~~ UI-Inventar.
 
 Danach: E29-4/5/6, E27-5, E46 vor E21-2, dann Phase M → N → O; parallel E21-2.
 **Nicht** in dieser Reihe: E24 (Managed Cloud, nach V1.5 und nach E24-1) und E48

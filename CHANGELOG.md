@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E47-1 UI-Inventar** ([`docs/ui-inventory.md`](docs/ui-inventory.md)): Screens,
+  Komponenten, CSS-Tokens, Zustände, API-Oberfläche, Lücken (alert/confirm, keine Toasts).
+- **E47-2 Referenz-STOP** ([`docs/ui-reference-request.md`](docs/ui-reference-request.md)):
+  sechs Bereiche mit Anfrage-Vorlage; kein Designsystem bis Entwickler-Input.
 - **Public GitHub presence audit** ([`docs/PUBLIC_GITHUB_PRESENCE_AUDIT.md`](docs/PUBLIC_GITHUB_PRESENCE_AUDIT.md)).
   README, CONTRIBUTING, SECURITY, issue/PR templates, Settings-Edition-Text und
   `docs/licensing.md` von Portfolio-/Lernprojekt-Framing auf Produktpositionierung
