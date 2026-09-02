@@ -166,7 +166,7 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 ### Deine Referenzen
 
-- [x] Sieben Referenzen abgelegt — **Capture-Notizen 🟢 · Dashboard-Notizen ausstehend**
+- [x] Sieben Referenzen + Entwickler-Notizen — **Bereich 3 komplett** (2026-09-02)
 - **Richtung (Entwickler):** Schnellnotizen/Capture per **Button**, Navigation oder Shortcut — **global erreichbar**, unabhängig vom aktuellen Screen.
 
 **Produkt-Split (Capture vs. Notizen):**
@@ -256,7 +256,17 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 | **Quelle** | Refero / Supercuts |
 | **Relevant für Seiton** | Linke Sidebar, KPI-Zeile, Tabellen/Charts, leere Zustände, Primary CTA oben |
 
-**Was gefällt / was übernehmen:** *(ausstehend)*
+**Was gefällt / was übernehmen:**
+
+- **Sidebar-Navigation** für Orientierung **innerhalb eines Projekts/Brains** — ähnlich
+  **Obsidian** (Vault-Struktur) oder **VS Code** (Projekt-Kontext), nicht zwingend global
+  statt Topnav; eher ergänzend zur heutigen Topnav wenn Multi-Projekt/Brain kommt.
+- **Charts/Diagramme** als Option sinnvoll (Aktivität, Nutzung) — nicht alles sofort,
+  aber Dashboard soll **Platz für Visualisierungen** lassen.
+- Langfristig **Obsidian-/Notion-artige** Dashboard-Features wünschenswert; Referenz
+  ist Richtung, nicht 1:1 Feature-Parität.
+- **Design/Layout** übernehmen (Karten, KPI-Zeile, Tabellen, leere Zustände) — Farben
+  an Seiton-Dark anpassen.
 
 #### D2. Anam — Sessions-Analytics
 
@@ -267,7 +277,13 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 | **Quelle** | Anam |
 | **Relevant für Seiton** | KPI-Karten, Performance-Zeile, Aktivitäts-Charts, kompakte Sidebar |
 
-**Was gefällt / was übernehmen:** *(ausstehend)*
+**Was gefällt / was übernehmen:**
+
+- **Gleiche Richtung wie D1** — Sidebar, KPI-Karten, Übersicht.
+- Konkretes Beispiel hier: **Diagramme/Graphen** (Session Activity, Minutes Used) —
+  es geht um **Möglichkeit und Design** solcher Charts, nicht um Session-Metriken
+  wie bei Anam.
+- KPI-Zeile mit großen Zahlen + Chart-Zeile darunter als Layout-Pattern übernehmen.
 
 #### D3. Twitch — Creator Discovery Dashboard
 
@@ -278,7 +294,12 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 | **Quelle** | Twitch Creator Dashboard |
 | **Relevant für Seiton** | Breite Sidebar-Navigation, Karten-Grid, Zeitraum-Filter, Empty States mit Icon |
 
-**Was gefällt / was übernehmen:** *(ausstehend)*
+**Was gefällt / was übernehmen:**
+
+- Wieder primär **Layout**: Karten-Grid, gruppierte Metrik-Blöcke, Empty States mit Icon.
+- **Zeitraum-Filter** (z. B. „letzte 7/30 Tage“) für Dashboard-Daten **sinnvoll** —
+  z. B. für „letzte Entries“ / Vault-Aktivität.
+- Breite Twitch-Sidebar nicht 1:1 — Topnav + ggf. projektbezogene Sidebar (siehe D1).
 
 ---
 
@@ -338,7 +359,7 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 - [ ] App einmal lokal gestartet und alle Screens angesehen (siehe Inventar §9)
 - [ ] Bereich 1 — Referenzen
 - [x] Bereich 2 — Referenzen (4 Bilder + Notizen, 2026-09-02)
-- [ ] Bereich 3 — Referenzen
+- [x] Bereich 3 — Referenzen (Capture + Dashboard, 2026-09-02)
 - [ ] Bereich 4 — Referenzen
 - [ ] Bereich 5 — Referenzen
 - [ ] Bereich 6 — Referenzen
