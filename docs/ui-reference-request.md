@@ -437,16 +437,68 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 | | |
 |---|---|
-| **Zweck** | Vault-Notizen durchsuchen, Markdown bearbeiten, löschen |
-| **Screens heute** | `/notes` — Filter, Liste links, Editor rechts (stapelt mobil) |
-| **Elemente** | Filterzeile, klickbare Liste, Monospace-Editor, Speichern/Löschen |
-| **Interaktionen** | Auswahl, Dirty-State, Confirm beim Verwerfen/Löschen |
-| **Plattform** | Zwei-Spalten desktop; eine Spalte &lt;800px — Vorbild für E30-2 Lesemodus |
-| **Suchbegriffe** | `split view notes`, `markdown editor dark`, `file list sidebar`, `obsidian-like web` |
+| **Zweck** | Vault-Notizen lesen, bearbeiten, organisieren — **Obsidian/Notion-Feeling** |
+| **Screens heute** | `/notes` — Filter, Liste links, plain Monospace-Textarea, Speichern/Löschen |
+| **Zielbild** | Master-Detail + **feste Toolbar oben** (Word-Style); Markdown im Vault |
+| **Plattform** | Zwei-Spalten desktop; Lesemodus/Preview (E30-2) später |
+| **Suchbegriffe** | `obsidian editor`, `notion page`, `word ribbon toolbar`, `markdown preview split` |
 
 ### Deine Referenzen
 
-- [ ] *(noch offen)*
+- [x] Richtung festgehalten (2026-09-02) — Screenshots optional nachreichbar
+
+**Produkt-Richtung (Entwickler):**
+
+| Aspekt | Entscheidung |
+|--------|--------------|
+| **Gesamt-UX** | Wie **Obsidian** + **Notion** — übersichtlich, notiz-zentriert, Split-Ansicht |
+| **Layout** | Dateiliste/Navigation links (Obsidian), Editor rechts; Notion-ähnliche Ruhe/Lesbarkeit |
+| **Toolbar** | **Fest oben** (nicht schwebend) — Referenz **Microsoft Word**: Bold, Überschriften, Listen, Link, … |
+| **Format** | **Markdown** bleibt Source of Truth im Vault (wie heute) |
+| **Toolbar-Verhalten** | Wie bei Quicknotes (Bereich 3): Buttons fügen **Markdown-Syntax** ein — kein separates WYSIWYG-Format |
+| **Auto-Save** | Ja für „echte Notizen“ im Editor (explizit gewünscht vs. Quicknotes) |
+| **Notion-Blöcke** | **Nicht** 1:1 — Notion als Inspiration für Layout/Editor-**Gefühl**, nicht Block-Datenmodell |
+
+#### E1. Obsidian — Vault-Editor (konzeptionell)
+
+| | |
+|---|---|
+| **Quelle** | Obsidian |
+| **Relevant für Seiton** | Split: Dateibaum/Liste + Editor; Markdown; Frontmatter/Metadaten |
+
+**Was gefällt / was übernehmen:**
+
+- **Master-Detail:** Notizliste + geöffnete Datei (bestehendes `/notes`-Layout ausbauen).
+- Markdown-Dateien im Vault — Seiton bleibt Obsidian-kompatibel.
+- Ordner/Filter in der Liste; später Graph/Backlinks optional (nicht V1).
+
+#### E2. Notion — Seiten-Editor (konzeptionell)
+
+| | |
+|---|---|
+| **Quelle** | Notion |
+| **Relevant für Seiton** | Aufgeräumter Editor-Raum, klare Typografie, wenig Chrome |
+
+**Was gefällt / was übernehmen:**
+
+- **Visuelle Ruhe** und Fokus auf Inhalt — nicht das Block-JSON-Modell.
+- Titelzeile + Body klar getrennt (analog „Untitled“ / erste Überschrift).
+- Preview/Lesemodus (E30-2) kann Notion-„Page view“ ähneln.
+
+#### E3. Microsoft Word — feste Toolbar oben (konzeptionell)
+
+| | |
+|---|---|
+| **Quelle** | Microsoft Word (Ribbon/Toolbar) |
+| **Relevant für Seiton** | Immer sichtbare Format-Leiste über dem Editor |
+
+**Was gefällt / was übernehmen:**
+
+- **Fixe Toolbar** am oberen Editor-Rand — Bold, Italic, H1–H3, Liste, Link, Code, …
+- Jede Aktion → **Markdown-Markup** im Text (konsistent mit Bereich 3 / C2).
+- Kein volles Word-Ribbon mit 50 Tabs — **schlanke** Zeile, Seiton-Dark.
+
+**Offen für E47-3 / E30-2:** Live-Preview neben Editor vs. Umschalter Edit/Preview — noch nicht entschieden.
 
 ---
 
@@ -474,7 +526,7 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 - [x] Bereich 2 — Referenzen (4 Bilder + Notizen, 2026-09-02)
 - [x] Bereich 3 — Referenzen (Capture + Dashboard, 2026-09-02)
 - [x] Bereich 4 — Referenzen (Chat-first, Side-Panel, 2026-09-02)
-- [ ] Bereich 5 — Referenzen
+- [x] Bereich 5 — Referenzen (Obsidian/Notion/Word-Toolbar, 2026-09-02)
 - [ ] Bereich 6 — Referenzen
 - [ ] PR oder Commit mit ausgefüllten Referenzen → **E47-2 erledigt** → E47-3 freigeben
 
