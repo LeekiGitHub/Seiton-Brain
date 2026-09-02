@@ -44,16 +44,83 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 | | |
 |---|---|
-| **Zweck** | Orientierung zwischen Dashboard, Suche, Notizen, Einstellungen; Vertrauen („lokale Instanz") |
-| **Screens heute** | `base.html` — Topnav, Brand, aktiver Link, Logout |
-| **Elemente** | Horizontale Nav, Seitenbreite (920/1100px), PWA-Titelzeile |
-| **Interaktionen** | Aktiver Zustand, Logout, Setup-Link bei incomplete |
-| **Plattform** | Desktop-Browser primär; PWA `standalone` ohne eigene Tab-Bar |
-| **Suchbegriffe** | `settings app navigation`, `dark sidebar minimal`, `knowledge base nav`, `PWA shell` |
+| **Zweck** | Wechsel zwischen Hauptbereichen; Orientierung **im Projekt/Brain** |
+| **Screens heute** | `base.html` — nur **horizontale Topnav** (Dashboard, Ask, Notes, Settings) |
+| **Zielbild** | **Sidebar + Topbar**; vor Projekt-Einstieg: **Brain/Vault-Auswahl** (Obsidian-Style) |
+| **Plattform** | Desktop/PWA; Chat-Panel (Bereich 4) dockt an Shell an, ersetzt sie nicht |
+| **Quelle Referenzen** | Überwiegend [Refero](https://refero.design) |
 
 ### Deine Referenzen
 
-- [ ] *(noch offen)*
+- [x] Richtung + zwei Refero-Screenshots (2026-09-02)
+
+**Produkt-Richtung (Entwickler):**
+
+| Ebene | Pattern | Vorbild |
+|-------|---------|---------|
+| **Vor dem Projekt** | Auswahl des Second Brain / Vault / Workspace | **Obsidian** Vault-Picker |
+| **Sidebar** | Hauptnavigation zwischen Menüpunkten (Dashboard, Notizen, …) | **Twitch Creator Dashboard**, **ChatGPT** (Icon + Label, aktiv hervorgehoben) |
+| **Topbar** | Kontext, Suche, Aktionen, ggf. Breadcrumbs | **VS Code / Cursor** (schlanke Command-Leiste) |
+| **Im Projekt** | Sidebar + Topbar gemeinsam — Orientierung wie in IDE/Dashboard-Tools | Make-Beispiel: globale Icon-Leiste + kontextuelle Sektionen |
+
+**Heute → Soll:** Topnav-only wird durch **Sidebar (Navigation)** + **Topbar (Werkzeuge/Kontext)** ersetzt; passt zu Bereich 3 (projektbezogene Sidebar für Vault-Struktur kann ergänzend kommen).
+
+#### N1. Twitch Creator Dashboard — Sidebar + Top-Suche
+
+![Twitch Sidebar und Topbar](../ui-references/01-app-shell-nav/01-twitch-creator-sidebar-topbar.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Twitch Creator Dashboard (Refero) |
+| **Relevant für Seiton** | Linke Sidebar mit Sektionen, Collapse; Topbar mit Suche (⌘/), Profil, Aktionen |
+
+**Was gefällt / was übernehmen:**
+
+- **Sidebar** für Haupt-Menüpunkte — klarer aktiver Zustand (lila Highlight → Seiton-Akzent).
+- **Topbar** für globale Suche und Utility (Hilfe, Notifications, User) — nicht alle Menülinks oben.
+- Sidebar **einklappbar** (Icon-only) denkbar.
+- Drei-Spalten-Layout (Varianten-Liste + Preview) **nicht** 1:1 — nur Shell-Pattern Sidebar+Top.
+
+#### N2. Make — Organisation: Icon-Sidebar + Sektions-Nav
+
+![Make Dual-Sidebar](../ui-references/01-app-shell-nav/02-make-org-dual-sidebar.png)
+
+| | |
+|---|---|
+| **Quelle** | Make (Refero) |
+| **Relevant für Seiton** | Schmale Icon-Leiste (Org/Module) + zweite Spalte mit Detail-Navigation |
+
+**Was gefällt / was übernehmen:**
+
+- **Zwei Ebenen:** Icon-Rail (Wechsel grober Bereiche) + Text-Sidebar (Untermenü) —
+  analog: **Brain/Vault-Wahl** vs. **Navigation innerhalb des Brains**.
+- Topbar rechts: **Primary Actions** (+ Create …), Settings, User — Cursor/IDE-Feeling.
+- Farben (lila Make) **nicht** übernehmen — Layout in Seiton-Dark.
+
+#### N3. Obsidian — Vault-Auswahl (konzeptionell)
+
+| | |
+|---|---|
+| **Quelle** | Obsidian (kein Screenshot) |
+| **Relevant für Seiton** | Screen **vor** Projekt-UI: welches Brain/Vault ist aktiv |
+
+**Was gefällt / was übernehmen:**
+
+- Beim Start bzw. Wechsel: **Vault/Brain-Picker** statt sofort voller App-Shell.
+- Erst nach Auswahl: Sidebar+Topbar für Dashboard, Notizen, Chat, Einstellungen.
+- An Solo/Team-Start aus Bereich 2 (Setup) anschlussfähig.
+
+#### N4. ChatGPT / VS Code — Ergänzung zu N1/N2
+
+| | |
+|---|---|
+| **Quelle** | ChatGPT (Sidebar-Stil), VS Code/Cursor (Topbar) — teils bereits Bereich 4 |
+| **Relevant für Seiton** | ChatGPT-ähnliche Sidebar-Gruppierung; IDE-Topbar für Befehle/Suche |
+
+**Was gefällt / was übernehmen:**
+
+- **ChatGPT:** Sidebar als Nav-Container (nicht Chat-History-Pflicht — siehe Bereich 4).
+- **VS Code/Cursor:** Topbar = schmale Aktionszeile; Chat-Panel dockt seitlich (Bereich 4).
 
 ---
 
@@ -403,7 +470,7 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 ## Checkliste für den Entwickler
 
 - [ ] App einmal lokal gestartet und alle Screens angesehen (siehe Inventar §9)
-- [ ] Bereich 1 — Referenzen
+- [x] Bereich 1 — Referenzen (Sidebar+Topbar, 2026-09-02)
 - [x] Bereich 2 — Referenzen (4 Bilder + Notizen, 2026-09-02)
 - [x] Bereich 3 — Referenzen (Capture + Dashboard, 2026-09-02)
 - [x] Bereich 4 — Referenzen (Chat-first, Side-Panel, 2026-09-02)
