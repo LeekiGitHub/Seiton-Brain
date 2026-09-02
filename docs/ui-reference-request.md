@@ -70,7 +70,51 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 ### Deine Referenzen
 
-- [ ] *(noch offen)*
+- [x] Vier Referenzen abgelegt unter `docs/ui-references/02-setup-onboarding/` — **Notizen unten noch ausstehend**
+
+#### 1. Bezi — Walkthrough + Onboarding-Checkliste
+
+![Bezi: Tooltip + Checkliste](../ui-references/02-setup-onboarding/01-bezi-walkthrough-checklist.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Bezi (Design-Tool) |
+| **Relevant für Seiton** | Kontextuelle Tooltips + persistente Checkliste („Welcome …“) statt nur linearer Wizard |
+
+**Was gefällt / was übernehmen:** *(ausstehend — siehe Fragen unten)*
+
+#### 2. Plattform-Auswahl — Kachel-Grid mit Fortschritt
+
+![Plattform-Kacheln mit Progress](../ui-references/02-setup-onboarding/02-platform-tile-selector.jpg)
+
+| | |
+|---|---|
+| **Quelle** | *(App unbekannt — ggf. ergänzen)* |
+| **Relevant für Seiton** | Klarer Schritt mit Progress-Bar, große klickbare Kacheln, Skip + Continue |
+
+**Was gefällt / was übernehmen:** *(ausstehend)*
+
+#### 3. Doppler — Personalisierungs-Schritt
+
+![Doppler: Use-Case-Auswahl](../ui-references/02-setup-onboarding/03-doppler-use-case-step.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Doppler (Secrets/Config) |
+| **Relevant für Seiton** | Eine Frage pro Screen, große Auswahl-Buttons, Dot-Progress, ruhiger Dark-Gradient |
+
+**Was gefällt / was übernehmen:** *(ausstehend)*
+
+#### 4. Lemni — Welcome + minimales Profil
+
+![Lemni: Welcome + Name](../ui-references/02-setup-onboarding/04-lemni-welcome-profile.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Lemni |
+| **Relevant für Seiton** | Starker Welcome-Moment, wenige Felder, Step-Labels unten (Welcome → Workplace → …) |
+
+**Was gefällt / was übernehmen:** *(ausstehend)*
 
 ---
 
