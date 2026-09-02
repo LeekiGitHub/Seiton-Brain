@@ -1,12 +1,12 @@
 # UI-Referenz-Anfrage — STOP (E47-2)
 
-**Status: ⛔ STOP — wartet auf Input vom Entwickler**
+**Status: ✅ Input vorhanden — E47-2 abgeschlossen (2026-09-02). E47-3 freigegeben.**
 
-Bis die sechs Bereiche unten mit Referenzen befüllt sind, gilt:
+Bis zum Abschluss von E47-2 (2026-09-02) galt:
 
 - **Kein** eigenmächtiges Redesign durch Agents oder CI-Tools
-- **Kein** `docs/design-system.md` (E47-3)
-- **Keine** Token-Umstellung in `app.css` / `setup.css` (E47-4)
+- Kein `docs/design-system.md` (E47-3) — **jetzt erlaubt**
+- Keine Token-Umstellung in `app.css` / `setup.css` (E47-4) — weiterhin erst nach E47-3
 - **Keine** visuellen Stilentscheidungen in UI-Stories (E30-2/4/5/6)
 
 Erlaubt bleiben: Bugfixes, Funktionalität, Textkorrekturen, Tests, Doku ohne Stilvorgaben.
@@ -485,6 +485,14 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 - Titelzeile + Body klar getrennt (analog „Untitled“ / erste Überschrift).
 - Preview/Lesemodus (E30-2) kann Notion-„Page view“ ähneln.
 
+**Preview / Edit (Entwickler, 2026-09-02):**
+
+| Modus | Default | Beschreibung |
+|-------|---------|--------------|
+| **Tab Edit \| Preview** | ✅ Ja | Umschalter zwischen Markdown-Quelltext und gerenderter Vorschau |
+| **Split Live-Preview** | Optional | Wie **Xcode**: Editor links, Vorschau rechts, **live** aktualisiert |
+| **Persistenz** | Einstellung | Nutzer wählt Tab-only vs. Split (Preference in Settings oder Editor) |
+
 #### E3. Microsoft Word — feste Toolbar oben (konzeptionell)
 
 | | |
@@ -498,7 +506,7 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 - Jede Aktion → **Markdown-Markup** im Text (konsistent mit Bereich 3 / C2).
 - Kein volles Word-Ribbon mit 50 Tabs — **schlanke** Zeile, Seiton-Dark.
 
-**Offen für E47-3 / E30-2:** Live-Preview neben Editor vs. Umschalter Edit/Preview — noch nicht entschieden.
+**Preview:** siehe Tabelle oben (Tab default + optional Split live).
 
 ---
 
@@ -506,16 +514,72 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 | | |
 |---|---|
-| **Zweck** | Konfiguration, Gesundheit der Instanz, Backup, Lizenz — ohne CLI |
-| **Screens heute** | `/settings` — langes Formular, Badges, Backup-Liste, Reindex |
-| **Elemente** | Status-Badges, Passwort-Felder, `.result` ok/err, `<details>` Restore-Befehle |
-| **Interaktionen** | Test-Buttons, Speichern, Backup/Reindex mit Warte-Feedback |
-| **Plattform** | Breite Formulare; Vorbild für künftige Toasts/Modals (E30-4) |
-| **Suchbegriffe** | `settings page dark`, `system status badges`, `backup list UI`, `toast notification dark` |
+| **Zweck** | Konfiguration, Instanz-Gesundheit, Backup, Lizenz — an Seiton-Inhalte angepasst |
+| **Screens heute** | `/settings` — langes Scroll-Formular, Badges, Backup-Liste |
+| **Zielbild** | **Settings-Sidebar** + Detailbereich (Refero); gruppierte Sektionen; Modals für Aktionen |
+| **Plattform** | Breite Layouts; Status-Badges + klares Feedback (E30-4-Vorläufer) |
+| **Quelle Referenzen** | [Refero](https://refero.design) |
 
 ### Deine Referenzen
 
-- [ ] *(noch offen)*
+- [x] Drei Refero-Screenshots + Richtung (2026-09-02)
+
+**Produkt-Richtung (Entwickler):**
+
+| Aspekt | Entscheidung |
+|--------|--------------|
+| **Layout** | **Linke Settings-Sidebar** (Kategorien) + **Hauptbereich** (Formular/Status) — wie Refero |
+| **Inhalte Seiton** | Vault/Provider, Telegram, API/MCP, Backup/Reindex, Lizenz, Kategorien — **nicht** E-Mail-Rules |
+| **Mehrstufig** | Bei Bedarf **Liste + Detail** (Org-Pattern) z. B. Backups oder Provider |
+| **Modals** | Verbinden/Testen/Speichern in **Fokus-Modal** statt `alert()` |
+| **Feedback** | Info-Banner, Toggles, klare Save-Aktion — Seiton-Dark |
+
+#### S1. Rules / Settings — Sidebar + Detailformular
+
+![Settings Sidebar Rules](../ui-references/06-settings/01-rules-settings-sidebar.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Refero (Rules/Settings) |
+| **Relevant für Seiton** | Gruppierte Sidebar-Nav; Detail rechts; Save oben rechts |
+
+**Was gefällt / was übernehmen:**
+
+- **Kategorien in der Sidebar** (Me / Connect / Work → bei Seiton: Vault, Capture, API, Backup, …).
+- Detailseite mit **klarem Titel**, großzügigem Formular, **Save**-Aktion fix sichtbar.
+- Info-Banner für Hinweise (z. B. „Neustart nötig“ statt Rules-Hinweis).
+- Toggle-Zeilen für boolsche Optionen (Embeddings, Telegram, …).
+
+#### S2. Organizations — drei Spalten + Tabs
+
+![Organizations three-pane](../ui-references/06-settings/02-organizations-three-pane.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Refero (Organizations) |
+| **Relevant für Seiton** | Settings-Nav + Listen-Spalte + Detail mit Unter-Tabs |
+
+**Was gefällt / was übernehmen:**
+
+- **Drei Ebenen** wo sinnvoll: Sidebar → Liste (z. B. Backups) → Detail/Tab-Inhalt.
+- **Tabs im Detail** (Overview / …) für Unterseiten — z. B. Backup-Liste vs. Restore-Hinweise.
+- Nicht überall drei Spalten — nur bei **listenbasierten** Settings (Backups, ggf. Kategorien).
+
+#### S3. Connect account — Modal mit Sektionen
+
+![Connect account modal](../ui-references/06-settings/03-connect-account-modal.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Refero (Connect account / Custom channel) |
+| **Relevant für Seiton** | Modal für „OpenAI testen“, Provider verbinden, strukturierte Gruppen |
+
+**Was gefällt / was übernehmen:**
+
+- **Modal** für fokussierte Flows (Test Key, Telegram testen) — ersetzt blockierende Alerts.
+- **Gruppierte Sektionen** mit Überschrift (Incoming/Outgoing → bei Seiton: Provider/Telegram/API).
+- Toggles pro Option; Primary/Secondary unten (Back / Connect → Abbrechen / Speichern).
+- Provider-Liste (Gmail, …) **nicht** 1:1 — nur Modal-Pattern für Seiton-Integrationen.
 
 ---
 
@@ -527,16 +591,14 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 - [x] Bereich 3 — Referenzen (Capture + Dashboard, 2026-09-02)
 - [x] Bereich 4 — Referenzen (Chat-first, Side-Panel, 2026-09-02)
 - [x] Bereich 5 — Referenzen (Obsidian/Notion/Word-Toolbar, 2026-09-02)
-- [ ] Bereich 6 — Referenzen
-- [ ] PR oder Commit mit ausgefüllten Referenzen → **E47-2 erledigt** → E47-3 freigeben
+- [x] Bereich 6 — Referenzen (Refero Settings, 2026-09-02)
+- [x] Alle sechs Bereiche befüllt → **E47-2 erledigt** → **E47-3 freigeben**
 
 ---
 
-## Für Agents (nach Befüllung)
+## Für Agents (E47-2 abgeschlossen 2026-09-02)
 
-Wenn alle Checkboxen oben erledigt sind:
-
-1. Status-Zeile oben auf **✅ Input vorhanden** ändern
-2. ROADMAP E47-2 auf 🟢 setzen
-3. E47-3 starten: `docs/design-system.md` aus Referenzen + Inventar ableiten
+1. ~~Status-Zeile oben auf **✅ Input vorhanden**~~ — erledigt
+2. ROADMAP E47-2 auf 🟢 setzen (in PR)
+3. **E47-3 starten:** `docs/design-system.md` aus Referenzen + [`ui-inventory.md`](ui-inventory.md) ableiten
 4. Cursor-Rule aktualisieren (Verweis auf `design-system.md`)
