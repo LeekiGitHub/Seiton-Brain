@@ -166,11 +166,90 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 ### Deine Referenzen
 
-- [ ] *(noch offen)*
+- [x] Sieben Referenzen abgelegt unter `docs/ui-references/03-capture-dashboard/` — **Notizen ausstehend**
+- **Richtung (Entwickler):** Schnellnotizen/Capture sollen per **Button** (oder Shortcut) getriggert werden können — nicht nur als feste Textarea auf dem Dashboard.
 
----
+### Capture (Quick Note / Erfassen)
 
-## Bereich 4 — Suche, RAG-Chat & Digest
+#### C1. Refero — schwebendes Quick-Note-Fenster
+
+![Refero Quick Note Modal](../ui-references/03-capture-dashboard/capture/01-refero-quick-note-modal.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Refero |
+| **Relevant für Seiton** | Modal über abgedunkeltem Hintergrund; „Untitled note“, minimaler Editor |
+
+**Was gefällt / was übernehmen:** *(ausstehend)*
+
+#### C2. HR/Refero — Note-Modal mit Toolbar
+
+![Note mit Toolbar](../ui-references/03-capture-dashboard/capture/02-note-editor-toolbar.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Refero (HR-Kontext) |
+| **Relevant für Seiton** | Richer Capture mit Formatierung; „Changes saved“; Privat-Hinweis |
+
+**Was gefällt / was übernehmen:** *(ausstehend)*
+
+#### C3. Create Tag — Keywords für KI
+
+![Create tag Keywords](../ui-references/03-capture-dashboard/capture/03-create-tag-keywords.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Refero |
+| **Relevant für Seiton** | Tags/Keywords beim Erfassen oder kurz danach; KI-Auto-Tagging |
+
+**Was gefällt / was übernehmen:** *(ausstehend)*
+
+#### C4. Task — Dateien nach Typ filtern
+
+![Files in task](../ui-references/03-capture-dashboard/capture/04-task-files-filter.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Refero (Task-Kontext) |
+| **Relevant für Seiton** | Anhänge/Links/Docs gebündelt; Filter-Pills; leerer Zustand |
+
+**Was gefällt / was übernehmen:** *(ausstehend)*
+
+### Dashboard (Übersicht & Aktivität)
+
+#### D1. Refero Supercuts — Sidebar + Metriken
+
+![Supercuts Dashboard](../ui-references/03-capture-dashboard/dashboard/01-refero-supercuts-analytics.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Refero / Supercuts |
+| **Relevant für Seiton** | Linke Sidebar, KPI-Zeile, Tabellen/Charts, leere Zustände, Primary CTA oben |
+
+**Was gefällt / was übernehmen:** *(ausstehend)*
+
+#### D2. Anam — Sessions-Analytics
+
+![Anam Sessions](../ui-references/03-capture-dashboard/dashboard/02-anam-sessions-dashboard.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Anam |
+| **Relevant für Seiton** | KPI-Karten, Performance-Zeile, Aktivitäts-Charts, kompakte Sidebar |
+
+**Was gefällt / was übernehmen:** *(ausstehend)*
+
+#### D3. Twitch — Creator Discovery Dashboard
+
+![Twitch Discovery](../ui-references/03-capture-dashboard/dashboard/03-twitch-discovery-analytics.jpg)
+
+| | |
+|---|---|
+| **Quelle** | Twitch Creator Dashboard |
+| **Relevant für Seiton** | Breite Sidebar-Navigation, Karten-Grid, Zeitraum-Filter, Empty States mit Icon |
+
+**Was gefällt / was übernehmen:** *(ausstehend)*
+
 
 | | |
 |---|---|
