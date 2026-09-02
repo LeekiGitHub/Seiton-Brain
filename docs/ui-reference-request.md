@@ -166,8 +166,18 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 ### Deine Referenzen
 
-- [x] Sieben Referenzen abgelegt unter `docs/ui-references/03-capture-dashboard/` — **Notizen ausstehend**
-- **Richtung (Entwickler):** Schnellnotizen/Capture sollen per **Button** (oder Shortcut) getriggert werden können — nicht nur als feste Textarea auf dem Dashboard.
+- [x] Sieben Referenzen abgelegt — **Capture-Notizen 🟢 · Dashboard-Notizen ausstehend**
+- **Richtung (Entwickler):** Schnellnotizen/Capture per **Button**, Navigation oder Shortcut — **global erreichbar**, unabhängig vom aktuellen Screen.
+
+**Produkt-Split (Capture vs. Notizen):**
+
+| | Quicknotes (Capture) | Richtige Notizen |
+|---|---------------------|------------------|
+| **UI** | Schwebendes Modal/Fenster | Dashboard + `/notes`-Editor |
+| **Speichern** | Explizit absenden (kein Auto-Save) | Auto-Save sinnvoll |
+| **Format** | Markdown (minimal); Toolbar nur wenn sie Markdown-Syntax erzeugt | Markdown; ggf. Toolbar → `**bold**` etc. |
+| **Tags** | Nach Erstellung: manuell, LLM-Vorschlag und/oder rein LLM | wie Vault/Frontmatter heute |
+| **Medien** | PDF ablegen, Foto — wünschenswert | über Vault/Capture-Pipeline |
 
 ### Capture (Quick Note / Erfassen)
 
@@ -180,7 +190,12 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 | **Quelle** | Refero |
 | **Relevant für Seiton** | Modal über abgedunkeltem Hintergrund; „Untitled note“, minimaler Editor |
 
-**Was gefällt / was übernehmen:** *(ausstehend)*
+**Was gefällt / was übernehmen:**
+
+- **Quicknotes:** schwebendes Fenster/Modal (Referenz-Pattern).
+- **Richtige Notizen:** bleiben in der **Dashboard-/Notes-UI**, nicht im Modal.
+- **Global erreichbar** — Button, Nav-Eintrag, Shortcut (⌘K o. Ä.), je nachdem was sich ergibt;
+  von überall auslösbar, nicht nur auf `/dashboard`.
 
 #### C2. HR/Refero — Note-Modal mit Toolbar
 
@@ -191,7 +206,13 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 | **Quelle** | Refero (HR-Kontext) |
 | **Relevant für Seiton** | Richer Capture mit Formatierung; „Changes saved“; Privat-Hinweis |
 
-**Was gefällt / was übernehmen:** *(ausstehend)*
+**Was gefällt / was übernehmen:**
+
+- **Kein Auto-Save bei Quicknotes** — nur bei „echten“ Notizen im Editor sinnvoll.
+- **Markdown bevorzugt** für beide Kontexte.
+- **Toolbar optional**, nur wenn Buttons die passende **Markdown-Syntax** einfügen
+  (z. B. Bold → `**…**`) — kein WYSIWYG/HTML-Zweig.
+- „Changes saved“-Pattern nur für den **Notizen-Editor**, nicht Quick-Capture.
 
 #### C3. Create Tag — Keywords für KI
 
@@ -202,7 +223,11 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 | **Quelle** | Refero |
 | **Relevant für Seiton** | Tags/Keywords beim Erfassen oder kurz danach; KI-Auto-Tagging |
 
-**Was gefällt / was übernehmen:** *(ausstehend)*
+**Was gefällt / was übernehmen:**
+
+- Tags **manuell** setzbar, **LLM schlägt vor** (Kontext) und/oder **rein durch LLM** —
+  Kombination aus Nutzer-Kontrolle und Automatik.
+- **Timing bei Quicknotes:** Tag-Schritt **nach** dem Erstellen (nicht vor dem Absenden blockieren).
 
 #### C4. Task — Dateien nach Typ filtern
 
@@ -213,7 +238,12 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 | **Quelle** | Refero (Task-Kontext) |
 | **Relevant für Seiton** | Anhänge/Links/Docs gebündelt; Filter-Pills; leerer Zustand |
 
-**Was gefällt / was übernehmen:** *(ausstehend)*
+**Was gefällt / was übernehmen:**
+
+- **Filter-Pills nicht übernehmen** — Referenz dient nur dem **Quick-Note-/Modal-Pattern**,
+  nicht der Datei-Kategorisierung.
+- **PDFs schnell ablegen** und **Foto-Capture** wären nice-to-have für Quick-Capture
+  (an bestehende Voice/Foto-Pipeline anknüpfbar, nicht V1-Pflicht).
 
 ### Dashboard (Übersicht & Aktivität)
 
@@ -250,6 +280,9 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 **Was gefällt / was übernehmen:** *(ausstehend)*
 
+---
+
+## Bereich 4 — Suche, RAG-Chat & Digest
 
 | | |
 |---|---|
