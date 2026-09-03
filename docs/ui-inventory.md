@@ -6,8 +6,8 @@ Stand **2026-09-02**, Release **v0.3.0**.
 **Zweck:** Gemeinsame Faktenbasis vor E47-3 (`docs/design-system.md`). Kein Redesign,
 keine Stilentscheidungen — nur was heute existiert, wo es bricht und was fehlt.
 
-**Nächster Schritt (E47-2):** [`ui-reference-request.md`](ui-reference-request.md) —
-Entwickler liefert visuelle Referenzen; bis dahin **STOP** für Design-Arbeit.
+**Designsystem (E47-3):** [`design-system.md`](design-system.md) — verbindlich.
+Referenzen: [`ui-reference-request.md`](ui-reference-request.md).
 
 ---
 

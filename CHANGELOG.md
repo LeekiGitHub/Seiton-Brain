@@ -9,6 +9,10 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 ## [Unreleased]
 
 ### Added
+- **E47-3 Designsystem** ([`docs/design-system.md`](docs/design-system.md) +
+  [`.cursor/rules/ui-design-system.mdc`](.cursor/rules/ui-design-system.mdc)):
+  Prinzipien, Tokens, Shell, Komponenten und Flows aus Inventar + Referenzen;
+  kein CSS-Redesign (das folgt in E47-4).
 - **E47-1 UI-Inventar** ([`docs/ui-inventory.md`](docs/ui-inventory.md)): Screens,
   Komponenten, CSS-Tokens, Zustände, API-Oberfläche, Lücken (alert/confirm, keine Toasts).
 - **E47-2 Referenzen abgeschlossen** — alle sechs Bereiche in

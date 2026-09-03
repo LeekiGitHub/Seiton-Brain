@@ -47,9 +47,9 @@ Installer: `scripts/install.sh` / `install.ps1`
 
 **Phase L** (Launch-Härtung) + parallel **E45** Engineering.
 
-Nächstes Paket: **E47-3** Designsystem (`docs/design-system.md`) aus
-[`docs/ui-reference-request.md`](ui-reference-request.md) + [`docs/ui-inventory.md`](ui-inventory.md).
-Parallel möglich: **E45-15** Visual-Smoke.
+Nächstes Paket: **E45-15** Visual-Smoke-PoC (oder **E47-4** Token-Angleichung /
+**E31-3** Log-Hygiene als Puffer). Designsystem:
+[`docs/design-system.md`](design-system.md) (E47-3 🟢).
 CodeRabbit (E45-5) ist eingerichtet — Workflow triggert Reviews unter 10 Stars
 automatisch (`@coderabbitai full review`).
 
@@ -64,7 +64,7 @@ Kein Desktop-App-Testing · kein breites E2E · kein Paid-Tooling vor 31.10.2026
 
 1. Relevante ROADMAP-Story lesen (aktive Datei, nicht das ganze Archiv).
 2. Bei Architektur: `ARCHITECTURE.md` + passende ADRs (E45-2).
-3. UI-Änderungen: Designsystem aus **E47-3** (`docs/design-system.md`, noch anzulegen);
-   Referenzen: [`docs/ui-reference-request.md`](../docs/ui-reference-request.md) (E47-2 🟢),
-   Ist-Stand: [`docs/ui-inventory.md`](../docs/ui-inventory.md).
+3. UI-Änderungen: [`docs/design-system.md`](design-system.md) befolgen (E47-3);
+   Referenzen [`docs/ui-reference-request.md`](ui-reference-request.md);
+   Ist [`docs/ui-inventory.md`](ui-inventory.md).
 4. Secrets nur via `app/config.py` / `.env`. Eine Story → ein PR.
