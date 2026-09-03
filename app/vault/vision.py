@@ -1,8 +1,8 @@
-"""Optionale Vision-Beschreibung fuer Bilder (E18-6).
+"""Optional vision description for images (E18-6).
 
-Nutzt die OpenAI Chat-API mit Bild-Input (sync), damit der synchrone
-DocumentExtractor-Pfad den Index befuellen kann. Standardmaessig aus
-(Kosten) — analog zu Embeddings.
+Uses the OpenAI Chat API with image input (sync) so the synchronous
+DocumentExtractor path can fill the index. Off by default (cost) — same
+idea as embeddings.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ _MIME_BY_SUFFIX = {
 
 
 def vision_ready() -> bool:
-    """True, wenn Vision konfiguriert und ein OpenAI-API-Key gesetzt ist."""
+    """True if Vision is configured and an OpenAI API key is set."""
     return bool(settings.seiton_vision_enabled) and bool(settings.openai_api_key)
 
 
@@ -57,7 +57,7 @@ def _mime_type(path: Path) -> str:
 
 
 def format_vision_text(result: VisionImageResult) -> str:
-    """Beschreibung + Tags als durchsuchbarer Index-Text."""
+    """Description + tags as searchable index text."""
     parts = [result.description.strip()]
     tags = normalize_tags(result.tags, max_tags=MAX_VISION_TAGS)
     if tags:
@@ -71,7 +71,7 @@ def parse_vision_json(content: str) -> VisionImageResult:
 
 
 def describe_image(path: Path, *, client: OpenAI | None = None) -> VisionImageResult | None:
-    """Bild → Beschreibung/Tags. ``None`` bei Fehler oder wenn Vision aus ist."""
+    """Image → description/tags. ``None`` on error or when Vision is off."""
     if not vision_ready():
         return None
 

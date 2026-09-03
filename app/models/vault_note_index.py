@@ -6,21 +6,21 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
 
-# Vektor-Dimension fuer Embeddings (E17-2). Passt zu OpenAI
-# ``text-embedding-3-small`` (1536 Dim) — dem Default in den Settings. Wird die
-# Spalte/Migration geaendert, muss ``embedding_model`` ein Modell mit gleicher
-# Dimension liefern, sonst schlagen Inserts fehl.
+# Vector dimension for embeddings (E17-2). Matches OpenAI
+# ``text-embedding-3-small`` (1536 dims) — the default in settings. If the
+# column/migration changes, ``embedding_model`` must use a model with the same
+# dimension, otherwise inserts fail.
 EMBEDDING_DIM = 1536
 
 
 class VaultNoteIndex(Base):
-    """DB-Spiegel von Vault-Dateien (E5-1, multi-format ab E18-1).
+    """DB mirror of vault files (E5-1, multi-format from E18-1).
 
-    Wird beim Schreiben/Append/Delete aktualisiert und fuer Keyword-Suche
-    (E17-1) genutzt — statt bei jedem LLM-Aufruf ``rglob`` ueber den Vault.
-    ``doc_type`` unterscheidet die Quelle (markdown, text, pdf, …).
-    ``embedding`` (Notiz-Ebene) bleibt aus Kompatibilitaet; neue Embeddings
-    leben in ``vault_chunk`` (E18-4).
+    Updated on write/append/delete and used for keyword search
+    (E17-1) — instead of ``rglob`` over the vault on every LLM call.
+    ``doc_type`` distinguishes the source (markdown, text, pdf, …).
+    ``embedding`` (note-level) remains for compatibility; new embeddings
+    live in ``vault_chunk`` (E18-4).
     """
 
     __tablename__ = "vault_note_index"

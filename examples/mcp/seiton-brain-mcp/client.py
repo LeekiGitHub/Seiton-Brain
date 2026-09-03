@@ -1,7 +1,7 @@
-"""HTTP-Client fuer die Seiton-Brain REST-API (E17-5).
+"""HTTP client for the Seiton Brain REST API (E17-5).
 
-Wird vom MCP-Server genutzt; keine Engine-Logik hier — nur duenne
-API-Wrapper, damit Cursor/Claude Desktop den Vault als Tool nutzen koennen.
+Used by the MCP server; no engine logic here — thin API wrappers so
+Cursor/Claude Desktop can use the vault as a tool.
 """
 
 from __future__ import annotations

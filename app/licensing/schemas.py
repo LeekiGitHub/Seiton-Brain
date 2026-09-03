@@ -1,4 +1,4 @@
-"""Pydantic-Schemas fuer Lizenzschlüssel (E21-1)."""
+"""Pydantic schemas for license keys (E21-1)."""
 
 from datetime import date
 
@@ -6,17 +6,17 @@ from pydantic import BaseModel, Field
 
 
 class LicensePayload(BaseModel):
-    """Signierter Inhalt eines Lizenzschlüssels."""
+    """Signed payload of a license key."""
 
-    edition: str = Field(description="z. B. consumer, pro")
-    licensee: str = Field(description="Käufer-Identifikator (E-Mail o. ä.)")
+    edition: str = Field(description="e.g. consumer, pro")
+    licensee: str = Field(description="Buyer identifier (email etc.)")
     issued: date
     expires: date | None = None
     features: list[str] = Field(default_factory=list)
 
 
 class LicenseInfo(BaseModel):
-    """Ergebnis der Offline-Pruefung."""
+    """Result of offline verification."""
 
     valid: bool
     edition: str | None = None

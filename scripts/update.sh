@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Auto-Update fuer Seiton Brain (E20-4).
+# Auto-update for Seiton Brain (E20-4).
 #
-# Holt Git-Aenderungen, baut Container neu, fuehrt Migrationen aus.
-# Erkennt Consumer- vs. VPS-Modus (SEITON_DEPLOY_MODE in .env).
+# Pulls git changes, rebuilds containers, runs migrations.
+# Detects consumer vs VPS mode (SEITON_DEPLOY_MODE in .env).
 #
-# Aufruf (im Repo-Root):
-#   ./scripts/update.sh              # Backup + Update
-#   ./scripts/update.sh --check      # nur pruefen, ob Updates verfuegbar
-#   ./scripts/update.sh --no-backup  # ohne vorheriges Backup
+# Usage (repo root):
+#   ./scripts/update.sh              # Backup + update
+#   ./scripts/update.sh --check      # check only whether updates are available
+#   ./scripts/update.sh --no-backup  # skip prior backup
 #
-# Optional per Cron/systemd — siehe deploy/seiton-update.{service,timer}
+# Optional via cron/systemd — see deploy/seiton-update.{service,timer}
 
 set -euo pipefail
 

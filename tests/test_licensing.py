@@ -1,4 +1,4 @@
-"""Tests fuer Offline-Lizenzierung (E21-1)."""
+"""Tests for offline licensing (E21-1)."""
 
 from datetime import date, timedelta
 from unittest.mock import patch

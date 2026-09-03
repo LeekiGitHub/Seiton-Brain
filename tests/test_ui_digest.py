@@ -1,4 +1,4 @@
-"""Tests fuer Digest in der Web-UI (E22-3)."""
+"""Tests for digest in the web UI (E22-3)."""
 
 from unittest.mock import AsyncMock, patch
 

@@ -1,4 +1,4 @@
-"""Tests fuer Whisper-Transkription (E6-3)."""
+"""Tests for Whisper transcription (E6-3)."""
 
 from unittest.mock import AsyncMock, MagicMock, patch
 

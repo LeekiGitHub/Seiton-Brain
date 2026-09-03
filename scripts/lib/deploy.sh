@@ -1,4 +1,4 @@
-# Gemeinsame Deploy-Hilfen (E20-1/2/4) — von install, doctor, update genutzt.
+# Shared deploy helpers (E20-1/2/4) — used by install, doctor, update.
 
 read_env_var() {
   local key="$1"
@@ -16,7 +16,7 @@ resolve_deploy_mode() {
   printf '%s' "${mode:-consumer}"
 }
 
-# Setzt COMPOSE_FILES und COMPOSE_PROFILE (Array) fuer den aktuellen Modus.
+# Sets COMPOSE_FILES and COMPOSE_PROFILE (array) for the current mode.
 load_compose_config() {
   local mode="${1:-$(resolve_deploy_mode)}"
   if [[ "$mode" == "vps" ]]; then

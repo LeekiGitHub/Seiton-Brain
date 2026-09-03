@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Startet Docker Compose und injiziert Secrets aus dem OS-Keystore (E16-5).
+# Start Docker Compose and inject secrets from the OS keystore (E16-5).
 #
-# Aufruf (Repo-Root):
+# Usage (repo root):
 #   ./scripts/seiton-up.sh
 #   ./scripts/seiton-up.sh down
 #
-# Wenn SEITON_KEYRING=true in .env: Keys kommen von ``seiton keyring-export``
-# und werden via deploy/compose.keyring.yml in die Container injiziert.
-# Sonst: normales Compose (Secrets aus .env wie bisher).
+# If SEITON_KEYRING=true in .env: keys come from ``seiton keyring-export``
+# and are injected via deploy/compose.keyring.yml.
+# Otherwise: normal Compose (secrets from .env as before).
 
 set -euo pipefail
 

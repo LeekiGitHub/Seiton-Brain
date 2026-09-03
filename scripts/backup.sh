@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Lokales Backup: Postgres-Dump + Vault-Snapshot (tar.gz).
+# Local backup: Postgres dump + vault snapshot (tar.gz).
 #
-# Voraussetzung: Docker Compose-Stack laeuft (`docker compose up -d`),
-# insbesondere der `db`-Service.
+# Prerequisite: Docker Compose stack is running (`docker compose up -d`),
+# especially the `db` service.
 #
-# Aufruf:
+# Usage:
 #   ./scripts/backup.sh              # -> backups/seiton-YYYYMMDD-HHMMSS/
-#   ./scripts/backup.sh /pfad/zu/dir # eigenes Zielverzeichnis
+#   ./scripts/backup.sh /path/to/dir # custom destination directory
 #
-# Inhalt pro Backup-Ordner:
-#   postgres.sql   — pg_dump der seitonbrain-Datenbank
-#   vault.tar.gz   — Archiv von OBSIDIAN_VAULT_HOST_PATH (falls gesetzt)
-#   manifest.txt   — Metadaten zum Restore
+# Per backup folder:
+#   postgres.sql   — pg_dump of the seitonbrain database
+#   vault.tar.gz   — archive of OBSIDIAN_VAULT_HOST_PATH (if set)
+#   manifest.txt   — restore metadata
 
 set -euo pipefail
 

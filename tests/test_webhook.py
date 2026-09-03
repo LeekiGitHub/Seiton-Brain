@@ -211,8 +211,8 @@ def test_webhook_silently_drops_duplicate_update(mock_task, mock_send, mock_dup)
 def test_webhook_dispatches_slash_command_without_enqueue(
     mock_handle, mock_task, mock_send, mock_dup
 ):
-    """Slash-Commands gehen direkt durch handle_command, nicht in den
-    Celery-Worker — kein LLM-Call, keine Notiz-Anlage."""
+    """Slash commands go straight through handle_command, not the
+    Celery worker — no LLM call, no note creation."""
     mock_handle.return_value = "Letzte Notizen: ..."
 
     response = client.post(
@@ -243,7 +243,7 @@ def test_webhook_dispatches_slash_command_without_enqueue(
 @patch("app.telegram.webhook.handle_command", new_callable=AsyncMock)
 @patch("app.telegram.webhook.process_ask_message_task")
 def test_webhook_ask_command_enqueues_rag(mock_ask, mock_handle, mock_send, mock_dup):
-    """`/ask` geht in den Worker (LLM-Call), NICHT synchron durch handle_command."""
+    """`/ask` goes to the worker (LLM call), NOT synchronously via handle_command."""
     response = client.post(
         "/webhook",
         json={
@@ -287,7 +287,7 @@ def test_webhook_ask_without_question_shows_usage(mock_ask, mock_send, mock_dup)
 @patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
 @patch("app.telegram.webhook.process_ask_message_task")
 def test_webhook_ask_strips_bot_suffix(mock_ask, mock_send, mock_dup):
-    """`/ask@BotName frage` -> Bot-Suffix wird ignoriert, Frage bleibt."""
+    """`/ask@BotName question` -> bot suffix ignored, question kept."""
     response = client.post(
         "/webhook",
         json={
@@ -353,8 +353,8 @@ def test_webhook_digest_without_topic_shows_usage(mock_digest, mock_send, mock_d
 def test_webhook_normal_text_still_goes_to_worker(
     mock_handle, mock_task, mock_send, mock_dup
 ):
-    """Sanity: nicht-Command-Text loest weiterhin den Worker aus
-    (kein versehentlicher Command-Dispatch)."""
+    """Sanity: non-command text still triggers the worker
+    (no accidental command dispatch)."""
     response = client.post(
         "/webhook",
         json={
@@ -408,7 +408,7 @@ def test_webhook_rejects_oversized_body(monkeypatch):
 @patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
 @patch("app.telegram.webhook._is_duplicate_update", new_callable=AsyncMock, return_value=False)
 def test_webhook_accepts_body_under_limit(mock_dup, mock_send, mock_task, monkeypatch):
-    """Sanity: knapp unter dem Limit geht durch."""
+    """Sanity: just under the limit still passes."""
     monkeypatch.setattr(settings, "telegram_webhook_max_body_bytes", 10_000)
     response = client.post(
         "/webhook",
@@ -477,8 +477,8 @@ def test_webhook_silently_ignores_callback_query(mock_send, mock_task):
 @patch("app.telegram.webhook.process_text_message_task")
 @patch("app.telegram.webhook.send_message", new_callable=AsyncMock)
 def test_webhook_silently_ignores_unknown_update_shape(mock_send, mock_task):
-    """Vollkommen unbekanntes Update — wir 200en trotzdem, damit Telegram
-    nicht retried."""
+    """Completely unknown update — still return 200 so Telegram
+    does not retry."""
     response = client.post(
         "/webhook",
         json={"update_id": 5003, "some_future_field": {"foo": "bar"}},

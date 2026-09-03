@@ -1,10 +1,10 @@
-# Consumer-Installer fuer Seiton Brain (E20-1) — Windows (PowerShell).
+# Consumer installer for Seiton Brain (E20-1) — Windows (PowerShell).
 #
-# Voraussetzung: Docker Desktop laeuft.
-# Aufruf (im Repo-Root, PowerShell):
+# Prerequisite: Docker Desktop running.
+# Usage (repo root, PowerShell):
 #   .\scripts\install.ps1
 # Optional:
-#   $env:VAULT_DIR = "C:\Users\Du\SeitonBrain\vault"; .\scripts\install.ps1
+#   $env:VAULT_DIR = "C:\Users\You\SeitonBrain\vault"; .\scripts\install.ps1
 
 $ErrorActionPreference = "Stop"
 

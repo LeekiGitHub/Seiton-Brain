@@ -1,8 +1,8 @@
-"""VaultBackend-Abstraktion (E15-1, ADR 0003).
+"""VaultBackend abstraction (E15-1, ADR 0003).
 
-Service-Layer und UI sprechen das Protocol an; die Default-Implementierung
-ist Filesystem-Markdown unter ``OBSIDIAN_VAULT_PATH``. Weitere Backends
-(Git, S3, …) docken spaeter an dieselbe Schnittstelle an.
+Service layer and UI talk to the Protocol; the default implementation
+is filesystem Markdown under ``OBSIDIAN_VAULT_PATH``. Further backends
+(Git, S3, …) plug into the same interface later.
 """
 
 from __future__ import annotations
@@ -16,23 +16,23 @@ from app.llm.schemas import ClassificationResult
 @runtime_checkable
 class VaultBackend(Protocol):
     def write_note(self, result: ClassificationResult) -> str:
-        """Neue Notiz anlegen. Liefert vault-relativen Pfad (z. B. ``Ideas/X.md``)."""
+        """Create a new note. Return vault-relative path (e.g. ``Ideas/X.md``)."""
 
     def append_to_note(self, vault_path: str, result: ClassificationResult) -> str:
-        """Update-Block an bestehende Notiz anhaengen. Liefert denselben Relativpfad."""
+        """Append an update block to an existing note. Return the same relative path."""
 
     def save_note_content(self, vault_path: str, content: str) -> str:
-        """Notizinhalt atomar ueberschreiben (UI-Editor)."""
+        """Atomically overwrite note content (UI editor)."""
 
     def delete_note(self, vault_path: str) -> bool:
-        """Loescht die Notiz falls vorhanden. ``True`` bei Loeschung."""
+        """Delete the note if present. ``True`` if deleted."""
 
     def note_exists(self, vault_path: str) -> bool:
-        """Ob die Notiz im Backend vorhanden ist."""
+        """Whether the note exists in the backend."""
 
 
 def get_vault_backend() -> VaultBackend:
-    """Factory analog zu ``get_llm_provider``."""
+    """Factory analogous to ``get_llm_provider``."""
     name = settings.vault_backend.strip().lower()
     if name in ("filesystem", "fs", "obsidian"):
         from app.vault.filesystem import FilesystemVaultBackend

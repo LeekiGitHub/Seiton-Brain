@@ -1,14 +1,14 @@
-"""Seiton Brain MCP-Server (E17-6, E22-4).
+"""Seiton Brain MCP server (E17-6, E22-4).
 
-Exponiert ``search_notes``, ``ask_brain``, ``get_note``, ``capture_note``
-und ``digest`` als MCP-Tools — duenne Wrapper um die REST-API (E17-5).
-Kein Embedding/RAG in diesem Prozess.
+Exposes ``search_notes``, ``ask_brain``, ``get_note``, ``capture_note``
+and ``digest`` as MCP tools — thin wrappers around the REST API (E17-5).
+No embedding/RAG in this process.
 
-Start (stdio, fuer Cursor / Claude Desktop)::
+Start (stdio, for Cursor / Claude Desktop)::
 
     SEITON_API_KEY=... python server.py
 
-Cursor-Konfiguration siehe ``README.md`` in diesem Ordner.
+Cursor config: see ``README.md`` in this folder.
 """
 
 from __future__ import annotations
@@ -152,5 +152,5 @@ async def digest(
 
 
 if __name__ == "__main__":
-    # Kein print() — wuerde den stdio JSON-RPC-Stream stoeren.
+    # No print() — would corrupt the stdio JSON-RPC stream.
     mcp.run(transport="stdio")

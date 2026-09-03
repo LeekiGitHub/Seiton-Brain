@@ -1,4 +1,4 @@
-"""Tests fuer Voice-Dateigroessen-Limit (E6-1)."""
+"""Tests for voice file-size limit (E6-1)."""
 
 from unittest.mock import AsyncMock, patch
 

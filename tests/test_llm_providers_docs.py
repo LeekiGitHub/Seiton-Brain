@@ -1,4 +1,4 @@
-"""Smoke-Tests fuer LLM-Provider-Doku (E7-2)."""
+"""Smoke tests for LLM provider docs (E7-2)."""
 
 from pathlib import Path
 

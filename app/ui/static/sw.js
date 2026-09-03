@@ -1,9 +1,8 @@
-// Service Worker (E23-2): macht die UI installierbar.
+// Service Worker (E23-2): makes the UI installable.
 //
-// Strategie bewusst schlank: statische Assets cache-first (mit Refresh im
-// Hintergrund), alles andere (HTML/API) geht immer ans Netz — die UI ist
-// server-gerendert und ohne Server nicht sinnvoll nutzbar. Offline-Queue
-// fuer Captures ist E23-3.
+// Intentionally lean strategy: static assets cache-first (with background
+// refresh); everything else (HTML/API) always hits the network — the UI is
+// server-rendered and not useful offline. Offline capture queue is E23-3.
 
 const CACHE_NAME = "seiton-static-v1";
 const STATIC_PREFIX = "/ui/static/";

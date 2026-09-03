@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Telegram-Webhook fuer VPS-Betrieb registrieren (E20-2).
+# Register Telegram webhook for VPS mode (E20-2).
 #
-# Voraussetzung: .env mit TELEGRAM_BOT_TOKEN und TELEGRAM_WEBHOOK_SECRET,
-# API erreichbar unter PUBLIC_URL (HTTPS, Reverse-Proxy).
+# Prerequisite: .env with TELEGRAM_BOT_TOKEN and TELEGRAM_WEBHOOK_SECRET;
+# API reachable at PUBLIC_URL (HTTPS, reverse proxy).
 #
-# Aufruf:
+# Usage:
 #   PUBLIC_URL=https://brain.example.com ./scripts/register-telegram-webhook.sh
 
 set -euo pipefail

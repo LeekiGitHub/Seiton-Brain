@@ -1,4 +1,4 @@
-"""Oeffentlicher Schluessel fuer Lizenzpruefung."""
+"""Public key for license verification."""
 
 from pathlib import Path
 

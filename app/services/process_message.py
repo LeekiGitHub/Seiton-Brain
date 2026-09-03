@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class ProcessMessageResult:
-    """Ergebnis einer vollstaendigen Capture-Pipeline (LLM + Vault + DB)."""
+    """Result of a full capture pipeline (LLM + vault + DB)."""
 
     classification: ClassificationResult
     entry_id: int
@@ -29,10 +29,10 @@ class ProcessMessageResult:
 async def _resolve_append_target(
     db: AsyncSession, target_title: str
 ) -> str | None:
-    """Findet den juengsten Entry mit passendem Titel und liefert vault_path.
+    """Find the newest entry with a matching title and return vault_path.
 
-    Liefert ``None``, wenn kein Eintrag passt oder die Vault-Datei verschwunden
-    ist — der Caller soll dann auf ``create`` zurueckfallen.
+    Returns ``None`` if no entry matches or the vault file is gone — the
+    caller should then fall back to ``create``.
     """
     stmt = (
         select(Entry.vault_path)
@@ -58,7 +58,7 @@ async def _resolve_append_target(
 
 
 def _compensate_orphan_create(vault, vault_relative: str | None) -> None:
-    """Löscht eine neu angelegte Vault-Datei nach fehlgeschlagenem DB-Commit (E28-3)."""
+    """Delete a newly created vault file after a failed DB commit (E28-3)."""
     if not vault_relative:
         return
     try:
@@ -79,15 +79,15 @@ async def process_text_message(
     telegram_chat_id: int | None = None,
     kind: str = "text",
 ) -> ProcessMessageResult | None:
-    """Klassifiziert die Nachricht und persistiert Entry + Vault-Datei.
+    """Classify the message and persist entry + vault file.
 
-    Liefert ``None``, wenn ein Entry mit der gleichen ``telegram_update_id``
-    bereits existiert (Telegram-Retry / Race) — dann passiert nichts, der
-    Aufrufer sollte keine zweite Bestätigung an Telegram senden.
+    Returns ``None`` when an entry with the same ``telegram_update_id``
+    already exists (Telegram retry / race) — then nothing happens; the
+    caller should not send a second confirmation to Telegram.
 
-    Bei gesetzter ``telegram_update_id`` wird der UNIQUE-Claim per ``flush``
-    *vor* dem Vault-Write gesichert (E28-3 Idempotenz-Fenster). Neu angelegte
-    Dateien werden bei DB-Fehler wieder gelöscht (Kompensation).
+    With ``telegram_update_id`` set, the UNIQUE claim is secured via ``flush``
+    *before* the vault write (E28-3 idempotency window). Newly created
+    files are deleted again on DB error (compensation).
     """
     if telegram_update_id is not None:
         existing = await db.execute(
@@ -106,7 +106,7 @@ async def process_text_message(
     result = await llm.classify(text)
     vault = get_vault_backend()
 
-    # Append vs. Create Intent klären — Schreiben erst nach optionalem Claim.
+    # Resolve append vs create intent — write only after optional claim.
     will_append = False
     target_relative: str | None = None
     if result.action == "append" and result.target_title:
@@ -137,7 +137,7 @@ async def process_text_message(
     )
     db.add(entry)
 
-    # UNIQUE-Claim vor Vault-Mutation (schließt Race: zwei Worker schreiben Dateien)
+    # UNIQUE claim before vault mutation (closes race: two workers writing files)
     if telegram_update_id is not None:
         try:
             await db.flush()

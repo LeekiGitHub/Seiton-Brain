@@ -8,12 +8,12 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-# ISO-639-1: zwei Kleinbuchstaben (ggf. mit Region wie "en-US" → wir nehmen "en").
+# ISO-639-1: two lowercase letters (region like "en-US" → we take "en").
 _LANGUAGE_RE = re.compile(r"^([a-z]{2})(?:-[a-zA-Z]{2,})?$")
 
 
 def normalize_whisper_language(value: str | None) -> str | None:
-    """Liefert einen gültigen ISO-639-1-Code oder None (Auto-Detect)."""
+    """Return a valid ISO-639-1 code or None (auto-detect)."""
     if value is None:
         return None
     stripped = value.strip().lower()
@@ -56,9 +56,9 @@ async def transcribe_openai(audio_bytes: bytes, filename: str = "voice.ogg") -> 
 
 
 async def transcribe_audio(audio_bytes: bytes, filename: str = "voice.ogg") -> str:
-    """Transkription je nach ``WHISPER_PROVIDER`` (openai | whisper.cpp).
+    """Transcription depending on ``WHISPER_PROVIDER`` (openai | whisper.cpp).
 
-    Bei ``whisper.cpp``: Soft-Probe; bei Fehlern/fehlender Installation optional
+    With ``whisper.cpp``: soft probe; on errors/missing install optionally
     Fallback auf OpenAI (``WHISPER_CPP_FALLBACK_OPENAI``, Default true).
     """
     provider = _normalize_provider(settings.whisper_provider)

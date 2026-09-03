@@ -1,4 +1,4 @@
-"""Tests fuer Dashboard (E19-2)."""
+"""Tests for dashboard (E19-2)."""
 
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch

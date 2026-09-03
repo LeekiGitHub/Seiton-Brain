@@ -1,4 +1,4 @@
-"""Tests fuer Remote-Zugang-Doku und Proxy-Beispiele (E9-3)."""
+"""Tests for remote-access docs and proxy examples (E9-3)."""
 
 from pathlib import Path
 

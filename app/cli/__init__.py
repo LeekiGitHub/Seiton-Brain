@@ -1,1 +1,1 @@
-"""Seiton Brain CLI-Paket (E16-3)."""
+"""Seiton Brain CLI package (E16-3)."""

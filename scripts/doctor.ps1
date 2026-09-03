@@ -1,5 +1,5 @@
-# Diagnose fuer lokale Seiton-Brain-Installation (E20-1) — Windows.
-# Aufruf: .\scripts\doctor.ps1
+# Diagnose local Seiton Brain install (E20-1) — Windows.
+# Usage: .\scripts\doctor.ps1
 
 $ErrorActionPreference = "Continue"
 

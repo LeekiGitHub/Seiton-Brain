@@ -5,9 +5,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
 
-# Erlaubte Werte fuer `kind` und `status`.
-# Wir benutzen VARCHAR statt Enum, damit Werte ohne Migration ergaenzt werden
-# koennen; die Listen hier sind die Quelle der Wahrheit fuer Code-Reviews.
+# Allowed values for `kind` and `status`.
+# VARCHAR instead of Enum so values can be added without a migration;
+# these lists are the source of truth for code review.
 KIND_VALUES = {"text", "voice"}
 STATUS_VALUES = {"processed", "appended", "failed", "rejected"}
 
@@ -40,7 +40,7 @@ class Entry(Base):
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, server_default="processed"
     )
-    # Classify-Prompt-Version (E4-4), z. B. "v1" — fuer Audit/Replays.
+    # Classify prompt version (E4-4), e.g. "v1" — for audit/replays.
     prompt_version: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(

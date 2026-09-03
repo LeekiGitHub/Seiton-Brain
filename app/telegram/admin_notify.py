@@ -1,4 +1,4 @@
-"""Telegram-DM an den Admin bei dauerhaften Worker-Fehlern (E10-3)."""
+"""Telegram DM to the admin on permanent worker failures (E10-3)."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from app.telegram.client import send_message
 
 logger = logging.getLogger(__name__)
 
-# Telegram-Limit ist 4096 Zeichen; Stacktrace kuerzen wir bewusst.
+# Telegram limit is 4096 chars; we deliberately truncate the stacktrace.
 _MAX_ERROR_CHARS = 800
 _MAX_MESSAGE_CHARS = 3900
 
@@ -72,7 +72,7 @@ async def notify_admin_error(
     task_id: str | None = None,
     telegram_update_id: int | None = None,
 ) -> None:
-    """Sendet eine DM an den Admin. Fehler beim Senden werden nur geloggt."""
+    """Send a DM to the admin. Send failures are logged only."""
     admin_id = _admin_chat_id()
     if admin_id is None:
         return

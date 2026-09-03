@@ -1,12 +1,12 @@
-"""Document-Extraktion (E18-1, E18-2, E18-3, E18-5, E18-6).
+"""Document extraction (E18-1, E18-2, E18-3, E18-5, E18-6).
 
-Engine+Adapter-Muster fuer Multi-Format-Ingestion: Jeder ``DocumentExtractor``
-liest eine bestimmte Dateigruppe (read-only) und liefert reinen Text fuer den
-Vault-Index (E5-1) und spaeteres Retrieval/RAG (E17).
+Engine+adapter pattern for multi-format ingestion: each ``DocumentExtractor``
+reads a file group (read-only) and returns plain text for the vault index
+(E5-1) and later retrieval/RAG (E17).
 
-Aktuell Tier 1 (direkt text-basiert): Markdown, Plain-Text, PDF (Text-Layer)
-sowie Office-Formate Word (.docx) und PowerPoint (.pptx).
-OCR (E18-5) und Vision (E18-6) docken als optionale Adapter an (Bilder + PDF-Scans).
+Currently tier 1 (directly text-based): Markdown, plain text, PDF (text layer),
+plus Office formats Word (.docx) and PowerPoint (.pptx).
+OCR (E18-5) and Vision (E18-6) attach as optional adapters (images + PDF scans).
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ from app.vault.vision import describe_image, format_vision_text, vision_ready
 
 logger = logging.getLogger(__name__)
 
-# Marker fuer PDFs ohne extrahierbaren Text-Layer (Scans) — Aufhaenger fuer OCR (E18-5).
+# Marker for PDFs without an extractable text layer (scans) — OCR hook (E18-5).
 PDF_NO_TEXT_TYPE = "pdf_no_text"
 PDF_OCR_TYPE = "pdf_ocr"
 IMAGE_OCR_TYPE = "image_ocr"
@@ -36,7 +36,7 @@ IMAGE_VISION_TYPE = "image_vision"
 
 @dataclass(frozen=True)
 class ExtractedDocument:
-    """Ergebnis einer Extraktion: reiner Text plus Metadaten."""
+    """Extraction result: plain text plus metadata."""
 
     title: str
     text: str
@@ -45,14 +45,14 @@ class ExtractedDocument:
 
 
 class DocumentExtractor(ABC):
-    """Adapter-Interface: liest eine Datei und liefert ``ExtractedDocument``."""
+    """Adapter interface: read a file and return ``ExtractedDocument``."""
 
     doc_type: ClassVar[str]
     extensions: ClassVar[tuple[str, ...]]
 
     @abstractmethod
     def extract(self, path: Path) -> ExtractedDocument:
-        """Extrahiert Text/Metadaten aus ``path`` (wird nie veraendert)."""
+        """Extract text/metadata from ``path`` (never mutates the file)."""
 
 
 def _strip_frontmatter(content: str) -> str:
@@ -106,14 +106,14 @@ class PdfExtractor(DocumentExtractor):
                 extracted = page.extract_text() or ""
                 if extracted.strip():
                     text_parts.append(extracted.strip())
-        except Exception as exc:  # noqa: BLE001 — defekte PDFs duerfen den Scan nicht abbrechen
+        except Exception as exc:  # noqa: BLE001 — broken PDFs must not abort the scan
             logger.warning("PDF-Extraktion fehlgeschlagen fuer %s: %s", path, exc)
 
         text = "\n\n".join(text_parts).strip()
         if text:
             return ExtractedDocument(title=title, text=text, doc_type=self.doc_type)
 
-        # Kein Text-Layer (Scan) → optional OCR (E18-5), sonst pdf_no_text markieren.
+        # No text layer (scan) → optional OCR (E18-5), else mark pdf_no_text.
         if pdf_ocr_ready():
             ocr_text = ocr_pdf(path)
             if ocr_text:
@@ -123,13 +123,13 @@ class PdfExtractor(DocumentExtractor):
 
 
 def _doc_core_title(properties) -> str | None:
-    """Titel aus Office-Core-Properties, falls gepflegt."""
+    """Title from Office core properties when present."""
     title = getattr(properties, "title", None)
     return title.strip() if title and title.strip() else None
 
 
 class DocxExtractor(DocumentExtractor):
-    """Word-Dokumente (.docx). Aeltere .doc-Binaerformate werden nicht unterstuetzt."""
+    """Word documents (.docx). Older binary .doc formats are not supported."""
 
     doc_type = "docx"
     extensions = (".docx",)
@@ -143,13 +143,13 @@ class DocxExtractor(DocumentExtractor):
             for paragraph in document.paragraphs:
                 if paragraph.text.strip():
                     text_parts.append(paragraph.text.strip())
-            # Tabellen separat anhaengen — Zeugnisse/Rechnungen liegen oft darin.
+            # Append tables separately — certificates/invoices often live there.
             for table in document.tables:
                 for row in table.rows:
                     cells = [cell.text.strip() for cell in row.cells if cell.text.strip()]
                     if cells:
                         text_parts.append(" | ".join(cells))
-        except Exception as exc:  # noqa: BLE001 — defekte Dateien duerfen den Scan nicht abbrechen
+        except Exception as exc:  # noqa: BLE001 — broken files must not abort the scan
             logger.warning("DOCX-Extraktion fehlgeschlagen fuer %s: %s", path, exc)
 
         return ExtractedDocument(
@@ -158,7 +158,7 @@ class DocxExtractor(DocumentExtractor):
 
 
 class PptxExtractor(DocumentExtractor):
-    """PowerPoint-Praesentationen (.pptx): Folientext + Sprechernotizen."""
+    """PowerPoint presentations (.pptx): slide text + speaker notes."""
 
     doc_type = "pptx"
     extensions = (".pptx",)
@@ -177,7 +177,7 @@ class PptxExtractor(DocumentExtractor):
                     notes = slide.notes_slide.notes_text_frame
                     if notes is not None and notes.text.strip():
                         text_parts.append(notes.text.strip())
-        except Exception as exc:  # noqa: BLE001 — defekte Dateien duerfen den Scan nicht abbrechen
+        except Exception as exc:  # noqa: BLE001 — broken files must not abort the scan
             logger.warning("PPTX-Extraktion fehlgeschlagen fuer %s: %s", path, exc)
 
         return ExtractedDocument(
@@ -186,7 +186,7 @@ class PptxExtractor(DocumentExtractor):
 
 
 class ImageOcrExtractor(DocumentExtractor):
-    """Bilder: OCR (E18-5) wenn Text erkannt, sonst Vision-LLM (E18-6)."""
+    """Images: OCR (E18-5) when text is found, else Vision LLM (E18-6)."""
 
     doc_type = IMAGE_OCR_TYPE
     extensions = tuple(sorted(IMAGE_OCR_EXTENSIONS))
@@ -208,7 +208,7 @@ class ImageOcrExtractor(DocumentExtractor):
                     doc_type=IMAGE_VISION_TYPE,
                 )
 
-        # OCR an, aber kein Text / Vision aus oder fehlgeschlagen
+        # OCR on but no text / Vision off or failed
         if ocr_ready():
             return ExtractedDocument(title=path.stem, text="", doc_type=IMAGE_OCR_TYPE)
         return ExtractedDocument(title=path.stem, text="", doc_type=IMAGE_VISION_TYPE)
@@ -218,7 +218,7 @@ class ImageOcrExtractor(DocumentExtractor):
 ImageExtractor = ImageOcrExtractor
 
 
-# Reihenfolge bestimmt die Aufloesung bei mehrdeutigen Endungen (hier eindeutig).
+# Order decides resolution for ambiguous extensions (unambiguous here).
 _EXTRACTORS: tuple[DocumentExtractor, ...] = (
     MarkdownExtractor(),
     PlainTextExtractor(),
@@ -229,7 +229,7 @@ _EXTRACTORS: tuple[DocumentExtractor, ...] = (
 
 _IMAGE_EXTRACTOR = ImageOcrExtractor()
 
-# Immer-verfuegbare Endungen (ohne optionales OCR/Vision).
+# Always-available extensions (without optional OCR/Vision).
 SUPPORTED_EXTENSIONS: frozenset[str] = frozenset(
     ext for extractor in _EXTRACTORS for ext in extractor.extensions
 )
@@ -240,7 +240,7 @@ def image_extraction_ready() -> bool:
 
 
 def get_extractor(path: Path) -> DocumentExtractor | None:
-    """Liefert den passenden Extractor oder ``None`` fuer nicht unterstuetzte Typen."""
+    """Return the matching extractor or ``None`` for unsupported types."""
     suffix = path.suffix.lower()
     for extractor in _EXTRACTORS:
         if suffix in extractor.extensions:

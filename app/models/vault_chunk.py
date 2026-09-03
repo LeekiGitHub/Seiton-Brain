@@ -1,4 +1,4 @@
-"""Vault-Chunks fuer Retrieval (E18-4)."""
+"""Vault chunks for retrieval (E18-4)."""
 
 from __future__ import annotations
 
@@ -16,10 +16,10 @@ if TYPE_CHECKING:
 
 
 class VaultChunk(Base):
-    """Ein retrieval-tauglicher Textabschnitt einer indexierten Vault-Datei.
+    """A retrieval-ready text segment of an indexed vault file.
 
     Parent bleibt ``VaultNoteIndex`` (Metadaten, UI-Liste). Embeddings und
-    Keyword-Treffer auf langen Dokumenten laufen ueber diese Tabelle.
+    Keyword hits on long documents go through this table.
     """
 
     __tablename__ = "vault_chunk"

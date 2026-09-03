@@ -1,4 +1,4 @@
-"""Tests fuer Notizen-Verwaltung UI (E19-4)."""
+"""Tests for notes management UI (E19-4)."""
 
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -22,7 +22,7 @@ def test_notes_page_renders():
 
 
 def test_notes_page_accepts_path_query():
-    """Deep-Link /notes?path=… bleibt 200 — Öffnen macht notes.js clientseitig (E30-1)."""
+    """Deep-link /notes?path=… stays 200 — open is client-side in notes.js (E30-1)."""
     response = client.get("/notes", params={"path": "Ideas/Test.md"})
     assert response.status_code == 200
     assert "notes.js" in response.text

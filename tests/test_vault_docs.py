@@ -1,4 +1,4 @@
-"""Tests fuer Vault-Doku (E15-2)."""
+"""Tests for vault docs (E15-2)."""
 
 from pathlib import Path
 

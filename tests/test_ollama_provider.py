@@ -1,4 +1,4 @@
-"""Tests fuer Ollama-Provider und LLM-Factory (E7-2)."""
+"""Tests for Ollama provider and LLM factory (E7-2)."""
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -41,7 +41,7 @@ def test_get_llm_provider_unsupported(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_ollama_classify_reuses_openai_pipeline(monkeypatch):
-    """OllamaProvider erbt Sanitize/Parse — nur der Client ist Ollama."""
+    """OllamaProvider inherits sanitize/parse — only the client is Ollama."""
     monkeypatch.setattr(settings, "ollama_base_url", "http://localhost:11434")
     monkeypatch.setattr(settings, "ollama_model", "llama3.2")
     monkeypatch.setattr(settings, "seiton_llm_roles_enabled", True)
@@ -69,7 +69,7 @@ async def test_ollama_classify_reuses_openai_pipeline(monkeypatch):
     assert isinstance(result, ClassificationResult)
     assert result.title == "T"
     assert result.summary == "S"
-    # Leerer Vault → Router + Writer, kein Linker
+    # Empty vault → router + writer, no linker
     assert provider.client.chat.completions.create.await_count == 2
     call_kwargs = provider.client.chat.completions.create.await_args.kwargs
     assert call_kwargs["model"] == "llama3.2"

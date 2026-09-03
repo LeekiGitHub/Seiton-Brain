@@ -1,4 +1,4 @@
-"""CLI-Einstieg: ``python -m app.cli …`` / ``./scripts/seiton …`` (E16-3/E16-5)."""
+"""CLI entry: ``python -m app.cli …`` / ``./scripts/seiton …`` (E16-3/E16-5)."""
 
 from __future__ import annotations
 

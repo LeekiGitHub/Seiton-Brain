@@ -1,4 +1,4 @@
-"""Sichere Vault-Pfad-Aufloesung (kein Path-Traversal)."""
+"""Safe vault path resolution (no path traversal)."""
 
 from pathlib import Path
 
@@ -6,10 +6,10 @@ from app.config import settings
 
 
 def resolve_vault_file(vault_relative_path: str) -> Path:
-    """Liefert den absoluten Pfad unterhalb des Vault-Roots.
+    """Return the absolute path under the vault root.
 
-    Nutzt ``Path.is_relative_to`` statt ``str.startswith``, damit Prefix-
-    Kollisionen wie ``/vault`` vs. ``/vault-evil`` nicht durchgehen (E27-4).
+    Uses ``Path.is_relative_to`` instead of ``str.startswith`` so prefix
+    collisions like ``/vault`` vs. ``/vault-evil`` cannot slip through (E27-4).
     """
     vault_root = Path(settings.obsidian_vault_path).resolve()
     candidate = (vault_root / vault_relative_path).resolve()

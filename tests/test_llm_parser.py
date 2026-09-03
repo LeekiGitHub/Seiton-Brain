@@ -147,7 +147,7 @@ def test_sanitize_tags_normalizes_case_and_strip_hash():
         tags=["#FitnessApp", "  Workout ", "fitness-app"],
     )
     sanitized = provider._sanitize_tags(result)
-    # lowercase + ohne '#' + deduped (FitnessApp und fitness-app sind verschieden)
+    # lowercase + without '#' + deduped (FitnessApp and fitness-app differ)
     assert sanitized.tags == ["fitnessapp", "workout", "fitness-app"]
 
 

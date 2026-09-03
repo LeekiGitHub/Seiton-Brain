@@ -1,4 +1,4 @@
-"""Tests fuer OS-Keystore (E16-5)."""
+"""Tests for OS keystore (E16-5)."""
 
 from pathlib import Path
 from unittest.mock import MagicMock

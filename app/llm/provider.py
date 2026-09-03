@@ -13,11 +13,11 @@ class LLMProvider(ABC):
 
     @abstractmethod
     async def answer(self, question: str, context: str) -> LLMAnswer:
-        """RAG-Antwort auf ``question``, gestuetzt auf den ``context``-Block (E17-3)."""
+        """RAG answer for ``question``, grounded in the ``context`` block (E17-3)."""
 
     @abstractmethod
     async def digest(self, topic: str, context: str, *, days: int | None) -> LLMDigest:
-        """Digest-Synthese (E17-8) mehrerer Notizen zu einem Thema."""
+        """Digest synthesis (E17-8) of multiple notes into one topic."""
 
 
 def get_llm_provider() -> LLMProvider:

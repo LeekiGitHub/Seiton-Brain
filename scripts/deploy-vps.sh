@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# VPS-Deployment fuer Seiton Brain (E20-2) — Linux-Server (IONOS, Hetzner, …).
+# VPS deployment for Seiton Brain (E20-2) — Linux server (IONOS, Hetzner, …).
 #
-# Telegram per Webhook (oeffentliche HTTPS-URL), kein Long-Polling.
-# API lauscht nur auf 127.0.0.1:8000 — Reverse-Proxy (Caddy) davor.
+# Telegram via webhook (public HTTPS URL), not long-polling.
+# API listens on 127.0.0.1:8000 only — put a reverse proxy (Caddy) in front.
 #
-# Aufruf (im Repo-Root auf dem VPS):
+# Usage (repo root on the VPS):
 #   ./scripts/deploy-vps.sh
 # Optional:
 #   VAULT_DIR=/var/lib/seiton-brain/vault ./scripts/deploy-vps.sh
 #
-# Danach: TLS + Webhook — siehe docs/vps-deployment.md
+# Next: TLS + webhook — see docs/vps-deployment.md
 
 set -euo pipefail
 

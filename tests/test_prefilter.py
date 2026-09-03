@@ -1,4 +1,4 @@
-"""Tests fuer Vault-Prefilter vor LLM (E5-2)."""
+"""Tests for vault prefilter before LLM (E5-2)."""
 
 from app.config import settings
 from app.vault.prefilter import prefilter_notes_for_llm, score_note, tokenize

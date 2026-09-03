@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Lizenzschlüssel ausstellen (E21-1) — nur lokal, Private Key nie ins Repo.
+"""Issue license keys (E21-1) — local only; never commit the private key.
 
-Beispiele:
+Examples:
   python scripts/issue-license.py --generate-keys
   python scripts/issue-license.py --licensee user@example.com --edition consumer
 """

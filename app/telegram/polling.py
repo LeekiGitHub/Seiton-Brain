@@ -1,20 +1,19 @@
-"""Telegram Long-Polling als Alternative zum Webhook (E1-5).
+"""Telegram long-polling as an alternative to the webhook (E1-5).
 
-Statt auf einen eingehenden Webhook zu warten (der eine oeffentlich
-erreichbare HTTPS-URL braucht), pollt dieser Prozess Telegram aktiv per
-``getUpdates``. Das passt zum Deployment-Leitbild "Always-on-Box beim
-Kunden" (Mini-PC / Mac Mini / Heimserver): kein Reverse-Proxy, kein
-Port-Forwarding, kein TLS-Zertifikat noetig.
+Instead of waiting for an inbound webhook (which needs a publicly reachable
+HTTPS URL), this process actively polls Telegram via ``getUpdates``. That
+fits the "always-on box at the customer" deployment model (mini-PC / Mac Mini /
+home server): no reverse proxy, no port forwarding, no TLS certificate.
 
-Webhook und Polling schliessen sich gegenseitig aus — Telegram liefert
-Updates entweder per Webhook *oder* per ``getUpdates``. Der Poller ruft
-deshalb beim Start ``deleteWebhook`` auf.
+Webhook and polling are mutually exclusive — Telegram delivers updates either
+via webhook *or* via ``getUpdates``. The poller therefore calls
+``deleteWebhook`` at startup.
 
 Start::
 
     python -m app.telegram.polling
 
-oder via Compose-Profil::
+or via Compose profile::
 
     docker compose --profile polling up
 """
@@ -31,8 +30,8 @@ from app.telegram.webhook import process_update
 
 logger = logging.getLogger(__name__)
 
-# Backoff nach einem fehlgeschlagenen getUpdates, damit wir bei einem
-# Telegram-Ausfall nicht in einer Tight-Loop haengen.
+# Backoff after a failed getUpdates so a Telegram outage does not
+# trap us in a tight loop.
 ERROR_BACKOFF_SECONDS = 5
 
 
@@ -41,10 +40,10 @@ async def run_polling(
     poll_timeout: int | None = None,
     max_batches: int | None = None,
 ) -> None:
-    """Pollt Telegram und verarbeitet eingehende Updates.
+    """Poll Telegram and process incoming updates.
 
-    ``max_batches`` begrenzt die Anzahl der ``getUpdates``-Runden (fuer
-    Tests). ``None`` = unendlich (Produktion).
+    ``max_batches`` limits the number of ``getUpdates`` rounds (for
+    tests). ``None`` = unlimited (production).
     """
     timeout = poll_timeout or settings.telegram_polling_timeout
     await delete_webhook()
@@ -65,11 +64,11 @@ async def run_polling(
             try:
                 await process_update(update)
             except Exception:
-                # Ein einzelnes kaputtes Update darf den Poller nicht killen.
-                # process_update faengt das meiste selbst; das hier ist das Netz.
+                # A single broken update must not kill the poller.
+                # process_update catches most cases; this is the safety net.
                 logger.exception("Failed to process update_id=%s", update_id)
-            # Offset auch bei Fehler vorruecken: das Update wurde geloggt,
-            # ein Reprocess wuerde nur erneut scheitern (Poison-Update).
+            # Advance offset even on error: the update was logged;
+            # reprocessing would only fail again (poison update).
             if update_id is not None:
                 offset = update_id + 1
 

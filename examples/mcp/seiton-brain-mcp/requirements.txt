@@ -1,4 +1,4 @@
-# MCP-Server fuer Seiton Brain (E17-6). Eigenstaendig installierbar:
+# MCP server for Seiton Brain (E17-6). Standalone install:
 #   pip install -r requirements.txt
 mcp==2.1.1
 httpx==0.28.1

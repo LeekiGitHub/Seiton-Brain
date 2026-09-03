@@ -1,20 +1,20 @@
-"""Notiz-Templates (E26-1/E26-2): Nutzer bestimmen das Body-Layout neuer Notizen.
+"""Note templates (E26-1/E26-2): users control the body layout of new notes.
 
-Template-Datei: ``<Vault>/_seiton/templates/note.md`` — bewusst im Vault
-(in Obsidian sichtbar, portabel, wandert mit Backups). Fehlt die Datei,
-gilt das Default-Layout (heutiges Format).
+Template file: ``<Vault>/_seiton/templates/note.md`` — deliberately in the vault
+(visible in Obsidian, portable, travels with backups). If the file is missing,
+the default layout (current format) applies.
 
-Platzhalter: ``{{title}}``, ``{{summary}}``, ``{{tags}}``, ``{{date}}``,
-``{{category}}``, ``{{related}}``. ``{{related}}`` rendert den kompletten
-Abschnitt inkl. ``## Related``-Überschrift (beginnend mit einer Leerzeile)
-oder nichts, wenn es keine verwandten Notizen gibt.
+Placeholders: ``{{title}}``, ``{{summary}}``, ``{{tags}}``, ``{{date}}``,
+``{{category}}``, ``{{related}}``. ``{{related}}`` renders the full section
+including the ``## Related`` heading (starting with a blank line), or nothing
+when there are no related notes.
 
-Leitplanken (E26-2):
-- Das Template steuert **nur den Body**. Frontmatter bleibt fix, damit
-  Append-Logik (E3-3/E4-1) und Index nicht brechen.
-- Kaputte Templates (unbekannte Platzhalter, eigenes Frontmatter, fehlendes
-  ``{{summary}}``) → Default-Layout + Log-Warnung. Capture darf nie an einem
-  Template scheitern.
+Guardrails (E26-2):
+- The template controls **the body only**. Frontmatter stays fixed so
+  append logic (E3-3/E4-1) and the index do not break.
+- Broken templates (unknown placeholders, own frontmatter, missing
+  ``{{summary}}``) → default layout + log warning. Capture must never fail
+  because of a template.
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ KNOWN_PLACEHOLDERS = frozenset(
     {"title", "summary", "tags", "date", "category", "related"}
 )
 
-# Entspricht exakt dem bisherigen hartcodierten Layout.
+# Matches the previous hard-coded layout exactly.
 DEFAULT_TEMPLATE = "# {{title}}\n\n{{summary}}{{related}}\n"
 
 _PLACEHOLDER_RE = re.compile(r"\{\{\s*([a-zA-Z_:]+)\s*\}\}")
@@ -46,7 +46,7 @@ def template_path() -> Path:
 
 
 def validate_template(text: str) -> list[str]:
-    """Liefert Fehlerliste — leer bedeutet nutzbar (E26-2)."""
+    """Return error list — empty means usable (E26-2)."""
     errors: list[str] = []
     if text.lstrip().startswith("---"):
         errors.append(
@@ -66,7 +66,7 @@ def validate_template(text: str) -> list[str]:
 
 
 def template_status() -> str:
-    """Fuer die Settings-UI: ``default`` | ``custom`` | ``invalid``."""
+    """For the settings UI: ``default`` | ``custom`` | ``invalid``."""
     path = template_path()
     try:
         text = path.read_text(encoding="utf-8")
@@ -78,7 +78,7 @@ def template_status() -> str:
 
 
 def load_note_template() -> str:
-    """Aktives Template — Default, wenn Datei fehlt oder invalid ist."""
+    """Active template — default when the file is missing or invalid."""
     path = template_path()
     try:
         text = path.read_text(encoding="utf-8")
@@ -114,7 +114,7 @@ def _tags_inline(tags: list[str]) -> str:
 
 
 def render_note_body(result: ClassificationResult) -> str:
-    """Rendert den Notiz-Body aus dem aktiven Template (E26-1)."""
+    """Render the note body from the active template (E26-1)."""
     template = load_note_template()
     values = {
         "title": result.title,
@@ -129,6 +129,6 @@ def render_note_body(result: ClassificationResult) -> str:
         return values.get(match.group(1), match.group(0))
 
     body = _PLACEHOLDER_RE.sub(_substitute, template)
-    # Leere Platzhalter hinterlassen sonst haessliche Leerzeichen am Zeilenende.
+    # Empty placeholders would otherwise leave ugly trailing spaces.
     body = "\n".join(line.rstrip() for line in body.split("\n"))
     return body.rstrip("\n") + "\n"

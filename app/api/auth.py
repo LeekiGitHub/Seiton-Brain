@@ -1,4 +1,4 @@
-"""API-Key-Authentifizierung fuer REST-Endpunkte unter ``/v1/``."""
+"""API-key authentication for REST endpoints under ``/v1/``."""
 
 import secrets
 
@@ -12,11 +12,11 @@ API_KEY_HEADER = "X-Seiton-Api-Key"
 async def verify_api_key(
     x_seiton_api_key: str | None = Header(default=None, alias=API_KEY_HEADER),
 ) -> None:
-    """Schuetzt ``/v1/*`` mit ``SEITON_API_KEY``.
+    """Protect ``/v1/*`` with ``SEITON_API_KEY``.
 
-    - Key nicht gesetzt in ``.env`` → API deaktiviert (503), bewusste Entscheidung
-      statt offenem Endpunkt im Internet.
-    - Key gesetzt, Header fehlt oder falsch → 401.
+    - Key not set in ``.env`` → API disabled (503), a deliberate choice
+      rather than an open endpoint on the internet.
+    - Key set, header missing or wrong → 401.
     """
     configured = settings.seiton_api_key
     if not configured:

@@ -1,4 +1,4 @@
-"""Tests fuer PWA-Grundlagen (E23-2): Manifest, Icons, Service Worker."""
+"""Tests for PWA basics (E23-2): manifest, icons, service worker."""
 
 import json
 from pathlib import Path
@@ -57,7 +57,7 @@ def test_base_template_wires_up_pwa():
 
 
 def test_sw_does_not_cache_private_routes():
-    """Der SW darf nur /ui/static/* cachen — HTML/API niemals (Auth!)."""
+    """SW may only cache /ui/static/* — never HTML/API (auth!)."""
     sw = (STATIC / "sw.js").read_text("utf-8")
     assert '"/ui/static/"' in sw
     assert "startsWith(STATIC_PREFIX)" in sw

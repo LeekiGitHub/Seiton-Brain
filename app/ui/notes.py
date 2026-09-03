@@ -1,4 +1,4 @@
-"""Notizen-Verwaltung fuer die Web-UI (E19-4)."""
+"""Notes management for the web UI (E19-4)."""
 
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession

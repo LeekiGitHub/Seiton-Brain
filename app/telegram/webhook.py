@@ -24,8 +24,8 @@ from app.worker.tasks import (
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-# Update-Typen, die Telegram sendet, die wir aber bewusst nicht verarbeiten.
-# Werden mit 200 OK ohne Log-Warning beantwortet — Telegram retried sonst.
+# Update types Telegram sends that we deliberately ignore.
+# Answer 200 OK without a log warning — otherwise Telegram retries.
 # Quelle: https://core.telegram.org/bots/api#update
 KNOWN_UNSUPPORTED_UPDATE_KEYS = frozenset(
     {
@@ -60,7 +60,7 @@ def _get_secret() -> str:
 
 
 async def _is_duplicate_update(update_id: int) -> bool:
-    """True wenn bereits ein Entry mit dieser telegram_update_id existiert."""
+    """True if an entry with this telegram_update_id already exists."""
     async with SessionLocal() as db:
         result = await db.execute(
             select(Entry.id)
@@ -71,10 +71,10 @@ async def _is_duplicate_update(update_id: int) -> bool:
 
 
 def _get_allowed_user_ids() -> set[int] | None:
-    """Parsed Allowlist aus TELEGRAM_ALLOWED_USER_IDS.
+    """Parse allowlist from TELEGRAM_ALLOWED_USER_IDS.
 
-    Rückgabe ``None`` bedeutet: Allowlist nicht konfiguriert -> alle erlaubt.
-    Rückgabe ``set[int]``: nur diese User-IDs sind erlaubt (strict).
+    Returning ``None`` means: allowlist not configured → everyone allowed.
+    Returning ``set[int]``: only those user IDs are allowed (strict).
     """
     raw = settings.telegram_allowed_user_ids.strip()
     if not raw:
@@ -92,18 +92,17 @@ def _get_allowed_user_ids() -> set[int] | None:
 
 
 async def process_update(update: dict) -> None:
-    """Verarbeitet ein einzelnes Telegram-Update — **transport-agnostisch**.
+    """Process a single Telegram update — **transport-agnostic**.
 
-    Genutzt vom Webhook (``POST /webhook``) und vom Long-Polling-Poller
-    (``app.telegram.polling``). Behandelt Allowlist, Idempotenz,
-    Slash-Commands und das Einreihen in den Worker. Wirft keine Exceptions
-    nach aussen (Fehler werden geloggt), damit der Poller an einem einzelnen
-    Update nicht stirbt.
+    Used by the webhook (``POST /webhook``) and the long-polling poller
+    (``app.telegram.polling``). Handles allowlist, idempotency,
+    slash commands and enqueueing to the worker. Raises no exceptions
+    outward (errors are logged) so the poller does not die on one update.
     """
     message = update.get("message")
 
     if not message:
-        # Bekannte aber unsupported Update-Typen: kein Warn-Spam.
+        # Known but unsupported update types: no warning spam.
         unsupported = KNOWN_UNSUPPORTED_UPDATE_KEYS.intersection(update.keys())
         if unsupported:
             logger.debug(
@@ -158,8 +157,8 @@ async def process_update(update: dict) -> None:
             cmd = parts[0].split("@", 1)[0].lower()
             args = parts[1].strip() if len(parts) > 1 else ""
             if cmd == "/ask":
-                # RAG ist ein LLM-Call -> in den Worker, nicht synchron im
-                # Request (sonst blockiert er Webhook/Poller mehrere Sekunden).
+                # RAG is an LLM call → push to the worker, not sync in the
+                # request (otherwise webhook/poller blocks for seconds).
                 if not args:
                     await send_message(
                         chat_id,
@@ -180,7 +179,7 @@ async def process_update(update: dict) -> None:
                     process_digest_message_task.delay(args, chat_id)
                     await send_message(chat_id, "Ich erstelle deinen Digest…")
             else:
-                # Andere Slash-Commands synchron — schnelle DB-Lookups, kein LLM.
+                # Other slash commands sync — fast DB lookups, no LLM.
                 async with SessionLocal() as db:
                     reply = await handle_command(text, chat_id, db)
                 if reply is not None:
@@ -284,9 +283,9 @@ async def telegram_webhook(
     if x_telegram_bot_api_secret_token != _get_secret():
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    # Body-Size-Limit. Wir lesen den Body selbst (statt request.json()), um den
-    # Length-Check vor JSON-Parsing zu machen. Content-Length-Header reicht
-    # nicht: er ist optional und manipulierbar.
+    # Body-size limit. We read the body ourselves (instead of request.json())
+    # to enforce the length check before JSON parsing. Content-Length alone is
+    # not enough: it is optional and spoofable.
     body = await request.body()
     if len(body) > settings.telegram_webhook_max_body_bytes:
         logger.warning(

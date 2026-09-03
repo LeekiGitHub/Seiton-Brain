@@ -1,4 +1,4 @@
-"""Tests fuer app/setup/config_save.py."""
+"""Tests for app/setup/config_save.py."""
 
 import pytest
 

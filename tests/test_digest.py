@@ -1,4 +1,4 @@
-"""Tests fuer Digest-Service + Parser/Provider (E17-8)."""
+"""Tests for digest service + parser/provider (E17-8)."""
 
 from unittest.mock import AsyncMock, MagicMock, patch
 

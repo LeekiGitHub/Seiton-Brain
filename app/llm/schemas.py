@@ -6,7 +6,7 @@ Action = Literal["create", "append"]
 
 
 class RouterResult(BaseModel):
-    """LLM-Rolle Router (E7-3): create/append + Identitaet der Notiz."""
+    """LLM Router role (E7-3): create/append + note identity."""
 
     action: Action = Field(
         default="create",
@@ -21,7 +21,7 @@ class RouterResult(BaseModel):
 
 
 class WriterResult(BaseModel):
-    """LLM-Rolle Writer (E7-3): Summary und Tags."""
+    """LLM Writer role (E7-3): summary and tags."""
 
     summary: str = Field(description="Structured summary of the input")
     tags: list[str] = Field(
@@ -31,7 +31,7 @@ class WriterResult(BaseModel):
 
 
 class LinkerResult(BaseModel):
-    """LLM-Rolle Linker (E7-3): verwandte Vault-Titel."""
+    """LLM Linker role (E7-3): related vault titles."""
 
     related: list[str] = Field(
         default_factory=list,
@@ -74,7 +74,7 @@ class ClassificationResult(BaseModel):
 
 
 class VisionImageResult(BaseModel):
-    """Vision-LLM-Ergebnis fuer reine Foto-Inhalte (E18-6)."""
+    """Vision LLM result for photo-only content (E18-6)."""
 
     description: str = Field(description="Searchable description of the image")
     tags: list[str] = Field(
@@ -84,10 +84,10 @@ class VisionImageResult(BaseModel):
 
 
 class LLMAnswer(BaseModel):
-    """Rohe RAG-Antwort des LLM (E17-3), bevor Quellen aufgeloest werden.
+    """Raw RAG answer from the LLM (E17-3), before sources are resolved.
 
-    ``sources`` sind **Titel** aus dem mitgelieferten Kontext — der Service
-    mappt sie auf echte Notizen (``NoteRef``) und verwirft Halluzinationen.
+    ``sources`` are **titles** from the provided context — the service maps
+    them onto real notes (``NoteRef``) and drops hallucinations.
     """
 
     answer: str = Field(description="Answer based strictly on the provided notes")
@@ -102,14 +102,14 @@ class LLMAnswer(BaseModel):
 
 
 class NoteRef(BaseModel):
-    """Aufgeloeste Quelle: Titel plus (falls bekannt) Vault-Pfad fuer Links."""
+    """Resolved source: title plus vault path for links when known."""
 
     title: str
     vault_path: str | None = None
 
 
 class AnswerResult(BaseModel):
-    """Finales RAG-Ergebnis (E17-3) fuer Konsumenten (Telegram, REST, MCP)."""
+    """Final RAG result (E17-3) for consumers (Telegram, REST, MCP)."""
 
     answer: str
     sources: list[NoteRef] = Field(default_factory=list)
@@ -117,7 +117,7 @@ class AnswerResult(BaseModel):
 
 
 class LLMDigest(BaseModel):
-    """Rohe Digest-Synthese des LLM (E17-8), bevor Quellen aufgeloest werden."""
+    """Raw digest synthesis from the LLM (E17-8), before sources are resolved."""
 
     digest: str = Field(description="Synthesized overview of the provided notes")
     sources: list[str] = Field(
@@ -131,7 +131,7 @@ class LLMDigest(BaseModel):
 
 
 class DigestResult(BaseModel):
-    """Finales Digest-Ergebnis (E17-8) fuer Telegram, REST, n8n."""
+    """Final digest result (E17-8) for Telegram, REST, n8n."""
 
     topic: str
     digest: str

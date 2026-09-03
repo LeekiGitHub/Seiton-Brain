@@ -1,7 +1,7 @@
-"""Vault-Schreib-API — duenne Wrapper um ``VaultBackend`` (E15-1).
+"""Vault write API — thin wrappers around ``VaultBackend`` (E15-1).
 
-Bestehende Imports (`from app.vault.writer import write_note`, …) bleiben
-gueltig. Implementierung: ``app.vault.filesystem.FilesystemVaultBackend``.
+Existing imports (`from app.vault.writer import write_note`, …) stay
+valid. Implementation: ``app.vault.filesystem.FilesystemVaultBackend``.
 """
 
 from pathlib import Path
@@ -27,7 +27,7 @@ __all__ = [
     "append_to_note",
     "save_note_content",
     "delete_note",
-    # fuer Tests / interne Nutzung (historisch aus writer exportiert)
+    # for tests / internal use (historically exported from writer)
     "_atomic_write",
     "_next_available_path",
     "_parse_frontmatter",

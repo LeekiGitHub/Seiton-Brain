@@ -1,4 +1,4 @@
-"""Tests fuer Telegram Foto-/Dokument-Capture (E22-2)."""
+"""Tests for Telegram photo/document capture (E22-2)."""
 
 from unittest.mock import AsyncMock, patch
 

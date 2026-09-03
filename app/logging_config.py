@@ -1,11 +1,11 @@
-"""Strukturiertes Logging mit JSON-Ausgabe und Request-/Task-Korrelation.
+"""Structured logging with JSON output and request/task correlation.
 
-Jede Log-Zeile kann optional enthalten:
-- ``task_id`` — Celery-Task (gesetzt via ``task_prerun``-Signal)
-- ``request_id`` — HTTP-Request (Middleware in ``app.main``)
-- ``telegram_update_id`` — Telegram-Update im Worker
+Each log line may optionally include:
+- ``task_id`` — Celery task (set via ``task_prerun`` signal)
+- ``request_id`` — HTTP request (middleware in ``app.main``)
+- ``telegram_update_id`` — Telegram update in the worker
 
-Kontext lebt in ``contextvars`` — thread-/async-sicher, kein globales Dict.
+Context lives in ``contextvars`` — thread/async-safe, no global dict.
 """
 
 from __future__ import annotations
@@ -38,8 +38,8 @@ def bind_log_context(
     request_id: str | None = None,
     telegram_update_id: int | None = None,
 ) -> None:
-    """Setzt Korrelationsfelder fuer die aktuelle Execution (ueberschreibt nur
-    die uebergebenen, nicht-None Werte).
+    """Set correlation fields for the current execution (only overwrites
+    the passed, non-None values).
     """
     if task_id is not None:
         _task_id.set(task_id)
@@ -55,7 +55,7 @@ def clear_log_context() -> None:
 
 
 class LogContextFilter(logging.Filter):
-    """Injiziert Kontextvariablen als Attribute auf den LogRecord."""
+    """Inject context variables as attributes on the LogRecord."""
 
     def filter(self, record: logging.LogRecord) -> bool:
         for key, var in _CONTEXT_VARS.items():
@@ -87,7 +87,7 @@ class JsonLogFormatter(logging.Formatter):
 
 
 class TextLogFormatter(logging.Formatter):
-    """Lesbares Text-Format fuer lokale Entwicklung (``LOG_JSON=false``)."""
+    """Human-readable text format for local development (``LOG_JSON=false``)."""
 
     def format(self, record: logging.LogRecord) -> str:
         base = super().format(record)
@@ -102,7 +102,7 @@ class TextLogFormatter(logging.Formatter):
 
 
 def configure_logging() -> None:
-    """Root-Logger einmalig konfigurieren (idempotent genug fuer API + Worker)."""
+    """Configure the root logger once (idempotent enough for API + worker)."""
     root = logging.getLogger()
     root.handlers.clear()
 
@@ -118,8 +118,8 @@ def configure_logging() -> None:
     root.addHandler(handler)
     root.setLevel(settings.log_level.upper())
 
-    # Uvicorn/Celery duerfen nicht doppelt auf stderr spammen — wir nutzen
-    # denselben Handler fuer die gaengigen Framework-Logger.
+    # Keep Uvicorn/Celery from double-logging to stderr — reuse the same
+    # handler for the common framework loggers.
     for name in ("uvicorn", "uvicorn.error", "uvicorn.access", "celery"):
         framework_logger = logging.getLogger(name)
         framework_logger.handlers.clear()

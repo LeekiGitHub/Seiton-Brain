@@ -1,4 +1,4 @@
-"""Tests fuer One-Click-Backup + gefuehrten Restore (E25-1)."""
+"""Tests for one-click backup + guided restore (E25-1)."""
 
 from datetime import datetime
 from pathlib import Path

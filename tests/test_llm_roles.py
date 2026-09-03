@@ -1,4 +1,4 @@
-"""Tests fuer spezialisierte LLM-Rollen (E7-3)."""
+"""Tests for specialized LLM roles (E7-3)."""
 
 import json
 from unittest.mock import AsyncMock, MagicMock, patch

@@ -1,4 +1,4 @@
-// Login-Seite (E23-1): Passwort → Session-Cookie, dann zum Dashboard.
+// Login page (E23-1): password → session cookie, then to dashboard.
 
 (() => {
   function escapeHtml(text) {

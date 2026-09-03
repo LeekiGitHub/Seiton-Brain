@@ -1,4 +1,4 @@
-"""Erkennung, ob die Erstkonfiguration abgeschlossen ist."""
+"""Detect whether initial configuration is complete."""
 
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ def _effective_values() -> dict[str, str]:
 
 
 def missing_setup_fields() -> list[str]:
-    """Pflichtfelder, die noch konfiguriert werden muessen."""
+    """Required fields that still need to be configured."""
     values = _effective_values()
     missing: list[str] = []
     if is_placeholder(values["OPENAI_API_KEY"]):

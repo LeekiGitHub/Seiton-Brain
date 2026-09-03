@@ -8,6 +8,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
 
 ## [Unreleased]
 
+### Changed
+- **Comment & docstring hygiene:** Technical comments and docstrings across
+  `app/`, `scripts/`, `tests/`, and `examples/mcp/` translated to English and
+  tightened to WHY/INVARIANT/SECURITY intent. No product behavior changes;
+  user-facing German UI/CLI/Telegram strings left intact.
+
 ### Added
 - **E47-3 Designsystem** ([`docs/design-system.md`](docs/design-system.md) +
   [`.cursor/rules/ui-design-system.mdc`](.cursor/rules/ui-design-system.mdc)):

@@ -1,7 +1,7 @@
-"""Heuristisches Pre-Filtering der Vault-Notizen vor dem LLM (E5-2).
+"""Heuristic pre-filtering of vault notes before the LLM (E5-2).
 
-Token-Overlap auf Titel/Snippet; max. ``max_notes`` (Default 30) fuer den
-Classify-Prompt — spart Tokens und verbessert Append-Treffer.
+Token overlap on title/snippet; max ``max_notes`` (default 30) for the
+classify prompt — saves tokens and improves append hits.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_MAX_NOTES = 30
 
-# Kurze DE/EN-Stopwords — nicht als Match-Signal zaehlen.
+# Short DE/EN stopwords — do not count as match signal.
 _STOPWORDS = frozenset(
     {
         "a",
@@ -69,7 +69,7 @@ _TOKEN_RE = re.compile(r"[a-z0-9äöüß]{2,}", re.IGNORECASE)
 
 
 def tokenize(text: str) -> set[str]:
-    """Extrahiert Kleinbuchstaben-Tokens, ohne Stopwords."""
+    """Extract lowercase tokens, excluding stopwords."""
     tokens: set[str] = set()
     for match in _TOKEN_RE.finditer(text.lower()):
         tok = match.group(0)
@@ -79,7 +79,7 @@ def tokenize(text: str) -> set[str]:
 
 
 def score_note(note: VaultNote, query_tokens: set[str]) -> int:
-    """Gewichtet Titel-Treffer hoeher als Snippet-Treffer."""
+    """Weight title hits higher than snippet hits."""
     if not query_tokens:
         return 0
     title_tokens = tokenize(note.title)
@@ -102,11 +102,11 @@ def prefilter_notes_for_llm(
     *,
     max_notes: int = DEFAULT_MAX_NOTES,
 ) -> list[VaultNote]:
-    """Waehlt die relevantesten Notizen fuer den Classify-Kontext.
+    """Pick the most relevant notes for the classify context.
 
-    - Mit Query-Tokens: Notizen mit Score > 0 zuerst (Score absteigend),
-      Luecken mit den uebrigen (Reihenfolge beibehalten = juengste zuerst) auffuellen.
-    - Ohne Tokens oder leere Query: einfach die ersten ``max_notes``.
+    - With query tokens: notes with score > 0 first (score descending),
+      fill gaps with the rest (order preserved = newest first).
+    - Without tokens or empty query: simply the first ``max_notes``.
     """
     if max_notes <= 0:
         return []

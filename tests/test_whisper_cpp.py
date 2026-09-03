@@ -1,4 +1,4 @@
-"""Tests fuer lokalen Whisper via whisper.cpp (E6-4)."""
+"""Tests for local Whisper via whisper.cpp (E6-4)."""
 
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch

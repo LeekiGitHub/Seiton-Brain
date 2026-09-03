@@ -1,7 +1,7 @@
-"""Lokaler Whisper via whisper.cpp (E6-4) — optional, Soft-Probe.
+"""Local Whisper via whisper.cpp (E6-4) — optional, soft probe.
 
-Braucht Host-Binary (z. B. ``whisper-cli``) und ein GGML-Modell unter
-``models/`` (gitignored). Optional ``ffmpeg`` fuer OGG→WAV. Siehe
+Needs a host binary (e.g. ``whisper-cli``) and a GGML model under
+``models/`` (gitignored). Optional ``ffmpeg`` for OGG→WAV. See
 ``docs/whisper-cpp.md``.
 """
 
@@ -20,13 +20,13 @@ from app.transcription.whisper import normalize_whisper_language
 
 logger = logging.getLogger(__name__)
 
-# whisper.cpp CLI-Timeout (lange Sprachdateien / CPU).
+# whisper.cpp CLI timeout (long voice files / CPU).
 _DEFAULT_TIMEOUT_SEC = 300
 
 
 @lru_cache(maxsize=1)
 def is_whisper_cpp_available() -> bool:
-    """True, wenn Binary und Modell-Datei nutzbar erscheinen."""
+    """True if binary and model file look usable."""
     binary = (settings.whisper_cpp_binary or "").strip()
     model = Path(settings.whisper_cpp_model or "").expanduser()
     if not binary or not model.is_file():
@@ -73,12 +73,12 @@ def _ffmpeg_available() -> bool:
 
 
 def _ensure_wav(src: Path, wav: Path) -> Path:
-    """Konvertiert nach WAV wenn noetig (Telegram: meist OGG/Opus)."""
+    """Convert to WAV when needed (Telegram: usually OGG/Opus)."""
     suffix = src.suffix.lower()
     if suffix in {".wav", ".wave"}:
         return src
     if not _ffmpeg_available():
-        # Manche Builds akzeptieren OGG direkt — Versuch ohne Konvertierung.
+        # Some builds accept OGG directly — try without conversion.
         logger.warning(
             "ffmpeg fehlt — uebergebe %s direkt an whisper.cpp "
             "(bei Fehlern: brew/apt install ffmpeg)",
@@ -131,7 +131,7 @@ def transcribe_whisper_cpp_sync(
     filename: str = "voice.ogg",
     timeout: int = _DEFAULT_TIMEOUT_SEC,
 ) -> str:
-    """Synchrone whisper.cpp-Transkription (fuer ``asyncio.to_thread``)."""
+    """Synchronous whisper.cpp transcription (for ``asyncio.to_thread``)."""
     if not audio_bytes:
         return ""
 
@@ -172,7 +172,7 @@ def transcribe_whisper_cpp_sync(
 
         text = _parse_whisper_stdout(result.stdout or "")
         if not text and result.stderr:
-            # Manche Builds schreiben nur nach stderr
+            # Some builds write only to stderr
             text = _parse_whisper_stdout(result.stderr)
         return text
 

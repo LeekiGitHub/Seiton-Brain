@@ -1,4 +1,4 @@
-"""Vault-Index in Postgres (E5-1), Keyword-Suche (E17-1), Chunks (E18-4)."""
+"""Vault index in Postgres (E5-1), keyword search (E17-1), chunks (E18-4)."""
 
 from __future__ import annotations
 
@@ -22,13 +22,13 @@ from app.vault.reader import VaultNote, _body_snippet, _parse_frontmatter
 
 logger = logging.getLogger(__name__)
 
-# Fuer UI-/Listen-Preview; Retrieval laeuft ueber Chunks (E18-4).
+# For UI/list preview; retrieval runs via chunks (E18-4).
 BODY_INDEX_CHARS = 2000
-# Snippet in SearchHit / RAG-Kontext — etwas laenger als frueher, weil Chunks
-# den relevanten Abschnitt liefern.
+# Snippet in SearchHit / RAG context — a bit longer than before because
+# chunks supply the relevant section.
 HIT_SNIPPET_CHARS = 400
 LLM_NOTE_LIMIT = 80
-# Kandidaten-Pool vor Heuristik-Prefilter (E5-2); danach max. ~30 im Prompt.
+# Candidate pool before heuristic prefilter (E5-2); then max ~30 in the prompt.
 LLM_CANDIDATE_POOL = 200
 DEFAULT_DIGEST_DAYS = 7
 DEFAULT_DIGEST_LIMIT = 15
@@ -60,16 +60,16 @@ def _index_body_snippet(content: str) -> str:
 
 
 def _mtime_unchanged(disk_mtime: datetime, indexed_mtime: datetime) -> bool:
-    """True, wenn die Datei seit dem Indexieren nicht neuer ist (E28-1)."""
+    """True if the file is not newer than when it was indexed (E28-1)."""
     db_mtime = indexed_mtime
     if db_mtime.tzinfo is None:
         db_mtime = db_mtime.replace(tzinfo=UTC)
-    # Sekunden-Genauigkeit: Postgres/FS runden unterschiedlich auf µs.
+    # Second precision: Postgres/FS round microseconds differently.
     return int(disk_mtime.timestamp()) <= int(db_mtime.timestamp())
 
 
 def _iter_indexable_vault_files(vault_path: Path):
-    """Yield indexierbare Vault-Dateien (ohne .hidden / _seiton)."""
+    """Yield indexable vault files (skip .hidden / _seiton)."""
     for file in sorted(vault_path.rglob("*")):
         if not file.is_file():
             continue
@@ -85,7 +85,7 @@ def _iter_indexable_vault_files(vault_path: Path):
 
 @dataclass(frozen=True)
 class VaultIndexSyncResult:
-    """Ergebnis eines Vault-Index-Syncs (E28-1)."""
+    """Result of a vault index sync (E28-1)."""
 
     indexed: int = 0
     skipped: int = 0
@@ -127,20 +127,20 @@ async def _apply_index_payload(
 
 
 async def sync_vault_index_from_disk(db: AsyncSession) -> int:
-    """Voller Vault-Scan — Bootstrap oder Reparatur des Index."""
+    """Full vault scan — bootstrap or repair the index."""
     result = await sync_vault_index(db, incremental=False)
     return result.indexed
 
 
 async def sync_vault_index_incremental(db: AsyncSession) -> VaultIndexSyncResult:
-    """mtime-basierter Sync: nur neue/geänderte Dateien (E28-1)."""
+    """mtime-based sync: only new/changed files (E28-1)."""
     return await sync_vault_index(db, incremental=True)
 
 
 async def sync_vault_index(
     db: AsyncSession, *, incremental: bool = True
 ) -> VaultIndexSyncResult:
-    """Vault → Index. ``incremental=True`` überspringt unveränderte mtimes."""
+    """Vault → index. ``incremental=True`` skips unchanged mtimes."""
     vault_path = _vault_root()
     if not vault_path.exists():
         return VaultIndexSyncResult(mode="incremental" if incremental else "full")
@@ -219,7 +219,7 @@ def parse_note_file(path: Path) -> VaultNote:
 def _file_to_index_payload(
     path: Path,
 ) -> tuple[VaultNoteIndex, str] | None:
-    """Indexzeile + voller Extrakt-Text — ``None`` bei nicht unterstuetztem Typ."""
+    """Index row + full extract text — ``None`` for unsupported type."""
     extractor = get_extractor(path)
     if extractor is None:
         return None
@@ -237,7 +237,7 @@ def _file_to_index_payload(
 
 
 def _file_to_index_row(path: Path) -> VaultNoteIndex | None:
-    """Kompatibilitaets-Helfer fuer bestehende Tests."""
+    """Compatibility helper for existing tests."""
     payload = _file_to_index_payload(path)
     return payload[0] if payload else None
 
@@ -248,7 +248,7 @@ def _ilike_pattern(query: str) -> str:
 
 
 def _embedding_text(title: str, body: str) -> str:
-    """Eingabetext fuer das Embedding: Titel traegt am meisten Signal, dann Body."""
+    """Embedding input text: title carries the most signal, then body."""
     return f"{title}\n\n{body}".strip()
 
 
@@ -257,7 +257,7 @@ async def _embed_text(title: str, body: str, *, label: str) -> list[float] | Non
         return None
     try:
         return await get_embedding_provider().embed(_embedding_text(title, body))
-    except Exception as exc:  # noqa: BLE001 — Embedding ist optional, nie fatal
+    except Exception as exc:  # noqa: BLE001 — embedding is optional, never fatal
         logger.warning("Embedding failed for %s: %s", label, exc)
         return None
 
@@ -267,7 +267,7 @@ async def _replace_chunks(
     note: VaultNoteIndex,
     full_text: str,
 ) -> tuple[int, bool]:
-    """Ersetzt alle Chunks einer Notiz. Liefert (Anzahl, hatte_embedding)."""
+    """Replace all chunks of a note. Return (count, had_embedding)."""
     await db.execute(delete(VaultChunk).where(VaultChunk.note_id == note.id))
     pieces = chunk_text(
         full_text,
@@ -296,7 +296,7 @@ async def _replace_chunks(
 
 
 async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) -> None:
-    """Indexiert eine Datei (relativ zum Vault-Root). Ignoriert fehlende Pfade."""
+    """Index a file (relative to vault root). Ignore missing paths."""
     filepath = _vault_root() / vault_relative_path
     if not filepath.is_file():
         await remove_vault_note_index(db, vault_relative_path)
@@ -304,7 +304,7 @@ async def upsert_vault_note_index(db: AsyncSession, vault_relative_path: str) ->
 
     payload = _file_to_index_payload(filepath)
     if payload is None:
-        return  # nicht unterstuetzter Dateityp — nicht indexieren
+        return  # unsupported file type — do not index
     row, full_text = payload
     existing = (
         await db.execute(
@@ -371,10 +371,10 @@ async def list_indexed_notes(db: AsyncSession, limit: int = LLM_NOTE_LIMIT) -> l
 
 
 async def list_existing_notes(limit: int = LLM_CANDIDATE_POOL) -> list[VaultNote]:
-    """LLM-Kontext: liest aus dem Vault-Index (E5-1), nicht mehr ``rglob``.
+    """LLM context: read from the vault index (E5-1), no longer ``rglob``.
 
-    Liefert einen groesseren Kandidaten-Pool; ``prefilter_notes_for_llm`` (E5-2)
-    reduziert spaeter auf die Prompt-Obergrenze.
+    Returns a larger candidate pool; ``prefilter_notes_for_llm`` (E5-2)
+    later reduces it to the prompt limit.
     """
     async with SessionLocal() as db:
         return await list_indexed_notes(db, limit=limit)
@@ -403,7 +403,7 @@ async def search_vault_notes(
     body_match = VaultNoteIndex.body_snippet.ilike(pattern)
     chunk_match = VaultChunk.content.ilike(pattern)
 
-    # Titel-Treffer zuerst (ohne Chunk-Join), dann Body/Chunk.
+    # Title hits first (no chunk join), then body/chunk.
     title_rows = (
         await db.execute(
             select(VaultNoteIndex)
@@ -421,7 +421,7 @@ async def search_vault_notes(
         return hits[:limit]
 
     remaining = limit - len(hits)
-    # Chunk-Treffer mit Parent laden; Fallback Body-Match ohne Chunk.
+    # Load chunk hits with parent; fallback body match without chunk.
     chunk_rows = (
         await db.execute(
             select(VaultChunk, VaultNoteIndex)
@@ -450,10 +450,10 @@ async def search_vault_notes(
 async def semantic_search_vault_notes(
     db: AsyncSession, query: str, limit: int = 10
 ) -> list[SearchHit]:
-    """Semantische Suche via pgvector-kNN auf Chunks (E17-2 + E18-4).
+    """Semantic search via pgvector kNN on chunks (E17-2 + E18-4).
 
-    Liefert ``[]``, wenn Embeddings deaktiviert sind, die Query leer ist oder
-    noch kein Chunk ein Embedding hat.
+    Returns ``[]`` when embeddings are disabled, the query is empty, or
+    no chunk has an embedding yet.
     """
     if not settings.embeddings_enabled:
         return []
@@ -464,11 +464,11 @@ async def semantic_search_vault_notes(
     await ensure_vault_index(db)
     try:
         query_embedding = await get_embedding_provider().embed(term)
-    except Exception as exc:  # noqa: BLE001 — Suche soll nicht hart fehlschlagen
+    except Exception as exc:  # noqa: BLE001 — search must not hard-fail
         logger.warning("Query embedding failed for %r: %s", term, exc)
         return []
 
-    # Mehr Chunks holen, dann nach Dokument deduplizieren (bester Chunk gewinnt).
+    # Fetch more chunks, then dedupe by document (best chunk wins).
     stmt = (
         select(VaultChunk)
         .options(selectinload(VaultChunk.note))
@@ -510,10 +510,10 @@ async def collect_digest_notes(
     days: int | None = DEFAULT_DIGEST_DAYS,
     limit: int = DEFAULT_DIGEST_LIMIT,
 ) -> list[SearchHit]:
-    """Notizen fuer einen Themen-Digest sammeln (E17-8).
+    """Collect notes for a topic digest (E17-8).
 
-  Matcht Ordner, Kategorie, Titel/Body (ILIKE). Optional ``days`` filtert
-  nach ``mtime``. Bei wenigen Treffern: semantische Ergaenzung (wenn aktiv).
+    Matches folder, category, title/body (ILIKE). Optional ``days`` filters
+    by ``mtime``. On few hits: semantic fill-in (when enabled).
     """
     await ensure_vault_index(db)
     term = topic.strip()
@@ -576,11 +576,11 @@ async def retrieve_vault_notes(
     *,
     semantic: bool = False,
 ) -> list[SearchHit]:
-    """Keyword- oder semantische Suche mit Fallback (E17-1/2/5).
+    """Keyword or semantic search with fallback (E17-1/2/5).
 
-    ``semantic=True``: versucht Embedding-kNN, wenn ``EMBEDDINGS_ENABLED``;
-    bei 0 Treffern oder deaktivierten Embeddings Fallback auf Keyword.
-    ``semantic=False``: nur Keyword (Default fuer ``/find`` und Legacy-API).
+    ``semantic=True``: try embedding kNN when ``EMBEDDINGS_ENABLED``;
+    on 0 hits or disabled embeddings, fall back to keyword.
+    ``semantic=False``: keyword only (default for ``/find`` and legacy API).
     """
     if semantic and settings.embeddings_enabled:
         hits = await semantic_search_vault_notes(db, query, limit)

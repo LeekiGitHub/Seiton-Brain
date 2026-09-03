@@ -1,4 +1,4 @@
-"""Tests fuer UI-Capture (E22-1)."""
+"""Tests for UI capture (E22-1)."""
 
 from unittest.mock import AsyncMock, patch
 

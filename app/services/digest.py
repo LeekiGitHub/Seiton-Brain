@@ -1,10 +1,10 @@
-"""Themen-Digest-Service (E17-8).
+"""Topic digest service (E17-8).
 
-Sammelt verwandte Vault-Notizen zu einem Thema (Ordner, Kategorie oder
-Freitext) und erzeugt eine LLM-Synthese — Wochenrückblick, Themen-Brief.
+Collects related vault notes for a topic (folder, category, or free text)
+and produces an LLM synthesis — weekly review, topic brief.
 
-Konsumenten: ``/digest`` (Telegram), ``POST /v1/digest`` (REST),
-``POST /api/ui/digest`` (Web-UI, E22-3).
+Consumers: ``/digest`` (Telegram), ``POST /v1/digest`` (REST),
+``POST /api/ui/digest`` (web UI, E22-3).
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -42,7 +42,7 @@ async def build_digest(
     days: int | None = 7,
     limit: int = 15,
 ) -> DigestResult:
-    """Erstellt einen Digest zu ``topic`` aus den passendsten Vault-Notizen."""
+    """Build a digest for ``topic`` from the best-matching vault notes."""
     t = topic.strip()
     if not t:
         return DigestResult(
@@ -78,7 +78,7 @@ async def build_digest(
 
 
 def format_digest_for_chat(result: DigestResult) -> str:
-    """Rendert ``DigestResult`` fuer Telegram mit ``[[Quellen]]``."""
+    """Render ``DigestResult`` for Telegram with ``[[Quellen]]``."""
     header = f"Digest: {result.topic}"
     if result.days:
         header += f" (letzte {result.days} Tage)"

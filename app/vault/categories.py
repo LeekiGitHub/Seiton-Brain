@@ -1,7 +1,7 @@
-"""Konfigurierbare Kategorie→Ordner-Zuordnung (E4-3).
+"""Configurable category→folder mapping (E4-3).
 
-Liest optional ``vault_config.yaml`` (Vault-Root oder ``SEITON_VAULT_CONFIG``).
-Ohne Datei gelten die Defaults (wie bisher hardcoded).
+Optionally reads ``vault_config.yaml`` (vault root or ``SEITON_VAULT_CONFIG``).
+Without a file, defaults apply (as previously hard-coded).
 """
 
 from __future__ import annotations
@@ -26,12 +26,12 @@ DEFAULT_CATEGORY_FOLDERS: dict[str, str] = {
 
 DEFAULT_FOLDER = "Notes"
 
-# Abwärtskompatibel: viele Tests/Imports erwarten diesen Namen.
+# Backward compatible: many tests/imports expect this name.
 CATEGORY_FOLDERS = DEFAULT_CATEGORY_FOLDERS
 
 
 def clear_category_cache() -> None:
-    """Cache leeren (Tests / nach Config-Änderung)."""
+    """Clear cache (tests / after config change)."""
     get_category_folders.cache_clear()
     resolve_vault_config_path.cache_clear()
 
@@ -47,7 +47,7 @@ def resolve_vault_config_path() -> Path | None:
 
 
 def _parse_vault_config_yaml(text: str) -> tuple[dict[str, str], str]:
-    """Minimales YAML-Subset fuer categories + default_folder — ohne PyYAML."""
+    """Minimal YAML subset for categories + default_folder — no PyYAML."""
     folders: dict[str, str] = {}
     default_folder = DEFAULT_FOLDER
     in_categories = False
@@ -67,7 +67,7 @@ def _parse_vault_config_yaml(text: str) -> tuple[dict[str, str], str]:
                 default_folder = value
             continue
         if in_categories:
-            # Ende des Blocks bei neuer Top-Level-Key ohne Indent
+            # End of block when a new top-level key without indent appears
             if re.match(r"^[A-Za-z_][\w-]*:\s*", line) and not line.startswith(
                 (" ", "\t")
             ):

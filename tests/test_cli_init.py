@@ -1,4 +1,4 @@
-"""Tests fuer ``seiton init`` (E16-3)."""
+"""Tests for ``seiton init`` (E16-3)."""
 
 import io
 from argparse import Namespace

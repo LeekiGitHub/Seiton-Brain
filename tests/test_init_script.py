@@ -1,4 +1,4 @@
-"""Tests fuer init.sh (E16-1)."""
+"""Tests for init.sh (E16-1)."""
 
 import os
 import shutil

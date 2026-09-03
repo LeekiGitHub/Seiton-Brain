@@ -1,4 +1,4 @@
-"""Lizenz-UI und Speichern (E21-1)."""
+"""License UI and persistence (E21-1)."""
 
 from __future__ import annotations
 

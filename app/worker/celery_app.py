@@ -12,7 +12,7 @@ celery_app.conf.broker_url = settings.redis_url
 celery_app.conf.result_backend = settings.redis_url
 celery_app.conf.task_track_started = True
 
-# Celery Beat (E28-1): periodischer Vault-Index-Sync. Intervall 0 = aus.
+# Celery Beat (E28-1): periodic vault index sync. Interval 0 = off.
 _sync_interval = settings.seiton_index_sync_interval_seconds
 if _sync_interval > 0:
     celery_app.conf.beat_schedule = {

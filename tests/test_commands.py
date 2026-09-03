@@ -1,8 +1,8 @@
-"""Tests fuer die Slash-Command-Handler.
+"""Tests for the slash-command handlers.
 
-Wir patchen die ``_query_*``- und ``_delete_entry``-Helper, damit die
-Tests komplett ohne DB laufen. ``db``-Argument wird einfach als ``None``
-durchgereicht (Handler nutzen es nur via die gemockten Helper).
+We patch the ``_query_*`` and ``_delete_entry`` helpers so tests run fully
+without a DB. The ``db`` argument is passed as ``None`` (handlers only use
+it via the mocked helpers).
 """
 
 from unittest.mock import AsyncMock, patch
@@ -214,8 +214,8 @@ async def test_undo_confirm_appended_keeps_vault_file(
 
     reply = await handle_command("/undo confirm", 42, None)  # type: ignore[arg-type]
 
-    # Appended-Entries duerfen die Vault-Datei NICHT loeschen — sonst geht
-    # die Original-Notiz mit potenziell vielen Update-Bloecken verloren.
+    # Appended entries must NOT delete the vault file — otherwise the
+    # original note with potentially many update blocks is lost.
     mock_delete_note.assert_not_called()
     mock_delete_entry.assert_awaited_once()
     assert "manuell" in reply

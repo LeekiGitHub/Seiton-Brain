@@ -1,8 +1,8 @@
-"""Optionale OCR-Hilfe (E18-5) via Tesseract.
+"""Optional OCR helper (E18-5) via Tesseract.
 
-Soft-Imports: ohne ``pytesseract`` / Pillow / (fuer PDFs) ``pypdfium2`` und ohne
-installiertes Tesseract-Binary bleibt OCR deaktiviert — Index und Text-Extractoren
-laufen unveraendert weiter.
+Soft imports: without ``pytesseract`` / Pillow / (for PDFs) ``pypdfium2`` and
+without an installed Tesseract binary, OCR stays disabled — index and text
+extractors continue unchanged.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-# Bildformate fuer den Image-OCR-Adapter.
+# Image formats for the image OCR adapter.
 IMAGE_OCR_EXTENSIONS: frozenset[str] = frozenset(
     {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".webp", ".bmp"}
 )
@@ -21,20 +21,20 @@ IMAGE_OCR_EXTENSIONS: frozenset[str] = frozenset(
 
 @lru_cache(maxsize=1)
 def is_ocr_available() -> bool:
-    """True, wenn Python-Deps und Tesseract-Binary nutzbar sind."""
+    """True if Python deps and the Tesseract binary are usable."""
     try:
         import pytesseract  # noqa: F401
         from PIL import Image  # noqa: F401
 
         pytesseract.get_tesseract_version()
         return True
-    except Exception as exc:  # noqa: BLE001 — optionaler Pfad
+    except Exception as exc:  # noqa: BLE001 — optional path
         logger.debug("OCR nicht verfuegbar: %s", exc)
         return False
 
 
 def is_pdf_ocr_available() -> bool:
-    """PDF-OCR braucht zusaetzlich pypdfium2 zum Rendern der Seiten."""
+    """PDF OCR additionally needs pypdfium2 to render pages."""
     if not is_ocr_available():
         return False
     try:
@@ -47,7 +47,7 @@ def is_pdf_ocr_available() -> bool:
 
 
 def ocr_ready() -> bool:
-    """Config + Soft-Deps: darf OCR aktiv genutzt werden?"""
+    """Config + soft deps: may OCR be used actively?"""
     from app.config import settings
 
     return bool(settings.seiton_ocr_enabled) and is_ocr_available()
@@ -67,7 +67,7 @@ def _ocr_lang() -> str:
 
 
 def ocr_image(path: Path) -> str:
-    """OCR auf einer Bilddatei. Leer bei Fehler / deaktiviert."""
+    """OCR on an image file. Empty on error / when disabled."""
     if not ocr_ready():
         return ""
     try:
@@ -75,7 +75,7 @@ def ocr_image(path: Path) -> str:
         from PIL import Image
 
         with Image.open(path) as image:
-            # RGB erzwingt kompatible Eingabe fuer Tesseract (z. B. RGBA/P-Mode).
+            # RGB forces Tesseract-compatible input (e.g. RGBA/P mode).
             rgb = image.convert("RGB")
             text = pytesseract.image_to_string(rgb, lang=_ocr_lang())
         return (text or "").strip()
@@ -85,7 +85,7 @@ def ocr_image(path: Path) -> str:
 
 
 def ocr_pdf(path: Path, *, scale: float = 2.0) -> str:
-    """OCR auf allen Seiten eines PDFs (Scan ohne Text-Layer)."""
+    """OCR all pages of a PDF (scan without text layer)."""
     if not pdf_ocr_ready():
         return ""
     try:
@@ -116,5 +116,5 @@ def ocr_pdf(path: Path, *, scale: float = 2.0) -> str:
 
 
 def clear_ocr_availability_cache() -> None:
-    """Test-Hilfe: Cache von ``is_ocr_available`` leeren."""
+    """Test helper: clear ``is_ocr_available`` cache."""
     is_ocr_available.cache_clear()

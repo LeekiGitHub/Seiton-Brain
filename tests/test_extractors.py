@@ -26,7 +26,7 @@ from app.vault.ocr import clear_ocr_availability_cache
 
 @pytest.fixture(autouse=True)
 def _ocr_off_by_default(monkeypatch):
-    """OCR/Vision in Extractor-Tests deterministisch aus — Soft-Deps variieren lokal."""
+    """Keep OCR/Vision off in extractor tests — soft deps vary locally."""
     monkeypatch.setattr("app.vault.extractors.pdf_ocr_ready", lambda: False)
     monkeypatch.setattr("app.vault.extractors.ocr_ready", lambda: False)
     monkeypatch.setattr("app.vault.extractors.vision_ready", lambda: False)
@@ -46,7 +46,7 @@ def test_markdown_extractor_parses_frontmatter(tmp_path: Path):
     assert doc.category == "idea"
     assert doc.doc_type == "markdown"
     assert "Track workouts." in doc.text
-    assert "title: Fitness App" not in doc.text  # frontmatter entfernt
+    assert "title: Fitness App" not in doc.text  # frontmatter stripped
 
 
 def test_markdown_extractor_falls_back_to_stem(tmp_path: Path):
@@ -78,7 +78,7 @@ def test_get_extractor_resolves_by_suffix(tmp_path: Path):
     assert isinstance(get_extractor(tmp_path / "Bewerbung.DOCX"), DocxExtractor)
     assert isinstance(get_extractor(tmp_path / "Pitch.pptx"), PptxExtractor)
     assert get_extractor(tmp_path / "photo.jpg") is None
-    assert get_extractor(tmp_path / "alt.doc") is None  # altes Binaerformat nicht unterstuetzt
+    assert get_extractor(tmp_path / "alt.doc") is None  # legacy binary format unsupported
 
 
 def test_is_supported_and_extensions():
@@ -112,7 +112,7 @@ def test_pdf_extractor_with_text_layer(tmp_path: Path):
         return_value=_fake_pdf_reader(["Seite eins.", "Seite zwei."], title="Anschreiben"),
     ):
         doc = PdfExtractor().extract(pdf)
-    assert doc.title == "Anschreiben"  # aus PDF-Metadaten
+    assert doc.title == "Anschreiben"  # from PDF metadata
     assert doc.doc_type == "pdf"
     assert "Seite eins." in doc.text
     assert "Seite zwei." in doc.text
@@ -130,7 +130,7 @@ def test_pdf_extractor_title_falls_back_to_stem(tmp_path: Path):
 
 
 def test_pdf_extractor_no_text_layer_marks_for_ocr(tmp_path: Path):
-    """Echter Scan ohne Text-Layer (leere Seite) → pdf_no_text."""
+    """Real scan without text layer (blank page) → pdf_no_text."""
     pdf = tmp_path / "Scan.pdf"
     writer = PdfWriter()
     writer.add_blank_page(width=72, height=72)
@@ -163,7 +163,7 @@ def test_docx_extractor_paragraphs_and_tables(tmp_path: Path):
     document.save(str(path))
 
     doc = DocxExtractor().extract(path)
-    assert doc.title == "Anschreiben"  # aus Core-Properties
+    assert doc.title == "Anschreiben"  # from core properties
     assert doc.doc_type == "docx"
     assert "ich bewerbe mich auf die Stelle." in doc.text
     assert "Position | Entwickler" in doc.text
@@ -199,7 +199,7 @@ def test_pptx_extractor_slides_and_notes(tmp_path: Path):
     presentation.save(str(path))
 
     doc = PptxExtractor().extract(path)
-    assert doc.title == "Produktvision"  # aus Core-Properties
+    assert doc.title == "Produktvision"  # from core properties
     assert doc.doc_type == "pptx"
     assert "Seiton Brain" in doc.text
     assert "Sprechernotiz: Demo zeigen." in doc.text

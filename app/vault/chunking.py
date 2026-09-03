@@ -1,7 +1,7 @@
-"""Text-Chunking fuer Retrieval (E18-4).
+"""Text chunking for retrieval (E18-4).
 
-Teilt langen Dokumenttext in ueberlappende Abschnitte, damit Keyword- und
-semantische Suche ueber die ersten 2000 Zeichen hinaus greifen.
+Splits long document text into overlapping sections so keyword and
+semantic search work beyond the first 2000 characters.
 """
 
 from __future__ import annotations
@@ -13,10 +13,10 @@ def chunk_text(
     chunk_size: int = 1500,
     overlap: int = 200,
 ) -> list[str]:
-    """Zerlegt ``text`` in Abschnitte der Laenge ``chunk_size`` mit Overlap.
+    """Split ``text`` into sections of length ``chunk_size`` with overlap.
 
-    Leerer/Whitespace-only Text → ``[]``. ``chunk_size`` muss > ``overlap`` sein;
-    ungueltige Parameter fallen auf sichere Defaults zurueck.
+    Empty/whitespace-only text → ``[]``. ``chunk_size`` must be > ``overlap``;
+    invalid parameters fall back to safe defaults.
     """
     cleaned = (text or "").strip()
     if not cleaned:
@@ -35,8 +35,8 @@ def chunk_text(
     n = len(cleaned)
     while start < n:
         end = min(start + size, n)
-        # Bevorzuge Abschnitte an Whitespace-Grenzen (kein Wortmitten-Schnitt),
-        # solange wir noch nicht am Textende sind.
+        # Prefer breaks at whitespace (no mid-word cuts) while we are
+        # not yet at the end of the text.
         if end < n:
             window = cleaned[start:end]
             split_at = max(window.rfind("\n"), window.rfind(" "))

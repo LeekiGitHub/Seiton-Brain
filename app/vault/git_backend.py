@@ -15,11 +15,10 @@ logger = logging.getLogger(__name__)
 
 
 class GitVaultBackend:
-    """Filesystem-Backend plus Git-Commit pro Änderung.
+    """Filesystem backend plus a Git commit per change.
 
-    Schreibt weiterhin Markdown-Dateien lokal, staged danach nur die betroffene
-    Datei und erzeugt einen Commit. Optional kann direkt auf ein Remote gepusht
-    werden.
+    Still writes Markdown files locally, then stages only the affected
+    file and creates a commit. Optionally can push straight to a remote.
     """
 
     def __init__(self) -> None:

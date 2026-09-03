@@ -1,4 +1,4 @@
-"""Doc-Contract für E47 UI-Inventar, Referenzen und Designsystem (E47-1/2/3)."""
+"""Doc contract for E47 UI inventory, references, and design system (E47-1/2/3)."""
 
 from pathlib import Path
 
