@@ -1,0 +1,26 @@
+---
+description: UI/UX — Designsystem verbindlich für Templates, CSS und UI-JS
+globs: app/ui/**/*
+alwaysApply: false
+---
+
+# UI & Designsystem (E47-3)
+
+Vor Änderungen an Templates, `app.css` / `setup.css` oder UI-JS:
+
+1. [`docs/design-system.md`](../../docs/design-system.md) lesen und befolgen
+2. Bei Unklarheit Ist-Stand: [`docs/ui-inventory.md`](../../docs/ui-inventory.md)
+3. Soll-Richtung / Referenzen: [`docs/ui-reference-request.md`](../../docs/ui-reference-request.md)
+
+## Hard rules
+
+- **Dark-only**; Tokens aus Designsystem / `:root` in `app.css` — keine Ad-hoc-Farben
+- **Markdown** bleibt Vault-Wahrheit; Toolbar schreibt Syntax, kein WYSIWYG-Zweig
+- **Kein** neues `alert()` / `confirm()` — Modal oder Inline-Feedback
+- **Kein** Big-Bang-Redesign außerhalb der Story; Token-Angleichung = **E47-4**
+- Chat: Panel/einklappbar bevorzugt; keine persistente Chat-History
+- Capture: Quicknote = Modal (global); echte Notizen = Editor mit Auto-Save
+
+## Stack
+
+Jinja2 + Vanilla JS + CSS-Variablen. Kein React/Tailwind ohne explizite ROADMAP-Entscheidung.

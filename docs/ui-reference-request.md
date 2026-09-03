@@ -596,9 +596,9 @@ eine bewusste Entscheidung „am Ist-Stand orientieren" mit Begründung.
 
 ---
 
-## Für Agents (E47-2 abgeschlossen 2026-09-02)
+## Für Agents (E47-2 + E47-3)
 
-1. ~~Status-Zeile oben auf **✅ Input vorhanden**~~ — erledigt
-2. ROADMAP E47-2 auf 🟢 setzen (in PR)
-3. **E47-3 starten:** `docs/design-system.md` aus Referenzen + [`ui-inventory.md`](ui-inventory.md) ableiten
-4. Cursor-Rule aktualisieren (Verweis auf `design-system.md`)
+1. Referenzen: dieses Dokument · Ist: [`ui-inventory.md`](ui-inventory.md)
+2. **Designsystem:** [`design-system.md`](design-system.md) — verbindlich
+3. Cursor-Rule: `.cursor/rules/ui-design-system.mdc`
+4. Token-CSS: E47-4

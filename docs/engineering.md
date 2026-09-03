@@ -14,7 +14,7 @@ Tool-Kosten (Free Tiers / GitHub / OSS).
 
 **UI/UX & Designsystem:** Epic **E47** — [`docs/ui-inventory.md`](ui-inventory.md)
 (E47-1 🟢), [`docs/ui-reference-request.md`](ui-reference-request.md) (E47-2 🟢),
-`docs/design-system.md` (E47-3, als Nächstes).
+[`docs/design-system.md`](design-system.md) (E47-3 🟢), Token-Angleichung E47-4.
 
 ---
 
