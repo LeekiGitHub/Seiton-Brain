@@ -1,16 +1,16 @@
-"""Zentrale Konfiguration via pydantic-settings.
+"""Central configuration via pydantic-settings.
 
-Liest Werte aus Umgebungsvariablen (und optional aus einer ``.env``-Datei).
-Pflichtfelder ohne Default sorgen fuer einen klaren Fail-Fast beim Start,
-statt spaeter mit kryptischen ``KeyError`` aufzuschlagen.
+Reads values from environment variables (and optionally from a ``.env`` file).
+Required fields without defaults fail fast at startup instead of raising
+cryptic ``KeyError``s later.
 
-Verwendung im Code::
+Usage::
 
     from app.config import settings
 
     api_key = settings.openai_api_key
 
-Im Test kann ein Feld pro Test ueberschrieben werden::
+In tests, override a field per test::
 
     monkeypatch.setattr(settings, "telegram_allowed_user_ids", "42,99")
 """
@@ -22,7 +22,7 @@ import sys
 from pydantic import ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Feldname -> (ENV-Variable, kurze Hilfe fuer den Operator)
+# field name -> (ENV var, short operator hint; hints stay German for operators)
 FIELD_HINTS: dict[str, tuple[str, str]] = {
     "telegram_bot_token": (
         "TELEGRAM_BOT_TOKEN",
@@ -52,7 +52,7 @@ FIELD_HINTS: dict[str, tuple[str, str]] = {
 
 
 def format_settings_validation_error(exc: ValidationError) -> str:
-    """Wandelt pydantic ValidationError in eine lesbare Startmeldung um."""
+    """Turn a pydantic ValidationError into a readable startup message."""
     lines = [
         "Seiton Brain konnte nicht starten — fehlende oder ungültige Konfiguration:",
         "",
@@ -88,102 +88,102 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # Telegram (optional — mobiles Erfassen; leer = deaktiviert, ADR 0004)
+    # Telegram (optional mobile capture; empty = disabled, ADR 0004)
     telegram_bot_token: str = ""
     telegram_webhook_secret: str = ""
-    # Kommaseparierte Liste numerischer User-IDs.
-    # Leer (Default) bedeutet: Allowlist deaktiviert -> alle erlaubt.
-    # Geparst wird im Webhook (dort sitzt auch der Logger).
+    # Comma-separated numeric user IDs.
+    # Empty (default): allowlist off → all users allowed.
+    # Parsed in the webhook (logging lives there too).
     telegram_allowed_user_ids: str = ""
-    # Telegram-Chat-ID fuer Admin-DMs bei dauerhaften Worker-Fehlern (E10-3).
-    # Leer = deaktiviert. Eigene ID: /start an @userinfobot.
+    # Telegram chat ID for admin DMs on permanent worker failures (E10-3).
+    # Empty = disabled. Own ID: /start at @userinfobot.
     telegram_admin_chat_id: str = ""
-    # Maximale akzeptierte Webhook-Body-Groesse in Bytes. Echte Telegram-
-    # Updates sind typischerweise <10 KB; 1 MB ist grosszuegig und schuetzt
-    # vor Resource-Exhaustion durch fehlgeleitete oder boesartige Requests.
+    # Max accepted webhook body size in bytes. Real Telegram updates are
+    # typically <10 KB; 1 MB is generous and guards against resource
+    # exhaustion from misdirected or malicious requests.
     telegram_webhook_max_body_bytes: int = 1_048_576
-    # Maximale Groesse einer Telegram-Sprachnachricht in Bytes (E6-1).
-    # Telegram/OpenAI erlauben mehr — dieses Limit schuetzt vor teuren Downloads
-    # und Whisper-Calls. Default 10 MB.
+    # Max Telegram voice message size in bytes (E6-1).
+    # Telegram/OpenAI allow more — this limit caps expensive downloads and
+    # Whisper calls. Default 10 MB.
     telegram_voice_max_bytes: int = 10_485_760
-    # Max. Groesse fuer Telegram-Dokumente/Fotos (E22-2). Telegram-Bot-API
-    # erlaubt Downloads bis 20 MB — Default entsprechend.
+    # Max Telegram document/photo size (E22-2). Bot API allows downloads
+    # up to 20 MB — default matches that.
     telegram_document_max_bytes: int = 20_971_520
-    # Verzeichnis fuer temporaere Voice-Dateien bis Verarbeitung erfolgreich
-    # (E6-2 Replay bei Crash/Retry). Leer = temp/voice relativ zum CWD.
+    # Dir for temporary voice files until processing succeeds
+    # (E6-2 replay on crash/retry). Empty = temp/voice relative to CWD.
     telegram_voice_cache_dir: str = "temp/voice"
-    # Optionaler Pfad zu vault_config.yaml (E4-3). Leer = <Vault>/vault_config.yaml
+    # Optional path to vault_config.yaml (E4-3). Empty = <Vault>/vault_config.yaml
     seiton_vault_config: str = ""
-    # Long-Poll-Fenster in Sekunden fuer den Polling-Modus (app.telegram.polling).
-    # Hoehere Werte = weniger Requests, laengere Hangs pro Aufruf. Telegram
-    # erlaubt bis 50; 25 ist ein guter Default.
+    # Long-poll window in seconds for polling mode (app.telegram.polling).
+    # Higher = fewer requests, longer hangs per call. Telegram allows up to
+    # 50; 25 is a solid default.
     telegram_polling_timeout: int = 25
 
     # LLM
     llm_provider: str = "openai"
     openai_api_key: str
     openai_model: str = "gpt-4o-mini"
-    # Ollama (E7-2), wenn LLM_PROVIDER=ollama. Whisper kann lokal laufen
-    # (WHISPER_PROVIDER=whisper.cpp, E6-4); Embeddings bleiben OpenAI.
+    # Ollama (E7-2) when LLM_PROVIDER=ollama. Whisper can run locally
+    # (WHISPER_PROVIDER=whisper.cpp, E6-4); embeddings stay on OpenAI.
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "llama3.2"
 
-    # Whisper language-Hint (E6-3), ISO-639-1 z. B. "de" / "en".
-    # Leer = Automatische Spracherkennung (OpenAI-Default / whisper.cpp auto).
+    # Whisper language hint (E6-3), ISO-639-1 e.g. "de" / "en".
+    # Empty = automatic language detection (OpenAI default / whisper.cpp auto).
     whisper_language: str = ""
-    # Transkription: openai (Default) oder whisper.cpp (E6-4, lokal).
+    # Transcription: openai (default) or whisper.cpp (E6-4, local).
     whisper_provider: str = "openai"
     whisper_cpp_binary: str = "whisper-cli"
-    # GGML-Modell; Default unter /models/ (gitignored, ADR 0002).
+    # GGML model; default under /models/ (gitignored, ADR 0002).
     whisper_cpp_model: str = "models/ggml-base.bin"
-    # Bei fehlendem Binary/Modell oder Laufzeitfehler → OpenAI.
+    # On missing binary/model or runtime error → fall back to OpenAI.
     whisper_cpp_fallback_openai: bool = True
 
-    # Max. Notizen im Classify-Prompt nach Token-Prefilter (E5-2).
+    # Max notes in the classify prompt after token prefilter (E5-2).
     seiton_llm_note_limit: int = 30
 
-    # Classify-Prompt-Version (E4-4): laedt prompts/{name}.{version}.txt
-    # (classify / router / writer / linker). Wird in entries.prompt_version gespeichert.
+    # Classify prompt version (E4-4): loads prompts/{name}.{version}.txt
+    # (classify / router / writer / linker). Stored in entries.prompt_version.
     seiton_prompt_version: str = "v1"
 
-    # Spezialisierte LLM-Rollen (E7-3): Router → Writer → Linker statt Ein-Shot.
-    # false = Legacy-Ein-Shot mit prompts/classify.{version}.txt (guenstiger).
+    # Specialized LLM roles (E7-3): Router → Writer → Linker instead of one-shot.
+    # false = legacy one-shot with prompts/classify.{version}.txt (cheaper).
     seiton_llm_roles_enabled: bool = True
 
-    # Semantische Suche / Embeddings (E17-2, pgvector). Standardmaessig aus —
-    # erzeugt zusaetzliche Embedding-API-Calls (Kosten). Wenn aktiviert, werden
-    # Notizen beim Schreiben/Append/Sync embedded und `semantic_search` nutzbar.
-    # Das Embedding-Modell muss zur Vektor-Dimension der DB-Spalte passen
-    # (EMBEDDING_DIM im Model + Migration); Default-Modell = 1536 Dimensionen.
+    # Semantic search / embeddings (E17-2, pgvector). Off by default — adds
+    # embedding API calls (cost). When on, notes are embedded on write/append/
+    # sync and `semantic_search` is usable.
+    # Embedding model must match the DB vector column dimension
+    # (EMBEDDING_DIM in model + migration); default model = 1536 dims.
     embeddings_enabled: bool = False
     embedding_model: str = "text-embedding-3-small"
 
-    # Chunking fuer Retrieval (E18-4). Lange Dokumente werden in Abschnitte
-    # zerlegt; Embeddings und Keyword-Treffer laufen ueber vault_chunk.
+    # Chunking for retrieval (E18-4). Long docs are split into sections;
+    # embeddings and keyword hits run via vault_chunk.
     seiton_chunk_size: int = 1500
     seiton_chunk_overlap: int = 200
-    # Inkrementeller Vault-Index-Sync (E28-1). Intervall in Sekunden fuer
-    # Celery Beat; 0 = Beat-Task deaktiviert (nur manueller Reindex).
+    # Incremental vault index sync (E28-1). Interval in seconds for Celery
+    # Beat; 0 = Beat task disabled (manual reindex only).
     seiton_index_sync_interval_seconds: int = 60
 
-    # OCR (E18-5). Optional: braucht System-Tesseract + pip extras
-    # (requirements-ocr.txt). Bei False / fehlender Installation bleibt
-    # pdf_no_text und Bilddateien werden nicht indexiert (ausser Vision).
+    # OCR (E18-5). Optional: needs system Tesseract + pip extras
+    # (requirements-ocr.txt). If False / not installed, pdf_no_text and
+    # image files are not indexed (unless Vision is on).
     seiton_ocr_enabled: bool = True
     seiton_ocr_lang: str = "deu+eng"
 
-    # Vision-LLM fuer reine Fotos (E18-6). Standard aus (API-Kosten), analog
-    # Embeddings. Nutzt OPENAI_API_KEY; Modell leer = OPENAI_MODEL.
+    # Vision LLM for pure photos (E18-6). Off by default (API cost), same
+    # idea as embeddings. Uses OPENAI_API_KEY; empty model = OPENAI_MODEL.
     seiton_vision_enabled: bool = False
     seiton_vision_model: str = ""
 
-    # OS-Keystore fuer Secrets (E16-5). true = Keys in Keychain/Credential Manager;
-    # Start via ./scripts/seiton-up.sh. Braucht pip install -r requirements-keyring.txt.
+    # OS keystore for secrets (E16-5). true = keys in Keychain/Credential Manager;
+    # start via ./scripts/seiton-up.sh. Needs pip install -r requirements-keyring.txt.
     seiton_keyring: bool = False
 
     # Vault
     obsidian_vault_path: str
-    # Vault-Backend (E15-1/E15-3). filesystem = Markdown-Ordner, git = Commit pro Note.
+    # Vault backend (E15-1/E15-3). filesystem = Markdown folder, git = commit per note.
     vault_backend: str = "filesystem"
     vault_git_push: bool = False
     vault_git_remote: str = "origin"
@@ -191,41 +191,41 @@ class Settings(BaseSettings):
     vault_git_author_name: str = "Seiton Brain"
     vault_git_author_email: str = "seiton@example.invalid"
 
-    # Persistenz
+    # Persistence
     database_url: str
     redis_url: str
 
     # Logging
     log_level: str = "INFO"
-    # true -> eine JSON-Zeile pro Log (Production/Docker); false -> lesbares Text-Format
+    # true → one JSON line per log (production/Docker); false → human-readable text
     log_json: bool = True
 
-    # REST API (/v1/*). Leer = API deaktiviert (503). Gesetzt = Header X-Seiton-Api-Key
-    # muss exakt uebereinstimmen (timing-safe Vergleich).
+    # REST API (/v1/*). Empty = API disabled (503). Set = Header X-Seiton-Api-Key
+    # must match exactly (timing-safe compare).
     seiton_api_key: str = ""
 
-    # Pfad zur lokalen .env fuer den Setup-Wizard (E19-1).
+    # Path to local .env for the setup wizard (E19-1).
     seiton_env_file: str = ".env"
 
-    # UI-Auth (E23-1). Leer = Web-UI nur von localhost (Status quo).
-    # Gesetzt = Login-Pflicht (Session-Cookie) — auch Remote-Zugriff moeglich,
-    # dann unbedingt hinter TLS betreiben (docs/remote-access.md).
+    # UI auth (E23-1). Empty = Web UI localhost-only (status quo).
+    # Set = login required (session cookie) — remote access then possible;
+    # must run behind TLS (docs/remote-access.md).
     ui_password: str = ""
-    # Session-Cookie Secure-Flag (E27-3). true = nur ueber HTTPS senden —
-    # hinter TLS-Proxy setzen. Localhost/HTTP: false belassen.
+    # Session cookie Secure flag (E27-3). true = send only over HTTPS —
+    # set behind a TLS proxy. Localhost/HTTP: leave false.
     ui_cookie_secure: bool = False
 
-    # Outbound Webhooks (E13-3). Leer = deaktiviert. Eine URL fuer alle Events;
-    # Event-Typ steht im JSON-Feld ``event`` und Header ``X-Seiton-Event``.
+    # Outbound webhooks (E13-3). Empty = disabled. One URL for all events;
+    # event type is in JSON field ``event`` and header ``X-Seiton-Event``.
     seiton_webhook_url: str = ""
 
-    # Kommerzielle Lizenz (E21-1). Leer = keine Lizenz hinterlegt.
-    # Format: SEITON1.<payload>.<signature> — siehe docs/licensing.md
+    # Commercial license (E21-1). Empty = no license on file.
+    # Format: SEITON1.<payload>.<signature> — see docs/licensing.md
     seiton_license_key: str = ""
-    # false = MIT/Open Source (Default). true = Prozess startet nur mit gueltiger Lizenz.
+    # false = MIT/open source (default). true = process starts only with a valid license.
     seiton_license_required: bool = False
 
-    # Debug-Modus: u. a. OpenAPI unter /docs auch ohne SEITON_API_KEY (E13-4).
+    # Debug mode: e.g. OpenAPI under /docs even without SEITON_API_KEY (E13-4).
     seiton_debug: bool = False
 
 

@@ -1,4 +1,4 @@
-"""Tests fuer Self-Hosting-Doku (E9-2)."""
+"""Tests for self-hosting docs (E9-2)."""
 
 from pathlib import Path
 

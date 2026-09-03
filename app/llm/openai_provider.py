@@ -72,7 +72,7 @@ class OpenAIProvider:
     async def _classify_monolithic(
         self, text: str, existing: list
     ) -> ClassificationResult:
-        """Ein-Shot-Classify (Fallback wenn ``SEITON_LLM_ROLES_ENABLED=false``)."""
+        """One-shot classify (fallback when ``SEITON_LLM_ROLES_ENABLED=false``)."""
         prompt = (
             self.prompt_template.replace("{input}", text)
             .replace("{existing_notes}", format_notes_for_prompt(existing))
@@ -89,7 +89,7 @@ class OpenAIProvider:
     async def _classify_with_roles(
         self, text: str, existing: list
     ) -> ClassificationResult:
-        """Router → Writer → (Linker) — max. 3 Steps (E7-3 / ADR 0003)."""
+        """Router → Writer → (Linker) — max 3 steps (E7-3 / ADR 0003)."""
         notes_block = format_notes_for_prompt(existing)
         category_list = format_category_list_for_prompt()
         category_guide = format_category_guide_for_prompt()
@@ -146,7 +146,7 @@ class OpenAIProvider:
         *,
         label: str,
     ) -> T:
-        """JSON-Mode Chat mit Retry bei Parse-/Schema-Fehlern."""
+        """JSON-mode chat with retry on parse/schema errors."""
         last_error: json.JSONDecodeError | ValidationError | None = None
         for attempt in range(1, MAX_PARSE_ATTEMPTS + 1):
             response = await self.client.chat.completions.create(
@@ -189,11 +189,10 @@ class OpenAIProvider:
     def _sanitize_action(
         self, result: ClassificationResult, existing: list
     ) -> ClassificationResult:
-        """Stellt sicher, dass append nur fuer real existierende Titel erlaubt ist.
+        """Ensure append is only allowed for titles that actually exist.
 
-        Halluziniert das LLM einen target_title, der nicht im Vault existiert,
-        fallen wir auf action='create' zurueck statt eine nicht existierende
-        Notiz zu ergaenzen.
+        If the LLM hallucinates a target_title that is not in the vault, fall
+        back to action='create' instead of appending to a non-existent note.
         """
         if result.action != "append":
             result.target_title = None
@@ -226,11 +225,11 @@ class OpenAIProvider:
         return result
 
     async def answer(self, question: str, context: str) -> LLMAnswer:
-        """RAG-Antwort (E17-3): Frage + Kontext-Snippets -> JSON-Antwort.
+        """RAG answer (E17-3): question + context snippets → JSON answer.
 
-        Gleiches Retry-Muster wie ``classify`` (JSON-Mode, bis zu
-        ``MAX_PARSE_ATTEMPTS`` Versuche). Quellen-Aufloesung auf echte Notizen
-        passiert im aufrufenden Service, nicht hier.
+        Same retry pattern as ``classify`` (JSON mode, up to
+        ``MAX_PARSE_ATTEMPTS`` attempts). Source resolution onto real notes
+        happens in the calling service, not here.
         """
         prompt = self.answer_template.replace("{question}", question).replace(
             "{context}", context
@@ -262,7 +261,7 @@ class OpenAIProvider:
         ) from last_error
 
     async def digest(self, topic: str, context: str, *, days: int | None) -> LLMDigest:
-        """Digest-Synthese (E17-8): Thema + Kontext-Notizen -> JSON."""
+        """Digest synthesis (E17-8): topic + context notes → JSON."""
         days_label = str(days) if days is not None else "all"
         prompt = (
             self.digest_template.replace("{topic}", topic)

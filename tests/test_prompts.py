@@ -1,4 +1,4 @@
-"""Tests fuer Prompt-Versionierung (E4-4)."""
+"""Tests for prompt versioning (E4-4)."""
 
 from pathlib import Path
 

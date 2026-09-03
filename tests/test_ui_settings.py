@@ -1,4 +1,4 @@
-"""Tests fuer Settings-UI (E19-5)."""
+"""Tests for settings UI (E19-5)."""
 
 from unittest.mock import AsyncMock, patch
 

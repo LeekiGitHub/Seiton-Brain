@@ -1,4 +1,4 @@
-"""Tests fuer CONTRIBUTING und GitHub-Templates (E11-3)."""
+"""Tests for CONTRIBUTING and GitHub templates (E11-3)."""
 
 from pathlib import Path
 

@@ -1,4 +1,4 @@
-"""Gemeinsame Konfigurationsspeicherung fuer Setup und Settings (E19)."""
+"""Shared config persistence for setup and settings (E19)."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ def _effective_env() -> dict[str, str]:
 
 
 def save_setup_config(body: SetupSaveRequest) -> SetupSaveResponse:
-    """Erstkonfiguration aus dem Setup-Wizard."""
+    """Initial configuration from the setup wizard."""
     vault_host = body.obsidian_vault_host_path.strip()
     updates: dict[str, str] = {
         "OBSIDIAN_VAULT_HOST_PATH": vault_host,
@@ -52,7 +52,7 @@ def save_settings_config(
     seiton_api_key: str = "",
     seiton_webhook_url: str | None = None,
 ) -> SetupSaveResponse:
-    """Einstellungen aktualisieren — leere Secrets behalten bestehende Werte."""
+    """Update settings — empty secrets keep existing values."""
     file_values = _effective_env()
     updates: dict[str, str] = {}
 

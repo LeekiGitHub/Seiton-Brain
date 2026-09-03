@@ -1,4 +1,4 @@
-"""Startup-Pruefung der Lizenz (E21-1)."""
+"""Startup license check (E21-1)."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ def check_current_license():
 
 
 def enforce_license_if_required() -> None:
-    """Beendet den Prozess, wenn SEITON_LICENSE_REQUIRED=true und Lizenz ungültig."""
+    """Exit the process when SEITON_LICENSE_REQUIRED=true and the license is invalid."""
     if not settings.seiton_license_required:
         return
     info = check_current_license()

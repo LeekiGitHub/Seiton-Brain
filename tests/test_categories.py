@@ -1,4 +1,4 @@
-"""Tests fuer konfigurierbare Kategorien (E4-3)."""
+"""Tests for configurable categories (E4-3)."""
 
 from pathlib import Path
 

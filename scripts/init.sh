@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Seiton Brain Init (E16-1) — Vault + .env vorbereiten, ohne Secrets abfragen.
+# Seiton Brain init (E16-1) — prepare vault + .env without prompting for secrets.
 #
-# Idempotent: mehrfach ausfuehrbar. Keys trägst du in .env oder im Setup-Wizard ein.
+# Idempotent: safe to re-run. Put keys in .env or the setup wizard.
 #
-# Aufruf (im Repo-Root):
+# Usage (repo root):
 #   ./scripts/init.sh
 # Optional:
-#   VAULT_DIR=/pfad/zum/vault ./scripts/init.sh
+#   VAULT_DIR=/path/to/vault ./scripts/init.sh
 #
-# Danach:
-#   ./scripts/install.sh          # Consumer: Docker starten + Wizard
-#   docker compose up -d          # Entwicklung
+# Next:
+#   ./scripts/install.sh          # Consumer: start Docker + wizard
+#   docker compose up -d          # Development
 #   ./scripts/doctor.sh           # Diagnose
 
 set -euo pipefail

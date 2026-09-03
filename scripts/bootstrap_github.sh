@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# Idempotentes Bootstrap-Skript für GitHub Labels, Milestones und initiale Issues.
-# Voraussetzung: `gh` ist installiert und authentifiziert (`gh auth login`).
-# Aufruf:
+# Idempotent bootstrap for GitHub labels, milestones, and initial issues.
+# Prerequisite: `gh` installed and authenticated (`gh auth login`).
+# Usage:
 #   ./scripts/bootstrap_github.sh
 #
-# Mehrfaches Ausführen ist sicher — bestehende Labels/Milestones/Issues werden
-# nicht doppelt angelegt.
+# Safe to re-run — existing labels/milestones/issues are not duplicated.
 
 set -euo pipefail
 
@@ -54,18 +53,17 @@ LABELS=(
 
 echo ""
 echo "── Labels ─────────────────────────────────────────"
-# Liste einmalig holen (war im alten Code pro Iteration und konnte still scheitern).
+# Fetch once (old code re-fetched per iteration and could fail silently).
 existing_labels=$(gh label list --repo "$REPO" --limit 500 --json name -q '.[].name' || true)
 for entry in "${LABELS[@]}"; do
   IFS='|' read -r name color desc <<< "$entry"
   if printf '%s\n' "$existing_labels" | grep -Fxq "$name"; then
-    # Existiert: trotzdem mit --force aktualisieren, damit Farbe/Beschreibung
-    # immer dem Stand des Skripts entsprechen. Idempotent.
+    # Exists: still update with --force so color/description match the script.
+    # Idempotent.
     gh label edit "$name" --repo "$REPO" --color "$color" --description "$desc" >/dev/null 2>&1 || true
     echo "  ✓ exists: $name"
   else
-    # --force fängt seltene Race-Bedingungen ab, falls das Label
-    # zwischenzeitlich angelegt wurde.
+    # --force covers rare races if the label was created concurrently.
     gh label create "$name" --repo "$REPO" --color "$color" --description "$desc" --force >/dev/null
     echo "  + created: $name"
   fi
@@ -99,12 +97,11 @@ done
 
 # ─── Issues ─────────────────────────────────────────────────────────────────────
 #
-# Format pro Issue:
-#   title|milestone|labels (komma-separiert)|body
+# Format per issue:
+#   title|milestone|labels (comma-separated)|body
 #
-# Sortierung folgt der ROADMAP.md. Wir legen nur die Stories der Phase A
-# automatisch als Issues an (das sind die unmittelbar relevanten). Phase B–D
-# bleiben in der ROADMAP als Backlog, bis wir näher dran sind.
+# Ordering follows ROADMAP.md. Only Phase A stories are auto-created as
+# issues (immediately relevant). Phases B–D stay in the ROADMAP backlog.
 
 ISSUES=(
 "E1-1: Telegram-Allowlist (TELEGRAM_ALLOWED_USER_IDS)|Phase A — MVP|epic:telegram,type:feature,priority:high,phase:A-mvp|Aktuell kann jeder mit Bot-Token Nachrichten an den Bot schicken. Wir wollen, dass nur konfigurierte Telegram-User-IDs verarbeitet werden.
@@ -194,7 +191,7 @@ ISSUES=(
 **Story-ID:** E1-2
 **Bewertung:** N4 · S2 · R2 · L4 · P4"
 
-# ─── Phase B — aktuelle/nächste Stories ─────────────────────────────────────
+# ─── Phase B — current/next stories ─────────────────────────────────────────
 
 "E3-3: Frontmatter-Updates bei Append (updated + Tag-Merge)|Phase B — Product|epic:vault,type:feature,priority:medium,phase:B-product|Beim Append (E3-2) bleibt das Frontmatter heute unverändert. Eine Notiz, an die 5× angehängt wurde, zeigt immer noch nur das \`created\`-Datum vom ersten Mal — schlecht für Obsidian-\"Sort by modified\" und für Tag-Konsolidierung.
 
@@ -252,11 +249,10 @@ ISSUES=(
 **Story-ID:** E1-4
 **Bewertung:** N2 · S1 · R2 · L2 · P2"
 
-# ─── Epic-Tracker für Phase C–F (Umbrella-Issues mit Checkboxen) ───────────
+# ─── Epic trackers for phases C–F (umbrella issues with checkboxes) ───────
 #
-# Statt 30+ Mini-Issues für Stories, die noch Phasen entfernt sind, legen wir
-# je Epic ein Tracker-Issue an. Wenn wir näher an der Implementierung sind,
-# splitten wir die Checkboxen in eigene Issues.
+# Instead of 30+ mini-issues for stories still phases away, create one tracker
+# issue per epic. When closer to implementation, split checkboxes into issues.
 
 "Epic E13 — REST API & Events|Phase C — Robustness|epic:api,meta:epic-tracker,priority:medium,phase:C-robustness|Sammelt die Stories für eine interne REST-API (Voraussetzung für n8n und MCP).
 

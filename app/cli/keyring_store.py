@@ -1,8 +1,8 @@
-"""OS-Keystore fuer Secrets (E16-5) via optionalem ``keyring``.
+"""OS keystore for secrets (E16-5) via optional ``keyring``.
 
-Speichert API-Keys at-rest im nativen Store (macOS Keychain, Windows Credential
-Manager, libsecret). Docker-Container lesen den Keystore nicht — der Host-Launcher
-(``scripts/seiton-up.sh``) exportiert die Werte als Env.
+Stores API keys at rest in the native store (macOS Keychain, Windows Credential
+Manager, libsecret). Docker containers cannot read the keystore — the host
+launcher (``scripts/seiton-up.sh``) exports the values as env vars.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 SERVICE_NAME = "seiton-brain"
 
-# Secrets, die bei SEITON_KEYRING=true nicht Klartext in der .env liegen sollen.
+# Secrets that must not sit in plaintext in .env when SEITON_KEYRING=true.
 SECRET_ENV_KEYS: tuple[str, ...] = (
     "OPENAI_API_KEY",
     "TELEGRAM_BOT_TOKEN",
@@ -29,7 +29,7 @@ def is_keyring_available() -> bool:
         import keyring  # noqa: F401
 
         return True
-    except Exception:  # noqa: BLE001 — optionales Extra
+    except Exception:  # noqa: BLE001 — optional extra
         return False
 
 
@@ -61,12 +61,12 @@ def delete_secret(key: str) -> None:
         import keyring
 
         keyring.delete_password(SERVICE_NAME, key)
-    except Exception:  # noqa: BLE001 — fehlt oft, wenn nie gesetzt
+    except Exception:  # noqa: BLE001 — often missing if never set
         pass
 
 
 def store_secrets(values: dict[str, str]) -> list[str]:
-    """Speichert gesetzte Secrets; liefert die gespeicherten Keys."""
+    """Store configured secrets; return the keys that were saved."""
     stored: list[str] = []
     for key in SECRET_ENV_KEYS:
         if key not in values:
@@ -80,7 +80,7 @@ def store_secrets(values: dict[str, str]) -> list[str]:
 
 
 def load_secrets(keys: Iterable[str] | None = None) -> dict[str, str]:
-    """Liest Secrets aus dem Keystore (nur nicht-leere)."""
+    """Read secrets from the keystore (non-empty only)."""
     wanted = tuple(keys) if keys is not None else SECRET_ENV_KEYS
     out: dict[str, str] = {}
     for key in wanted:
@@ -91,7 +91,7 @@ def load_secrets(keys: Iterable[str] | None = None) -> dict[str, str]:
 
 
 def export_dotenv(keys: Iterable[str] | None = None) -> str:
-    """``KEY=value``-Zeilen fuer Shell-Export (Werte escaped)."""
+    """``KEY=value`` lines for shell export (values escaped)."""
     lines: list[str] = []
     for key, value in load_secrets(keys).items():
         escaped = value.replace("\\", "\\\\").replace('"', '\\"')

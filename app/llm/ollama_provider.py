@@ -1,7 +1,7 @@
-"""Ollama-LLM-Provider (E7-2) via OpenAI-kompatiblem ``/v1``-Endpoint.
+"""Ollama LLM provider (E7-2) via OpenAI-compatible ``/v1`` endpoint.
 
-Nutzt dieselbe Classify-/Answer-/Digest-Pipeline und dieselben Pydantic-Schemas
-wie ``OpenAIProvider`` — nur Client-Base-URL und Modell kommen aus
+Uses the same classify/answer/digest pipeline and Pydantic schemas as
+``OpenAIProvider`` — only client base URL and model come from
 ``OLLAMA_BASE_URL`` / ``OLLAMA_MODEL``.
 """
 
@@ -14,7 +14,7 @@ from app.llm.openai_provider import OpenAIProvider
 
 
 def ollama_v1_base_url(base_url: str) -> str:
-    """Normalisiert die Ollama-Basis-URL auf ``…/v1/`` fuer den OpenAI-Client."""
+    """Normalize the Ollama base URL to ``…/v1/`` for the OpenAI client."""
     base = base_url.strip().rstrip("/")
     if base.endswith("/v1"):
         return f"{base}/"

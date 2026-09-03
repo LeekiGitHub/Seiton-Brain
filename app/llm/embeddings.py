@@ -1,11 +1,11 @@
-"""Embedding-Provider fuer semantische Suche (E17-2).
+"""Embedding provider for semantic search (E17-2).
 
-Bewusst getrennt vom ``LLMProvider`` (Klassifikation), aber nach demselben
-Muster: ein abstraktes Interface plus eine Factory, damit spaeter lokale
-Embeddings (z. B. via Ollama) ohne Aenderung der Aufrufer andocken koennen.
+Kept separate from ``LLMProvider`` (classification), but same pattern: an
+abstract interface plus a factory so local embeddings (e.g. via Ollama) can
+plug in without changing callers.
 
-Die Engine berechnet Embeddings **zentral** (beim Indexieren) — nicht in den
-Konsumenten (REST, MCP). Siehe ``docs/integrations/knowledge-retrieval.md``.
+The engine computes embeddings **centrally** (at index time) — not in
+consumers (REST, MCP). See ``docs/integrations/knowledge-retrieval.md``.
 """
 
 from __future__ import annotations
@@ -20,11 +20,11 @@ from app.config import settings
 class EmbeddingProvider(ABC):
     @abstractmethod
     async def embed(self, text: str) -> list[float]:
-        """Vektor fuer einen einzelnen Text."""
+        """Vector for a single text."""
 
     @abstractmethod
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
-        """Vektoren fuer mehrere Texte (eine API-Runde, reihenfolgetreu)."""
+        """Vectors for multiple texts (one API round-trip, order-preserving)."""
 
 
 class OpenAIEmbeddingProvider(EmbeddingProvider):
@@ -40,7 +40,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         if not texts:
             return []
         response = await self.client.embeddings.create(model=self.model, input=texts)
-        # API garantiert die Reihenfolge ueber das ``index``-Feld — defensiv sortieren.
+        # API guarantees order via the ``index`` field — sort defensively anyway.
         ordered = sorted(response.data, key=lambda item: item.index)
         return [list(item.embedding) for item in ordered]
 

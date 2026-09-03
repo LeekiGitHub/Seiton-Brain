@@ -1,4 +1,4 @@
-"""Tests fuer Voice-Cache (E6-2)."""
+"""Tests for voice cache (E6-2)."""
 
 from unittest.mock import AsyncMock, patch
 
@@ -43,7 +43,7 @@ async def test_process_voice_uses_cache_on_retry(
     await _process_voice(file_id, 42)
     mock_download.assert_awaited_once()
     mock_process.assert_awaited_once()
-    # Nach Erfolg geloescht
+    # Deleted after success
     assert voice_cache.load_voice_cache(file_id) is None
 
     mock_download.reset_mock()

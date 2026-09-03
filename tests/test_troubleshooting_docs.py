@@ -1,4 +1,4 @@
-"""Tests fuer Troubleshooting-Doku (E12-3)."""
+"""Tests for troubleshooting docs (E12-3)."""
 
 from pathlib import Path
 

@@ -1,4 +1,4 @@
-"""Temporaerer Voice-Cache bis erfolgreiche Verarbeitung (E6-2)."""
+"""Temporary voice cache until successful processing (E6-2)."""
 
 from __future__ import annotations
 

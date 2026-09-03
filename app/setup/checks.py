@@ -1,4 +1,4 @@
-"""Verbindungstests fuer den Setup-Wizard."""
+"""Connectivity checks for the setup wizard."""
 
 from __future__ import annotations
 

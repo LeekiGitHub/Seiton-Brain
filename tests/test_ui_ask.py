@@ -1,4 +1,4 @@
-"""Tests fuer Suche & Ask UI (E19-3)."""
+"""Tests for search & ask UI (E19-3)."""
 
 from unittest.mock import AsyncMock, patch
 

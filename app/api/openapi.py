@@ -1,4 +1,4 @@
-"""OpenAPI/Swagger-Konfiguration (E13-4)."""
+"""OpenAPI/Swagger configuration (E13-4)."""
 
 from __future__ import annotations
 
@@ -12,14 +12,14 @@ OPENAPI_VERSION = "0.2.0"
 
 
 def is_openapi_enabled() -> bool:
-    """Swagger nur wenn REST-API aktiv (Key gesetzt) oder Debug-Modus."""
+    """Swagger only when the REST API is active (key set) or debug mode."""
     if settings.seiton_debug:
         return True
     return bool(settings.seiton_api_key.strip())
 
 
 def fastapi_openapi_kwargs() -> dict:
-    """Kwargs fuer FastAPI(docs_url=..., openapi_url=...)."""
+    """Kwargs for FastAPI(docs_url=..., openapi_url=...)."""
     enabled = is_openapi_enabled()
     if not enabled:
         return {
@@ -41,7 +41,7 @@ def fastapi_openapi_kwargs() -> dict:
 
 
 def attach_openapi_schema(app: FastAPI) -> None:
-    """Registriert API-Key-Security-Schema fuer /v1/*-Pfade."""
+    """Register API-key security scheme for /v1/* paths."""
 
     def custom_openapi():
         if app.openapi_schema:

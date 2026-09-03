@@ -1,4 +1,4 @@
-"""Tests fuer Consumer-Stack-Eval ADR 0006 (E9-5)."""
+"""Tests for consumer stack eval ADR 0006 (E9-5)."""
 
 from pathlib import Path
 

@@ -1,13 +1,12 @@
-"""UI-Auth (E23-1): optionales Passwort + signierte Session-Cookies.
+"""UI auth (E23-1): optional password + signed session cookies.
 
-Ohne ``UI_PASSWORD`` bleibt alles beim Status quo (localhost-Guard).
-Mit Passwort gilt Login-Pflicht für UI-Seiten und ``/api/ui/*`` — damit wird
-Remote-/Mobile-Zugriff möglich (hinter TLS-Proxy, siehe
-``docs/remote-access.md``).
+Without ``UI_PASSWORD`` everything stays status quo (localhost guard).
+With a password, login is required for UI pages and ``/api/ui/*`` — that enables
+remote/mobile access (behind a TLS proxy; see ``docs/remote-access.md``).
 
-Sessions sind zustandslos: ``<expiry>.<hmac>``-Cookies, signiert mit einem
-aus dem Passwort abgeleiteten Schlüssel. Passwortwechsel invalidiert damit
-automatisch alle Sessions; es gibt nichts in der DB zu persistieren.
+Sessions are stateless: ``<expiry>.<hmac>`` cookies signed with a key derived
+from the password. Changing the password therefore invalidates all sessions
+automatically; nothing to persist in the DB.
 """
 
 from __future__ import annotations
@@ -21,8 +20,8 @@ from app.config import settings
 SESSION_COOKIE = "seiton_ui_session"
 SESSION_TTL_SECONDS = 7 * 24 * 3600
 
-# Brute-Force-Bremse: nach N Fehlversuchen pro Client-IP kurz sperren.
-# In-Memory reicht — Single-User-System, ein API-Prozess.
+# Brute-force brake: briefly lock out a client IP after N failures.
+# In-memory is enough — single-user system, one API process.
 MAX_FAILED_ATTEMPTS = 5
 LOCKOUT_SECONDS = 60
 
@@ -68,7 +67,7 @@ def verify_password(candidate: str) -> bool:
 
 
 def lockout_remaining(host: str, now: float | None = None) -> int:
-    """Sekunden bis zum nächsten erlaubten Versuch, 0 = nicht gesperrt."""
+    """Seconds until the next allowed attempt; 0 = not locked."""
     current = now if now is not None else time.time()
     attempts = [
         t for t in _failed_attempts.get(host, []) if current - t < LOCKOUT_SECONDS

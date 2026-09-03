@@ -1,7 +1,7 @@
-"""Spezialisierte LLM-Rollen (E7-3): Router → Writer → Linker.
+"""Specialized LLM roles (E7-3): Router → Writer → Linker.
 
-Kein Agent-Framework — max. 2–3 typisierte Prompt-Steps (ADR 0003).
-Ergebnis bleibt ``ClassificationResult`` fuer Vault/API.
+No agent framework — max. 2–3 typed prompt steps (ADR 0003).
+Result remains ``ClassificationResult`` for vault/API.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ def merge_role_results(
     writer: WriterResult,
     linker: LinkerResult | None = None,
 ) -> ClassificationResult:
-    """Aggregiert Rollen-Outputs zu einem ``ClassificationResult``."""
+    """Aggregate role outputs into a ``ClassificationResult``."""
     related = list(linker.related) if linker is not None else []
     return ClassificationResult(
         category=router.category,

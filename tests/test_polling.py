@@ -1,4 +1,4 @@
-"""Tests fuer den Long-Polling-Modus (E1-5)."""
+"""Tests for long-polling mode (E1-5)."""
 
 from unittest.mock import AsyncMock, patch
 
@@ -30,7 +30,7 @@ async def test_run_polling_processes_updates(mock_delete, mock_get, mock_process
 @patch("app.telegram.polling.get_updates", new_callable=AsyncMock)
 @patch("app.telegram.polling.delete_webhook", new_callable=AsyncMock)
 async def test_run_polling_advances_offset(mock_delete, mock_get, mock_process):
-    """Nach einer Runde muss der naechste getUpdates mit offset = max+1 kommen."""
+    """After one round, the next getUpdates must use offset = max+1."""
     mock_get.side_effect = [
         [{"update_id": 41, "message": {"text": "a", "chat": {"id": 1}}}],
         [],
@@ -51,7 +51,7 @@ async def test_run_polling_advances_offset(mock_delete, mock_get, mock_process):
 async def test_run_polling_survives_http_error(
     mock_delete, mock_get, mock_process, mock_sleep
 ):
-    """Ein getUpdates-Fehler darf den Loop nicht beenden — Backoff + weiter."""
+    """A getUpdates error must not end the loop — backoff and continue."""
     mock_get.side_effect = [
         httpx.ConnectError("boom"),
         [{"update_id": 1, "message": {"text": "a", "chat": {"id": 1}}}],
@@ -98,7 +98,7 @@ class _FakeResponse:
 
 
 class _FakeAsyncClient:
-    """Minimaler httpx.AsyncClient-Ersatz, der Aufrufe aufzeichnet."""
+    """Minimal httpx.AsyncClient stand-in that records calls."""
 
     last_get: tuple | None = None
     last_post: tuple | None = None

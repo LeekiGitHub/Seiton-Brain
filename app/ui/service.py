@@ -1,4 +1,4 @@
-"""Dashboard-Daten fuer die Web-UI (E19-2)."""
+"""Dashboard data for the web UI (E19-2)."""
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -46,7 +46,7 @@ async def load_dashboard(
     entry_limit: int = DEFAULT_RECENT_ENTRIES,
     vault_limit: int = DEFAULT_RECENT_VAULT_NOTES,
 ) -> DashboardResponse:
-    """Laedt Statistik und letzte Aktivitaet fuer das Dashboard."""
+    """Load stats and recent activity for the dashboard."""
     entry_rows = (
         await db.execute(
             select(Entry)

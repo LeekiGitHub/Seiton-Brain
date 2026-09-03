@@ -1,4 +1,4 @@
-"""Tests fuer Notiz-Templates (E26-1 Render, E26-2 Validierung/Fallback)."""
+"""Tests for note templates (E26-1 render, E26-2 validation/fallback)."""
 
 from datetime import date
 from unittest.mock import AsyncMock, MagicMock
@@ -36,7 +36,7 @@ def _write_template(vault, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
-# ─── E26-2: Validierung ─────────────────────────────────────────────────────
+# ─── E26-2: Validation ───────────────────────────────────────────────────────
 
 
 def test_validate_default_template_ok():
@@ -129,7 +129,7 @@ def test_render_empty_placeholders_render_empty(tmp_path, monkeypatch):
     assert body == "Eine kurze Zusammenfassung.\n\nTags:\n"
 
 
-# ─── Integration: write_note nutzt das Template ─────────────────────────────
+# ─── Integration: write_note uses the template ──────────────────────────────
 
 
 def test_write_note_uses_custom_template_keeps_frontmatter(tmp_path, monkeypatch):
@@ -148,7 +148,7 @@ def test_write_note_uses_custom_template_keeps_frontmatter(tmp_path, monkeypatch
 
 
 def test_write_note_output_unchanged_without_template(tmp_path, monkeypatch):
-    """Format-Regression: ohne Template-Datei bleibt das Layout byte-identisch."""
+    """Format regression: without a template file, layout stays byte-identical."""
     monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
     monkeypatch.setattr(settings, "vault_backend", "filesystem")
 

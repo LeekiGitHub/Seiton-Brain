@@ -1,4 +1,4 @@
-"""Pydantic-Schemas fuer die Web-UI (E19)."""
+"""Pydantic schemas for the web UI (E19)."""
 
 from datetime import date, datetime
 
@@ -158,7 +158,7 @@ class SettingsViewResponse(BaseModel):
     categories: dict[str, str]
     edition: EditionInfo
     backup: BackupInfo
-    # Notiz-Template (E26): default | custom | invalid (Fallback auf Default)
+    # Note template (E26): default | custom | invalid (fallback to default)
     note_template: str
     note_template_path: str
 

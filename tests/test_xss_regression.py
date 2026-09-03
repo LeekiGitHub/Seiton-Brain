@@ -1,14 +1,14 @@
-"""Regressionstest (E27-2): kein unescaptes innerHTML in UI-JavaScript.
+"""Regression test (E27-2): no unescaped innerHTML in UI JavaScript.
 
-Prüft alle .js-Dateien unter app/ui/static/ darauf, dass dynamische Werte
-in innerHTML-Zuweisungen immer durch escapeHtml() laufen. Erlaubt sind:
-- statische HTML-Strings (ohne ${…}-Interpolation)
-- ${escapeHtml(…)}-Interpolationen
-- ${badge(…)}-Interpolationen (badge() escaped intern)
-- ${formatDate(…)}-Interpolationen (liefert immer Locale-String)
-- ${formatBytes(…)}-Interpolationen (nur Zahlen)
-- ${Math.…}-Interpolationen (nur Zahlen)
-- reine String/Boolean-Ausdrücke wie ${…? "…" : "…"}
+Checks all .js files under app/ui/static/ so dynamic values in innerHTML
+assignments always go through escapeHtml(). Allowed:
+- static HTML strings (no ${…} interpolation)
+- ${escapeHtml(…)} interpolations
+- ${badge(…)} interpolations (badge() escapes internally)
+- ${formatDate(…)} interpolations (always returns a locale string)
+- ${formatBytes(…)} interpolations (numbers only)
+- ${Math.…} interpolations (numbers only)
+- pure string/boolean expressions like ${…? "…" : "…"}
 """
 
 import re
@@ -93,7 +93,7 @@ def test_no_raw_innerhtml_interpolation(js_file):
 
 
 def test_all_js_files_have_escape_html():
-    """Jede JS-Datei mit innerHTML muss eine escapeHtml-Funktion definieren."""
+    """Every JS file with innerHTML must define an escapeHtml function."""
     for js_file in _collect_js_files():
         source = js_file.read_text(encoding="utf-8")
         if "innerHTML" not in source:

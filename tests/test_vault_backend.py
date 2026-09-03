@@ -1,4 +1,4 @@
-"""Tests fuer VaultBackend Protocol + Factory (E15-1/E15-3)."""
+"""Tests for VaultBackend protocol + factory (E15-1/E15-3)."""
 
 import shutil
 import subprocess

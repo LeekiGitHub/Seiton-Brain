@@ -1,4 +1,4 @@
-"""Tests fuer app/vault/paths.py."""
+"""Tests for app/vault/paths.py."""
 
 import pytest
 
@@ -20,7 +20,7 @@ def test_resolve_vault_file_rejects_traversal(tmp_path, monkeypatch):
 
 
 def test_resolve_vault_file_rejects_prefix_collision(tmp_path, monkeypatch):
-    """startswith ohne Separator würde /vault-evil als Kind von /vault akzeptieren."""
+    """startswith without separator would accept /vault-evil as child of /vault."""
     vault = tmp_path / "vault"
     evil = tmp_path / "vault-evil"
     vault.mkdir()

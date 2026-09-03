@@ -1,12 +1,11 @@
-"""Slash-Commands fuer den Telegram-Bot.
+"""Slash commands for the Telegram bot.
 
-Wir halten die Handler bewusst klein und stringbasiert: jeder Handler
-liefert einen Antwort-Text zurueck, den der Webhook an Telegram schickt.
-Keine Inline-Keyboards, keine Callback-Queries — das halten wir uns fuer
-spaeter auf, wenn der Bedarf konkret wird.
+Handlers stay small and string-based: each returns a reply text that the
+webhook sends to Telegram. No inline keyboards, no callback queries — we
+keep that for later when the need is concrete.
 
-DB-Lookups sind in dedizierten ``_query_*``-Funktionen gekapselt, damit
-sie in Tests einzeln gemockt werden koennen.
+DB lookups are wrapped in dedicated ``_query_*`` functions so they can be
+mocked individually in tests.
 """
 
 import logging
@@ -169,8 +168,8 @@ async def _cmd_undo(db: AsyncSession, chat_id: int, args: str) -> str:
 async def handle_command(
     text: str, chat_id: int, db: AsyncSession
 ) -> str | None:
-    """Dispatched Slash-Commands. Liefert ``None``, wenn der Text gar
-    kein Command ist (z. B. normale Capture-Nachricht).
+    """Dispatch slash commands. Return ``None`` if the text is not
+    a command (e.g. a normal capture message).
     """
     if not text.startswith("/"):
         return None

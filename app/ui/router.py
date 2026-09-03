@@ -1,4 +1,4 @@
-"""Web-UI Router (E19): Setup-Wizard, Dashboard und statische Assets."""
+"""Web UI router (E19): setup wizard, dashboard, and static assets."""
 
 import asyncio
 import logging
@@ -101,7 +101,7 @@ def _has_session(request: Request) -> bool:
 
 
 def _ui_page_dep(request: Request) -> None:
-    """Guard für HTML-Seiten (E23-1): Login-Redirect statt 403/401."""
+    """Guard for HTML pages (E23-1): login redirect instead of 403/401."""
     if not ui_auth_enabled():
         require_localhost(request)
         return
@@ -114,7 +114,7 @@ def _ui_page_dep(request: Request) -> None:
 
 
 def _ui_api_dep(request: Request) -> None:
-    """Guard für /api/ui/* (E23-1): 401 ohne gültige Session."""
+    """Guard for /api/ui/* (E23-1): 401 without a valid session."""
     if not ui_auth_enabled():
         require_localhost(request)
         return
@@ -124,7 +124,7 @@ def _ui_api_dep(request: Request) -> None:
 
 @router.get("/manifest.webmanifest", include_in_schema=False)
 async def pwa_manifest() -> FileResponse:
-    """PWA-Manifest (E23-2) — korrekter MIME-Type, kein Guard (keine Daten)."""
+    """PWA manifest (E23-2) — correct MIME type, no guard (no data)."""
     return FileResponse(
         UI_DIR / "static" / "manifest.webmanifest",
         media_type="application/manifest+json",
@@ -133,7 +133,7 @@ async def pwa_manifest() -> FileResponse:
 
 @router.get("/sw.js", include_in_schema=False)
 async def service_worker() -> FileResponse:
-    """Service Worker (E23-2) — muss auf Root liegen fuer Scope ``/``."""
+    """Service worker (E23-2) — must live at root for scope ``/``."""
     return FileResponse(
         UI_DIR / "static" / "sw.js",
         media_type="text/javascript",
@@ -156,7 +156,7 @@ async def login_page(request: Request):
 
 @router.get("/logout")
 async def logout_get():
-    """Legacy-GET: leitet auf Login um; Cookie wird nur per POST gelöscht (E27-3)."""
+    """Legacy GET: redirect to login; cookie is cleared only via POST (E27-3)."""
     return RedirectResponse(url="/login", status_code=302)
 
 
@@ -255,7 +255,7 @@ async def settings_page(
 @router.get("/setup", response_class=HTMLResponse)
 async def setup_wizard(
     request: Request,
-    # Setup schreibt Secrets in die .env — bleibt bewusst localhost-only.
+    # Setup writes secrets to .env — deliberately stays localhost-only.
     _: None = Depends(_localhost_dep),
 ):
     return templates.TemplateResponse(
@@ -283,7 +283,7 @@ async def capture_api(
     db: AsyncSession = Depends(get_db),
     _: None = Depends(_ui_api_dep),
 ) -> UiCaptureResponse:
-    """Notiz aus der Web-UI erfassen — gleiche Pipeline wie Telegram/REST (E22-1)."""
+    """Capture a note from the web UI — same pipeline as Telegram/REST (E22-1)."""
     result = await process_text_message(body.text, db, kind="text")
     if result is None:
         raise HTTPException(status_code=409, detail="Duplicate capture rejected")
@@ -339,7 +339,7 @@ async def digest_api(
     db: AsyncSession = Depends(get_db),
     _: None = Depends(_ui_api_dep),
 ) -> DigestResult:
-    """Themen-Digest in der UI — gleiche Pipeline wie Telegram/REST (E22-3)."""
+    """Topic digest in the UI — same pipeline as Telegram/REST (E22-3)."""
     return await build_digest(body.topic, db, days=body.days, limit=body.limit)
 
 
@@ -407,7 +407,7 @@ async def notes_delete_api(
 async def backup_create_api(
     _: None = Depends(_ui_api_dep),
 ) -> BackupCreateResponse:
-    """One-Click-Backup: Postgres-Dump + Vault-Archiv (E25-1)."""
+    """One-click backup: Postgres dump + vault archive (E25-1)."""
     try:
         outcome = await asyncio.to_thread(create_backup_sync)
     except RuntimeError as exc:
@@ -426,7 +426,7 @@ async def reindex_api(
     db: AsyncSession = Depends(get_db),
     _: None = Depends(_ui_api_dep),
 ) -> ReindexResponse:
-    """Vault neu indexieren (E28-1). Default: Full-Sync (Reparatur)."""
+    """Reindex the vault (E28-1). Default: full sync (repair)."""
     result = await sync_vault_index(db, incremental=not full)
     mode_label = "Vollständig" if result.mode == "full" else "Inkrementell"
     return ReindexResponse(

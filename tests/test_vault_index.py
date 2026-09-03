@@ -80,7 +80,7 @@ async def test_sync_vault_index_from_disk(tmp_path, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_incremental_sync_skips_unchanged_mtime(tmp_path, monkeypatch):
-    """E28-1: unveränderte mtime → kein Re-Index / kein _replace_chunks."""
+    """E28-1: unchanged mtime → no re-index / no _replace_chunks."""
     monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
     notes = tmp_path / "Notes"
     notes.mkdir()

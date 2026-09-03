@@ -5,8 +5,8 @@ from app.config import Settings, format_settings_validation_error, settings
 
 
 def test_settings_singleton_loads_required_fields_from_env():
-    """Die Modul-Level-Instanz wurde beim Import via conftest aus den
-    Env-Variablen befuellt (TELEGRAM_*, OPENAI_API_KEY, DATABASE_URL, ...)."""
+    """The module-level instance was filled from env vars at import
+    via conftest (TELEGRAM_*, OPENAI_API_KEY, DATABASE_URL, ...)."""
     assert settings.telegram_bot_token == "123456:TEST-BOT-TOKEN"
     assert settings.telegram_webhook_secret == "test-webhook-secret"
     assert settings.openai_api_key == "test-openai-key"
@@ -16,7 +16,7 @@ def test_settings_singleton_loads_required_fields_from_env():
 
 
 def test_settings_defaults_are_applied():
-    """Felder ohne Env-Variable bekommen die Default-Werte."""
+    """Fields without an env var get their default values."""
     assert settings.llm_provider == "openai"
     assert settings.openai_model == "gpt-4o-mini"
     assert settings.telegram_allowed_user_ids == ""
@@ -46,10 +46,10 @@ def test_settings_defaults_are_applied():
 
 
 def test_settings_accept_extra_env_vars():
-    """``extra='ignore'`` -- zusaetzliche Env-Vars wie OBSIDIAN_VAULT_HOST_PATH
-    sollen die Settings-Instantiation nicht crashen lassen."""
+    """``extra='ignore'`` -- extra env vars like OBSIDIAN_VAULT_HOST_PATH
+    must not crash Settings instantiation."""
     s = Settings(  # type: ignore[call-arg]
-        _env_file=None,  # bypass .env discovery; nur explizit gesetzte Werte
+        _env_file=None,  # bypass .env discovery; only explicitly set values
         openai_api_key="z",
         obsidian_vault_path="/tmp/v",
         database_url="postgresql+asyncpg://u:p@h/d",
@@ -78,7 +78,7 @@ def test_format_settings_validation_error_lists_env_names(monkeypatch):
 
 
 def test_settings_monkeypatch_works_per_test(monkeypatch):
-    """Sicherheitsnetz: Tests duerfen Felder pro Test ueberschreiben,
-    monkeypatch raeumt am Ende auf."""
+    """Safety net: tests may override fields per test;
+    monkeypatch cleans up afterwards."""
     monkeypatch.setattr(settings, "telegram_allowed_user_ids", "42,99")
     assert settings.telegram_allowed_user_ids == "42,99"

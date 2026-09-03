@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""CI-Smoke (E29-2): Insert + kNN-Query gegen echte pgvector-Spalte.
+"""CI smoke (E29-2): insert + kNN query against a real pgvector column.
 
-Voraussetzung: ``alembic upgrade head`` gegen ``DATABASE_URL`` (asyncpg).
-Kein Import von ``app.config.settings`` — nur Modelle + Engine.
+Prerequisite: ``alembic upgrade head`` against ``DATABASE_URL`` (asyncpg).
+Do not import ``app.config.settings`` — models + engine only.
 """
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-"""Filesystem-Markdown VaultBackend (E15-1) — Obsidian-kompatibel."""
+"""Filesystem Markdown VaultBackend (E15-1) — Obsidian-compatible."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ FRONTMATTER_KEY_ORDER = ("title", "category", "created", "updated", "tags")
 
 try:
     import fcntl
-except ImportError:  # Windows — kein prozessübergreifendes flock
+except ImportError:  # Windows — no cross-process flock
     fcntl = None  # type: ignore[assignment]
 
 
@@ -32,10 +32,10 @@ def _sanitize_filename(title: str) -> str:
 
 @contextlib.contextmanager
 def _file_lock(lock_target: Path) -> Iterator[None]:
-    """Prozessübergreifendes Exclusive-Lock (E28-2).
+    """Cross-process exclusive lock (E28-2).
 
-    Lock-Datei: ``.<name>.lock`` neben dem Ziel. Ohne ``fcntl`` (Windows)
-    greift kein Cross-Process-Lock — Single-Worker-Dev bleibt ok.
+    Lock file: ``.<name>.lock`` next to the target. Without ``fcntl`` (Windows)
+    there is no cross-process lock — single-worker dev remains fine.
     """
     lock_path = lock_target.parent / f".{lock_target.name}.lock"
     lock_path.parent.mkdir(parents=True, exist_ok=True)
@@ -50,22 +50,22 @@ def _file_lock(lock_target: Path) -> Iterator[None]:
 
 
 def _sanitize_frontmatter_scalar(value: str) -> str:
-    """Bereinigt einen Frontmatter-Skalär gegen YAML-/Struktur-Injection (E27-4).
+    """Sanitize a frontmatter scalar against YAML/structure injection (E27-4).
 
-    Newlines, Steuerzeichen und ``---``-Sequenzen zerstören sonst die
-    Notizstruktur (Frontmatter-Ende). Quotes werden escaped, damit der Wert
-    als einfache YAML-Zeile sicher bleibt.
+    Newlines, control chars, and ``---`` sequences would otherwise break note
+    structure (frontmatter terminator). Quotes are escaped so the value stays
+    a safe single YAML line.
     """
     cleaned = re.sub(r"[\x00-\x1f\x7f]", " ", value)
     cleaned = cleaned.replace("---", "—").strip()
-    # YAML-Sonderzeichen in einfachen Anführungszeichen escapen
+    # Escape YAML special chars inside single quotes
     if any(c in cleaned for c in (":", "#", "'", '"', "[", "]", "{", "}", ",")):
         return "'" + cleaned.replace("'", "''") + "'"
     return cleaned
 
 
 def _sanitize_frontmatter_tags(tags: list[str]) -> list[str]:
-    """Sanitized Tags für YAML-Inline-Listen (keine Newlines/Kommas/Klammern)."""
+    """Sanitize tags for YAML inline lists (no newlines/commas/brackets)."""
     out: list[str] = []
     for tag in tags:
         cleaned = re.sub(r"[\x00-\x1f\x7f]", "", tag)
@@ -83,10 +83,10 @@ def _related_section(related: list[str]) -> str:
 
 
 def _tags_frontmatter_line(tags: list[str]) -> str:
-    """Rendert Tags als YAML-Inline-Liste im Frontmatter.
+    """Render tags as a YAML inline list in frontmatter.
 
-    Leere Tag-Liste -> leerer String (keine Frontmatter-Zeile). Obsidian
-    erkennt Inline-Listen genauso wie Block-Listen.
+    Empty tag list → empty string (no frontmatter line). Obsidian treats
+    inline lists the same as block lists.
     """
     safe = _sanitize_frontmatter_tags(tags)
     if not safe:
@@ -95,16 +95,16 @@ def _tags_frontmatter_line(tags: list[str]) -> str:
 
 
 def _atomic_write(target: Path, content: str) -> None:
-    """Schreibt ``content`` atomar in ``target``.
+    """Write ``content`` to ``target`` atomically.
 
-    Strategie: Tempfile im selben Verzeichnis anlegen, vollstaendig
-    beschreiben, fsync, dann ``os.replace`` auf den Zielpfad. ``os.replace``
-    ist auf POSIX und Windows atomar, *solange* Quelle und Ziel auf demselben
-    Dateisystem liegen — deshalb das Tempfile zwingend ins selbe Verzeichnis.
+    Strategy: create a tempfile in the same directory, write fully, fsync,
+    then ``os.replace`` onto the target. ``os.replace`` is atomic on POSIX and
+    Windows *as long as* source and destination share a filesystem — hence the
+    tempfile must live in the same directory.
 
-    Damit sehen Sync-Clients (Obsidian Sync, Syncthing, iCloud) nie eine halb
-    geschriebene Datei, und ein Crash zwischen Schreiben und Replace
-    hinterlaesst hoechstens eine ``.tmp``-Datei statt korrupten Inhalt am Ziel.
+    Sync clients (Obsidian Sync, Syncthing, iCloud) never see a half-written
+    file; a crash between write and replace leaves at most a ``.tmp`` file
+    instead of corrupt content at the target.
     """
     target.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp_path_str = tempfile.mkstemp(
@@ -120,16 +120,16 @@ def _atomic_write(target: Path, content: str) -> None:
             os.fsync(fh.fileno())
         os.replace(tmp_path, target)
     except BaseException:
-        # Schreiben oder Replace fehlgeschlagen — Tempfile aufraeumen, damit
-        # das Vault-Verzeichnis nicht mit Leichen vollaeuft.
+        # Write or replace failed — remove tempfile so the vault dir is not
+        # littered with orphans.
         tmp_path.unlink(missing_ok=True)
         raise
 
 
 def _next_available_path(target_dir: Path, base_name: str) -> Path:
-    """Erster freier Pfad: `<base>.md`, `<base> (2).md`, `<base> (3).md`, …
+    """First free path: `<base>.md`, `<base> (2).md`, `<base> (3).md`, …
 
-    Nutzt Obsidian-Style-Suffixe statt stillschweigend zu ueberschreiben.
+    Uses Obsidian-style suffixes instead of silently overwriting.
     """
     candidate = target_dir / f"{base_name}.md"
     if not candidate.exists():
@@ -143,15 +143,15 @@ def _next_available_path(target_dir: Path, base_name: str) -> Path:
 
 
 def _parse_frontmatter(text: str) -> tuple[dict[str, str | list[str]] | None, str]:
-    """Trennt YAML-Frontmatter (zwischen ``---``-Linien) vom Body.
+    """Split YAML frontmatter (between ``---`` lines) from the body.
 
-    Bewusst minimal: wir parsen nur das Format, das wir selbst erzeugen
-    (``key: value`` pro Zeile, ``tags: [a, b]`` als Inline-Liste oder
-    ``tags:`` gefolgt von ``- foo``-Zeilen). Reicht voellig fuer unseren
-    Use-Case und vermeidet eine PyYAML-Abhaengigkeit.
+    Intentionally minimal: we only parse the format we ourselves emit
+    (``key: value`` per line, ``tags: [a, b]`` as inline list or ``tags:``
+    followed by ``- foo`` lines). Enough for our use case and avoids a
+    PyYAML dependency.
 
-    Bei nicht-erkennbarem Frontmatter: ``(None, text)`` zurueck — Caller
-    behandelt das wie "keine Frontmatter".
+    Unrecognized frontmatter: return ``(None, text)`` — caller treats that
+    as "no frontmatter".
     """
     if not text.startswith("---\n"):
         return None, text
@@ -228,7 +228,7 @@ def _to_relative(filepath: Path) -> str:
 
 
 class FilesystemVaultBackend:
-    """Markdown-Dateien unter ``OBSIDIAN_VAULT_PATH`` (Default-Backend)."""
+    """Markdown files under ``OBSIDIAN_VAULT_PATH`` (default backend)."""
 
     def write_note(self, result: ClassificationResult) -> str:
         vault_path = Path(settings.obsidian_vault_path)
@@ -237,7 +237,7 @@ class FilesystemVaultBackend:
         target_dir.mkdir(parents=True, exist_ok=True)
 
         base_name = _sanitize_filename(result.title)
-        # Lock auf dem Basisnamen: Allocate + Write atomar gegen parallele Captures
+        # Lock on basename: allocate + write atomic vs parallel captures
         with _file_lock(target_dir / f"{base_name}.md"):
             filepath = _next_available_path(target_dir, base_name)
 
@@ -248,13 +248,13 @@ created: {date.today().isoformat()}
 {_tags_frontmatter_line(result.tags)}---
 
 """
-            # Body via Notiz-Template (E26-1) — Default entspricht dem alten Layout.
+            # Body via note template (E26-1) — default matches the old layout.
             content = frontmatter + render_note_body(result)
             _atomic_write(filepath, content)
             return _to_relative(filepath)
 
     def append_to_note(self, vault_path: str, result: ClassificationResult) -> str:
-        """Haengt einen Update-Block an und pflegt Frontmatter (E3-3)."""
+        """Append an update block and maintain frontmatter (E3-3)."""
         filepath = resolve_vault_file(vault_path)
         if not filepath.exists():
             raise FileNotFoundError(

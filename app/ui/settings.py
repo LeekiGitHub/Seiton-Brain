@@ -1,4 +1,4 @@
-"""Settings-Ansicht und Speichern fuer die Web-UI (E19-5)."""
+"""Settings view and save for the web UI (E19-5)."""
 
 from __future__ import annotations
 

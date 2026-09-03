@@ -43,10 +43,10 @@ from app.worker.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
 
-# Transiente Fehler, die einen Retry rechtfertigen (E28-5).
-# Bewusst KEIN ``APIError`` (Basisklasse) — die wuerde 4xx/Auth mitretryen.
+# Transient errors that justify a retry (E28-5).
+# Deliberately NOT ``APIError`` (base class) — that would retry 4xx/auth too.
 # OpenAI: RateLimit (429), Timeout, Connection, InternalServerError (5xx).
-# httpx.RequestError = Netzwerk (nicht HTTPStatusError/4xx).
+# httpx.RequestError = network (not HTTPStatusError/4xx).
 RETRYABLE_EXCEPTIONS: tuple[type[BaseException], ...] = (
     RateLimitError,
     APITimeoutError,
@@ -57,14 +57,14 @@ RETRYABLE_EXCEPTIONS: tuple[type[BaseException], ...] = (
     TimeoutError,
 )
 
-# Capture-Kinds, fuer die bei permanentem Fehler ein Entry mit status=failed
-# angelegt wird (Ask/Digest erzeugen keinen Entry).
+# Capture kinds that get an entry with status=failed on permanent error
+# (Ask/Digest do not create an entry).
 _CAPTURE_FAIL_KINDS = frozenset({"text", "voice", "document", "photo"})
 
-# Celery-Retry-Konfiguration. Exponentieller Backoff mit Jitter, deckelt
-# bei 60s, gibt nach 3 Versuchen auf. Auf die Art "spuert" der User
-# einen Retry kaum (Telegram-Bestaetigung kommt halt 1-2s spaeter), aber
-# transiente OpenAI-Hiccups (429, 5xx) brennen nicht mehr die Notiz weg.
+# Celery retry config. Exponential backoff with jitter, capped at 60s,
+# give up after 3 attempts. The user barely notices a retry (Telegram
+# ack arrives ~1–2s later), but transient OpenAI hiccups (429, 5xx)
+# no longer burn the note.
 RETRY_KWARGS = {
     "autoretry_for": RETRYABLE_EXCEPTIONS,
     "retry_backoff": True,
@@ -222,12 +222,11 @@ async def _record_failed_entry(
     kind: str | None,
     raw_input: str | None,
 ) -> None:
-    """Persistiert ``entries.status=failed`` bei permanenten Capture-Fehlern (E28-5).
+    """Persist ``entries.status=failed`` on permanent capture failures (E28-5).
 
-    Ask/Digest erzeugen keinen Entry. Bei vorhandenem ``telegram_update_id``
-    wird ein bestehender Eintrag auf failed gesetzt (falls vorhanden), sonst
-    neu angelegt. Fehler hier werden nur geloggt — der User hat die Meldung
-    schon bekommen.
+    Ask/Digest do not create an entry. With ``telegram_update_id`` present,
+    an existing entry is set to failed (if any), otherwise a new one is
+    created. Errors here are only logged — the user already got the message.
     """
     if kind not in _CAPTURE_FAIL_KINDS:
         return
@@ -354,8 +353,8 @@ def process_text_message_task(
         )
         logger.info("process_text_message done chat_id=%s", chat_id)
     except Retry:
-        # Celery hat den Retry geplant. Nicht als "echten" Fehler behandeln,
-        # keine Telegram-Nachricht senden — der User wuerde sonst pro Retry
+        # Celery scheduled the retry. Do not treat as a "real" failure,
+        # do not send a Telegram message — otherwise the user would get one per retry
         # eine "schiefgelaufen"-Meldung bekommen.
         raise
     except Exception as exc:
@@ -517,7 +516,7 @@ def process_voice_message_task(
 
 @celery_app.task(name="sync_vault_index_incremental")
 def sync_vault_index_incremental_task() -> dict[str, int | str]:
-    """Periodischer mtime-Sync (E28-1 / Celery Beat)."""
+    """Periodic mtime sync (E28-1 / Celery Beat)."""
     bind_log_context()
     logger.info("sync_vault_index_incremental started")
 

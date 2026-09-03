@@ -1,6 +1,6 @@
-"""``seiton init`` — interaktiv lokale ``.env`` schreiben (E16-3).
+"""``seiton init`` — interactively write a local ``.env`` (E16-3).
 
-Kein Netzwerk-Upload: nur Dateisystem. Secrets bleiben auf der Maschine.
+No network upload: filesystem only. Secrets stay on the machine.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ class InitAnswers:
 
 
 def ensure_env_from_example(env_path: Path, example_path: Path) -> bool:
-    """Kopiert Example → env, wenn env fehlt. True wenn neu angelegt."""
+    """Copy example → env if env is missing. True if newly created."""
     if env_path.is_file():
         return False
     if not example_path.is_file():
@@ -257,7 +257,7 @@ def apply_init(
                 "pip install -r requirements-keyring.txt"
             )
         store_secrets(updates)
-        # Klartext aus .env entfernen (leere Werte), Flag behalten.
+        # Clear plaintext from .env (empty values), keep the flag.
         for key in SECRET_ENV_KEYS:
             if key in updates:
                 updates[key] = ""

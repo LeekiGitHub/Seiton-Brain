@@ -1,4 +1,4 @@
-"""Tests fuer OpenAPI/Swagger (E13-4)."""
+"""Tests for OpenAPI/Swagger (E13-4)."""
 
 from fastapi.testclient import TestClient
 

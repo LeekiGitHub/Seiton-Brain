@@ -1,9 +1,9 @@
-"""Dokument-/Foto-Capture aus Telegram (E22-2).
+"""Document/photo capture from Telegram (E22-2).
 
-Extrahiert Text aus hochgeladenen Dateien über die E18-Extractors
-(PDF/Office/Text/Markdown, Bilder via OCR/Vision) und bereitet ihn für die
-normale Capture-Pipeline auf. Die Originaldatei wird **nicht** im Vault
-abgelegt — nur der extrahierte Inhalt wird zur Notiz.
+Extracts text from uploaded files via the E18 extractors
+(PDF/Office/text/Markdown, images via OCR/Vision) and prepares it for the
+normal capture pipeline. The original file is **not** stored in the vault —
+only the extracted content becomes a note.
 """
 
 from __future__ import annotations
@@ -16,26 +16,26 @@ from app.vault.extractors import get_extractor, image_extraction_ready, is_suppo
 
 logger = logging.getLogger(__name__)
 
-# Obergrenze fuer den extrahierten Text im Capture (LLM-Kosten/Prompt-Groesse).
+# Cap extracted text in capture (LLM cost / prompt size).
 MAX_EXTRACT_CHARS = 20_000
 
 TRUNCATION_MARKER = "\n\n[… Inhalt gekürzt]"
 
 
 def supported_document(file_name: str) -> bool:
-    """Ob die Datei-Endung von den E18-Extractors abgedeckt ist."""
+    """Whether the file extension is covered by the E18 extractors."""
     return is_supported(Path(file_name.strip() or "unbenannt"))
 
 
 def photo_extraction_ready() -> bool:
-    """Fotos brauchen OCR (Tesseract) oder Vision — beides optional."""
+    """Photos need OCR (Tesseract) or Vision — both optional."""
     return image_extraction_ready()
 
 
 def extract_document_text(data: bytes, file_name: str) -> str:
-    """Schreibt ``data`` in eine Temp-Datei und extrahiert Text (E18).
+    """Write ``data`` to a temp file and extract text (E18).
 
-    Liefert ``""`` wenn kein Extractor passt oder nichts extrahierbar ist.
+    Returns ``""`` if no extractor matches or nothing is extractable.
     """
     suffix = Path(file_name).suffix.lower() or ".bin"
     with tempfile.TemporaryDirectory(prefix="seiton-doc-") as tmp:
@@ -54,7 +54,7 @@ def extract_document_text(data: bytes, file_name: str) -> str:
 def compose_capture_text(
     extracted: str, *, file_name: str, caption: str | None
 ) -> str:
-    """Baut den Capture-Text: Caption des Users + Quelle + Inhalt."""
+    """Build capture text: user caption + source + content."""
     parts: list[str] = []
     cap = (caption or "").strip()
     if cap:

@@ -1,11 +1,11 @@
-"""RAG-Antwort-Service (E17-3).
+"""RAG answer service (E17-3).
 
-Bindet Retrieval (E17-1 Keyword / E17-2 semantisch) und LLM-Generierung
-zusammen: Frage -> relevante Vault-Notizen -> Answer-Prompt mit Kontext ->
-``AnswerResult`` mit aufgeloesten Quellen.
+Wires retrieval (E17-1 keyword / E17-2 semantic) and LLM generation together:
+question → relevant vault notes → answer prompt with context →
+``AnswerResult`` with resolved sources.
 
-Bewusst **kein** Telegram-/REST-Code hier — Konsumenten sind ``/ask``
-(E17-4) und ``POST /v1/ask`` (E17-5). Dieser Service ist der gemeinsame Kern.
+Deliberately **no** Telegram/REST code here — consumers are ``/ask``
+(E17-4) and ``POST /v1/ask`` (E17-5). This service is the shared core.
 """
 
 import logging
@@ -20,13 +20,13 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_CONTEXT_LIMIT = 5
 
-# Antwort, wenn der Vault nichts Passendes hergibt — bewusst ohne LLM-Call,
-# spart Kosten und verhindert Halluzinationen ueber leeren Kontext.
+# Reply when the vault has nothing relevant — deliberately skip the LLM call
+# to save cost and avoid hallucinations over empty context.
 NO_CONTEXT_ANSWER = "Dazu habe ich nichts in deinem Vault gefunden."
 
 
 def _format_context(hits: list[SearchHit]) -> str:
-    """Nummerierter Kontextblock fuer den Prompt — Titel exakt zum Kopieren."""
+    """Numbered context block for the prompt — titles exact for copying."""
     lines: list[str] = []
     for hit in hits:
         lines.append(f'- "{hit.title}" ({hit.folder}): {hit.snippet}')
@@ -44,7 +44,7 @@ def _clamp_confidence(value: float) -> float:
 def _resolve_sources(
     source_titles: list[str], hits: list[SearchHit]
 ) -> list[NoteRef]:
-    """Mappt vom LLM genannte Titel auf echte Notizen — verwirft Halluzinationen."""
+    """Map LLM-mentioned titles onto real notes — drop hallucinations."""
     by_title = {hit.title.lower(): hit for hit in hits}
     resolved: list[NoteRef] = []
     seen: set[str] = set()
@@ -63,11 +63,11 @@ async def answer_question(
     limit: int = DEFAULT_CONTEXT_LIMIT,
     semantic: bool = True,
 ) -> AnswerResult:
-    """Beantwortet ``question`` auf Basis der relevantesten Vault-Notizen.
+    """Answer ``question`` from the most relevant vault notes.
 
-    ``semantic`` nutzt die Embedding-Suche, wenn aktiviert; faellt sonst (oder
-    bei fehlenden Treffern) auf Keyword-Suche zurueck. Ohne Treffer wird ohne
-    LLM-Call eine ehrliche "nichts gefunden"-Antwort geliefert.
+    ``semantic`` uses embedding search when enabled; otherwise (or on miss)
+    falls back to keyword search. With no hits, return an honest "nothing
+    found" answer without an LLM call.
     """
     q = question.strip()
     if not q:
@@ -87,7 +87,7 @@ async def answer_question(
 
 
 def format_answer_for_chat(result: AnswerResult) -> str:
-    """Rendert ``AnswerResult`` fuer Chat-Surfaces (Telegram) mit ``[[Links]]``."""
+    """Render ``AnswerResult`` for chat surfaces (Telegram) with ``[[Links]]``."""
     text = result.answer
     if result.sources:
         links = ", ".join(f"[[{source.title}]]" for source in result.sources)

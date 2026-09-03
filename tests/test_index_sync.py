@@ -1,4 +1,4 @@
-"""Tests fuer E28-1: Celery Beat Schedule + Reindex-API."""
+"""Tests for E28-1: Celery Beat schedule + reindex API."""
 
 from unittest.mock import AsyncMock, patch
 
@@ -14,11 +14,11 @@ client = TestClient(app)
 
 def test_beat_schedule_includes_incremental_sync(monkeypatch):
     monkeypatch.setattr(settings, "seiton_index_sync_interval_seconds", 60)
-    # Schedule wird beim Import gesetzt — hier die Conf-Logik nachbauen
+    # Schedule is set at import — rebuild the conf logic here
     interval = settings.seiton_index_sync_interval_seconds
     assert interval > 0
     schedule = celery_module.celery_app.conf.beat_schedule or {}
-    # Wenn Interval beim Import > 0 war, ist der Key gesetzt
+    # If interval was > 0 at import, the key is set
     assert "sync-vault-index-incremental" in schedule or interval > 0
     task = schedule.get("sync-vault-index-incremental")
     if task:

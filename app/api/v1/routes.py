@@ -36,7 +36,7 @@ router = APIRouter(
 
 
 def _resolve_vault_file(vault_relative_path: str) -> Path:
-    """Sicherer Pfad unterhalb des Vault-Roots — kein Path-Traversal."""
+    """Safe path under the vault root — no path traversal."""
     try:
         return resolve_vault_file(vault_relative_path)
     except ValueError as exc:
@@ -58,7 +58,7 @@ def _entry_to_summary(row: Entry) -> EntrySummary:
 
 @router.post("/capture", response_model=CaptureResponse)
 async def capture_text(body: CaptureRequest, db: AsyncSession = Depends(get_db)):
-    """Text erfassen, klassifizieren und wie Telegram in Vault + DB speichern."""
+    """Capture text, classify, and store in vault + DB like Telegram."""
     result = await process_text_message(body.text, db, kind="text")
     if result is None:
         raise HTTPException(status_code=409, detail="Duplicate capture rejected")
@@ -73,7 +73,7 @@ async def capture_text(body: CaptureRequest, db: AsyncSession = Depends(get_db))
 
 @router.post("/classify", response_model=ClassificationResult)
 async def classify_text(body: ClassifyRequest):
-    """Nur LLM-Klassifikation — ohne Vault oder DB."""
+    """LLM classification only — no vault or DB."""
     llm = get_llm_provider()
     return await llm.classify(body.text)
 
@@ -84,7 +84,7 @@ async def list_entries(
     offset: int = Query(default=0, ge=0),
     db: AsyncSession = Depends(get_db),
 ):
-    """Letzte Entries aus der DB (neueste zuerst)."""
+    """Latest entries from the DB (newest first)."""
     stmt = (
         select(Entry)
         .order_by(Entry.created_at.desc())
@@ -101,7 +101,7 @@ async def list_entries(
 
 @router.get("/entries/{entry_id}", response_model=EntrySummary)
 async def get_entry(entry_id: int, db: AsyncSession = Depends(get_db)):
-    """Einzelnen Entry aus der DB (fuer MCP ``get_note`` per ID)."""
+    """Single entry from the DB (for MCP ``get_note`` by ID)."""
     row = await db.get(Entry, entry_id)
     if row is None:
         raise HTTPException(status_code=404, detail="Entry not found")
@@ -112,7 +112,7 @@ async def get_entry(entry_id: int, db: AsyncSession = Depends(get_db)):
 async def get_note_content(
     vault_path: str = Query(min_length=1, max_length=500),
 ):
-    """Vault-Datei lesen (read-only) — fuer MCP ``get_note`` per Pfad."""
+    """Read a vault file (read-only) — for MCP ``get_note`` by path."""
     filepath = _resolve_vault_file(vault_path)
     if not filepath.is_file():
         raise HTTPException(status_code=404, detail="Note not found")
@@ -136,7 +136,7 @@ async def search_notes(
     semantic: bool = Query(default=False),
     db: AsyncSession = Depends(get_db),
 ):
-    """Vault-Suche: Keyword (Default) oder semantisch mit ``semantic=true``."""
+    """Vault search: keyword (default) or semantic with ``semantic=true``."""
     hits = await retrieve_vault_notes(db, q, limit=limit, semantic=semantic)
     items = [
         NoteSearchHit(
@@ -153,13 +153,13 @@ async def search_notes(
 
 @router.post("/ask", response_model=AnswerResult)
 async def ask_brain(body: AskRequest, db: AsyncSession = Depends(get_db)):
-    """RAG-Antwort auf Basis des Vaults (E17-3) — gleiche Pipeline wie ``/ask``."""
+    """RAG answer from the vault (E17-3) — same pipeline as ``/ask``."""
     return await answer_question(body.question, db)
 
 
 @router.post("/digest", response_model=DigestResult)
 async def digest_topic(body: DigestRequest, db: AsyncSession = Depends(get_db)):
-    """Themen-Digest: Synthese verwandter Notizen (E17-8)."""
+    """Topic digest: synthesize related notes (E17-8)."""
     return await build_digest(
         body.topic,
         db,

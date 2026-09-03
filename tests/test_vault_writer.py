@@ -338,8 +338,8 @@ def test_atomic_write_leaves_no_tempfiles_on_success(tmp_path):
 def test_atomic_write_preserves_original_on_replace_failure(
     tmp_path, monkeypatch
 ):
-    """Wenn os.replace failt, muss die Zieldatei unveraendert bleiben
-    und kein Tempfile zurueckbleiben."""
+    """If os.replace fails, the target file must stay unchanged
+    and no tempfile may remain."""
     target = tmp_path / "note.md"
     target.write_text("ORIGINAL CONTENT")
 
@@ -353,7 +353,7 @@ def test_atomic_write_preserves_original_on_replace_failure(
     with pytest.raises(OSError, match="simulated disk full"):
         _atomic_write(target, "NEW CONTENT")
 
-    # Original ist intakt
+    # Original is intact
     assert target.read_text(encoding="utf-8") == "ORIGINAL CONTENT"
     # Tempfile wurde aufgeraeumt
     tmpfiles = [
@@ -364,8 +364,8 @@ def test_atomic_write_preserves_original_on_replace_failure(
 
 
 def test_atomic_write_cleans_up_tempfile_on_write_failure(tmp_path, monkeypatch):
-    """Wenn das Schreiben in den Tempfile failt (z.B. Disk-Full mitten drin),
-    darf kein halber Tempfile zurueckbleiben und das Ziel nicht entstehen."""
+    """If writing the tempfile fails (e.g. disk full mid-write),
+    no half tempfile may remain and the target must not appear."""
     target = tmp_path / "note.md"
 
     import app.vault.filesystem as fs_mod
@@ -391,8 +391,8 @@ def test_atomic_write_cleans_up_tempfile_on_write_failure(tmp_path, monkeypatch)
 
 
 def test_write_note_is_atomic_under_replace_failure(tmp_path, monkeypatch):
-    """End-to-end: write_note darf bei Replace-Fehler keine halbe Datei
-    am Ziel hinterlassen."""
+    """End-to-end: write_note must not leave a half file at the
+    target on replace failure."""
     monkeypatch.setattr(settings, "obsidian_vault_path", str(tmp_path))
 
     import app.vault.filesystem as fs_mod
@@ -494,7 +494,7 @@ def test_write_note_sanitizes_hostile_title(tmp_path, monkeypatch):
     assert fm_end != -1
     fm_block = content[4:fm_end]
     assert "\n---\n" not in fm_block
-    # Titel ist gequoted — „script: true" ist Text, keine YAML-Key-Injection
+    # Title is quoted — "script: true" is text, not YAML key injection
     assert "title: 'Evil — script: true'" in fm_block
     assert not any(
         line.startswith("script:") for line in fm_block.splitlines()
@@ -503,7 +503,7 @@ def test_write_note_sanitizes_hostile_title(tmp_path, monkeypatch):
 
 
 def test_file_lock_serializes_create_path_allocation(tmp_path, monkeypatch):
-    """E28-2: parallele write_note mit gleichem Titel → unterschiedliche Dateien."""
+    """E28-2: parallel write_note with same title → distinct files."""
     import threading
 
     from app.vault.filesystem import FilesystemVaultBackend
@@ -540,7 +540,7 @@ def test_file_lock_serializes_create_path_allocation(tmp_path, monkeypatch):
 
 
 def test_file_lock_serializes_append(tmp_path, monkeypatch):
-    """E28-2: parallele Appends verlieren keine Update-Blöcke."""
+    """E28-2: parallel appends must not drop update blocks."""
     import threading
 
     from app.vault.filesystem import FilesystemVaultBackend

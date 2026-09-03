@@ -1,4 +1,4 @@
-"""Voice-Dateigroessen-Pruefung (E6-1)."""
+"""Voice file-size check (E6-1)."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from app.config import settings
 
 
 class VoiceTooLargeError(Exception):
-    """Sprachnachricht ueberschreitet das konfigurierte Byte-Limit."""
+    """Voice message exceeds the configured byte limit."""
 
     def __init__(self, size_bytes: int, max_bytes: int) -> None:
         self.size_bytes = size_bytes

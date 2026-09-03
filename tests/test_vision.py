@@ -1,4 +1,4 @@
-"""Tests fuer Vision-Bildbeschreibung (E18-6)."""
+"""Tests for vision image description (E18-6)."""
 
 import json
 from pathlib import Path

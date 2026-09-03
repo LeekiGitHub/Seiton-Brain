@@ -1,4 +1,4 @@
-"""Tests fuer UI-Auth (E23-1): Passwort-Login + Session-Cookies."""
+"""Tests for UI auth (E23-1): password login + session cookies."""
 
 import pytest
 from fastapi.testclient import TestClient
@@ -85,7 +85,7 @@ def test_login_page_redirects_when_auth_disabled():
 
 
 def test_setup_stays_localhost_only(auth_enabled):
-    # TestClient gilt als localhost — Setup bleibt ohne Session erreichbar.
+    # TestClient counts as localhost — setup stays reachable without a session.
     response = client.get("/setup")
     assert response.status_code == 200
 
@@ -152,7 +152,7 @@ def test_logout_clears_cookie(auth_enabled):
 
 
 def test_logout_get_does_not_clear_cookie(auth_enabled):
-    """GET /logout darf die Session nicht mehr invalidieren (E27-3 CSRF)."""
+    """GET /logout must no longer invalidate the session (E27-3 CSRF)."""
     login = client.post("/api/ui/login", json={"password": PASSWORD})
     token = login.cookies.get(auth.SESSION_COOKIE)
     response = client.get(

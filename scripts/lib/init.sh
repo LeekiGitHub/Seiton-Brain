@@ -1,4 +1,4 @@
-# Gemeinsame Init-Hilfen (E16-1) — von init.sh und install.sh genutzt.
+# Shared init helpers (E16-1) — used by init.sh and install.sh.
 
 set_env_var() {
   local key="$1"

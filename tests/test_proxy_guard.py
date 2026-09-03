@@ -1,7 +1,7 @@
-"""Tests fuer den proxy-sicheren Localhost-Guard (E27-1).
+"""Tests for the proxy-safe localhost guard (E27-1).
 
-Hinter einem lokalen Reverse-Proxy ist die Peer-IP immer 127.0.0.1 —
-der Guard muss deshalb Forwarded-Header fail-closed auswerten.
+Behind a local reverse proxy the peer IP is always 127.0.0.1 —
+so the guard must evaluate Forwarded headers fail-closed.
 """
 
 from unittest.mock import patch
@@ -68,7 +68,7 @@ def test_setup_blocks_spoofed_xff_chain():
 
 
 def test_setup_allows_local_via_local_proxy():
-    # Lokaler Zugriff ueber lokalen Proxy: alle Hops sind localhost.
+    # Local access via local proxy: all hops are localhost.
     headers = {"X-Forwarded-For": "127.0.0.1"}
     assert client.get("/api/setup/status", headers=headers).status_code == 200
 
@@ -89,12 +89,12 @@ def test_setup_allows_forwarded_header_localhost():
 
 
 def test_setup_blocks_unparseable_forwarded_header():
-    # Fail-closed: Forwarded ohne auswertbares for= ist nicht verifizierbar.
+    # Fail-closed: Forwarded without a parseable for= is not verifiable.
     headers = {"Forwarded": "proto=https"}
     assert client.get("/api/setup/status", headers=headers).status_code == 403
 
 
-# --- UI-Seiten (ohne UI-Passwort: localhost-only) -----------------------------
+# --- UI pages (without UI password: localhost-only) --------------------------
 
 
 def test_ui_page_blocks_forwarded_remote_without_password():
@@ -129,7 +129,7 @@ def test_openapi_allows_direct_localhost(_mock):
     assert client.get("/docs").status_code == 200
 
 
-# --- Deploy-Beispiele blocken Setup/Doku (Defense in depth) -------------------
+# --- Deploy examples block setup/docs (defense in depth) ---------------------
 
 
 def test_deploy_examples_block_setup_and_docs():

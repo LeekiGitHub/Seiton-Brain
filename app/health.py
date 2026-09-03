@@ -1,8 +1,8 @@
-"""Health-Checks fuer Abhaengigkeiten (DB, Redis).
+"""Health checks for dependencies (DB, Redis).
 
-Wird vom ``GET /health``-Endpunkt genutzt. Jeder Check liefert ``"ok"`` oder
-``"error"`` — Details landen im Log, nicht in der HTTP-Antwort (kein Leak von
-Connection-Strings o.ae.).
+Used by the ``GET /health`` endpoint. Each check returns ``"ok"`` or
+``"error"`` — details go to the log, not the HTTP response (no leak of
+connection strings etc.).
 """
 
 import logging

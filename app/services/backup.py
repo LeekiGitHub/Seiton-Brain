@@ -1,12 +1,12 @@
-"""Backup-Service fuer die Web-UI (E25-1).
+"""Backup service for the web UI (E25-1).
 
-One-Click-Backup: Postgres-Dump (``pg_dump`` gegen ``DATABASE_URL``) +
-Vault-Archiv (tar.gz) — gleiche Artefakte wie ``scripts/backup.sh``, aber vom
-API-Prozess aus (funktioniert lokal und im Container, dort braucht das Image
-``postgresql-client`` und einen ``backups/``-Mount).
+One-click backup: Postgres dump (``pg_dump`` against ``DATABASE_URL``) +
+vault archive (tar.gz) — same artifacts as ``scripts/backup.sh``, but from the
+API process (works locally and in the container; the image needs
+``postgresql-client`` and a ``backups/`` mount).
 
-Restore bleibt bewusst **gefuehrt** (Befehle pro Backup, keine destruktive
-One-Click-Aktion waehrend die App laeuft).
+Restore stays deliberately **guided** (commands per backup, no destructive
+one-click action while the app is running).
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ class BackupOutcome:
 
 
 def _dump_postgres(dest: Path) -> int:
-    """Schreibt ``postgres.sql`` via ``pg_dump``. Liefert Dateigroesse in Bytes."""
+    """Write ``postgres.sql`` via ``pg_dump``. Return file size in bytes."""
     if shutil.which("pg_dump") is None:
         raise RuntimeError(
             "pg_dump nicht gefunden — Image ohne postgresql-client? "
@@ -81,7 +81,7 @@ def _dump_postgres(dest: Path) -> int:
 
 
 def _archive_vault(dest: Path) -> int | None:
-    """Packt den Vault als ``vault.tar.gz``. ``None`` wenn kein Vault-Pfad."""
+    """Pack the vault as ``vault.tar.gz``. ``None`` if no vault path."""
     vault = Path(settings.obsidian_vault_path)
     if not vault.is_dir():
         return None
@@ -92,7 +92,7 @@ def _archive_vault(dest: Path) -> int | None:
 
 
 def create_backup_sync() -> BackupOutcome:
-    """Erstellt ein Backup-Verzeichnis ``seiton-YYYYMMDD-HHMMSS`` (sync)."""
+    """Create a backup directory ``seiton-YYYYMMDD-HHMMSS`` (sync)."""
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     parent = backups_dir()
     dest = parent / f"seiton-{timestamp}"
@@ -132,7 +132,7 @@ def create_backup_sync() -> BackupOutcome:
         )
         files["manifest.txt"] = manifest.stat().st_size
     except Exception:
-        # Halbes Backup ist gefaehrlicher als keins (Restore-Verwechslung).
+        # A partial backup is more dangerous than none (restore mix-up).
         shutil.rmtree(dest, ignore_errors=True)
         raise
 
@@ -178,7 +178,7 @@ def list_backup_details(limit: int = 10) -> list[BackupEntry]:
 
 
 def restore_commands(name: str) -> list[str]:
-    """Gefuehrte Restore-Befehle fuer ein Backup (Host-Perspektive)."""
+    """Guided restore commands for a backup (host perspective)."""
     return [
         "docker compose stop api worker poller",
         f"docker compose exec -T db psql -U user -d seitonbrain < backups/{name}/postgres.sql",

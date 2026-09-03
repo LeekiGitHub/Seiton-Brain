@@ -1,4 +1,4 @@
-"""Tests fuer SECURITY.md (E11-2)."""
+"""Tests for SECURITY.md (E11-2)."""
 
 from pathlib import Path
 

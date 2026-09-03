@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Consumer-Installer fuer Seiton Brain (E20-1) — macOS / Linux.
+# Consumer installer for Seiton Brain (E20-1) — macOS / Linux.
 #
-# Voraussetzung: Docker Desktop / Docker Engine + Compose laeuft.
-# Keine Secrets abfragen — Keys trägst du im Setup-Wizard ein:
+# Prerequisite: Docker Desktop / Docker Engine + Compose running.
+# Does not prompt for secrets — enter keys in the setup wizard:
 #   http://localhost:8000/setup
 #
-# Aufruf (im Repo-Root):
+# Usage (repo root):
 #   ./scripts/install.sh
 # Optional:
-#   VAULT_DIR=/pfad/zum/vault ./scripts/install.sh
+#   VAULT_DIR=/path/to/vault ./scripts/install.sh
 
 set -euo pipefail
 

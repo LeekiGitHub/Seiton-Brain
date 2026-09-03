@@ -1,4 +1,4 @@
-"""Smoke-Tests fuer README-Assets (E11-4)."""
+"""Smoke tests for README assets (E11-4)."""
 
 from pathlib import Path
 

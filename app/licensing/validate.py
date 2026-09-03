@@ -1,4 +1,4 @@
-"""Lizenzschlüssel parsen und offline pruefen (E21-1)."""
+"""Parse and verify a license key offline (E21-1)."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ def _b64url_encode(data: bytes) -> str:
 
 
 def parse_license_key(key: str) -> tuple[str, bytes, bytes]:
-    """Liefert (payload_b64, payload_bytes, signature)."""
+    """Return (payload_b64, payload_bytes, signature)."""
     parts = key.strip().split(".")
     if len(parts) != 3 or parts[0] != LICENSE_PREFIX:
         raise ValueError("Ungültiges Lizenzformat")
@@ -41,7 +41,7 @@ def verify_license_key(
     public_key: Ed25519PublicKey | None = None,
     today: date | None = None,
 ) -> LicenseInfo:
-    """Prueft Signatur und Gueltigkeit — komplett offline."""
+    """Verify signature and validity — fully offline."""
     stripped = key.strip()
     if not stripped:
         return LicenseInfo(valid=False, message="Kein Lizenzschlüssel")
@@ -81,7 +81,7 @@ def verify_license_key(
 
 
 def build_license_key(payload: LicensePayload, private_key) -> str:
-    """Erstellt einen signierten Lizenzschlüssel (nur fuer Issuer-Tool)."""
+    """Build a signed license key (issuer tool only)."""
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
     if not isinstance(private_key, Ed25519PrivateKey):

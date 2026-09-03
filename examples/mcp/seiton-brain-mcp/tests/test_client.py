@@ -1,4 +1,4 @@
-"""Tests fuer den Seiton-Brain MCP HTTP-Client."""
+"""Tests for the Seiton Brain MCP HTTP client."""
 
 import sys
 from pathlib import Path
@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, patch
 import httpx
 import pytest
 
-# client.py liegt im Parent-Ordner (kein installiertes Paket)
+# client.py lives in the parent folder (not an installed package)
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from client import SeitonApiClient, SeitonApiError, _parse_response

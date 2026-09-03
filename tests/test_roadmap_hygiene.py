@@ -1,4 +1,4 @@
-"""E45-13: Roadmap-/Agent-Kontext-Hygiene — Archiv und Kurzstand existieren."""
+"""E45-13: roadmap/agent context hygiene — archive and current-state exist."""
 
 from pathlib import Path
 

@@ -1,4 +1,4 @@
-"""Tests fuer den RAG-Antwort-Service + Provider/Parser (E17-3)."""
+"""Tests for the RAG answer service + provider/parser (E17-3)."""
 
 import json
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -158,9 +158,9 @@ async def test_answer_question_with_hits_resolves_sources(
     llm.answer = AsyncMock(
         return_value=LLMAnswer(
             answer="Du hattest Ideen zu Japan.",
-            # "Hokkaido" ist halluziniert -> muss verworfen werden
+            # "Hokkaido" is hallucinated -> must be discarded
             sources=["Japan Reiseroute", "Hokkaido"],
-            confidence=1.5,  # ausserhalb [0,1] -> wird geklemmt
+            confidence=1.5,  # outside [0,1] -> clamped
         )
     )
     mock_provider.return_value = llm
@@ -196,5 +196,5 @@ def test_format_answer_for_chat_without_sources():
 
 
 def test_no_context_answer_constant_used():
-    """Sanity: Service-Modul exportiert die Konstante stabil."""
+    """Sanity: service module exports the constant stably."""
     assert answer_service.NO_CONTEXT_ANSWER == NO_CONTEXT_ANSWER

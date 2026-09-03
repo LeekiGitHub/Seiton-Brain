@@ -1,4 +1,4 @@
-"""Setup-API fuer den Web-Wizard (E19-1)."""
+"""Setup API for the web wizard (E19-1)."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Unit-Tests fuer optionale OCR-Hilfe (E18-5)."""
+"""Unit tests for optional OCR helper (E18-5)."""
 
 from pathlib import Path
 from unittest.mock import MagicMock, patch

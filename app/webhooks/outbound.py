@@ -1,4 +1,4 @@
-"""Outbound Webhooks fuer externe Integrationen (n8n, Slack, …)."""
+"""Outbound webhooks for external integrations (n8n, Slack, …)."""
 
 from __future__ import annotations
 
@@ -85,7 +85,7 @@ def build_entry_failed_payload(
 
 
 async def emit_webhook(payload: dict[str, Any]) -> None:
-    """POST JSON an ``SEITON_WEBHOOK_URL``. Fehler werden nur geloggt."""
+    """POST JSON to ``SEITON_WEBHOOK_URL``. Failures are logged only."""
     url = settings.seiton_webhook_url.strip()
     if not url:
         return
@@ -131,7 +131,7 @@ def build_note_indexed_payload(
     folder: str = "",
     doc_type: str = "markdown",
 ) -> dict[str, Any]:
-    """Payload nach erfolgreicher Embedding-Berechnung (E17-7)."""
+    """Payload after a successful embedding computation (E17-7)."""
     return {
         "event": EVENT_NOTE_INDEXED,
         "timestamp": datetime.now(UTC).isoformat(),

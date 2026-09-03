@@ -1,4 +1,4 @@
-"""Lesen und Schreiben der lokalen ``.env`` fuer den Setup-Wizard."""
+"""Read and write the local ``.env`` for the setup wizard."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ def resolve_env_path(path: str | None = None) -> Path:
 
 
 def read_env_values(path: Path | None = None) -> dict[str, str]:
-    """Parst KEY=VALUE-Zeilen; ignoriert Kommentare und leere Zeilen."""
+    """Parse KEY=VALUE lines; ignore comments and blank lines."""
     env_path = resolve_env_path(str(path)) if path is not None else resolve_env_path()
     if not env_path.is_file():
         return {}
@@ -46,7 +46,7 @@ def _quote_if_needed(value: str) -> str:
 
 
 def update_env_file(updates: dict[str, str], path: Path | None = None) -> Path:
-    """Aktualisiert oder haengt Keys in ``.env`` an; erhaelt Kommentare/Reihenfolge."""
+    """Update or append keys in ``.env``; preserve comments/order."""
     env_path = resolve_env_path(str(path)) if path is not None else resolve_env_path()
     existing_lines: list[str] = []
     if env_path.is_file():

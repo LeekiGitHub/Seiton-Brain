@@ -1,7 +1,7 @@
-"""Tag-Normalisierung — geteilt zwischen LLM-Provider und Vault-Writer.
+"""Tag normalization — shared between LLM provider and vault writer.
 
-Wir bleiben tolerant: was nicht zu retten ist (leer, nur Sonderzeichen) wird
-verworfen. Bewusst kein Hard-Fail — Tag-Qualitaet ist Cosmetic.
+We stay tolerant: anything unsalvageable (empty, symbols only) is dropped.
+Deliberately no hard-fail — tag quality is cosmetic.
 """
 
 
@@ -26,10 +26,10 @@ def normalize_tags(raw_tags: list[str], max_tags: int | None = None) -> list[str
 def merge_tags(
     existing: list[str], incoming: list[str], max_tags: int | None = None
 ) -> list[str]:
-    """Vereinigt bestehende und neue Tags, deduppt, behaelt Reihenfolge.
+    """Merge existing and new tags, dedupe, preserve order.
 
-    Bestehende Tags zuerst (Nutzer hat sie evtl. manuell editiert), neue Tags
-    nur falls noch nicht enthalten. Beide werden vorher normalisiert.
+    Existing tags first (user may have edited them manually); new tags only
+    if not already present. Both sides are normalized first.
     """
     normalized_existing = normalize_tags(existing)
     normalized_incoming = normalize_tags(incoming)

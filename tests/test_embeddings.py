@@ -1,4 +1,4 @@
-"""Tests fuer den Embedding-Provider (E17-2)."""
+"""Tests for the embedding provider (E17-2)."""
 
 from unittest.mock import AsyncMock, MagicMock
 
@@ -30,7 +30,7 @@ async def test_embed_returns_vector():
 
 @pytest.mark.asyncio
 async def test_embed_batch_orders_by_index():
-    """OpenAI darf out-of-order liefern — wir sortieren nach ``index``."""
+    """OpenAI may return out-of-order — we sort by ``index``."""
     provider = _provider()
     item0 = MagicMock(index=0, embedding=[1.0])
     item1 = MagicMock(index=1, embedding=[2.0])

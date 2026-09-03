@@ -1,4 +1,4 @@
-"""Prompt-Dateien versioniert laden (E4-4)."""
+"""Load versioned prompt files (E4-4)."""
 
 from __future__ import annotations
 
@@ -24,9 +24,9 @@ def normalize_prompt_version(version: str | None) -> str:
 
 
 def resolve_prompt_path(name: str, version: str | None = None) -> Path:
-    """Loest ``prompts/{name}.{version}.txt``, Fallback ``prompts/{name}.txt``.
+    """Resolve ``prompts/{name}.{version}.txt``, fallback ``prompts/{name}.txt``.
 
-    Beispiele: name=\"classify\", version=\"v1\" → ``classify.v1.txt``.
+    Examples: name=\"classify\", version=\"v1\" → ``classify.v1.txt``.
     """
     ver = normalize_prompt_version(version if version is not None else settings.seiton_prompt_version)
     versioned = PROMPTS_DIR / f"{name}.{ver}.txt"
@@ -47,10 +47,10 @@ def resolve_prompt_path(name: str, version: str | None = None) -> Path:
 
 
 def load_prompt(name: str, version: str | None = None) -> tuple[str, str]:
-    """Liefert ``(inhalt, verwendete_version)``."""
+    """Return ``(content, used_version)``."""
     ver = normalize_prompt_version(version if version is not None else settings.seiton_prompt_version)
     path = resolve_prompt_path(name, ver)
     text = path.read_text(encoding="utf-8")
-    # Wenn nur Legacy-Datei existiert, trotzdem die angeforderte Version speichern
-    # (Audit: was konfiguriert war). Dateiname kann abweichen.
+    # If only the legacy file exists, still record the requested version
+    # (audit: what was configured). Filename may differ.
     return text, ver

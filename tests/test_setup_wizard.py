@@ -1,4 +1,4 @@
-"""Tests fuer Setup-Wizard (E19-1)."""
+"""Tests for setup wizard (E19-1)."""
 
 from pathlib import Path
 from unittest.mock import AsyncMock, patch

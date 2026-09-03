@@ -21,7 +21,7 @@ async def _assign_entry_id(entry) -> None:
 
 
 def _db_with_pre_check_result(found: bool) -> MagicMock:
-    """Mock-DB, deren erstes execute() einen 'gefunden / nicht gefunden'-Result liefert."""
+    """Mock DB whose first execute() returns a found / not-found result."""
     db = MagicMock()
     pre_check = MagicMock()
     pre_check.scalar_one_or_none.return_value = 1 if found else None
@@ -107,7 +107,7 @@ async def test_process_text_message_skips_duplicate_update(mock_provider, mock_g
 async def test_process_text_message_handles_integrity_error_race(
     mock_provider, mock_get_vault
 ):
-    """E28-3: UNIQUE-Claim per flush vor Vault-Write — bei Race kein Orphan."""
+    """E28-3: UNIQUE claim via flush before vault write — no orphan on race."""
     llm = MagicMock()
     llm.classify = AsyncMock(return_value=_classification())
     mock_provider.return_value = llm
@@ -134,7 +134,7 @@ async def test_process_text_message_handles_integrity_error_race(
 async def test_process_text_message_compensates_orphan_on_commit_failure(
     mock_provider, mock_get_vault
 ):
-    """E28-3: Create-Datei wird gelöscht, wenn Commit nach Write scheitert."""
+    """E28-3: create file is deleted if commit fails after write."""
     llm = MagicMock()
     llm.classify = AsyncMock(return_value=_classification())
     mock_provider.return_value = llm
@@ -163,7 +163,7 @@ async def test_process_text_message_compensates_orphan_on_commit_failure(
 async def test_process_text_message_does_not_delete_on_append_commit_failure(
     mock_provider, mock_get_vault, mock_resolve
 ):
-    """Append darf bestehende Notizen bei Commit-Fehler nicht löschen."""
+    """Append must not delete existing notes on commit failure."""
     classification = ClassificationResult(
         category="idea",
         title="Workout log feature",
@@ -198,7 +198,7 @@ async def test_process_text_message_does_not_delete_on_append_commit_failure(
 async def test_process_text_message_without_update_id_skips_pre_check(
     mock_provider, mock_get_vault, mock_upsert_index
 ):
-    """Backwards compat: ohne update_id keine Duplikat-Pruefung."""
+    """Backwards compat: without update_id, no duplicate check."""
     llm = MagicMock()
     llm.classify = AsyncMock(return_value=_classification())
     mock_provider.return_value = llm

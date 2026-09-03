@@ -1,13 +1,13 @@
-"""Tests fuer Worker-Tasks — Retry-Konfiguration und Fehler-Pfade.
+"""Tests for worker tasks — retry configuration and failure paths.
 
-Wir simulieren Celery's Retry-Mechanik nicht End-to-End (das ist Job des
-Celery-Workers selbst), sondern pruefen:
+We do not simulate Celery's retry mechanics end-to-end (that is the worker's
+job); we check:
 
-1. dass die Tasks ueberhaupt mit den richtigen Retry-Kwargs konfiguriert sind
-2. dass die transienten Exceptions in der Retry-Liste stehen
-3. dass eine ``Retry``-Exception NICHT zur "Etwas ist schiefgelaufen"-
-   Telegram-Meldung fuehrt (sonst Spam bei jedem Retry)
-4. dass nicht-retryable Exceptions zur Fehlermeldung fuehren
+1. that tasks are configured with the right retry kwargs
+2. that transient exceptions are on the retry list
+3. that a ``Retry`` exception does NOT trigger the generic
+   "Etwas ist schiefgelaufen" Telegram message (else spam on every retry)
+4. that non-retryable exceptions produce the error message
 """
 
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -55,7 +55,7 @@ def test_retryable_exceptions_cover_openai_transient_errors():
 
 
 def test_retryable_exceptions_exclude_client_errors():
-    """E28-5: 4xx/Auth dürfen nicht auto-retryt werden."""
+    """E28-5: 4xx/auth must not be auto-retried."""
     assert APIError not in RETRYABLE_EXCEPTIONS
     assert AuthenticationError not in RETRYABLE_EXCEPTIONS
     assert BadRequestError not in RETRYABLE_EXCEPTIONS
@@ -85,8 +85,8 @@ def test_voice_task_is_registered_with_retry_config():
 
 
 def _close_coro_and_raise(exc: BaseException):
-    """Hilfs-Side-Effect: schliesst die uebergebene Coroutine sauber
-    (vermeidet "coroutine was never awaited"-Warnings) und raised dann.
+    """Helper side effect: close the given coroutine cleanly
+    (avoids "coroutine was never awaited" warnings) then raise.
     """
 
     def side_effect(coro):
@@ -100,8 +100,8 @@ def _close_coro_and_raise(exc: BaseException):
 @patch("app.worker.tasks._handle_permanent_failure")
 @patch("app.worker.tasks._run")
 def test_text_task_does_not_send_error_on_retry(mock_run, mock_handle_failure):
-    """Beim Celery-Retry darf der User keine Fehler-Meldung sehen — er
-    bekommt sie nur, wenn alle Versuche erschoepft sind."""
+    """On Celery retry the user must not see an error message — only
+    when all attempts are exhausted."""
     mock_run.side_effect = _close_coro_and_raise(Retry())
 
     with pytest.raises(Retry):
@@ -113,7 +113,7 @@ def test_text_task_does_not_send_error_on_retry(mock_run, mock_handle_failure):
 @patch("app.worker.tasks._handle_permanent_failure")
 @patch("app.worker.tasks._run")
 def test_text_task_sends_error_on_permanent_failure(mock_run, mock_handle_failure):
-    """Bei nicht-retryable Exception bekommt der User die Fehlermeldung."""
+    """On a non-retryable exception the user gets the error message."""
     call_count = {"n": 0}
 
     def side_effect(coro):
@@ -128,8 +128,8 @@ def test_text_task_sends_error_on_permanent_failure(mock_run, mock_handle_failur
     with pytest.raises(ValueError):
         process_text_message_task.run("hi", 42)
 
-    # _run wurde 2x aufgerufen: einmal fuer _process_text (failt), einmal
-    # fuer _handle_permanent_failure
+    # _run was called twice: once for _process_text (fails), once for
+    # _handle_permanent_failure
     assert call_count["n"] == 2
     mock_handle_failure.assert_called_once()
     kwargs = mock_handle_failure.call_args.kwargs
@@ -273,7 +273,7 @@ async def test_record_failed_entry_inserts_capture(mock_session):
     cm.__aenter__ = AsyncMock(return_value=db)
     cm.__aexit__ = AsyncMock(return_value=False)
     mock_session.return_value = cm
-    # Kein bestehender Entry
+    # No existing entry
     result = MagicMock()
     result.scalar_one_or_none.return_value = None
     db.execute = AsyncMock(return_value=result)

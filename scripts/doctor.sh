@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Diagnose fuer lokale Seiton-Brain-Installation (E20-1 / E16-2-Richtung).
+# Diagnose local Seiton Brain install (E20-1 / E16-2 direction).
 #
-# Aufruf: ./scripts/doctor.sh
+# Usage: ./scripts/doctor.sh
 
 set -euo pipefail
 

@@ -1,11 +1,11 @@
 import os
 
-# Test-Werte HART setzen (Assignment, nicht setdefault) bevor irgendein
-# App-Modul importiert wird. Damit hat die Test-Umgebung Vorrang vor:
-#   1. einer lokalen .env-Datei (die pydantic-settings sonst zusaetzlich laedt;
+# HARD-set test values (assignment, not setdefault) before any app module
+# is imported. That way the test env wins over:
+#   1. a local .env file (which pydantic-settings would also load;
 #      Env > Dotenv in pydantic-settings)
-#   2. evtl. aus der Shell geleakten Werten (z.B. echter OBSIDIAN_VAULT_PATH)
-# Tests werden so reproduzierbar, egal in welcher lokalen Umgebung sie laufen.
+#   2. values leaked from the shell (e.g. a real OBSIDIAN_VAULT_PATH)
+# Keeps tests reproducible regardless of local environment.
 os.environ["TELEGRAM_WEBHOOK_SECRET"] = "test-webhook-secret"
 os.environ["TELEGRAM_BOT_TOKEN"] = "123456:TEST-BOT-TOKEN"
 os.environ["TELEGRAM_ALLOWED_USER_IDS"] = ""
@@ -26,7 +26,7 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _clear_vault_category_cache():
-    """E4-3: Kategorie-Cache darf Tests nicht gegenseitig vergiften."""
+    """E4-3: category cache must not poison tests across each other."""
     from app.vault.categories import clear_category_cache
 
     clear_category_cache()
