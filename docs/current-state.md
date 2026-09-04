@@ -47,9 +47,10 @@ Installer: `scripts/install.sh` / `install.ps1`
 
 **Phase L** (Launch-Härtung) + parallel **E45** Engineering.
 
-Nächstes Paket: **E45-15** Visual-Smoke-PoC (oder **E47-4** Token-Angleichung /
+Nächstes Paket: **E45-14** Risikobasierte DoD (oder **E47-4** Token-Angleichung /
 **E31-3** Log-Hygiene als Puffer). Designsystem:
-[`docs/design-system.md`](design-system.md) (E47-3 🟢).
+[`docs/design-system.md`](design-system.md) (E47-3 🟢). Visual-Smoke (E45-15 🟢):
+opt-in `SEITON_VISUAL=1`, Screenshots in `docs/ui-screenshots/`.
 CodeRabbit (E45-5) ist eingerichtet — Workflow triggert Reviews unter 10 Stars
 automatisch (`@coderabbitai full review`).
 

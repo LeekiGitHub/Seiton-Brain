@@ -278,7 +278,8 @@ Noch **nicht** im Repo. Empfohlene Aufnahmen nach `docker compose up` + abgeschl
 | 6 | `/login` | Nur wenn `UI_PASSWORD` gesetzt |
 | 7 | Mobile (375px) | Dashboard oder Ask |
 
-Ablage (Vorschlag): `docs/ui-screenshots/` — wird in **E45-15** oder manuell befüllt.
+Ablage: [`docs/ui-screenshots/`](ui-screenshots/) — befüllt durch
+`SEITON_VISUAL=1 pytest -m visual` (**E45-15**).
 
 ---
 

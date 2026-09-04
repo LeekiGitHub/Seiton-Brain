@@ -1,4 +1,5 @@
 pytest==9.1.1
 pytest-asyncio==1.4.0
+pytest-playwright==0.7.2  # E45-15 visual smoke (opt-in; pulls playwright)
 ruff==0.15.22  # pin: 0.16+ enables many new rules and breaks CI (unpinned pip)
 pillow==12.3.0  # optional: scripts/generate-readme-assets.py (E11-4)

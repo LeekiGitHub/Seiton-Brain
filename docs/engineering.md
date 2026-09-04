@@ -70,7 +70,7 @@ Epics/Phasen und Priorisierung.
 |---------|-----|-----------|
 | **GitHub Issues** | Faktisch seit Juni 2026 nicht mehr genutzt (letztes Issue #77, 0 offen) — der reale Prozess läuft über ROADMAP-Story → Branch → PR | Prozess an Realität anpassen · E45-3 |
 | **Agent-Kontext** | ROADMAP geschrumpft (E45-13); Archiv A–H + `docs/current-state.md` + Phasen-M–O-Detail | 🟢 E45-13 |
-| **Visuelle Prüfung** | Keine Browser-/Screenshot-Prüfung; 66 Testdateien laufen ausschließlich headless über den FastAPI-TestClient. Kein Node, kein Playwright im Repo | mittel · **E45-15** |
+| **Visuelle Prüfung** | Opt-in Visual-Smoke (E45-15 🟢): `SEITON_VISUAL=1 pytest -m visual`; Screenshots in `docs/ui-screenshots/` | CI-Job später · E45-14 DoD |
 | **Designsystem** | CSS-Variablen in `app/ui/static/app.css`, aber keine dokumentierte Designsprache; UI entstand implementierungsgetrieben | mittel · **Epic E47** |
 | **Definition of Done** | Vorhanden, aber pauschal und Telegram-zentriert — nicht risikobasiert | mittel · **E45-14** |
 | **Type Checking** | Kein mypy/pyright | mittel · E45-6 (später, schrittweise) |
@@ -289,9 +289,23 @@ kaputtes CSS, JS-Fehler oder ein nicht klickbarer Button fallen nicht auf.
 - Ein Agent, der Screenshots liest, sieht *nicht* wie ein Nutzer. Er erkennt „Seite
   leer", nicht „fühlt sich zäh an" oder „Wortwahl verwirrt".
 - Der Nutzen von Screenshots hängt an einem realistischen Datenbestand — eine leere
-  Instanz zeigt vor allem Empty-States.
+  Instanz zeigt vor allem Empty-States. Der PoC stubbt deshalb DB-APIs mit
+  Minimaldaten, damit Shell/CSS/JS prüfbar sind **ohne** `docker compose`.
 - Deshalb bleibt der **Mini-Handcheck** (E45-14) Bestandteil der DoD für UI-Stories
   und wird nicht wegautomatisiert.
+
+### Ausführen (PoC)
+
+```bash
+pip install -r requirements-dev.txt
+playwright install chromium
+SEITON_VISUAL=1 pytest -m visual tests/test_visual_smoke.py
+```
+
+Ohne `SEITON_VISUAL=1` wird der Test **geskippt** (CI und Normal-`pytest` bleiben
+unverändert). Screenshots landen in [`docs/ui-screenshots/`](ui-screenshots/).
+CI-Job bewusst **noch nicht** — erst wenn der lokale PoC stabil ist (kein flaky
+Erbteil).
 
 **Bewusst nicht:** breites E2E-Regressionsnetz, Cross-Browser-Matrix,
 Visual-Regression-SaaS (Percy/Chromatic — kostenpflichtig, ADR-widrig vor Nov 2026).
