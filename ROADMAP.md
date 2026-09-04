@@ -48,6 +48,7 @@ ADRs: [0004](./docs/adr/0004-commercial-consumer-product.md),
 | **Q — Production Ops** | Betrieb nach Release (**E46**) | ⚪ |
 | **M / N / O** | Ecosystem · Knowledge AI · Small Teams | ⚪ geplant — [Detail](./docs/roadmap-phases-m-o.md) |
 | **E48 — Backup Guardian** | Data Protection (3-2-1) als Produktfähigkeit — nach V1.5 | ⚪ Idee |
+| **E49 — Physical Companion** | Reachy Mini als Sprach-Frontend via REST — Beispiel, kein Core | ⚪ Idee |
 
 ---
 
@@ -60,6 +61,7 @@ Vollständige Epic-Tabellen inkl. erledigter Stories: [Archiv A–H](./docs/arch
 | E15-5 | Notion-Anbindung evaluieren (ADR/Doku zuerst) | ⚪ | H+ |
 | E20-3 / E20-5 | Native Desktop-App / Code-Signing | ⚪ | kein Nahziel |
 | E21-2 | Verkaufskanal + Lizenz-Ausgabe | ⚪ | vor Monetarisierung; mit E24-4 denken |
+| E21-4 | Produktwebsite / Landing Page | ⚪ | **Voraussetzung für E21-2**; bewusst klein, siehe unten |
 | E22-5 | E-Mail-Ingestion (IMAP → capture) | ⚪ | nach Phase L; Synergie Beat/E28-1 |
 | E22-6 | `/ask`-Antwort als Notiz speichern | ⚪ | |
 | E23-3 | Offline-Capture-Queue (PWA) | ⚪ | H+ |
@@ -71,6 +73,18 @@ Vollständige Epic-Tabellen inkl. erledigter Stories: [Archiv A–H](./docs/arch
 | E26-4 | Template-Editor in Settings | ⚪ | |
 | E26-5 | Visueller Template-Builder | ⚪ | H+ |
 | E26-6 | Template pro Kategorie | ⚪ | H+ |
+
+**Zu E21-4 (Produktwebsite):** Ohne Seite kein Verkauf — deshalb Story unter E21
+und **kein eigenes Epic**; als eigenständiges Projekt geplant verdrängt sie
+erfahrungsgemäß Produktarbeit. Scope bewusst klein: **statische** Seite
+(Positionierung, Screenshots, Preis, Download/Kauf, Doku-Link, Impressum +
+Datenschutz), **kein CMS**, kein Blog-System, keine zweite Anwendung.
+**Getrennt vom Product Core** — eigenes Repo/Deployment, nichts davon in `app/`.
+Was wir verkaufen, muss die Seite selbst einhalten: keine Third-Party-Tracker,
+keine CDN-Fonts, kein Analytics ohne Einwilligung — eine Privacy-Marketingseite,
+die Daten abgreift, entwertet das Verkaufsargument. Zeitfenster: vor Beta,
+jedenfalls vor E21-2. Ein eigener Abschnitt für **E49** (Reachy Mini) ist dort
+später vorgesehen, sobald die Integration existiert.
 
 ---
 
@@ -280,6 +294,47 @@ künstlich verschlechtert, um ein Premium-Feature zu erzeugen.
 
 ---
 
+## E49 — Physical Companion (Reachy Mini) · `epic:companion` · ⚪ Idee
+
+**Start: frühestens nach V1.5, und nur mit Hardware vor Ort.** Kein V1-Thema,
+kein Beta-Blocker, kein Verkaufsversprechen.
+
+[Reachy Mini](https://huggingface.co/docs/reachy_mini/main/index) (Pollen
+Robotics / Hugging Face) ist ein Desktop-Roboter mit 4er-Mikrofonarray,
+Lautsprecher, Kamera und expressiver Bewegung. SDK Apache-2.0, Python + JS/WebRTC,
+lokaler REST/WebSocket-Daemon. Wireless-Variante rechnet auf einem RPi CM4 an
+Bord, Lite hängt am PC.
+
+**Die Idee:** Der Roboter ist ein **Ein-/Ausgabekanal**, kein neuer Baustein im
+Product Core. Sprache rein → `POST /v1/capture`, Frage → `/v1/ask`, Antwort
+gesprochen zurück, Bewegung als Statusfeedback (nickt beim Erfassen, schaut
+suchend beim Retrieval). Damit ist es exakt das Muster aus ADR 0004 —
+**REST + Beispielordner statt Integration im Core**, wie `examples/mcp/` und
+`examples/n8n/`. Erwartete Form: `examples/reachy-mini/` mit einem REST-Client;
+STT/TTS/Wake-Word bleiben auf der Roboterseite.
+
+**Grenzen (jetzt schon festgehalten):** keine `reachy-mini`-Dependency in
+`requirements.txt` · kein Robotik-/Realtime-Stack im Core · keine
+Hardware in CI · kein Always-On-Mikrofon oder -Kamera als Default (Kamera-Feed
+verlässt die Instanz nie, Aktivierung explizit) · keine Abhängigkeit von
+Hugging-Face-Spaces-Hosting · Support-Status = Beispiel/Community, nicht
+Produktfeature.
+
+**Anschlussfähig, ohne heute etwas zu bauen:** ein Gerät im Raum ist ein
+**Kanal mit eigener Trust-Klasse** — genau die zweite Dimension aus **E38-3**
+(wie Telegram = `external`); Provenance über **E33-1** (`source`/`actor`);
+Sprache rein über **E33-4** (Binär-Capture via REST, ohnehin für PWA und
+iOS-Shortcut nötig); gesprochene Fragen sind derselbe Answer-Pfad wie **E40**
+(read-only). Solange diese Stories sauber gebaut werden, kostet E49 **null
+zusätzlichen Core-Code**.
+
+**Kein TTS im Core.** Sprachausgabe bleibt Sache des Clients — der Roboter
+bringt eigenes TTS mit, und ein Sprachsynthese-Stack im Product Core hätte ohne
+das Gerät keinen Nutzen. Falls Vorlesen später breiter gewünscht wird, ist die
+Web-Speech-API im Browser der erste Kandidat, nicht eine Server-Dependency.
+
+---
+
 ## Nächste Arbeitspakete (≈ 1 Tag)
 
 Stand 2026-08-30. Engineering unterbricht Produktarbeit gezielt.
@@ -297,8 +352,8 @@ Meta-Planung**; ab hier wieder ein Paket pro Tag: Branch → Code → Tests → 
 Erledigt: ~~E45-13~~ · ~~E45-1/4~~ · ~~E45-5~~ · ~~E47-1~~ · ~~E47-2~~ · ~~E47-3~~ Designsystem.
 
 Danach: E29-4/5/6, E27-5, E46 vor E21-2, dann Phase M → N → O; parallel E21-2.
-**Nicht** in dieser Reihe: E24 (Managed Cloud, nach V1.5 und nach E24-1) und E48
-(Backup Guardian, nach V1.5).
+**Nicht** in dieser Reihe: E24 (Managed Cloud, nach V1.5 und nach E24-1), E48
+(Backup Guardian, nach V1.5) und E49 (Physical Companion, nur mit Hardware).
 
 ---
 

@@ -46,11 +46,27 @@ wird via Index-Sync automatisch zum Seiton-Integrationskatalog.
 Stories **E22-5** (E-Mail via IMAP) und **E23-4** (Share-Target/Shortcut) —
 beide werden mit Phase M priorisiert und bleiben unter ihren Epics geführt.
 
+**Kanal-Asymmetrie (Befund Architektur-Review,
+[`PRODUCT_ARCHITECTURE_REVIEW.md`](PRODUCT_ARCHITECTURE_REVIEW.md) — dort als
+V1 eingestuft):** Telegram ist heute der **einzige** Weg, auf dem Sprache, Fotos
+oder PDFs ins System kommen. REST und Web-UI nehmen ausschließlich Text-JSON
+entgegen — es gibt in der ganzen App keinen Datei-Upload-Endpunkt; Bytes
+erreichen den Worker nur über `download_file(file_id)` aus Telegram. Die
+Extraktion (E18) und Transkription (`transcribe_audio`) sind dagegen bereits
+kanalneutral. **E33-4** hebt diese Asymmetrie auf und ist Voraussetzung für
+E33-5, E23-4 (iOS-Shortcut) und E49 (Physical Companion).
+
+*Priorisierung (entschieden 2026-09-03):* bewusst **Phase M statt V1** — der
+Phase-L-Kern wird nicht unterbrochen, Telegram deckt Sprache und Dateien
+solange ab. Innerhalb von M steht E33-4 aber **ganz vorn**, direkt nach E33-1.
+
 | ID | Story | N | S | R | L | P | Status | Phase |
 |----|-------|---|---|---|---|---|--------|-------|
 | E33-1 | **Provenance im Capture-Pfad:** `source` (telegram/ui/rest/email/web/mcp) + optionales `source_url` **+ `actor`** (Telegram-User-ID/API-Key-ID/Session — Team-Audit 2026-08: Attribution-Vorstufe für E41-2) durch `process_text_message` bis ins Frontmatter (`source:`) und `entries`; Filter in Notes-API. Grundlage für E33-2/E22-5 und Vertrauen („Woher kam das?"). Jetzt billig, nachträglich teuer. | 4 | 2 | 2 | 2 | 4 | ⚪ | M |
 | E33-2 | **URL/Web-Capture:** erkannte URL (Telegram/UI/REST) → Artikel-Fetch + Text-Extraktion (Readability-Ansatz, permissive Lizenz prüfen) → Notiz mit Quelle, Titel, Auszug; Fallback bei Paywall/Fehler = heutiges Verhalten. AK: geteilter Artikel-Link wird zur durchsuchbaren Wissensnotiz mit `source_url`. | 5 | 3 | 2 | 3 | 4 | ⚪ | M |
 | E33-3 | **Capture-Rezepte (Doku):** Bookmarklet gegen `POST /v1/capture`, iOS-Shortcut-Beispiel (bis E23-4), E-Mail-Weiterleitungs-Setup (mit E22-5). | 2 | 1 | 1 | 1 | 3 | ⚪ | M |
+| E33-4 | **Binär-Capture über REST:** `POST /v1/capture/file` (multipart) für Audio **und** Dokument/Bild — verarbeitet über die vorhandenen Pfade (`transcribe_audio`, E18-Extractors, `process_text_message`), ohne Telegram. Härtung ist Teil der Story: serverseitiges Größenlimit (`assert_voice_within_limit` wiederverwenden), Typ-Allowlist statt Vertrauen auf den Client-`Content-Type`, Temp-Dateien garantiert aufgeräumt, Auth wie der Rest der `/v1`-API, Rate-Limit mitgedacht (Whisper/LLM = Kostenhebel, Synergie **E27-5**). **Offene Designfrage:** synchron antworten oder `202` + Celery-Task wie im Telegram-Pfad (konsistent mit E28-5) — vor Umsetzung entscheiden. AK: dieselbe Sprachnotiz erzeugt über REST und über Telegram dieselbe Notiz. | 5 | 3 | 3 | 3 | 5 | ⚪ | M |
+| E33-5 | **Sprachaufnahme & Upload in Web-UI/PWA:** Mikrofon-Button (MediaRecorder) und Datei-Upload auf der Capture-Seite gegen E33-4 — Sprachnotiz vom Handy **ohne** Telegram-Konto. Braucht sichtbare Aufnahme-/Verarbeitungszustände (Synergie E30-4 Feedback-Layer) und HTTPS-Hinweis (`getUserMedia` verlangt Secure Context — trifft den Remote-Zugriff, nicht `localhost`). Abhängig von E33-4. | 5 | 2 | 2 | 2 | 4 | ⚪ | M |
 
 ### E34 — Git-Backup & Data Ownership · `epic:git-backup` (Initiative 2)
 
@@ -94,7 +110,8 @@ Audit) macht daraus ein bewerbbares Differenzierungsmerkmal.
 | E36-3 | **AI-Integrations-Doku + Settings-Karte:** Claude Desktop/ChatGPT/Cursor-Setup Schritt für Schritt, Read-only-Empfehlung; Synergie mit E30-8 (Integrations-Karte). | 3 | 1 | 1 | 1 | 3 | ⚪ | M |
 
 Sinnvolle Reihenfolge Phase M: E33-1 (Provenance, klein & fundamental) →
-E32-1/E32-2 → E34-1/E34-2 → E33-2 → E35-1/E35-2 → E36-1 → Rest.
+**E33-4 → E33-5** (Kanal-Parität; entblockt E23-4 und E49) → E32-1/E32-2 →
+E34-1/E34-2 → E33-2 → E35-1/E35-2 → E36-1 → Rest.
 E22-5 + E23-4 parallel einplanen, sobald E33-1 gemerged ist.
 
 ---

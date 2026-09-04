@@ -43,6 +43,24 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   nach V1.5 und **kein V1-Blocker**. Product Core bleibt deployment-neutral —
   keine Cloud-Abstraktionen, kein Multi-Tenant-Datenmodell, kein Billing auf
   Vorrat. Isolationsgrenze bleibt die Instanz (nicht irreversibel).
+- **E21-4 Produktwebsite / Landing Page** als offene Story unter E21 (nicht als
+  eigenes Epic): statische Seite, kein CMS, getrennt vom Product Core, ohne
+  Third-Party-Tracker/CDN-Fonts/Analytics-ohne-Einwilligung. Voraussetzung für
+  **E21-2** (Verkaufskanal), Zeitfenster vor Beta.
+- **E33-4 / E33-5 Kanal-Parität für Capture** (Phase M,
+  [`docs/roadmap-phases-m-o.md`](docs/roadmap-phases-m-o.md)): `POST /v1/capture/file`
+  (multipart, Audio + Dokument/Bild) und Mikrofon-/Upload-Bedienung in Web-UI und PWA.
+  Schließt die im Architektur-Review als V1 markierte Lücke, dass **Telegram der
+  einzige Kanal für Sprache und Dateien** ist — REST und UI nehmen heute nur Text
+  entgegen. Transkription und Extraktion sind bereits kanalneutral; es fehlt der
+  Eingang. Entblockt E23-4 (iOS-Shortcut) und E49.
+- **Epic E49 Physical Companion (Reachy Mini).** Roadmap-Eintrag für den
+  Desktop-Roboter als Sprach-Ein-/Ausgabekanal über die bestehende REST-API
+  (`examples/reachy-mini/`, Muster wie `examples/mcp/`) — **nach V1.5 und nur
+  mit Hardware vor Ort**. Ausdrücklich **kein** Core-Code, keine
+  `reachy-mini`-Dependency in `requirements.txt`, keine Hardware in CI und kein
+  Always-On-Mikrofon/-Kamera als Default. Anschlusspunkte: E38-3 (Kanal-Trust),
+  E33-1 (Provenance), E40 (read-only Answer-Pfad).
 - **Epic E48 Backup Guardian (Data Protection).** Ein Roadmap-Eintrag für
   3-2-1-orientierte Datensicherung mit mehreren Zielen, Integritätsprüfung,
   Backup-Health und Restore-Verifikation — **nach V1.5**, baut auf E29-4/E46-6/
