@@ -15,6 +15,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   user-facing German UI/CLI/Telegram strings left intact.
 
 ### Added
+- **E45-15 Visual-Smoke-PoC.** Opt-in browser smoke with `pytest-playwright`
+  (`SEITON_VISUAL=1 pytest -m visual`): one happy-path over `/setup`,
+  `/dashboard`, `/ask`, `/notes`, `/settings` plus mobile dashboard; console-error
+  assertion; screenshots under [`docs/ui-screenshots/`](docs/ui-screenshots/).
+  DB-backed UI APIs are stubbed so the PoC runs without Docker. Not wired into
+  CI yet (avoid inheriting flaky jobs). See [`docs/engineering.md`](docs/engineering.md).
 - **E47-3 Designsystem** ([`docs/design-system.md`](docs/design-system.md) +
   [`.cursor/rules/ui-design-system.mdc`](.cursor/rules/ui-design-system.mdc)):
   Prinzipien, Tokens, Shell, Komponenten und Flows aus Inventar + Referenzen;
