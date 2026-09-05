@@ -88,6 +88,9 @@ Ist-Stand [`docs/ui-inventory.md`](../docs/ui-inventory.md); Rule `.cursor/rules
 - Alembic migrations under `alembic/versions/`
 - User prefers German; README DE+EN; Roadmap/ADRs auf Deutsch
 - Eine Story → eine PR; CHANGELOG unter `[Unreleased]`
+- **DoD (E45-14):** Gates nach Change-Typ — Matrix in `docs/engineering.md`;
+  bei UI/Security/Migration/sichtbarem Backend drei konkrete Mini-Handcheck-
+  Schritte in die PR schreiben (nicht „bitte teste die App")
 - **Kein Custom-n8n-Node** (ADR 0004); REST + `examples/n8n/` für Power-User
 
 ## Key files

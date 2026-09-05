@@ -184,7 +184,7 @@ Zielbild: [`docs/engineering.md`](./docs/engineering.md). Budget: keine neuen la
 | E45-11 | Linear evaluieren | ⚪ | zurückgestellt |
 | E45-12 | Dependabot-Prozess / Merge-Policy | 🟡 | jetzt |
 | E45-13 | **Roadmap-/Agent-Kontext-Hygiene** (Archiv, current-state, Cursor-Rule) | 🟢 | — |
-| E45-14 | Risikobasierte Definition of Done + Mini-Handcheck | ⚪ | nach E45-15 |
+| E45-14 | Risikobasierte Definition of Done + Mini-Handcheck | 🟢 | Matrix in `docs/engineering.md`; CONTRIBUTING + PR-Template |
 | E45-15 | Visual-Smoke-PoC (`pytest-playwright`, ein Happy-Path) | 🟢 | opt-in `SEITON_VISUAL=1`; Screenshots in `docs/ui-screenshots/` |
 
 ### E46 — Production Operations · `epic:production-ops`
@@ -343,12 +343,11 @@ Meta-Planung**; ab hier wieder ein Paket pro Tag: Branch → Code → Tests → 
 
 | # | Paket | Warum jetzt |
 |---|-------|-------------|
-| 1 | **E45-14** Risikobasierte DoD | Visual-Smoke steht; DoD verbindlich machen |
-| 2 | **E31-3 (+ E31-1)** Log-Hygiene / Voll-Löschung | Puffer ohne UI-Abhängigkeit |
-| 3 | **E47-4** Token-Angleichung `app.css` / `setup.css` | nach Designsystem |
-| 4 | **E30-4 → E30-2 → E30-5/6** | UX auf gemeinsamer Sprache |
+| 1 | **E31-3 (+ E31-1)** Log-Hygiene / Voll-Löschung | Puffer ohne UI-Abhängigkeit |
+| 2 | **E47-4** Token-Angleichung `app.css` / `setup.css` | nach Designsystem |
+| 3 | **E30-4 → E30-2 → E30-5/6** | UX auf gemeinsamer Sprache |
 
-Erledigt: ~~E45-13~~ · ~~E45-1/4~~ · ~~E45-5~~ · ~~E45-15~~ · ~~E47-1~~ · ~~E47-2~~ · ~~E47-3~~ Designsystem.
+Erledigt: ~~E45-13~~ · ~~E45-1/4~~ · ~~E45-5~~ · ~~E45-14~~ · ~~E45-15~~ · ~~E47-1~~ · ~~E47-2~~ · ~~E47-3~~ Designsystem.
 
 Danach: E29-4/5/6, E27-5, E46 vor E21-2, dann Phase M → N → O; parallel E21-2.
 **Nicht** in dieser Reihe: E24 (Managed Cloud, nach V1.5 und nach E24-1), E48
@@ -356,13 +355,18 @@ Danach: E29-4/5/6, E27-5, E46 vor E21-2, dann Phase M → N → O; parallel E21-
 
 ---
 
-## Definition of Done (pro Story)
+## Definition of Done (pro Story) · E45-14
 
-- [ ] Code-Änderung klein und fokussiert
-- [ ] Tests vorhanden (oder bewusste Begründung warum nicht)
-- [ ] `ruff check` und `pytest` grün
-- [ ] CHANGELOG-Eintrag unter `[Unreleased]`
-- [ ] ROADMAP-Status aktualisiert
-- [ ] Manuell getestet, wenn sich sichtbares Verhalten ändert (Telegram → Vault, UI, API)
+Gates hängen am **Change-Typ** (Doku · Backend/API · UI · Migration · Security).
+Vollständige Matrix + Mini-Handcheck-Beispiel:
+[`docs/engineering.md`](./docs/engineering.md) (Abschnitt „Definition of Done").
 
-Risikobasierte DoD (Gates je Change-Typ + Mini-Handcheck): **E45-14**.
+**Immer:** Acceptance Criteria · `ruff` · `pytest` · CI · CHANGELOG/ROADMAP bei
+Story-Abschluss.
+
+**Zusätzlich nach Typ:** neue Tests (Backend/UI/Migration/Security) · Visual-Smoke
+bei UI-Shell-Änderungen (opt-in, kein CI-Gate) · **Mini-Handcheck** (3 konkrete
+Schritte in der PR) bei UI, Security, Migration und sichtbarem Backend-Verhalten ·
+CodeRabbit bei Code-PRs (beratend) · ADR erwägen bei Architektur-/Schemawirkung.
+
+**Chore / reine Doku:** kein Handcheck.

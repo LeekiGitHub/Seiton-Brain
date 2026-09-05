@@ -15,6 +15,12 @@ Format nach [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), Versionier
   user-facing German UI/CLI/Telegram strings left intact.
 
 ### Added
+- **E45-14 Risikobasierte Definition of Done.** Verbindliche Gate-Matrix nach
+  Change-Typ (Doku / Backend / UI / Migration / Security) plus Mini-Handcheck
+  in [`docs/engineering.md`](docs/engineering.md); Kurzfassung in
+  [`ROADMAP.md`](ROADMAP.md), [`CONTRIBUTING.md`](CONTRIBUTING.md) und
+  [`.github/pull_request_template.md`](.github/pull_request_template.md).
+  Visual-Smoke bleibt empfohlenes UI-Gate, kein CI-Blocker.
 - **E45-15 Visual-Smoke-PoC.** Opt-in browser smoke with `pytest-playwright`
   (`SEITON_VISUAL=1 pytest -m visual`): one happy-path over `/setup`,
   `/dashboard`, `/ask`, `/notes`, `/settings` plus mobile dashboard; console-error
