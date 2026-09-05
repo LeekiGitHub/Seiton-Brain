@@ -66,14 +66,21 @@ in the title or description.
 **Commit messages:** [Conventional Commits](https://www.conventionalcommits.org/)
 in English, e.g. `feat(ui): E30-4 toast feedback layer`.
 
+### Definition of Done (E45-14)
+
+Gates depend on **change type** (docs · backend/api · ui · migration · security ·
+chore). Full matrix: [docs/engineering.md](docs/engineering.md).
+
+| Always | By type |
+|--------|---------|
+| Acceptance criteria, `ruff`, `pytest`, CI | New/updated tests (not docs/chore-only) |
+| [CHANGELOG.md](CHANGELOG.md) / [ROADMAP.md](ROADMAP.md) when completing a story | Visual smoke for UI shell/CSS/JS changes (opt-in; not a CI gate yet) |
+| | **Mini-Handcheck:** three concrete ~2‑minute steps in the PR for UI, security, migrations, and visible backend behavior — skip for docs/chore |
+| | CodeRabbit on code PRs (advisory) · ADR when architecture/schema impact |
+
 ### PR checklist
 
-- [ ] `ruff check app tests` and `pytest` pass
-- [ ] [CHANGELOG.md](CHANGELOG.md) updated under `[Unreleased]` when user-visible
-- [ ] [ROADMAP.md](ROADMAP.md) status updated if completing a story
-- [ ] ADR considered for non-obvious architecture decisions
-- [ ] Manually tested when behavior changes (Telegram, UI, API)
-- [ ] Wait for CodeRabbit review on code PRs (auto-triggered; advisory only)
+Use the template checkboxes; they mirror the matrix above.
 
 Template: [.github/pull_request_template.md](.github/pull_request_template.md).
 

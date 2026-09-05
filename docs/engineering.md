@@ -72,7 +72,7 @@ Epics/Phasen und Priorisierung.
 | **Agent-Kontext** | ROADMAP geschrumpft (E45-13); Archiv A–H + `docs/current-state.md` + Phasen-M–O-Detail | 🟢 E45-13 |
 | **Visuelle Prüfung** | Opt-in Visual-Smoke (E45-15 🟢): `SEITON_VISUAL=1 pytest -m visual`; Screenshots in `docs/ui-screenshots/` | CI-Job später · E45-14 DoD |
 | **Designsystem** | CSS-Variablen in `app/ui/static/app.css`, aber keine dokumentierte Designsprache; UI entstand implementierungsgetrieben | mittel · **Epic E47** |
-| **Definition of Done** | Vorhanden, aber pauschal und Telegram-zentriert — nicht risikobasiert | mittel · **E45-14** |
+| **Definition of Done** | Risikobasiert nach Change-Typ + Mini-Handcheck (**E45-14** 🟢) | — |
 | **Type Checking** | Kein mypy/pyright | mittel · E45-6 (später, schrittweise) |
 | **Integrationstests CI** | Kein Redis/Celery/API-End-to-End in CI (nur DB-Migration-Smoke) | mittel · E45-7 |
 | **Unabhängiges Review** | Nur Mensch/Cursor — kein zweiter Reviewer | mittel · E45-5 (CodeRabbit Free) |
@@ -362,11 +362,14 @@ Geplante Doku-Splits (nur bei Bedarf, nicht proaktiv alles anlegen): `docs/deplo
 
 ---
 
-## Definition of Done — risikobasiert (Zielbild, E45-14)
+## Definition of Done — risikobasiert (E45-14) · verbindlich
 
-Nicht jede Story braucht jedes Gate. Vorschlag als Matrix nach Change-Typ; die
-verbindliche Fassung entsteht in **E45-14** und wandert in `ROADMAP.md`,
-`CONTRIBUTING.md` und das PR-Template.
+**Quelle der Wahrheit** für Gates: dieser Abschnitt. Kurzfassung und Verweis auch
+in [`ROADMAP.md`](../ROADMAP.md), [`CONTRIBUTING.md`](../CONTRIBUTING.md) und
+[`.github/pull_request_template.md`](../.github/pull_request_template.md).
+
+Nicht jede Story braucht jedes Gate. Primärer Change-Typ wählen; bei gemischten
+PRs gilt die **strengere** Spalte.
 
 | Gate | Doku | Backend/API | UI | Migration | Security |
 |------|------|-------------|----|-----------|----------|
@@ -376,13 +379,21 @@ verbindliche Fassung entsteht in **E45-14** und wandert in `ROADMAP.md`,
 | Neue/angepasste Tests | — | ✓ | ✓ | ✓ | ✓ (Regression!) |
 | CI grün (inkl. Docker-Build, Migrations-Smoke) | ✓ | ✓ | ✓ | ✓ | ✓ |
 | CHANGELOG + ROADMAP-Status | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Visual-Smoke + Screenshots (E45-15) | — | — | ✓ | — | bei UI-Bezug |
+| Visual-Smoke (E45-15, opt-in) | — | — | empfohlen* | — | bei UI-Bezug |
 | **Mini-Handcheck durch den Entwickler** | — | bei sichtbarem Verhalten | ✓ | ✓ (Restore/Rollback) | ✓ |
 | Unabhängiges Review (CodeRabbit, E45-5) | optional | ✓ | ✓ | ✓ | ✓ |
 | ADR erwägen | — | bei Architekturwirkung | — | bei Schemawirkung | ✓ |
 
-**Mini-Handcheck** heißt: der Agent liefert am Ende der Story drei konkrete Schritte,
-die in ~2 Minuten prüfbar sind — nicht „bitte teste die App". Beispiel:
+\*Visual-Smoke: `SEITON_VISUAL=1 pytest -m visual` wenn Shell/CSS/JS betroffen und
+Chromium lokal verfügbar — Screenshots ggf. unter `docs/ui-screenshots/`
+aktualisieren. **Kein CI-Gate** (noch); fehlende Binaries sind kein Merge-Blocker,
+aber im PR als N/A begründen.
+
+**Chore** (Dependency-Bump, Refactor ohne sichtbare Wirkung): wie **Doku** —
+ruff/pytest/CI; CHANGELOG nur bei Nutzerwirkung; kein Handcheck.
+
+**Mini-Handcheck** heißt: am Ende der Story **drei konkrete Schritte**, die in
+~2 Minuten prüfbar sind — nicht „bitte teste die App". Beispiel:
 
 ```
 E30-4 fertig. Automatisch: ruff ✓ · pytest ✓ · CI ✓ · Visual-Smoke ✓ (4 Screenshots)
@@ -392,8 +403,9 @@ Bitte kurz selbst prüfen:
 3. Seite neu laden — Notiz ist wirklich weg
 ```
 
-Bei rein technischen Änderungen (Refactor ohne sichtbare Wirkung, Dependency-Bumps,
-Doku) entfällt der Handcheck.
+Agenten sollen diese drei Schritte in die PR-Beschreibung schreiben. Bei rein
+technischen Änderungen (Doku, Chore ohne sichtbare Wirkung) entfällt der
+Handcheck.
 
 ---
 
